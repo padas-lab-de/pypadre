@@ -24,7 +24,11 @@ From the clients perspective, PaDREV could be also understood as package manager
 
 ## Architecture
 
-The system consists of a web server and several clients (maybe split up over different repositories).
+The system consists of a web server and several clients depending on the programming language (maybe split up over different repositories).
+
+The web server handles test data and logging of experiments. The client provides a convienience interface for the programming language / machine learning framework at hand. 
+
+The overhead should not be recognized by the user, hence caching is needed. We assume honest participants, i.e. it is not a challgenge setting where information on the test data needs to be hidden from the client. Maybe in the future this will be the case.
 
 
 ## Usage Examples
@@ -64,6 +68,7 @@ Note that the usage examples are design examples. Changes during development (ac
   ex.get_similar_experiments()
   # guess the next hyperparameters
   ex.guess_new_hyperparameters()
+  
 ```
 
 The `description_of_machine_learning_experiment` will be a simple key value store in the beginning. However, aftewards the code of a scikit learn (or other framework) should be parsed automatically and parameters plus strcture should be stored AUTOMATICALLy. Moreover, we distinguish between different kinds of experiment, yielding different reproducability evidence criterions:
