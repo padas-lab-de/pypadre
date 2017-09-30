@@ -16,7 +16,13 @@ Client/Server System for the following functions
   - Managing external data for experiments (e.g. external models, embeddings, additional data)
   
 - Server side code for managing data sets and managing + analysing experiments:
-  - 
+  - compare experiments
+  - provide test data sets
+  - fetch and push testdatasets to zenodo
+  - freeze results and push to zenodo for giving it a DOI
+  - provide rankings between algorithms / data sets
+  - provide hyperparameter suggestions
+  - conduct grid search
 
 From the clients perspective, PaDREV could be also understood as package manager for data sets and experiments.
   
