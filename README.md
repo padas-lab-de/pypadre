@@ -87,3 +87,44 @@ In addition, we distinguish between different repeatability criterions
    - No archived source code
    - Provided git snapshot
    - provided virtual machine
+   
+
+   ## Server 
+   
+   - The server manages the following entities: **datasets**, **experiments**, **users** and **algorithms**/**methods**
+   - **datasets** are used in **experiments**
+   - **experiments** are conducted by **users**
+   - **experiments** consists of a list of **algorithms**/**methods**
+   - Every entity is described by additional metadata. In  a first version, simple key/value pairs.
+   - 
+   
+   
+   
+   ### Functionality 
+   
+   - User Management (optional, register with Github / ORCID)
+   - Providing different views and access points
+   - Comparing experiments (algorithms over different datasets, datasets over different algorithms)
+   - Allows to generate rankings of users for algorithms or datasets 
+   - Includes visual exploration tools using [grafana.com](http://grafana.com/)
+   
+   ### URL schema
+   
+   ```
+      /datasets/{text|image|video|activtiy|networks}/{id}-{name}/ 
+      /experiments/{user}/{supervised|unsupervised|reinforcement|semi-supervised}/
+      /experiments/{supervised|unsupervised|reinforcement|semi-supervised}/{user}/
+      /methods/algorithms/{algo-name}
+      /methods/preprocessing/{name}
+   ```
+   
+   According to good RESTFull interfaces, the following conventions should hold
+   
+   - content negotation, i.e. html pages for browsers and JSON for API calls
+   - lists are ending with an 's' (e.g. algorithms) 
+   - User Management with 
+   
+   
+   
+   
+   
