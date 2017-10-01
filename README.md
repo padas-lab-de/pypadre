@@ -89,7 +89,7 @@ In addition, we distinguish between different repeatability criterions
    - provided virtual machine
    
 
-   ## Server 
+## Server 
    
    - The server manages the following entities: **datasets**, **experiments**, **users** and **algorithms**/**methods**
    - **datasets** are used in **experiments**
@@ -100,7 +100,7 @@ In addition, we distinguish between different repeatability criterions
    
    
    
-   ### Functionality 
+### Functionality 
    
    - User Management (optional, register with Github / ORCID)
    - Providing different views and access points
@@ -108,7 +108,7 @@ In addition, we distinguish between different repeatability criterions
    - Allows to generate rankings of users for algorithms or datasets 
    - Includes visual exploration tools using [grafana.com](http://grafana.com/)
    
-   ### URL schema
+### URL schema
    
    ```
       /datasets/{text|image|video|activtiy|networks}/{id}-{name}/ 
