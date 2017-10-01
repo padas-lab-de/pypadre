@@ -103,7 +103,7 @@ In addition, we distinguish between different repeatability criterions
    - Every entity is described by additional metadata. In  a first version, simple key/value pairs.
    - **algorithms** and **datasets** should contain links to scientific literatur or the original source of the dataset
    - Future extensions should allow to run **challenges**
-   - **challenges* are focused **experiments** on given **datasets** using specific **resources** in order to obtain a **rank** amongst users.
+   - **challenges** are focused **experiments** on given **datasets** using specific **resources** in order to obtain a **rank** amongst users.
    
    
    
@@ -138,5 +138,5 @@ In addition, we distinguish between different repeatability criterions
 
 - Dataset Repository of the [UCI](http://archive.ics.uci.edu/ml/index.php)
 - Datasets and challenges at [Kaggle](http://kaggle.com)
-- 
+- Stanford Network Datasets [SNAP](https://snap.stanford.edu/data/)
    
