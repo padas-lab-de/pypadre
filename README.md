@@ -153,4 +153,5 @@ In addition, we distinguish between different repeatability criterions
 
 - Start with dataset management following [sklearns interface](http://scikit-learn.org/stable/datasets/index.html), but via a web server. Client language python.
 - Allow upload of testdatasets via the web page and via the command line (python). Data sets need metadata, as for example in the UCI Machine Learning Repository
-- Make sure that metadata can be easily extended (use key/value pairs and JSON).
+- Make sure that metadata can be easily extended (use key/value pairs and JSON). 
+- Server side, multivariate data sets should be representable via a Pandas Frame. Media data should be either raw or in preprocessed form (vector representation), network data as edge list.
