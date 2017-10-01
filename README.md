@@ -146,3 +146,11 @@ In addition, we distinguish between different repeatability criterions
 
 - [Luigi - Batch Execution Framework](https://github.com/spotify/luigi)
 - [SKLearn - Pipelines](http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html)
+- [SKLearn - Datasets](http://scikit-learn.org/stable/datasets/index.html)
+
+
+## Roadmap
+
+- Start with dataset management following [sklearns interface](http://scikit-learn.org/stable/datasets/index.html), but via a web server. Client language python.
+- Allow upload of testdatasets via the web page and via the command line (python). Data sets need metadata, as for example in the UCI Machine Learning Repository
+- Make sure that metadata can be easily extended (use key/value pairs and JSON).
