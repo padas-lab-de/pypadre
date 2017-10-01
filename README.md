@@ -91,12 +91,20 @@ In addition, we distinguish between different repeatability criterions
 
 ## Server 
    
-   - The server manages the following entities: **datasets**, **experiments**, **users** and **algorithms**/**methods**
+   - The server manages the following entities: **datasets**, **experiments**, **users**, **algorithms**/**methods**, **ressources**
    - **datasets** are used in **experiments**
    - **experiments** are conducted by **users**
    - **experiments** consists of a list of **algorithms**/**methods**
+   - **ressources** can be used by **experiments** or **algorithms**
+   - **ressources** should be hosted on external services as good as possible.
+   - **datasets** maybe taken from other services like [zenodo](http://zenodo.org) in case they are too large
+   - **users** should be able to upload **datasets**
+   - **users** should authenticate either with [orcid](https://orcid.org), [github](https://github.com) or [gitlab](https://gitlab.com]
    - Every entity is described by additional metadata. In  a first version, simple key/value pairs.
-   - 
+   - **algorithms** and **datasets** should contain links to scientific literatur or the original source of the dataset
+   - Future extensions should allow to run **challenges**
+   - **challenges* are focused **experiments** on given **datasets** using specific **resources** in order to obtain a **rank** amongst users.
+   
    
    
    
@@ -126,5 +134,9 @@ In addition, we distinguish between different repeatability criterions
    
    
    
-   
+### Examples
+
+- Dataset Repository of the [UCI](http://archive.ics.uci.edu/ml/index.php)
+- Datasets and challenges at [Kaggle](http://kaggle.com)
+- 
    
