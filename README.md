@@ -144,3 +144,4 @@ In addition, we distinguish between different repeatability criterions
 ## Interesting Software
 
 - [Luigi - Batch Execution Framework](https://github.com/spotify/luigi)
+- [SKLearn - Pipelines](http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html)
