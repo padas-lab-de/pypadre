@@ -104,6 +104,7 @@ In addition, we distinguish between different repeatability criterions
    - **algorithms** and **datasets** should contain links to scientific literatur or the original source of the dataset
    - Future extensions should allow to run **challenges**
    - **challenges** are focused **experiments** on given **datasets** using specific **resources** in order to obtain a **rank** amongst users.
+   - **datasets** should be under version control using git. So experiments are conducted on a version of a dataset. Only one version of a dataset is active at a given time.
    
    
    
