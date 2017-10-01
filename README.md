@@ -114,6 +114,7 @@ In addition, we distinguish between different repeatability criterions
    - Providing different views and access points
    - Comparing experiments (algorithms over different datasets, datasets over different algorithms)
    - Allows to generate rankings of users for algorithms or datasets 
+   - Every page / url (e.g. algorithms, dataset etc.) should have a discussion section
    - Includes visual exploration tools using [grafana.com](http://grafana.com/)
    
 ### URL schema
