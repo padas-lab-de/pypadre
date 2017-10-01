@@ -140,3 +140,7 @@ In addition, we distinguish between different repeatability criterions
 - Datasets and challenges at [Kaggle](http://kaggle.com)
 - Stanford Network Datasets [SNAP](https://snap.stanford.edu/data/)
    
+
+## Interesting Software
+
+- [Luigi - Batch Execution Framework](https://github.com/spotify/luigi)
