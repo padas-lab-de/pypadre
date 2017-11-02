@@ -1,0 +1,154 @@
+"""
+Module containing python classes for managing data sets
+"""
+import abc
+
+"""
+Metadata keys available to describe datasets
+"""
+metadata_keys = {
+    "description" : "Natural language description of the dataset",
+    "version" : "version of the dataset",
+    "source" : "url of the original source of the dataset or reference to the original dataset",
+    "md5hash": "md5hash of the data set",
+    "doi" : "digital object identifier of the dataset in its current version",
+    "derived_from" : "url of the original dataset this dataset is derived from."
+}
+    
+
+class BaseDataset(object):
+    """
+    Unmutable in Memory Base Data Set
+    provides a iterator over
+    TODO: implement metadata management
+
+    """
+    def __init__(self, name, **metadata):
+        self.name = name
+        self.__size = None
+        self.__type = None
+        self.__format = None
+        self.__metadata = metadata
+        if self.__metadata is None:
+            self.__metadata = {}
+
+    @abc.abstractmethod
+    def __getitem__(self, key):
+        pass
+
+    @abc.abstractmethod
+    def target(self, indices=None):
+        pass
+
+
+    @abc.abstractmethod
+    def get(self, indices=None):
+        """
+        return the examples selected by indices
+        :param indices: indices of examples to select
+        :return: selected examples
+        """
+        pass
+
+    @abc.abstractmethod
+    def attributes(self):
+        """
+        returns the attributes of a data set
+        :return:
+        """
+        pass
+
+    def type(self):
+        """
+        returns the type of the dataset.
+        :return: multivariate, matrix, graph, media
+        """
+        return self.__type
+
+    @abc.abstractmethod
+    def format(self):
+        """
+        returns the format of the dataset
+        :return: numpy, pandas, edge_list
+        """
+        pass
+
+    @abc.abstractmethod
+    def size(self):
+        """
+        :return: (n_examples, n_attributes)
+        """
+        pass
+
+    def describe(self, key, value=None):
+        if value is None:            
+            return self.__metadata[key]
+        else:
+            self.__metadata[key] = value
+
+class NumpyBaseDataset(BaseDataset):
+    """
+    Unmutable in Memory Base Data Set using Numpy
+    """
+    def __init__(self,  name, data, target, attributes=None, **metadata):
+        """
+        :param data: numpy array with n_examples times n_features
+        :param target: numpy array with n_examples x 1 target values
+        """
+        super().__init__(name, **metadata)
+        self.__data = data
+        self.__target = target
+        if attributes==None:
+            self.__attributes = attributes
+        else:
+            self.__attributes = len(self.__data.shape[1])            
+
+    def __getitem__(self, key):
+        return self.__data.__getattribute__(key)
+
+    def get(self, indices=None):
+        return self.__data[indices]
+
+    def target(self, indices=None):
+        if self.__target is None:
+            return None
+        else:
+            return self.__target[indices]
+
+    def attributes(self):
+        """
+        returns the attributes of a data set
+        :return:
+        """
+        return self.__attributes
+
+    def type(self):
+        """
+        returns the type of the dataset.
+        :return: multivariate, matrix, graph, media
+        """
+        return self.__type
+
+    def format(self):
+        """
+        returns the format of the dataset
+        :return: numpy, pandas, edge_list
+        """
+        return "numpy"
+
+    def size(self):
+        """
+        :return: (n_examples, n_attributes)
+        """
+        return self.__data.shape
+
+
+
+
+
+
+
+
+
+
+
