@@ -119,6 +119,7 @@ In addition, we distinguish between different repeatability criterions
    - Includes visual exploration tools using [grafana.com](http://grafana.com/)
    
 ### URL schema
+
    
    ```
       /datasets/{text|image|video|activtiy|networks}/{id}-{name}/ 
@@ -127,13 +128,19 @@ In addition, we distinguish between different repeatability criterions
       /methods/algorithms/{algo-name}
       /methods/preprocessing/{name}
    ```
-   
-   According to good RESTFull interfaces, the following conventions should hold
+  
+API definition should follow the [JSON API V1.0 Schema](http://jsonapi.org/). 
+Python libraries with flask are [flask-REST-JSONAPI](http://flask-rest-jsonapi.readthedocs.io/en/latest/) which should be used. 
+JSON API allows to name relations between objects in a standardized way, which is important for us.
+ 
+According to good RESTFull interfaces, the following conventions should hold
    
    - content negotation, i.e. html pages for browsers and JSON for API calls
    - lists are ending with an 's' (e.g. algorithms) 
    - User Management with 
    
+Note that binary data can be platform/language specific (i.e. serialized numpy arrays) or platform independent. 
+The server should be able to conduct conversions and in later versions to provide streams.
    
    
 ### Examples
@@ -141,6 +148,7 @@ In addition, we distinguish between different repeatability criterions
 - Dataset Repository of the [UCI](http://archive.ics.uci.edu/ml/index.php)
 - Datasets and challenges at [Kaggle](http://kaggle.com)
 - Stanford Network Datasets [SNAP](https://snap.stanford.edu/data/)
+- [OpenML](http://openml.org)
    
 
 ## Interesting Software
