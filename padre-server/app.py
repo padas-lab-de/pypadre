@@ -1,62 +1,53 @@
 """
 Web application main file.
+This file contains registration of resource, mapping of resource and main method.
 """
 # TODO this is just template code and a proof-of-concept
-from flask import Flask
-from flask_restful import Resource, Api
-import os
-from padre.repository import PadreFileRepository
+from flask import Flask, jsonify
+from flask_restful import Api
 
-# DEBUG STUFF
-from padre.ds_import import load_sklearn_toys
+from padre.utils import DefaultLogger
+from padre.constants import DATASET_RESOURCE_MAPPING, DATASETS_RESOURCE_MAPPING, DEBUG
+from resource import DatasetsAPI, DatasetAPI
+from werkzeug import exceptions as wexceptions
+from werkzeug.exceptions import default_exceptions
+from werkzeug.exceptions import HTTPException
 
 debug = True
-app = Flask(__name__)                  #  Create a Flask WSGI appliction
-api = Api(app)                         #  Create a Flask-RESTPlus API
+app = Flask(__name__)  # Create a Flask WSGI appliction
+api = Api(app)  # Create a Flask-RESTPlus API
 
-# TODO create a corresponding configuration object. look up best practices
-data_dir = os.path.expanduser("~/tmp/padre_srv/data")
-if not os.path.exists(data_dir):
-    os.makedirs(data_dir)
+# Register a default logger
+logger = DefaultLogger().get_default_logger()
 
-app.repo = PadreFileRepository(data_dir)
-if debug:
-    for i in load_sklearn_toys():
-        app.repo.put(i.name, i)
+# Ensure all error responses are JSON
+def handle_exceptions():
+    """
+        Creates a JSON-oriented Flask app.
 
-class DatasetsAPI(Resource):            #  Create a RESTful resource for datasets
+        All error responses that you don't specifically
+        manage yourself will have application/json content
+        type, and will contain JSON like this (just an example):
 
-    def get(self):                         #  Create GET endpoint
-        return  app.repo.list()
+        { "message": "405: Method Not Allowed" }
+    """
+    def _json_error(ex):
+        code = ex.code if isinstance(ex, HTTPException) else 500
+        print("this is called")
+        response = jsonify(message=str(ex))
+        response.status_code(code)
+        return response
 
-    def put(self):                         # update a new dataset
-        pass
+    for code in default_exceptions.keys():
+        app.error_handler_spec[None][code] = _json_error
 
-    def post(self):  # update a new dataset
-        pass
+# Register all Resources and their mapping here
 
-    def delete(self):  # delete a new dataset
-        pass
+api.add_resource(DatasetsAPI, DATASETS_RESOURCE_MAPPING, endpoint="datasets")
+api.add_resource(DatasetAPI, DATASET_RESOURCE_MAPPING, endpoint="dataset")
 
-class DatasetAPI(Resource):  # Create a RESTful resource for datasets
-
-    def get(self, name):  # Create GET endpoint
-        print(name)
-        return app.repo.get(name).metadata
-
-    def put(self):  # update a new dataset
-        pass
-
-    def post(self):  # update a new dataset
-        pass
-
-    def delete(self):  # delete a new dataset
-        pass
-
-
-
-api.add_resource(DatasetsAPI, "/api/datasets/", endpoint="datasets")
-api.add_resource(DatasetAPI, "/api/datasets/<name>", endpoint="dataset")
+# App main function
 
 if __name__ == '__main__':
-    app.run(debug=debug)                #  Start a development padre-server
+    handle_exceptions()
+    app.run(debug=DEBUG)  # Start a development padre-server
