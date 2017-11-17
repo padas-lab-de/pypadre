@@ -33,7 +33,6 @@ def handle_exceptions():
     """
     def _json_error(ex):
         code = ex.code if isinstance(ex, HTTPException) else 500
-        print("this is called")
         response = jsonify(message=str(ex))
         response.status_code(code)
         return response

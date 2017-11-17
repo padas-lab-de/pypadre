@@ -9,3 +9,5 @@ class JsonResponse:
                                 if isinstance(ex, HTTPException)
                                 else 500)
         return response
+
+    # TODO: create a method to return a complete response object

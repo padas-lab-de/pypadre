@@ -8,4 +8,4 @@ DATASETS_RESOURCE_MAPPING = "/api/datasets/"
 DATASET_RESOURCE_MAPPING = "/api/dataset/<name>"
 
 RESOURCE_DIRECTORY_PATH = "~/tmp/padre_srv/data"
-DEBUG = False
+DEBUG = True
