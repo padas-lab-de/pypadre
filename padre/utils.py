@@ -7,8 +7,8 @@ from logging.handlers import RotatingFileHandler
 from .constants import DEFAULT_FORMAT, DEFAULT_APP_LOGPATH, RESOURCE_DIRECTORY_PATH, DEBUG
 
 class DefaultLogger:
-
-    def get_default_logger(self):
+    @staticmethod
+    def get_default_logger():
         # logging.basicConfig(filename=DEFAULT_APP_LOGPATH, level=logging.DEBUG, format=DEFAULT_FORMAT)
         if DEBUG:
             logging.basicConfig(level=logging.DEBUG, format=DEFAULT_FORMAT)
