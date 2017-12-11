@@ -32,12 +32,7 @@ class Setup(object):
         if DEBUG:
             for i in load_sklearn_toys():
                 repo.put(i.name, i)
-                dataset = Dataset(name=i.name)
-                dataset.metadata.put(JSonSerializer.serialise(i.metadata), encoding="UTF-16",
-                                     filename=i.name + "_metadata")
-                dataset.data.put(PickleSerializer.serialise(i.data), encoding="UTF-16", filename=i.name + "_data")
-                dataset.target.put(PickleSerializer.serialise(i.target), encoding="UTF-16", filename=i.name + "_target")
-                dataset.save()
+                DataSetService().save(i.name, i)
         for post in Dataset.objects:
             print(post.name)
         logger.debug("init_setup : END")
@@ -47,16 +42,15 @@ def setup(self):
 
 class DataSetService(object):
     def save(self, dataset_name, dataset):
-        dataset = Dataset(name=dataset_name)
-        dataset.metadata.put(JSonSerializer.serialise(dataset.metadata), encoding="UTF-16",
-                             filename=dataset.name + "_metadata")
-        dataset.data.put(PickleSerializer.serialise(dataset.data), encoding="UTF-16", filename=dataset.name + "_data")
-        dataset.target.put(PickleSerializer.serialise(dataset.target), encoding="UTF-16", filename=dataset.name + "_target")
-        dataset.save()
-        pass
+        dataset_obj = Dataset(name=dataset_name)
+        dataset_obj.metadata.put(JSonSerializer.serialise(dataset.metadata), encoding="UTF-16",
+                             filename=dataset_name + "_metadata")
+        dataset_obj.data.put(PickleSerializer.serialise(dataset.data), encoding="UTF-16", filename=dataset_name + "_data")
+        dataset_obj.target.put(PickleSerializer.serialise(dataset.target), encoding="UTF-16", filename=dataset_name + "_target")
+        dataset_obj.save()
 
     def get(self, dataset_name):
-        dataset = Dataset.objects(name=dataset_name)
+        dataset = [data.name for data in Dataset.objects(name=dataset_name)]
         return dataset
 
     def getAll(self):
