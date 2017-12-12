@@ -1,12 +1,16 @@
+
 import unittest
 
-from padre.experiment import DictExperimentVisitor, ListExperimentVisitor, SelectExperimentVisitor
+from sklearn.neighbors import KNeighborsClassifier
+
+from padre.experimentvisitors import DictVisitor, ListVisitor, SelectVisitor
 
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 
-from padre.visitors.scikit.scikitpipeline import SciKitPipelineVisitor
+from padre.visitors.scikit.scikitpipeline import SciKitVisitor
+
 
 class TestExperimentVisitor(unittest.TestCase):
     def test_extract_string(self):
@@ -14,7 +18,7 @@ class TestExperimentVisitor(unittest.TestCase):
             def __init__(self):
                 self.test = "attribute"
 
-        v = DictExperimentVisitor({"test": "found"})
+        v = DictVisitor({"test": "found"})
         d = v.extract(TestClass(), {})
 
         self.assertIn("found", d)
@@ -25,7 +29,7 @@ class TestExperimentVisitor(unittest.TestCase):
             def __init__(self):
                 self.test = {"rec": "attribute"}
 
-        v = DictExperimentVisitor({"test": {"rec" : "found"}})
+        v = DictVisitor({"test": {"rec" : "found"}})
         d = v.extract(TestClass(), {})
 
         self.assertIn("found", d)
@@ -38,11 +42,25 @@ class TestSciKitExperimentVisitor(unittest.TestCase):
         estimators = [('reduce_dim', PCA()), ('clf', SVC())]
         pipe = Pipeline(estimators)
 
-        d = SciKitPipelineVisitor(pipe)
+        d = SciKitVisitor(pipe)
+
+        self.assertIn("steps", d[0])
 
         print(d)
-        print(pipe)
 
+    def test_extract_svc(self):
+        estimator = PCA()
+
+        d = SciKitVisitor(estimator)
+
+        print(d)
+
+    def test_extract_kneighborsclassifier(self):
+        knn = KNeighborsClassifier()
+
+        d = SciKitVisitor(knn)
+
+        print(d)
 
 
 
