@@ -167,3 +167,8 @@ The server should be able to conduct conversions and in later versions to provid
 - Make sure that metadata can be easily extended (use key/value pairs and JSON). 
 - Server side, multivariate data sets should be representable via a Pandas Frame. Media data should be either raw or in preprocessed form (vector representation), network data as edge list.
 - Data set characteristics should be calculated (not provided). 
+
+
+## Tutorials and Ressources
+
+- [Mongo and Flask Restful](https://www.slideshare.net/nicolaiarocci/developing-restful-web-apis-with-python-flask-and-mongodb)
