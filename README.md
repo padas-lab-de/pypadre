@@ -35,6 +35,7 @@ The web server handles test data and logging of experiments. The client provides
 
 The overhead should not be recognized by the user, hence caching is needed. We assume honest participants, i.e. it is not a challgenge setting where information on the test data needs to be hidden from the client. Maybe in the future this will be the case.
 
+![Figure of Conceptual Architecture](https://drive.google.com/file/d/15Xi1g6im9NAAIyeC9xfpVx-SLRskpBzg/view)
 
 ## Usage Examples
 
