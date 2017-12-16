@@ -1,4 +1,4 @@
- Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 .DS*
 .idea*
 __pycache__/
@@ -92,3 +92,5 @@ ENV/
 
 # Rope project settings
 .ropeproject
+.idea
+
