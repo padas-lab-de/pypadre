@@ -1,6 +1,6 @@
 # PyPaDRe - Python Passau Data Science Reproducability Environment
 
-Client/Server System for the following functions
+Client System for the PaDRE Servant Server. It should provide the following functions
 
 - Manage data sets and splits of data sets
 - Client Side code to conduct experiments including
@@ -14,15 +14,6 @@ Client/Server System for the following functions
   - Linking experiments to git code (e.g. automatically push a git repository when running experiment)
   - Caching data sets client side
   - Managing external data for experiments (e.g. external models, embeddings, additional data)
-  
-- Server side code for managing data sets and managing + analysing experiments:
-  - compare experiments
-  - provide test data sets
-  - fetch and push testdatasets to zenodo
-  - freeze results and push to zenodo for giving it a DOI
-  - provide rankings between algorithms / data sets
-  - provide hyperparameter suggestions
-  - conduct grid search
 
 From the clients perspective, PaDREV could be also understood as package manager for data sets and experiments.
 
@@ -33,6 +24,14 @@ The project is documented and steered via the [wiki](https://gitlab.dimis.fim.un
 
 
 
+## TODO : Move to server
    
- 
+- Server side code for managing data sets and managing + analysing experiments:
+  - compare experiments
+  - provide test data sets
+  - fetch and push testdatasets to zenodo
+  - freeze results and push to zenodo for giving it a DOI
+  - provide rankings between algorithms / data sets
+  - provide hyperparameter suggestions
+  - conduct grid search
 
