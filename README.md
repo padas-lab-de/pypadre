@@ -1,5 +1,7 @@
 # PyPaDRe - Python Passau Data Science Reproducability Environment
 
+** Machine Learning Experiments on Steroids **
+
 Client System for the [PaDRE Servant Server](https://gitlab.dimis.fim.uni-passau.de/RP-17-PaDReP/PaDRE-Servant/wikis/home). It should provide the following functions
 
 - Manage data sets and splits of data sets
