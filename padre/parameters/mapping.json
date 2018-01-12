@@ -1,131 +1,453 @@
 ﻿{
-	"algorithms": [
-		{
-			"name": "linear regression",
-			"other_names": [],
-			"type": "Regression",
-			"hyper_parameters": {
-				"model_parameters": [
-					{
-						"name": "intercept",
-						"kind_of_value": "boolean",
-						"optional": "True",
-						"description": "Whether to calculate the intercept for this model.",
-						"default_value_in_scikit-learn": "True"
-					},
-					{
-						"name": "normalize",
-						"kind_of_value": "boolean",
-						"optional": "True",
-						"description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
-						"default_value_in_scikit-learn": "False"
-					}
-				],
-				"optimisation_parameters": [
-					{
-						"name": "jobs",
-						"kind_of_value": "integer",
-						"optional": "True",
-						"description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
-						"default_value_in_scikit-learn": "1"
-					}
-				],
-				"execution_parameters": [
-				]
-			}
-		},
-		{
-			"name": "ridge regression",
-			"other_names": ["Tikhonov regularization", "weight decay", "Tikhonov–Miller method", "Phillips–Twomey method", "constrained linear inversion", "linear regularization"],
-			"type": "Regression",
-			"hyper_parameters": {
-				"model_parameters": [
-					{
-						"name": "alpha",
-						"kind_of_value": "float, array-like in the shape of the targets",
-						"optional": "False",
-						"description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. Alpha corresponds to C^-1 in other linear models such as LogisticRegression or LinearSVC. If an array is passed, penalties are assumed to be specific to the targets. Hence they must correspond in number.",
-						"default_value_in_scikit-learn": "1.0"
-					},
-					{
-						"name": "intercept",
-						"kind_of_value": "boolean",
-						"optional": "True",
-						"description": "Whether to calculate the intercept for this model.",
-						"default_value_in_scikit-learn": "True"
-					},
-					{
-						"name": "normalize",
-						"kind_of_value": "boolean",
-						"optional": "True",
-						"description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
-						"default_value_in_scikit-learn": "False"
-					},
-					{
-						"name": "tol",
-						"kind_of_value": "float",
-						"optional": "True",
-						"description": "Precision of the solution.",
-						"default_value_in_scikit-learn": "0.001"
-					},
-					{
-						"name": "solver",
-						"kind_of_value": "{‘auto’, ‘svd’, ‘cholesky’, ‘lsqr’, ‘sparse_cg’, ‘sag’, ‘saga’}",
-						"optional": "True",
-						"description": "Solver to use in the computational routines: -‘auto’ chooses the solver automatically based on the type of data. -‘svd’ uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than ‘cholesky’. -‘cholesky’ uses the standard scipy.linalg.solve function to obtain a closed-form solution. -‘sparse_cg’ uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than ‘cholesky’ for large-scale data (possibility to set tol and max_iter). -‘lsqr’ uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -‘sag’ uses a Stochastic Average Gradient descent, and ‘saga’ uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
-						"default_value_in_scikit-learn": "auto"
-					}
-				],
-				"optimisation_parameters": [
-					{
-						"name": "max_iterations",
-						"kind_of_value": "integer",
-						"optional": "True",
-						"description": "Maximum number of iterations for conjugate gradient solver. For ‘sparse_cg’ and ‘lsqr’ solvers, the default value is determined by scipy.sparse.linalg. For ‘sag’ solver, the default value is 1000",
-						"default_value_in_scikit-learn": "None"
-					}
-				],
-				"execution_parameters": [
-				]
-			}
-		},
-		{
-			"name": "lasso",
-			"other_names": [],
-			"type": "Regression",
-			"hyper_parameters": {
-				"model_parameters": [
-					{
-						
-					}
-				],
-				"optimisation_parameters": [
-					{
-						
-					}
-				],
-				"execution_parameters": [
-				]
-			}
-		},
-		{
-			"name": "",
-			"other_names": [],
-			"type": "",
-			"hyper_parameters": {
-				"model_parameters": [
-					{
-						
-					}
-				],
-				"optimisation_parameters": [
-					{
-						
-					}
-				],
-				"execution_parameters": [
-				]
-			}
-		}
-	]
+  "algorithms": [
+    {
+      "name": "linear regression",
+      "other_names": [],
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "default_value_in_scikit-learn": "True"
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
+            "default_value_in_scikit-learn": "False"
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "default_value_in_scikit-learn": "1"
+          }
+        ],
+        "execution_parameters": [
+        ]
+      }
+    },
+    {
+      "name": "ridge regression",
+      "other_names": [
+        "Tikhonov regularization",
+        "weight decay",
+        "Tikhonov–Miller method",
+        "Phillips–Twomey method",
+        "constrained linear inversion",
+        "linear regularization"
+      ],
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "lambda",
+            "kind_of_value": "float, array-like in the shape of the targets",
+            "optional": "False",
+            "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. Lambda corresponds to C^-1 in other linear models such as LogisticRegression or LinearSVC.",
+            "default_value_in_scikit-learn": "1.0"
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to calculate the intercept for this model.",
+            "default_value_in_scikit-learn": "True"
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Precision of the solution. (The tolerance for the optimisation.)",
+            "default_value_in_scikit-learn": "0.001"
+          },
+          {
+            "name": "solver",
+            "kind_of_value": "{‘auto’, ‘svd’, ‘cholesky’, ‘lsqr’, ‘sparse_cg’, ‘sag’, ‘saga’}",
+            "optional": "False",
+            "description": "Solver to use in the computational routines: -‘auto’ chooses the solver automatically based on the type of data. -‘svd’ uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than ‘cholesky’. -‘cholesky’ uses the standard scipy.linalg.solve function to obtain a closed-form solution. -‘sparse_cg’ uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than ‘cholesky’ for large-scale data (possibility to set tol and max_iter). -‘lsqr’ uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -‘sag’ uses a Stochastic Average Gradient descent, and ‘saga’ uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
+            "default_value_in_scikit-learn": "auto"
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "default_value_in_scikit-learn": "None"
+          }
+        ],
+        "execution_parameters": [
+        ]
+      }
+    },
+    {
+      "name": "lasso",
+      "other_names": [],
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "lambda",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Constant that multiplies the L1 term.",
+            "default_value_in_scikit-learn": "1.0"
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to calculate the intercept for this model.",
+            "default_value_in_scikit-learn": "True"
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The tolerance for the optimization: if the updates are smaller than tolerance, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
+            "default_value_in_scikit-learn": "0.0001"
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "positive",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, forces the coefficients to be positive.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "selection",
+            "kind_of_value": "string",
+            "optional": "False",
+            "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+            "default_value_in_scikit-learn": "cyclic"
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "default_value_in_scikit-learn": "None"
+          }
+        ],
+        "execution_parameters": [
+        ]
+      }
+    },
+    {
+      "name": "multi-task lasso",
+      "other_names": [],
+      "type": "Regression",
+      "hyper_parameters": [
+        {
+          "name": "lambda",
+          "kind_of_value": "float",
+          "optional": "True",
+          "description": "Constant that multiplies the L1/L2 term.",
+          "default_value_in_scikit-learn": "1.0"
+        },
+        {
+          "name": "intercept",
+          "kind_of_value": "boolean",
+          "optional": "False",
+          "description": "Whether to calculate the intercept for this model.",
+          "default_value_in_scikit-learn": "True"
+        },
+        {
+          "name": "normalize",
+          "kind_of_value": "boolean",
+          "optional": "True",
+          "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
+          "default_value_in_scikit-learn": "False"
+        },
+        {
+          "name": "tolerance",
+          "kind_of_value": "float",
+          "optional": "True",
+          "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
+          "default_value_in_scikit-learn": "0.0001"
+        },
+        {
+          "name": "reuse_previous",
+          "kind_of_value": "boolean",
+          "optional": "True",
+          "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+          "default_value_in_scikit-learn": "False"
+        },
+        {
+          "name": "selection",
+          "kind_of_value": "string",
+          "optional": "False",
+          "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+          "default_value_in_scikit-learn": "cyclic"
+        }
+      ],
+      "optimisation_parameters": [
+        {
+          "name": "max_iterations",
+          "kind_of_value": "integer",
+          "optional": "True",
+          "description": "Maximum number of iterations.",
+          "default_value_in_scikit-learn": "None"
+        }
+      ],
+      "execution_parameters": [
+      ]
+    },
+    {
+      "name": "elastic net",
+      "other_names": [],
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "lambda",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Constant that multiplies the L1/L2 term.",
+            "default_value_in_scikit-learn": "1.0"
+          },
+          {
+            "name": "l1_ratio",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The ElasticNet mixing parameter, with 0 <= l1_ratio <= 1. For l1_ratio = 0 the penalty is an L2 penalty. For l1_ratio = 1 it is an L1 penalty. For 0 < l1_ratio < 1, the penalty is a combination of L1 and L2.",
+            "default_value_in_scikit-learn": "0.5"
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to calculate the intercept for this model.",
+            "default_value_in_scikit-learn": "True"
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
+            "default_value_in_scikit-learn": "0.0001"
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "positive",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, forces the coefficients to be positive.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "selection",
+            "kind_of_value": "string",
+            "optional": "False",
+            "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+            "default_value_in_scikit-learn": "cyclic"
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "precompute",
+            "kind_of_value": "boolean, array-like",
+            "optional": "False",
+            "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "default_value_in_scikit-learn": "None"
+          }
+        ],
+        "execution_parameters": [
+        ]
+      }
+    },
+    {
+      "name": "multi-task elastic net",
+      "other_names": [],
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "lambda",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Constant that multiplies the L1/L2 term.",
+            "default_value_in_scikit-learn": "1.0"
+          },
+          {
+            "name": "l1_ratio",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The ElasticNet mixing parameter, with 0 <= l1_ratio <= 1. For l1_ratio = 0 the penalty is an L2 penalty. For l1_ratio = 1 it is an L1 penalty. For 0 < l1_ratio < 1, the penalty is a combination of L1 and L2.",
+            "default_value_in_scikit-learn": "0.5"
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to calculate the intercept for this model.",
+            "default_value_in_scikit-learn": "True"
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
+            "default_value_in_scikit-learn": "0.0001"
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "selection",
+            "kind_of_value": "string",
+            "optional": "False",
+            "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+            "default_value_in_scikit-learn": "cyclic"
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "default_value_in_scikit-learn": "None"
+          }
+        ],
+        "execution_parameters": [
+        ]
+      }
+    },
+    {
+      "name": "least angle regression",
+      "other_names": ["LARS"],
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to calculate the intercept for this model.",
+            "default_value_in_scikit-learn": "True"
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
+            "default_value_in_scikit-learn": "False"
+          },
+          {
+            "name": "nonzero_coefficients",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Target number of non-zero coefficients.",
+            "default_value_in_scikit-learn": "500"
+          },
+          {
+            "name": "eps",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The machine-precision regularization in the computation of the Cholesky diagonal factors. Increase this for very ill-conditioned systems.",
+            "default_value_in_scikit-learn": "2.2204460492503131e-16"
+          },
+          {
+            "name": "positive",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, forces the coefficients to be positive.",
+            "default_value_in_scikit-learn": "False"
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "precompute",
+            "kind_of_value": "boolean, array-like",
+            "optional": "False",
+            "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
+            "default_value_in_scikit-learn": "False"
+          }
+        ],
+        "execution_parameters": [
+        ]
+      }
+    },
+    {
+      "name": "",
+      "other_names": [],
+      "type": "",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+          }
+        ],
+        "optimisation_parameters": [
+          {
+          }
+        ],
+        "execution_parameters": [
+        ]
+      }
+    }
+  ]
 }
