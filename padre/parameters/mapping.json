@@ -3,6 +3,9 @@
     {
       "name": "linear regression",
       "other_names": [],
+      "implementation": {
+        "scikit": ""
+      },
       "type": "Regression",
       "hyper_parameters": {
         "model_parameters": [
@@ -117,6 +120,9 @@
     {
       "name": "lasso",
       "other_names": [],
+      "implementation": {
+        "scikit": ""
+      },
       "type": "Regression",
       "hyper_parameters": {
         "model_parameters": [
@@ -202,6 +208,9 @@
     {
       "name": "multi-task lasso",
       "other_names": [],
+      "implementation": {
+        "scikit": ""
+      },
       "type": "Regression",
       "hyper_parameters": [
         {
@@ -276,6 +285,9 @@
     {
       "name": "elastic net",
       "other_names": [],
+      "implementation": {
+        "scikit": ""
+      },
       "type": "Regression",
       "hyper_parameters": {
         "model_parameters": [
@@ -379,6 +391,9 @@
     {
       "name": "multi-task elastic net",
       "other_names": [],
+      "implementation": {
+        "scikit": ""
+      },
       "type": "Regression",
       "hyper_parameters": {
         "model_parameters": [
@@ -464,6 +479,9 @@
     {
       "name": "least angle regression",
       "other_names": ["LARS"],
+      "implementation": {
+        "scikit": ""
+      },
       "type": "Regression",
       "hyper_parameters": {
         "model_parameters": [
@@ -531,6 +549,9 @@
     {
       "name": "",
       "other_names": [],
+      "implementation": {
+        "scikit": ""
+      },
       "type": "",
       "hyper_parameters": {
         "model_parameters": [
