@@ -4,7 +4,7 @@
       "name": "linear regression",
       "other_names": [],
       "implementation": {
-        "scikit": ""
+        "scikit-learn": ""
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -53,6 +53,9 @@
         "constrained linear inversion",
         "linear regularization"
       ],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.ridge.Ridge"
+      },
       "type": "Regression",
       "hyper_parameters": {
         "model_parameters": [
@@ -62,7 +65,8 @@
             "optional": "False",
             "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. Lambda corresponds to C^-1 in other linear models such as LogisticRegression or LinearSVC.",
             "scikit-learn": {
-              "default_value": "1.0"
+              "default_value": "1.0",
+              "path" : "alpha"
             }
           },
           {
@@ -71,7 +75,8 @@
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
             "scikit-learn": {
-              "default_value": "True"
+              "default_value": "True",
+              "path" : "fit_intercept"
             }
           },
           {
@@ -80,7 +85,8 @@
             "optional": "True",
             "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "normalize"
             }
           },
           {
@@ -89,7 +95,8 @@
             "optional": "False",
             "description": "Precision of the solution. (The tolerance for the optimisation.)",
             "scikit-learn": {
-              "default_value": "0.001"
+              "default_value": "0.001",
+              "path": "tol"
             }
           },
           {
@@ -98,7 +105,8 @@
             "optional": "False",
             "description": "Solver to use in the computational routines: -‘auto’ chooses the solver automatically based on the type of data. -‘svd’ uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than ‘cholesky’. -‘cholesky’ uses the standard scipy.linalg.solve function to obtain a closed-form solution. -‘sparse_cg’ uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than ‘cholesky’ for large-scale data (possibility to set tol and max_iter). -‘lsqr’ uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -‘sag’ uses a Stochastic Average Gradient descent, and ‘saga’ uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
             "scikit-learn": {
-              "default_value": "auto"
+              "default_value": "auto",
+              "path": "solver"
             }
           }
         ],
@@ -109,7 +117,8 @@
             "optional": "True",
             "description": "Maximum number of iterations.",
             "scikit-learn": {
-              "default_value": "None"
+              "default_value": "None",
+              "path": "max_iter"
             }
           }
         ],
@@ -121,7 +130,7 @@
       "name": "lasso",
       "other_names": [],
       "implementation": {
-        "scikit": ""
+        "scikit-learn": ""
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -209,7 +218,7 @@
       "name": "multi-task lasso",
       "other_names": [],
       "implementation": {
-        "scikit": ""
+        "scikit-learn": ""
       },
       "type": "Regression",
       "hyper_parameters": [
@@ -286,7 +295,7 @@
       "name": "elastic net",
       "other_names": [],
       "implementation": {
-        "scikit": ""
+        "scikit-learn": ""
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -392,7 +401,7 @@
       "name": "multi-task elastic net",
       "other_names": [],
       "implementation": {
-        "scikit": ""
+        "scikit-learn": ""
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -480,7 +489,7 @@
       "name": "least angle regression",
       "other_names": ["LARS"],
       "implementation": {
-        "scikit": ""
+        "scikit-learn": ""
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -550,7 +559,7 @@
       "name": "",
       "other_names": [],
       "implementation": {
-        "scikit": ""
+        "scikit-learn": ""
       },
       "type": "",
       "hyper_parameters": {
