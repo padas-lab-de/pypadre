@@ -598,6 +598,532 @@
       }
     },
     {
+      "name": "lasso least angle regression",
+      "other_names": [
+        "LassoLars"
+      ],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.LassoLars"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "lambda",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Constant that multiplies the penalty term.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "normalize"
+            }
+          },
+          {
+            "name": "eps",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The machine-precision regularization in the computation of the Cholesky diagonal factors. Increase this for very ill-conditioned systems.",
+            "scikit-learn": {
+              "default_value": "2.2204460492503131e-16",
+              "path": "eps"
+            }
+          },
+          {
+            "name": "positive",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, forces the coefficients to be positive.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "positive"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "precompute",
+            "kind_of_value": "{True, False, ‘auto’}",
+            "optional": "False",
+            "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
+            "scikit-learn": {
+              "default_value": "auto",
+              "path": "precompute"
+            }
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "orthogonal matching pursuit model",
+      "other_names": [
+        "OMP"
+      ],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.OrthogonalMatchingPursuit"
+      },
+      "type": "Model Fit Aproximator",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "nonzero_coefficients",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Target number of non-zero coefficients.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_nonzero_coefs"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Maximum norm of the residual.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "normalize"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "precompute",
+            "kind_of_value": "{True, False, ‘auto’}",
+            "optional": "False",
+            "description": "Whether to use a precomputed Gram matrix  and Xy matrix to speed up calculations. Matrices can also be directly passed to the fit method.",
+            "scikit-learn": {
+              "default_value": "auto",
+              "path": "precompute"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "n-target orthogonal matching pursuit",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.orthogonal_mp"
+      },
+      "type": "Model Fit Aproximator",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "input_data",
+            "kind_of_value": "array, shape (n_samples, n_features)",
+            "optional": "False",
+            "description": "Input data. Columns are assumed to have unit norm.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "input_targets",
+            "kind_of_value": "array, shape (n_samples) or (n_samples, n_targets)",
+            "optional": "False",
+            "description": "Input targets",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "Y"
+            }
+          },
+          {
+            "name": "nonzero_coefficients",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Target number of non-zero coefficients.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_nonzero_coefs"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Maximum norm of the residual.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "precompute",
+            "kind_of_value": "{True, False, ‘auto’}",
+            "optional": "False",
+            "description": "Whether to perform precomputations.",
+            "scikit-learn": {
+              "default_value": "auto",
+              "path": "precompute"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "bayesian ridge regression",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.BayesianRidge"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Precision of the solution. (The tolerance for the optimisation.)",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "alpha_1",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Shape parameter for the Gamma distribution prior over the alpha parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "alpha_1"
+            }
+          },
+          {
+            "name": "alpha_2",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Inverse scale parameter (rate parameter) for the Gamma distribution prior over the alpha parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "alpha_2"
+            }
+          },
+          {
+            "name": "lambda_1",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Shape parameter for the Gamma distribution prior over the lambda parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "lambda_1"
+            }
+          },
+          {
+            "name": "lambda_2",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Inverse scale parameter (rate parameter) for the Gamma distribution prior over the lambda parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "lambda_2"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "normalize"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "300",
+              "path": "n_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "automatic relevance determination regression",
+      "other_names": [
+        "ARD regrssion"
+      ],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.ARDRegression"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Precision of the solution. (The tolerance for the optimisation.)",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "alpha_1",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Shape parameter for the Gamma distribution prior over the alpha parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "alpha_1"
+            }
+          },
+          {
+            "name": "alpha_2",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Inverse scale parameter (rate parameter) for the Gamma distribution prior over the alpha parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "alpha_2"
+            }
+          },
+          {
+            "name": "lambda_1",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Shape parameter for the Gamma distribution prior over the lambda parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "lambda_1"
+            }
+          },
+          {
+            "name": "lambda_2",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Inverse scale parameter (rate parameter) for the Gamma distribution prior over the lambda parameter.",
+            "scikit-learn": {
+              "default_value": "1e-06",
+              "path": "lambda_2"
+            }
+          },
+          {
+            "name": "threshold_lambda",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Threshold for removing (pruning) weights with high precision from the computation. ",
+            "scikit-learn": {
+              "default_value": "10000.0",
+              "path": "threshold_lambda"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "normalize"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "300",
+              "path": "n_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "logistic regression",
+      "other_names": ["logit regression", "maximum-entropy classification", "MaxEnt", "log-linear classifier"],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.LogisticRegression"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "penalty",
+            "kind_of_value": "{str, l1, l2}",
+            "optional": "False",
+            "description": "Used to specify the norm used in the penalization.",
+            "scikit-learn": {
+              "default_value": "l2",
+              "path": "penalty"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Tolerance for stopping criteria.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "C",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Inverse of regularization strength; must be a positive float. Like in support vector machines, smaller values specify stronger regularization.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Specifies if a constant (a.k.a. bias or intercept) should be added to the decision function.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "dict or ‘balanced’",
+            "optional": "False",
+            "description": "Weights associated with classes.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          },
+          {
+            "name": "solver",
+            "kind_of_value": "{‘newton-cg’, ‘lbfgs’, ‘liblinear’, ‘sag’, ‘saga’}",
+            "optional": "False",
+            "description": "Solver to use in the computational routines.",
+            "scikit-learn": {
+              "default_value": "liblinear",
+              "path": "solver"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of CPU cores used when parallelizing over classes.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
       "name": "",
       "other_names": [],
       "implementation": {
@@ -607,6 +1133,14 @@
       "hyper_parameters": {
         "model_parameters": [
           {
+            "name": "",
+            "kind_of_value": "",
+            "optional": "",
+            "description": "",
+            "scikit-learn": {
+              "default_value": "",
+              "path": ""
+            }
           }
         ],
         "optimisation_parameters": [
