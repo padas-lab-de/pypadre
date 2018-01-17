@@ -1,5 +1,7 @@
 from padre.parameter import Parameter
 
+from padre.mappings import name_mappings
+
 class SchemaMismatch(Exception):
     """Exception for schema-mismatch
 
@@ -199,7 +201,7 @@ class ExperimentSchema(object):
             if not tmp[0]:
                 return tmp
         elif type(data) is dict:
-            if type(schema) is SelectSchema:
+            if type(schema) in [SelectSchema, AlgorithmSchema]:
                 tmp = schema.verify(data, path, keyset)
             elif type(schema) is dict:
                 tmp = DictAttribute(schema).verify(data, path, keyset)
@@ -223,5 +225,30 @@ class ExperimentSchema(object):
         if keyset_was_none:
             for l in keyset:
                 print("Warning: Attribute '" + path + "." + l + "' is not part of the schema.")
+
+        return (True, "")
+
+class AlgorithmSchema(object):
+    """
+    Describing the schema for an algorithm given the description in 'mappings.json'.
+    """
+
+    def verify(self, data, path, keyset):
+        """
+        Verifies that data fits the
+        :param data: the data to be verified.
+        :return: (bool, str) (True, ""), if the data fits. (False, <reason-str>), otherwise.
+        """
+        alg = name_mappings[data['algorithm']]
+
+        for param_type in alg['hyper_parameters']:
+            if not param_type in data['hyper_parameters']:
+                return (False, "Missing parameter-set '" + param_type + "'!")
+            for param in alg['hyper_parameters'][param_type]:
+                if not param['name'] in data['hyper_parameters'][param_type]:
+                    return (False, "Missing parameter '" + param['name'] + "'!")
+
+
+        keyset.remove('hyper_parameters')
 
         return (True, "")
