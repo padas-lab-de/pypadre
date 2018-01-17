@@ -4,7 +4,7 @@
       "name": "linear regression",
       "other_names": [],
       "implementation": {
-        "scikit-learn": ""
+        "scikit-learn": "sklearn.linear_model.LinearRegression"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -15,7 +15,8 @@
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
             "scikit-learn": {
-              "default_value": "True"
+              "default_value": "True",
+              "path": "fit_intercept"
             }
           },
           {
@@ -24,7 +25,8 @@
             "optional": "True",
             "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "normalize"
             }
           }
         ],
@@ -35,7 +37,8 @@
             "optional": "True",
             "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
             "scikit-learn": {
-              "default_value": "1"
+              "default_value": "1",
+              "path": "n_jobs"
             }
           }
         ],
@@ -66,7 +69,7 @@
             "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. Lambda corresponds to C^-1 in other linear models such as LogisticRegression or LinearSVC.",
             "scikit-learn": {
               "default_value": "1.0",
-              "path" : "alpha"
+              "path": "alpha"
             }
           },
           {
@@ -76,7 +79,7 @@
             "description": "Whether to calculate the intercept for this model.",
             "scikit-learn": {
               "default_value": "True",
-              "path" : "fit_intercept"
+              "path": "fit_intercept"
             }
           },
           {
@@ -130,7 +133,7 @@
       "name": "lasso",
       "other_names": [],
       "implementation": {
-        "scikit-learn": ""
+        "scikit-learn": "sklearn.linear_model.Lasso"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -141,7 +144,8 @@
             "optional": "True",
             "description": "Constant that multiplies the L1 term.",
             "scikit-learn": {
-              "default_value": "1.0"
+              "default_value": "1.0",
+              "path": "alpha"
             }
           },
           {
@@ -150,7 +154,8 @@
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
             "scikit-learn": {
-              "default_value": "True"
+              "default_value": "True",
+              "path": "fit_intercept"
             }
           },
           {
@@ -159,7 +164,8 @@
             "optional": "True",
             "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "normalize"
             }
           },
           {
@@ -168,7 +174,8 @@
             "optional": "True",
             "description": "The tolerance for the optimization: if the updates are smaller than tolerance, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
             "scikit-learn": {
-              "default_value": "0.0001"
+              "default_value": "0.0001",
+              "path": "tol"
             }
           },
           {
@@ -177,7 +184,8 @@
             "optional": "True",
             "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "warm_start"
             }
           },
           {
@@ -186,7 +194,8 @@
             "optional": "True",
             "description": "When set to True, forces the coefficients to be positive.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "positive"
             }
           },
           {
@@ -195,7 +204,8 @@
             "optional": "False",
             "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
             "scikit-learn": {
-              "default_value": "cyclic"
+              "default_value": "cyclic",
+              "path": "selection"
             }
           }
         ],
@@ -206,19 +216,19 @@
             "optional": "True",
             "description": "Maximum number of iterations.",
             "scikit-learn": {
-              "default_value": "None"
+              "default_value": "None",
+              "path": "max_iter"
             }
           }
         ],
-        "execution_parameters": [
-        ]
+        "execution_parameters": []
       }
     },
     {
       "name": "multi-task lasso",
       "other_names": [],
       "implementation": {
-        "scikit-learn": ""
+        "scikit-learn": "sklearn.linear_model.MultiTaskLasso"
       },
       "type": "Regression",
       "hyper_parameters": [
@@ -228,8 +238,9 @@
           "optional": "True",
           "description": "Constant that multiplies the L1/L2 term.",
           "scikit-learn": {
-              "default_value": "1.0"
-            }
+            "default_value": "1.0",
+            "path": "alpha"
+          }
         },
         {
           "name": "intercept",
@@ -237,8 +248,9 @@
           "optional": "False",
           "description": "Whether to calculate the intercept for this model.",
           "scikit-learn": {
-              "default_value": "True"
-            }
+            "default_value": "True",
+            "path": "fit_intercept"
+          }
         },
         {
           "name": "normalize",
@@ -246,8 +258,9 @@
           "optional": "True",
           "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
           "scikit-learn": {
-              "default_value": "False"
-            }
+            "default_value": "False",
+            "path": "normalize"
+          }
         },
         {
           "name": "tolerance",
@@ -255,8 +268,9 @@
           "optional": "True",
           "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
           "scikit-learn": {
-              "default_value": "0.0001"
-            }
+            "default_value": "0.0001",
+            "path": "tol"
+          }
         },
         {
           "name": "reuse_previous",
@@ -264,8 +278,9 @@
           "optional": "True",
           "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
           "scikit-learn": {
-              "default_value": "False"
-            }
+            "default_value": "False",
+            "path": "warm_start"
+          }
         },
         {
           "name": "selection",
@@ -273,8 +288,9 @@
           "optional": "False",
           "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
           "scikit-learn": {
-              "default_value": "cyclic"
-            }
+            "default_value": "cyclic",
+            "path": "selection"
+          }
         }
       ],
       "optimisation_parameters": [
@@ -284,8 +300,9 @@
           "optional": "True",
           "description": "Maximum number of iterations.",
           "scikit-learn": {
-              "default_value": "None"
-            }
+            "default_value": "None",
+            "path": "max_iter"
+          }
         }
       ],
       "execution_parameters": [
@@ -295,7 +312,7 @@
       "name": "elastic net",
       "other_names": [],
       "implementation": {
-        "scikit-learn": ""
+        "scikit-learn": "sklearn.linear_model.ElasticNet"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -306,7 +323,8 @@
             "optional": "True",
             "description": "Constant that multiplies the L1/L2 term.",
             "scikit-learn": {
-              "default_value": "1.0"
+              "default_value": "1.0",
+              "path": "alpha"
             }
           },
           {
@@ -315,7 +333,8 @@
             "optional": "False",
             "description": "The ElasticNet mixing parameter, with 0 <= l1_ratio <= 1. For l1_ratio = 0 the penalty is an L2 penalty. For l1_ratio = 1 it is an L1 penalty. For 0 < l1_ratio < 1, the penalty is a combination of L1 and L2.",
             "scikit-learn": {
-              "default_value": "0.5"
+              "default_value": "0.5",
+              "path": "l1_ratio"
             }
           },
           {
@@ -324,7 +343,8 @@
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
             "scikit-learn": {
-              "default_value": "True"
+              "default_value": "True",
+              "path": "fit_intercept"
             }
           },
           {
@@ -333,7 +353,8 @@
             "optional": "True",
             "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "normalize"
             }
           },
           {
@@ -342,7 +363,8 @@
             "optional": "True",
             "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
             "scikit-learn": {
-              "default_value": "0.0001"
+              "default_value": "0.0001",
+              "path": "tol"
             }
           },
           {
@@ -351,7 +373,8 @@
             "optional": "True",
             "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "warm_start"
             }
           },
           {
@@ -360,7 +383,8 @@
             "optional": "True",
             "description": "When set to True, forces the coefficients to be positive.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "positive"
             }
           },
           {
@@ -369,7 +393,8 @@
             "optional": "False",
             "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
             "scikit-learn": {
-              "default_value": "cyclic"
+              "default_value": "cyclic",
+              "path": "selection"
             }
           }
         ],
@@ -380,7 +405,8 @@
             "optional": "False",
             "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "precompute"
             }
           },
           {
@@ -389,7 +415,8 @@
             "optional": "True",
             "description": "Maximum number of iterations.",
             "scikit-learn": {
-              "default_value": "None"
+              "default_value": "None",
+              "path": "max_iter"
             }
           }
         ],
@@ -401,7 +428,7 @@
       "name": "multi-task elastic net",
       "other_names": [],
       "implementation": {
-        "scikit-learn": ""
+        "scikit-learn": "sklearn.linear_model.MultiTaskElasticNet"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -412,7 +439,8 @@
             "optional": "True",
             "description": "Constant that multiplies the L1/L2 term.",
             "scikit-learn": {
-              "default_value": "1.0"
+              "default_value": "1.0",
+              "path": "alpha"
             }
           },
           {
@@ -421,7 +449,8 @@
             "optional": "False",
             "description": "The ElasticNet mixing parameter, with 0 <= l1_ratio <= 1. For l1_ratio = 0 the penalty is an L2 penalty. For l1_ratio = 1 it is an L1 penalty. For 0 < l1_ratio < 1, the penalty is a combination of L1 and L2.",
             "scikit-learn": {
-              "default_value": "0.5"
+              "default_value": "0.5",
+              "path": "l1_ratio"
             }
           },
           {
@@ -430,7 +459,8 @@
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
             "scikit-learn": {
-              "default_value": "True"
+              "default_value": "True",
+              "path": "fit_intercept"
             }
           },
           {
@@ -439,7 +469,8 @@
             "optional": "True",
             "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "normalize"
             }
           },
           {
@@ -448,7 +479,8 @@
             "optional": "True",
             "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
             "scikit-learn": {
-              "default_value": "0.0001"
+              "default_value": "0.0001",
+              "path": "tol"
             }
           },
           {
@@ -457,7 +489,8 @@
             "optional": "True",
             "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "warm_start"
             }
           },
           {
@@ -466,7 +499,8 @@
             "optional": "False",
             "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
             "scikit-learn": {
-              "default_value": "cyclic"
+              "default_value": "cyclic",
+              "path": "selection"
             }
           }
         ],
@@ -477,7 +511,8 @@
             "optional": "True",
             "description": "Maximum number of iterations.",
             "scikit-learn": {
-              "default_value": "None"
+              "default_value": "None",
+              "path": "max_iter"
             }
           }
         ],
@@ -487,9 +522,11 @@
     },
     {
       "name": "least angle regression",
-      "other_names": ["LARS"],
+      "other_names": [
+        "LARS"
+      ],
       "implementation": {
-        "scikit-learn": ""
+        "scikit-learn": "sklearn.linear_model.Lars"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -500,7 +537,8 @@
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
             "scikit-learn": {
-              "default_value": "True"
+              "default_value": "True",
+              "path": "fit_intercept"
             }
           },
           {
@@ -509,7 +547,8 @@
             "optional": "True",
             "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "normalize"
             }
           },
           {
@@ -518,7 +557,8 @@
             "optional": "True",
             "description": "Target number of non-zero coefficients.",
             "scikit-learn": {
-              "default_value": "500"
+              "default_value": "500",
+              "path": "n_nonzero_coefs"
             }
           },
           {
@@ -527,7 +567,8 @@
             "optional": "True",
             "description": "The machine-precision regularization in the computation of the Cholesky diagonal factors. Increase this for very ill-conditioned systems.",
             "scikit-learn": {
-              "default_value": "2.2204460492503131e-16"
+              "default_value": "2.2204460492503131e-16",
+              "path": "eps"
             }
           },
           {
@@ -535,8 +576,9 @@
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "When set to True, forces the coefficients to be positive.",
-           "scikit-learn": {
-              "default_value": "False"
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "positive"
             }
           }
         ],
@@ -547,12 +589,12 @@
             "optional": "False",
             "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
             "scikit-learn": {
-              "default_value": "False"
+              "default_value": "False",
+              "path": "precompute"
             }
           }
         ],
-        "execution_parameters": [
-        ]
+        "execution_parameters": []
       }
     },
     {
@@ -571,8 +613,7 @@
           {
           }
         ],
-        "execution_parameters": [
-        ]
+        "execution_parameters": []
       }
     }
   ]
