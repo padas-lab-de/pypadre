@@ -4,7 +4,7 @@
       "name": "linear regression",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.LinearRegression"
+        "scikit-learn": "sklearn.linear_model.base.LinearRegression"
       },
       "type": "Regression",
       "hyper_parameters": {

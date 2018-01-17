@@ -5,6 +5,8 @@ General visitors, that can be combined recursively to extract arbitraty data fro
 import abc
 from abc import abstractmethod
 
+from padre.mappings import type_mappings
+
 from padre.parameter import Parameter
 
 from padre.schema import SchemaMismatch
@@ -164,8 +166,10 @@ class ListVisitor(ExperimentVisitor):
         :return: the result dictionary
         """
         if self.prefix in result:
-            print("Warning: Parameter '" + self.prefix + "' extracted multiple times! Last value will be used.")
-        result[self.prefix] = [self.applyVisitor(object[i], {}, self.template, path + "[" + str(i) + "]") for i in range(len(object))]
+            print("Warning: List '" + path + "." + self.prefix + "' extended by multiple runs.")
+        else:
+            result[self.prefix] = []
+        result[self.prefix].extend([self.applyVisitor(object[i], {}, self.template, path + "[" + str(i) + "]") for i in range(len(object))])
         return result
 
 
@@ -202,13 +206,14 @@ class SelectVisitor(ExperimentVisitor):
     A Visitor-implementation to inspect library-specific experiment setups and select the correct visitor using a decision-dict.
     """
 
-    def __init__(self, visitors, schema=None):
+    def __init__(self, visitors, otherwise=None, schema=None):
         """
         :param visitors: a dict, that maps base-classes to visitor-objects
         :param schema: (optional) the expected schema of the extracted paramters
         """
         super().__init__(schema)
         self.visitors = visitors
+        self.otherwise = otherwise
 
     def extract(self, object, result, path=""):
         """
@@ -224,7 +229,9 @@ class SelectVisitor(ExperimentVisitor):
                 visitor = self.visitors[k]
                 break
         if visitor is None:
-            raise TypeError("Unsupported Estimator encountered: " + str(type(o)))
+            visitor = self.otherwise
+        if visitor is None:
+            raise TypeError("Unsupported object encountered: " + str(type(object)))
         return self.applyVisitor(object, result, visitor, path)
 
 class CombineVisitor(ExperimentVisitor):
@@ -279,7 +286,7 @@ class ConstantVisitor(ExperimentVisitor):
 
 class SubpathVisitor(ExperimentVisitor):
     """
-    A Visitor that creates and steps into a subpath of the reult dict without changing object and applies its template on the object in the new path.
+    A Visitor that creates and steps into a subpath of the result dict without changing object and applies its template on the object in the new path.
     """
 
     def __init__(self, subpath, template, schema=None):
@@ -316,4 +323,46 @@ class SubpathVisitor(ExperimentVisitor):
                 subresult = subresult[s]
 
         return self.applyVisitor(object, subresult, self.template, path)
+
+
+class AlgorithmVisitor(ExperimentVisitor):
+    """
+    A Visitor that uses the information given in mapping.json to extract the information of an object.
+    """
+
+    def __init__(self, schema=None):
+        super().__init__(schema)
+
+    def extract(self, object, result, path=""):
+        """
+        Implementation of the ExperimentVisitor-Interface. It looks for a mapping of the object-type to an algorithm.
+        If there is none a ValueError is thrown. Otherwise all parameters of the algorithm will be extracted.
+        :param object: the input-object to be passed directly to applyVisitor
+        :param result: a dictionary containing all extracted information
+        :param path: used to keep the path-information of the original item
+        :return: a dictionary containing all extracted padre-information
+        """
+
+        fullName = ".".join([type(object).__module__, type(object).__name__])
+        if fullName in type_mappings:
+            description, lib = type_mappings[fullName]
+        else:
+            raise ValueError("The algorithm described by class '" + fullName + "' is not registered!")
+
+        result['algorithm'] = Parameter(description['name'], path)
+
+        params = description['hyper_parameters']
+        result['hyper_parameters'] = {}
+        for param_type in params:
+            param_list = {}
+            result['hyper_parameters'][param_type] = param_list
+            for param in params[param_type]:
+                value = object.__dict__
+                for k in param[lib]['path'].split('.'):
+                    value = value[k]
+                #resolve
+                param_list[param['name']] = Parameter(value, path + "." + param[lib]['path'])
+
+
+        return result
 

@@ -1,13 +1,11 @@
 
 import unittest
 
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import Ridge, LinearRegression
 
-from padre.experimentvisitors import DictVisitor, ListVisitor, SelectVisitor
+from padre.experimentvisitors import DictVisitor
 
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
-from sklearn.decomposition import PCA
 
 from padre.visitors.scikit.scikitpipeline import SciKitVisitor
 
@@ -39,7 +37,7 @@ class TestExperimentVisitor(unittest.TestCase):
 class TestSciKitExperimentVisitor(unittest.TestCase):
 
     def test_extract_pipeline(self):
-        estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+        estimators = [('step1', Ridge())]
         pipe = Pipeline(estimators)
 
         d = SciKitVisitor(pipe)
@@ -48,17 +46,17 @@ class TestSciKitExperimentVisitor(unittest.TestCase):
 
         print(d)
 
-    def test_extract_svc(self):
-        estimator = PCA()
+    def test_extract_linear_regression(self):
+        lreg = LinearRegression()
 
-        d = SciKitVisitor(estimator)
+        d = SciKitVisitor(lreg)
 
         print(d)
 
-    def test_extract_kneighborsclassifier(self):
-        knn = KNeighborsClassifier()
+    def test_extract_ridge_regression(self):
+        r = Ridge()
 
-        d = SciKitVisitor(knn)
+        d = SciKitVisitor(r)
 
         print(d)
 
