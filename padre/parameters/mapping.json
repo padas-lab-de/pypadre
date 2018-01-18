@@ -1060,7 +1060,7 @@
           {
             "name": "intercept",
             "kind_of_value": "boolean",
-            "optional": "True",
+            "optional": "False",
             "description": "Specifies if a constant (a.k.a. bias or intercept) should be added to the decision function.",
             "scikit-learn": {
               "default_value": "True",
@@ -1117,6 +1117,276 @@
             "scikit-learn": {
               "default_value": "1",
               "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "stochastic gradient descent classifier",
+      "other_names": ["SGD classifier"],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.SGDClassifier"
+      },
+      "type": "Classifier",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "loss_function",
+            "kind_of_value": "{squared_loss, huber, epsilon_insensitive, squared_epsilon_insensitive}",
+            "optional": "False",
+            "description": "The loss function to be used.",
+            "scikit-learn": {
+              "default_value": "squared_loss",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "regularization_term",
+            "kind_of_value": "{none, l2, l1, elasticnet}",
+            "optional": "False",
+            "description": "The penalty (aka regularization term) to be used.",
+            "scikit-learn": {
+              "default_value": "l2",
+              "path": "penalty"
+            }
+          },
+          {
+            "name": "alpha",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Constant that multiplies the regularization term.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "l1_ratio",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The Elastic Net mixing parameter.",
+            "scikit-learn": {
+              "default_value": "0.15",
+              "path": "l1_ratio"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether the intercept should be estimated or not.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "{constant, optimal, invscaling}",
+            "optional": "True",
+            "description": "where t0 is chosen by a heuristic proposed by Leon Bottou.",
+            "scikit-learn": {
+              "default_value": "optimal",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "eta0",
+            "kind_of_value": "double",
+            "optional": "False",
+            "description": "The initial learning rate for the ‘constant’ or ‘invscaling’ schedules.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "eta0"
+            }
+          },
+          {
+            "name": "inverse_scaling_exponent",
+            "kind_of_value": "double",
+            "optional": "False",
+            "description": "The exponent for inverse scaling learning rate.",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": " power_t"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "{{class_label: weight}, balanced,  None}",
+            "optional": "True",
+            "description": "Weights associated with classes.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of CPUs to use to do the OVA (One Versus All, for multi-class problems) computation. -1 means ‘all CPUs’.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "stochastic gradient descent regressor",
+      "other_names": ["SGD regressor"],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.SGDRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "loss_function",
+            "kind_of_value": "{squared_loss, huber, epsilon_insensitive, squared_epsilon_insensitive}",
+            "optional": "False",
+            "description": "The loss function to be used.",
+            "scikit-learn": {
+              "default_value": "squared_loss",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "regularization_term",
+            "kind_of_value": "{none, l2, l1, elasticnet}",
+            "optional": "False",
+            "description": "The penalty (aka regularization term) to be used.",
+            "scikit-learn": {
+              "default_value": "l2",
+              "path": "penalty"
+            }
+          },
+          {
+            "name": "alpha",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Constant that multiplies the regularization term.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "l1_ratio",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The Elastic Net mixing parameter.",
+            "scikit-learn": {
+              "default_value": "0.15",
+              "path": "l1_ratio"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether the intercept should be estimated or not.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "{constant, optimal, invscaling}",
+            "optional": "True",
+            "description": "where t0 is chosen by a heuristic proposed by Leon Bottou.",
+            "scikit-learn": {
+              "default_value": "invscaling",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "eta0",
+            "kind_of_value": "double",
+            "optional": "False",
+            "description": "The initial learning rate for the ‘constant’ or ‘invscaling’ schedules.",
+            "scikit-learn": {
+              "default_value": "0.01",
+              "path": "eta0"
+            }
+          },
+          {
+            "name": "inverse_scaling_exponent",
+            "kind_of_value": "double",
+            "optional": "False",
+            "description": "The exponent for inverse scaling learning rate.",
+            "scikit-learn": {
+              "default_value": "0.25",
+              "path": " power_t"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
             }
           }
         ],
