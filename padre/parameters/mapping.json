@@ -1020,7 +1020,12 @@
     },
     {
       "name": "logistic regression",
-      "other_names": ["logit regression", "maximum-entropy classification", "MaxEnt", "log-linear classifier"],
+      "other_names": [
+        "logit regression",
+        "maximum-entropy classification",
+        "MaxEnt",
+        "log-linear classifier"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.linear_model.LogisticRegression"
       },
@@ -1029,7 +1034,7 @@
         "model_parameters": [
           {
             "name": "penalty",
-            "kind_of_value": "{str, l1, l2}",
+            "kind_of_value": "{l1, l2}",
             "optional": "False",
             "description": "Used to specify the norm used in the penalization.",
             "scikit-learn": {
@@ -1125,7 +1130,9 @@
     },
     {
       "name": "stochastic gradient descent classifier",
-      "other_names": ["SGD classifier"],
+      "other_names": [
+        "SGD classifier"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.linear_model.SGDClassifier"
       },
@@ -1263,6 +1270,26 @@
               "default_value": "1",
               "path": "n_jobs"
             }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether the intercept should be estimated or not.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
           }
         ],
         "execution_parameters": []
@@ -1270,7 +1297,9 @@
     },
     {
       "name": "stochastic gradient descent regressor",
-      "other_names": ["SGD regressor"],
+      "other_names": [
+        "SGD regressor"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.linear_model.SGDRegressor"
       },
@@ -1386,6 +1415,558 @@
             "description": "Maximum number of iterations.",
             "scikit-learn": {
               "default_value": "None",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "perceptron",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.Perceptron"
+      },
+      "type": "Classifier",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "regularization_term",
+            "kind_of_value": "{none, l2, l1, elasticnet}",
+            "optional": "False",
+            "description": "The penalty (aka regularization term) to be used.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "penalty"
+            }
+          },
+          {
+            "name": "alpha",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Constant that multiplies the regularization term.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether the intercept should be estimated or not.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "eta0",
+            "kind_of_value": "double",
+            "optional": "False",
+            "description": "The initial learning rate for the ‘constant’ or ‘invscaling’ schedules.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "eta0"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "{{class_label: weight}, balanced,  None}",
+            "optional": "True",
+            "description": "Weights associated with classes.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          },
+          {
+            "name": "epochs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of passes over the training data (aka epochs).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_iter"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "passive aggressive classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.PassiveAggressiveClassifier"
+      },
+      "type": "Classifier",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "regualrisation",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Maximum step size (regularization).",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether the intercept should be estimated or not.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "loss_function",
+            "kind_of_value": "{hinge, squared_hinge}",
+            "optional": "True",
+            "description": "The loss function to be used.",
+            "scikit-learn": {
+              "default_value": "hinge",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "dict or ‘balanced’ or None",
+            "optional": "True",
+            "description": "Weights associated with classes.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "epochs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum number of passes over the training data (aka epochs).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of of CPUs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "passive aggressive regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.PassiveAggressiveRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "regualrisation",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Maximum step size (regularization).",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether the intercept should be estimated or not.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "loss_function",
+            "kind_of_value": "{epsilon_insensitive, squared_epsilon_insensitive}",
+            "optional": "True",
+            "description": "The loss function to be used.",
+            "scikit-learn": {
+              "default_value": "epsilon_insensitive",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "update_threshold",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "If the difference between the current prediction and the correct label is below this threshold, the model is not updated.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "epsilon"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "epochs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum number of passes over the training data (aka epochs).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "random sample consensus regressor",
+      "other_names": [
+        "RANSAC"
+      ],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.RANSACRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "base_estimator",
+            "kind_of_value": "object",
+            "optional": "True",
+            "description": "base_estimator.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "base_estimator"
+            }
+          },
+          {
+            "name": "min_samples",
+            "kind_of_value": "int (>= 1) or float ([0, 1])",
+            "optional": "True",
+            "description": "Minimum number of samples chosen randomly from original data.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "min_samples"
+            }
+          },
+          {
+            "name": "residual_threshold",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Maximum residual for a data sample to be classified as an inlier. By default the threshold is chosen as the MAD (median absolute deviation) of the target values y.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "residual_threshold"
+            }
+          },
+          {
+            "name": "loss",
+            "kind_of_value": "{absolute_loss, squared_loss}",
+            "optional": "True",
+            "description": "If loss is a callable, then it should be a function that takes two arrays as inputs, the true and predicted value and returns a 1-D array with the i-th value of the array corresponding to the loss on X[i].",
+            "scikit-learn": {
+              "default_value": "absolute_loss",
+              "path": "loss"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "iterations_random_sampling",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations for random sample selection.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_trials"
+            }
+          },
+          {
+            "name": "max_skips",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations that can be skipped due to finding zero inliers or invalid data.",
+            "scikit-learn": {
+              "default_value": "inf",
+              "path": "max_skips"
+            }
+          },
+          {
+            "name": "stop_n_inliers",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Stop iteration if at least this number of inliers are found.",
+            "scikit-learn": {
+              "default_value": "inf",
+              "path": "stop_n_inliers"
+            }
+          },
+          {
+            "name": "stop_score",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Stop iteration if score is greater equal than this threshold.",
+            "scikit-learn": {
+              "default_value": "inf",
+              "path": "stop_score"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "theil-sen estimator",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.TheilSenRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "max_subpopulation",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "",
+            "scikit-learn": {
+              "default_value": "10000",
+              "path": "max_subpopulation"
+            }
+          },
+          {
+            "name": "n_subsamples",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of samples to calculate the parameters.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_subsamples"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance when calculating spatial median.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations for the calculation of spatial median.",
+            "scikit-learn": {
+              "default_value": "300",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of CPUs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "huber regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.linear_model.HuberRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "number_of_outliers",
+            "kind_of_value": "float > 1.0",
+            "optional": "False",
+            "description": "The parameter controls the number of samples that should be classified as outliers. The smaller the parameter, the more robust it is to outliers.",
+            "scikit-learn": {
+              "default_value": "1.35",
+              "path": "epsilon"
+            }
+          },
+          {
+            "name": "regularization_parameter",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Regularization parameter.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "1e-05",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations that scipy.optimize.fmin_l_bfgs_b should run for.",
+            "scikit-learn": {
+              "default_value": "100",
               "path": "max_iter"
             }
           }
