@@ -63,7 +63,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "lambda",
+            "name": "regularisation_strength",
             "kind_of_value": "float, array-like in the shape of the targets",
             "optional": "False",
             "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. Lambda corresponds to C^-1 in other linear models such as LogisticRegression or LinearSVC.",
@@ -1971,6 +1971,168 @@
             }
           }
         ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "linear discriminant analysis",
+      "other_names": ["LDA"],
+      "implementation": {
+        "scikit-learn": "sklearn.discriminant_analysis.LinearDiscriminantAnalysis"
+      },
+      "type": "Classifier",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "estimation_algorithm",
+            "kind_of_value": "{svd, lsqr, eigen}",
+            "optional": "True",
+            "description": "Possible values: singular value decomposition (svd), least squares solution (lsqr), eigenvalue decomposition (eigen)",
+            "scikit-learn": {
+              "default_value": "svd",
+              "path": "solver"
+            }
+          },
+          {
+            "name": "shrinkage",
+            "kind_of_value": "{None, auto, float between 0 and 1}",
+            "optional": "True",
+            "description": "Shrinkage is a tool to improve estimation of covariance matrices in situations where the number of training samples is small compared to the number of features. Possible values: no shrinkage (None), automatic shrinkage using the Ledoit-Wolf lemma (auto), fixed shrinkage parameter(float between 0 and 1)",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "shrinkage"
+            }
+          },
+          {
+            "name": "n_components",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of components (< n_classes - 1) for dimensionality reduction.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Threshold used for rank estimation in SVD solver.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "quadratic discriminant analysis",
+      "other_names": ["QDA"],
+      "implementation": {
+        "scikit-learn": "sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis"
+      },
+      "type": "Classifier",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "regularisation_parameter",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Regularizes the covariance estimate.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "reg_param"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Threshold used for rank estimation.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "kernel ridge regression",
+      "other_names": ["KRR"],
+      "implementation": {
+        "scikit-learn": "sklearn.kernel_ridge.KernelRidge"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "regularisation_strength",
+            "kind_of_value": "float, array-like in the shape of the targets",
+            "optional": "False",
+            "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. Lambda corresponds to C^-1 in other linear models such as LogisticRegression or LinearSVC.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "kernel",
+            "kind_of_value": "{string, callable}",
+            "optional": "False",
+            "description": "Kernel mapping used internally. A callable should accept two arguments and the keyword arguments passed to this object as kernel_params, and should return a floating point number.",
+            "scikit-learn": {
+              "default_value": "linear",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "gamma",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Gamma parameter for the RBF, laplacian, polynomial, exponential chi2 and sigmoid kernels. Interpretation depends on kernels.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "kernel_degree",
+            "kind_of_value": "float",
+            "optional": "float",
+            "description": "Degree of the polynomial kernel.",
+            "scikit-learn": {
+              "default_value": "3.0",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "zero_coefficient",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Zero coefficient for polynomial and sigmoid kernels.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "kernel_parameters",
+            "kind_of_value": "mapping of string to any",
+            "optional": "True",
+            "description": "Additional parameters (keyword arguments) for kernel function passed as callable object.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "kernel_params"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
         "execution_parameters": []
       }
     },
