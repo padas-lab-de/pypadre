@@ -139,7 +139,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "lambda",
+            "name": "l1_multiplier",
             "kind_of_value": "float",
             "optional": "True",
             "description": "Constant that multiplies the L1 term.",
@@ -318,7 +318,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "lambda",
+            "name": "l1_l2_multiplier",
             "kind_of_value": "float",
             "optional": "True",
             "description": "Constant that multiplies the L1/L2 term.",
@@ -434,7 +434,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "lambda",
+            "name": "l1_l2_multiplier",
             "kind_of_value": "float",
             "optional": "True",
             "description": "Constant that multiplies the L1/L2 term.",
@@ -609,7 +609,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "lambda",
+            "name": "penalty_multiplier",
             "kind_of_value": "float",
             "optional": "True",
             "description": "Constant that multiplies the penalty term.",
@@ -841,7 +841,7 @@
             "optional": "True",
             "description": "Shape parameter for the Gamma distribution prior over the alpha parameter.",
             "scikit-learn": {
-              "default_value": "1e-06",
+              "default_value": "0.000006",
               "path": "alpha_1"
             }
           },
@@ -851,7 +851,7 @@
             "optional": "True",
             "description": "Inverse scale parameter (rate parameter) for the Gamma distribution prior over the alpha parameter.",
             "scikit-learn": {
-              "default_value": "1e-06",
+              "default_value": "0.000006",
               "path": "alpha_2"
             }
           },
@@ -861,7 +861,7 @@
             "optional": "True",
             "description": "Shape parameter for the Gamma distribution prior over the lambda parameter.",
             "scikit-learn": {
-              "default_value": "1e-06",
+              "default_value": "0.000006",
               "path": "lambda_1"
             }
           },
@@ -871,7 +871,7 @@
             "optional": "True",
             "description": "Inverse scale parameter (rate parameter) for the Gamma distribution prior over the lambda parameter.",
             "scikit-learn": {
-              "default_value": "1e-06",
+              "default_value": "0.000006",
               "path": "lambda_2"
             }
           },
@@ -1053,7 +1053,7 @@
             }
           },
           {
-            "name": "C",
+            "name": "inverse_regularisation_strength",
             "kind_of_value": "float",
             "optional": "False",
             "description": "Inverse of regularization strength; must be a positive float. Like in support vector machines, smaller values specify stronger regularization.",
@@ -1160,7 +1160,7 @@
             }
           },
           {
-            "name": "alpha",
+            "name": "regualrisation_multiplier",
             "kind_of_value": "float",
             "optional": "False",
             "description": "Constant that multiplies the regularization term.",
@@ -1327,7 +1327,7 @@
             }
           },
           {
-            "name": "alpha",
+            "name": "regualrisation_multiplier",
             "kind_of_value": "float",
             "optional": "False",
             "description": "Constant that multiplies the regularization term.",
@@ -1442,7 +1442,7 @@
             }
           },
           {
-            "name": "alpha",
+            "name": "regularisation_multiplier",
             "kind_of_value": "float",
             "optional": "False",
             "description": "Constant that multiplies the regularization term.",
@@ -1553,7 +1553,7 @@
       "implementation": {
         "scikit-learn": "sklearn.linear_model.PassiveAggressiveClassifier"
       },
-      "type": "Classifier",
+      "type": "Classification",
       "hyper_parameters": {
         "model_parameters": [
           {
@@ -1980,7 +1980,7 @@
       "implementation": {
         "scikit-learn": "sklearn.discriminant_analysis.LinearDiscriminantAnalysis"
       },
-      "type": "Classifier",
+      "type": "Classification",
       "hyper_parameters": {
         "model_parameters": [
           {
@@ -2034,7 +2034,7 @@
       "implementation": {
         "scikit-learn": "sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis"
       },
-      "type": "Classifier",
+      "type": "Classification",
       "hyper_parameters": {
         "model_parameters": [
           {
@@ -2137,6 +2137,341 @@
       }
     },
     {
+      "name": "c-support vector classification.",
+      "other_names": ["SVC"],
+      "implementation": {
+        "scikit-learn": "sklearn.svm.SVC"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "error_penalty",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Penalty parameter of the error term.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "kernel",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', a callable in shape (n_samples, n_samples)}",
+            "optional": "True",
+            "description": "Specifies the kernel type to be used in the algorithm.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "poly_degree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "kernel_coefficient",
+            "kind_of_value": "float or 'auto'",
+            "optional": "True",
+            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "independent_kernel_term",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "shrinking",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use the shrinking heuristic.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shrinking"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for stopping criterion.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "{dictionary with weights for all calsses, 'balanced', None}",
+            "optional": "True",
+            "description": "Weights the classes. The “balanced” mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as n_samples / (n_classes * np.bincount(y)).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "cache_size",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Specify the size of the kernel cache (in MB).",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "cache_size"
+            }
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Hard limit on iterations within solver, or -1 for no limit.",
+            "scikit-learn": {
+              "default_value": "-1",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "nu-support vector classification",
+      "other_names": ["nuSVC"],
+      "implementation": {
+        "scikit-learn": "sklearn.svm.NuSVC"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "nu",
+            "kind_of_value": "float (0, 1]",
+            "optional": "True",
+            "description": "An upper bound on the fraction of training errors and a lower bound of the fraction of support vectors. Should be in the interval (0, 1].",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "nu"
+            }
+          },
+          {
+            "name": "kernel",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', a callable in shape (n_samples, n_samples)}",
+            "optional": "True",
+            "description": "Specifies the kernel type to be used in the algorithm.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "poly_degree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "kernel_coefficient",
+            "kind_of_value": "float or 'auto'",
+            "optional": "True",
+            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "independent_kernel_term",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "shrinking",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use the shrinking heuristic.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shrinking"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for stopping criterion.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "{dictionary with weights for all calsses, 'balanced', None}",
+            "optional": "True",
+            "description": "Weights the classes. The “balanced” mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as n_samples / (n_classes * np.bincount(y)).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "cache_size",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Specify the size of the kernel cache (in MB).",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "cache_size"
+            }
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Hard limit on iterations within solver, or -1 for no limit.",
+            "scikit-learn": {
+              "default_value": "-1",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "linear support vector classification",
+      "other_names": ["linear SVC"],
+      "implementation": {
+        "scikit-learn": "sklearn.svm.LinearSVC"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "penalty",
+            "kind_of_value": "{'l1', 'l2'}",
+            "optional": "False",
+            "description": "Specifies the norm used in the penalization.",
+            "scikit-learn": {
+              "default_value": "'l2'",
+              "path": "penalty"
+            }
+          },
+          {
+            "name": "loss_function",
+            "kind_of_value": "{'hinge', ‘squared_hinge’}",
+            "optional": "False",
+            "description": "The loss function to be used.",
+            "scikit-learn": {
+              "default_value": "‘squared_hinge’",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "dual",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Select the algorithm to either solve the dual or primal optimization problem.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "dual"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for stopping criteria.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "error_penalty",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Penalty parameter of the error term.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "multi_class_strategy",
+            "kind_of_value": "{'ovr', 'crammer_singer'}",
+            "optional": "False",
+            "description": "Determines the multi-class strategy if y contains more than two classes.",
+            "scikit-learn": {
+              "default_value": "'ovr'",
+              "path": "multi_class"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "{dictionary with weights for all calsses, 'balanced', None}",
+            "optional": "True",
+            "description": "Weights the classes. The “balanced” mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as n_samples / (n_classes * np.bincount(y)).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The maximum number of iterations to be run.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
       "name": "",
       "other_names": [],
       "implementation": {
@@ -2158,6 +2493,14 @@
         ],
         "optimisation_parameters": [
           {
+            "name": "",
+            "kind_of_value": "",
+            "optional": "",
+            "description": "",
+            "scikit-learn": {
+              "default_value": "",
+              "path": ""
+            }
           }
         ],
         "execution_parameters": []
