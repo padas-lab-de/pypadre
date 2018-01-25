@@ -1141,17 +1141,17 @@
         "model_parameters": [
           {
             "name": "loss_function",
-            "kind_of_value": "{squared_loss, huber, epsilon_insensitive, squared_epsilon_insensitive}",
+            "kind_of_value": "{‘hinge’, ‘log’, ‘modified_huber’, ‘squared_hinge’, ‘perceptron’, ‘squared_loss’, ‘huber’, ‘epsilon_insensitive’, ‘squared_epsilon_insensitive’}",
             "optional": "False",
             "description": "The loss function to be used.",
             "scikit-learn": {
-              "default_value": "squared_loss",
+              "default_value": "'hinge'",
               "path": "loss"
             }
           },
           {
             "name": "regularization_term",
-            "kind_of_value": "{none, l2, l1, elasticnet}",
+            "kind_of_value": "{'none', 'l2', 'l1', 'elasticnet'}",
             "optional": "False",
             "description": "The penalty (aka regularization term) to be used.",
             "scikit-learn": {
@@ -1308,21 +1308,21 @@
         "model_parameters": [
           {
             "name": "loss_function",
-            "kind_of_value": "{squared_loss, huber, epsilon_insensitive, squared_epsilon_insensitive}",
+            "kind_of_value": "{ ‘squared_loss’, ‘huber’, ‘epsilon_insensitive’, ‘squared_epsilon_insensitive’}",
             "optional": "False",
             "description": "The loss function to be used.",
             "scikit-learn": {
-              "default_value": "squared_loss",
+              "default_value": "'squared_loss'",
               "path": "loss"
             }
           },
           {
             "name": "regularization_term",
-            "kind_of_value": "{none, l2, l1, elasticnet}",
+            "kind_of_value": "{'none', 'l2', 'l1', 'elasticnet'}",
             "optional": "False",
             "description": "The penalty (aka regularization term) to be used.",
             "scikit-learn": {
-              "default_value": "l2",
+              "default_value": "'l2'",
               "path": "penalty"
             }
           },
@@ -1368,11 +1368,11 @@
           },
           {
             "name": "learning_rate",
-            "kind_of_value": "{constant, optimal, invscaling}",
+            "kind_of_value": "{'constant', 'optimal', 'invscaling'}",
             "optional": "True",
             "description": "where t0 is chosen by a heuristic proposed by Leon Bottou.",
             "scikit-learn": {
-              "default_value": "invscaling",
+              "default_value": "'invscaling'",
               "path": "learning_rate"
             }
           },
@@ -1976,7 +1976,9 @@
     },
     {
       "name": "linear discriminant analysis",
-      "other_names": ["LDA"],
+      "other_names": [
+        "LDA"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.discriminant_analysis.LinearDiscriminantAnalysis"
       },
@@ -2030,7 +2032,9 @@
     },
     {
       "name": "quadratic discriminant analysis",
-      "other_names": ["QDA"],
+      "other_names": [
+        "QDA"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis"
       },
@@ -2064,7 +2068,9 @@
     },
     {
       "name": "kernel ridge regression",
-      "other_names": ["KRR"],
+      "other_names": [
+        "KRR"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.kernel_ridge.KernelRidge"
       },
@@ -2138,7 +2144,9 @@
     },
     {
       "name": "c-support vector classification.",
-      "other_names": ["SVC"],
+      "other_names": [
+        "SVC"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.svm.SVC"
       },
@@ -2253,7 +2261,9 @@
     },
     {
       "name": "nu-support vector classification",
-      "other_names": ["nuSVC"],
+      "other_names": [
+        "nuSVC"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.svm.NuSVC"
       },
@@ -2367,8 +2377,10 @@
       }
     },
     {
-      "name": "linear support vector classification",
-      "other_names": ["linear SVC"],
+      "name": "linear-support vector classification",
+      "other_names": [
+        "linear SVC"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.svm.LinearSVC"
       },
@@ -2465,6 +2477,517 @@
             "scikit-learn": {
               "default_value": "1000",
               "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "epsilon-support vector regression",
+      "other_names": [
+        "SVR"
+      ],
+      "implementation": {
+        "scikit-learn": "sklearn.svm.SVR"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "error_penalty",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Penalty parameter of the error term.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "epsilon",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Epsilon in the epsilon-SVR model. It specifies the epsilon-tube within which no penalty is associated in the training loss function with points predicted within a distance epsilon from the actual value.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "epsilon"
+            }
+          },
+          {
+            "name": "kernel",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', a callable in shape (n_samples, n_samples)}",
+            "optional": "True",
+            "description": "Specifies the kernel type to be used in the algorithm.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "poly_degree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "kernel_coefficient",
+            "kind_of_value": "float or 'auto'",
+            "optional": "True",
+            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "independent_kernel_term",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "shrinking",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use the shrinking heuristic.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shrinking"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for stopping criterion.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "cache_size",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Specify the size of the kernel cache (in MB).",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "cache_size"
+            }
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Hard limit on iterations within solver, or -1 for no limit.",
+            "scikit-learn": {
+              "default_value": "-1",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "nu-support vector regression",
+      "other_names": [
+        "nuSVR"
+      ],
+      "implementation": {
+        "scikit-learn": "sklearn.svm.NuSVR"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "error_penalty",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Penalty parameter of the error term.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "nu",
+            "kind_of_value": "float (0, 1]",
+            "optional": "True",
+            "description": "An upper bound on the fraction of training errors and a lower bound of the fraction of support vectors. Should be in the interval (0, 1].",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "nu"
+            }
+          },
+          {
+            "name": "kernel",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', a callable in shape (n_samples, n_samples)}",
+            "optional": "True",
+            "description": "Specifies the kernel type to be used in the algorithm.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "poly_degree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "kernel_coefficient",
+            "kind_of_value": "float or 'auto'",
+            "optional": "True",
+            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "independent_kernel_term",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "shrinking",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use the shrinking heuristic.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shrinking"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for stopping criterion.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "cache_size",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Specify the size of the kernel cache (in MB).",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "cache_size"
+            }
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Hard limit on iterations within solver, or -1 for no limit.",
+            "scikit-learn": {
+              "default_value": "-1",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "linear-support vector regression",
+      "other_names": [
+        "linearSVR"
+      ],
+      "implementation": {
+        "scikit-learn": "sklearn.svm.LinearSVR"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "error_penalty",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Penalty parameter of the error term.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "C"
+            }
+          },
+          {
+            "name": "loss_function",
+            "kind_of_value": "{'epsilon_insensitive', 'squared_epsilon_insensitive'}",
+            "optional": "False",
+            "description": "The loss function to be used.",
+            "scikit-learn": {
+              "default_value": "’epsilon_insensitive’",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "epsilon",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Epsilon parameter in the epsilon-insensitive loss function. Note that the value of this parameter depends on the scale of the target variable y.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "epsilon"
+            }
+          },
+          {
+            "name": "dual",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Select the algorithm to either solve the dual or primal optimization problem.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "dual"
+            }
+          },
+          {
+            "name": "intercept",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The maximum number of iterations to be run.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "one-class support vector machine",
+      "other_names": ["one-calss SVM"],
+      "implementation": {
+        "scikit-learn": "sklearn.svm.OneClassSVM"
+      },
+      "type": "Outlier Detection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "nu",
+            "kind_of_value": "float (0, 1]",
+            "optional": "True",
+            "description": "An upper bound on the fraction of training errors and a lower bound of the fraction of support vectors. Should be in the interval (0, 1].",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "nu"
+            }
+          },
+          {
+            "name": "kernel",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', a callable in shape (n_samples, n_samples)}",
+            "optional": "True",
+            "description": "Specifies the kernel type to be used in the algorithm.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "poly_degree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "kernel_coefficient",
+            "kind_of_value": "float or 'auto'",
+            "optional": "True",
+            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "independent_kernel_term",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "shrinking",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use the shrinking heuristic.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shrinking"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for stopping criterion.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "cache_size",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Specify the size of the kernel cache (in MB).",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "cache_size"
+            }
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Hard limit on iterations within solver, or -1 for no limit.",
+            "scikit-learn": {
+              "default_value": "-1",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "nearest neighbours",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.NearestNeighbors"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of neighbors to use by default for kneighbors queries.",
+            "scikit-learn": {
+              "default_value": "5",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "radius",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Range of parameter space to use by default for radius_neighbors queries.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "radius"
+            }
+          },
+          {
+            "name": "algorithm",
+            "kind_of_value": "{‘ball_tree’, ‘kd_tree’, ‘brute’, ‘auto’}",
+            "optional": "True",
+            "description": "Algorithm used to compute the nearest neighbors.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "leaf_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Leaf size passed to BallTree or KDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "leaf_size"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "Metric to use for distance computation.",
+            "scikit-learn": {
+              "default_value": "’minkowski’",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "minkowski_parameter",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Parameter for the Minkowski metric.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "p"
+            }
+          },
+          {
+            "name": "metric_parameters",
+            "kind_of_value": "dict",
+            "optional": "True",
+            "description": "Additional keyword arguments for the metric function.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "metric_params"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
             }
           }
         ],
