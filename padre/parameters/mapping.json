@@ -1136,7 +1136,7 @@
       "implementation": {
         "scikit-learn": "sklearn.linear_model.SGDClassifier"
       },
-      "type": "Classifier",
+      "type": "Classification",
       "hyper_parameters": {
         "model_parameters": [
           {
@@ -1428,7 +1428,7 @@
       "implementation": {
         "scikit-learn": "sklearn.linear_model.Perceptron"
       },
-      "type": "Classifier",
+      "type": "Classification",
       "hyper_parameters": {
         "model_parameters": [
           {
@@ -2991,6 +2991,498 @@
             }
           }
         ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "k-d tree",
+      "other_names": ["KDTree", "k-dimensional tree"],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.KDTree"
+      },
+      "type": "Search Tree",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "samples_feature",
+            "kind_of_value": "array, shape: [n_samples, n_features]",
+            "optional": "False",
+            "description": "n_samples is the number of points in the data set, and n_features is the dimension of the parameter space.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{'p', 'l1', 'chebyshev', 'manhattan', 'minkowski', 'cityblock', 'l2', 'euclidean', 'infinity'}",
+            "optional": "False",
+            "description": "The distance metric to use for the tree.",
+            "scikit-learn": {
+              "default_value": "’minkowski’",
+              "path": "metric"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "leaf_size",
+            "kind_of_value": "positive integer",
+            "optional": "False",
+            "description": "Number of points at which to switch to brute-force. Changing leaf_size will not affect the results of a query, but can significantly impact the speed of a query and the memory required to store the constructed tree.",
+            "scikit-learn": {
+              "default_value": "40",
+              "path": "leaf_size"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "ball tree",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.BallTree"
+      },
+      "type": "Search Tree",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "samples_feature",
+            "kind_of_value": "array, shape: [n_samples, n_features]",
+            "optional": "False",
+            "description": "n_samples is the number of points in the data set, and n_features is the dimension of the parameter space.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{'seuclidean', 'hamming', 'dice', 'jaccard', 'matching', 'russellrao',  'euclidean', 'kulsinski', 'wminkowski', 'chebyshev', 'mahalanobis', 'sokalmichener', 'rogerstanimoto', 'infinity', 'p', 'canberra',  'haversine', 'sokalsneath', 'l1', 'minkowski', 'pyfunc', 'l2', 'cityblock', 'braycurtis', 'manhattan'}",
+            "optional": "False",
+            "description": "The distance metric to use for the tree.",
+            "scikit-learn": {
+              "default_value": "’minkowski’",
+              "path": "metric"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "leaf_size",
+            "kind_of_value": "positive integer",
+            "optional": "False",
+            "description": "Number of points at which to switch to brute-force. Changing leaf_size will not affect the results of a query, but can significantly impact the speed of a query and the memory required to store the constructed tree.",
+            "scikit-learn": {
+              "default_value": "40",
+              "path": "leaf_size"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "radius neighbors classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.RadiusNeighborsClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "radius",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Range of parameter space to use.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "radius"
+            }
+          },
+          {
+            "name": "weight_function",
+            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "optional": "False",
+            "description": "Weight function used in prediction.",
+            "scikit-learn": {
+              "default_value": "‘uniform’",
+              "path": "weights"
+            }
+          },
+          {
+            "name": "nn_algorithm",
+            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "optional": "True",
+            "description": "Algorithm used to compute the nearest neighbors.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "leaf_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Leaf size passed to BallTree or KDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "leaf_size"
+            }
+          },
+          {
+            "name": "minkowski_parameter",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Parameter for the Minkowski metric.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "p"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "The distance metric to use for the tree.",
+            "scikit-learn": {
+              "default_value": "’minkowski’",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "outlier_label",
+            "kind_of_value": "integer or 'None'",
+            "optional": "True",
+            "description": "Label, which is given for outlier samples (samples with no neighbors on given radius). If set to None, ValueError is raised, when outlier is detected.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "outlier_label"
+            }
+          },
+          {
+            "name": "metric_parameters",
+            "kind_of_value": "dict",
+            "optional": "True",
+            "description": "Additional keyword arguments for the metric function.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "metric_params"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "k-nn classifier",
+      "other_names": [" k-nearest neighbors calssifier"],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.KNeighborsClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "n_neighbors",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of neighbors to use.",
+            "scikit-learn": {
+              "default_value": "5",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "weight_function",
+            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "optional": "False",
+            "description": "Weight function used in prediction.",
+            "scikit-learn": {
+              "default_value": "‘uniform’",
+              "path": "weights"
+            }
+          },
+          {
+            "name": "nn_algorithm",
+            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "optional": "True",
+            "description": "Algorithm used to compute the nearest neighbors.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "leaf_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Leaf size passed to BallTree or KDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "leaf_size"
+            }
+          },
+          {
+            "name": "minkowski_parameter",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Parameter for the Minkowski metric.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "p"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "The distance metric to use for the tree.",
+            "scikit-learn": {
+              "default_value": "’minkowski’",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "metric_parameters",
+            "kind_of_value": "dict",
+            "optional": "True",
+            "description": "Additional keyword arguments for the metric function.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "metric_params"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "k-nn regressor",
+      "other_names": [" k-nearest neighbors regressor"],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.KNeighborsRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "n_neighbors",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of neighbors to use.",
+            "scikit-learn": {
+              "default_value": "5",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "weight_function",
+            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "optional": "False",
+            "description": "Weight function used in prediction.",
+            "scikit-learn": {
+              "default_value": "‘uniform’",
+              "path": "weights"
+            }
+          },
+          {
+            "name": "nn_algorithm",
+            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "optional": "True",
+            "description": "Algorithm used to compute the nearest neighbors.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "leaf_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Leaf size passed to BallTree or KDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "leaf_size"
+            }
+          },
+          {
+            "name": "minkowski_parameter",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Parameter for the Minkowski metric.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "p"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "The distance metric to use for the tree.",
+            "scikit-learn": {
+              "default_value": "’minkowski’",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "metric_parameters",
+            "kind_of_value": "dict",
+            "optional": "True",
+            "description": "Additional keyword arguments for the metric function.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "metric_params"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "radius neighbors regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.RadiusNeighborsRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "radius",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Range of parameter space to use.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "radius"
+            }
+          },
+          {
+            "name": "weight_function",
+            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "optional": "False",
+            "description": "Weight function used in prediction.",
+            "scikit-learn": {
+              "default_value": "‘uniform’",
+              "path": "weights"
+            }
+          },
+          {
+            "name": "nn_algorithm",
+            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "optional": "True",
+            "description": "Algorithm used to compute the nearest neighbors.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "leaf_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Leaf size passed to BallTree or KDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "leaf_size"
+            }
+          },
+          {
+            "name": "minkowski_parameter",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Parameter for the Minkowski metric.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "p"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "The distance metric to use for the tree.",
+            "scikit-learn": {
+              "default_value": "’minkowski’",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "metric_parameters",
+            "kind_of_value": "dict",
+            "optional": "True",
+            "description": "Additional keyword arguments for the metric function.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "metric_params"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "nearest centroid classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.neighbors.NearestCentroid"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{[‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’}",
+            "optional": "False",
+            "description": "The metric to use when calculating distance between instances in a feature array.",
+            "scikit-learn": {
+              "default_value": "'euclidean'’",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "shrink_threshold",
+            "kind_of_value": "float or None",
+            "optional": "True",
+            "description": "Threshold for shrinking centroids to remove features.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "shrink_threshold"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
         "execution_parameters": []
       }
     },
