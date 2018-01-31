@@ -3487,6 +3487,135 @@
       }
     },
     {
+      "name": "gaussian process regression",
+      "other_names": ["GPR"],
+      "implementation": {
+        "scikit-learn": "sklearn.gaussian_process.GaussianProcessRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "kernel",
+            "kind_of_value": "kernel object",
+            "optional": "False",
+            "description": "The kernel specifying the covariance function of the GP.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "kernel_optimizer",
+            "kind_of_value": "{'fmin_l_bfgs_b', externally defined optimizer passed as a callable }",
+            "optional": "True",
+            "description": "Optimizer to optimize the kernel parameters.",
+            "scikit-learn": {
+              "default_value": "'fmin_l_bfgs_b'",
+              "path": "optimizer"
+            }
+          },
+          {
+            "name": "n_restarts_optimizer",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of restarts of the optimizer for finding the kernel’s parameters which maximize the log-marginal likelihood. The first run of the optimizer is performed from the kernel’s initial parameters, the remaining ones (if any) from thetas sampled log-uniform randomly from the space of allowed theta-values.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "n_restarts_optimizer"
+            }
+          },
+          {
+            "name": "normalize_y",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether the target values y are normalized, i.e., the mean of the observed target values become zero. This parameter should be set to True if the target values’ mean is expected to differ considerable from zero. When enabled, the normalization effectively modifies the GP’s prior based on the data, which contradicts the likelihood principle.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "normalize_y"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "gaussian process classification",
+      "other_names": ["GPC"],
+      "implementation": {
+        "scikit-learn": "sklearn.gaussian_process.GaussianProcessClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "kernel",
+            "kind_of_value": "kernel object",
+            "optional": "False",
+            "description": "The kernel specifying the covariance function of the GP.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "kernel_optimizer",
+            "kind_of_value": "{'fmin_l_bfgs_b', externally defined optimizer passed as a callable }",
+            "optional": "True",
+            "description": "Optimizer to optimize the kernel parameters.",
+            "scikit-learn": {
+              "default_value": "'fmin_l_bfgs_b'",
+              "path": "optimizer"
+            }
+          },
+          {
+            "name": "n_restarts_optimizer",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of restarts of the optimizer for finding the kernel’s parameters which maximize the log-marginal likelihood. The first run of the optimizer is performed from the kernel’s initial parameters, the remaining ones (if any) from thetas sampled log-uniform randomly from the space of allowed theta-values.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "n_restarts_optimizer"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, the solution of the last Newton iteration on the Laplace approximation of the posterior mode is used as initialization for the next call, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "multi_class",
+            "kind_of_value": "'one_vs_rest', 'one_vs_one'",
+            "optional": "False",
+            "description": "Specifies how multi-class classification problems are handled.",
+            "scikit-learn": {
+              "default_value": "'one_vs_rest'",
+              "path": "multi_class"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
       "name": "",
       "other_names": [],
       "implementation": {
