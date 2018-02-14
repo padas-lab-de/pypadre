@@ -59,7 +59,7 @@ class ListAttribute(Attribute):
         :return: (bool, str) (True, ""), if the data fits. (False, <reason>), otherwise.
         """
         for i in range(len(data)):
-            tmp = ExperimentSchema.verify_static(data[i], self.schema, path + "[" + str(i) + "]")
+            tmp = Schema.verify_static(data[i], self.schema, path + "[" + str(i) + "]")
             if not tmp[0]:
                 return tmp
         return (True, "")
@@ -93,7 +93,7 @@ class DictAttribute(Attribute):
             p = path + "." + k
             if k in data:
 
-                tmp = ExperimentSchema.verify_static(data[k], self.schema[k], p)
+                tmp = Schema.verify_static(data[k], self.schema[k], p)
                 if not tmp[0]:
                     return tmp
                 keyset.remove(k)
@@ -123,7 +123,7 @@ class SelectSchema(object):
         :param keyset: used for recursion. Contains the unchecked keys of the data.
         :return: (bool, str) (True, ""), if the data fits. (False, <reason>), otherwise.
         """
-        return ExperimentSchema.verify_static(data, self.decision(data), path, keyset)
+        return Schema.verify_static(data, self.decision(data), path, keyset)
 
 class CombineSchemata(object):
     """
@@ -146,12 +146,12 @@ class CombineSchemata(object):
         :return: (bool, str) (True, ""), if the data fits. (False, <reason>), otherwise.
         """
         for schema in self.schemata:
-            tmp = ExperimentSchema.verify_static(data, schema, path, keyset)
+            tmp = Schema.verify_static(data, schema, path, keyset)
             if not tmp[0]:
                 return tmp
         return (True, "")
 
-class ExperimentSchema(object):
+class Schema(object):
     """
     Describing a schema for experiment parameters.
     """
@@ -169,7 +169,7 @@ class ExperimentSchema(object):
         :param data: the data to be verified.
         :return: the result of the call to verify_static.
         """
-        return ExperimentSchema.verify_static(data, self.schema)
+        return Schema.verify_static(data, self.schema)
 
     @staticmethod
     def verify_static(data, schema, path="", keyset=None):
@@ -239,6 +239,10 @@ class AlgorithmSchema(object):
         :param data: the data to be verified.
         :return: (bool, str) (True, ""), if the data fits. (False, <reason-str>), otherwise.
         """
+
+        if not 'hyper_parameters' in data:
+            return (False, "Missing 'hyper_parameters'-field!")
+
         alg = name_mappings[data['algorithm']]
 
         for param_type in alg['hyper_parameters']:

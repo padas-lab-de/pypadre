@@ -11,7 +11,7 @@ from padre.parameter import Parameter
 
 from padre.schema import SchemaMismatch
 
-class ExperimentVisitor(abc.ABC):
+class Visitor(abc.ABC):
     """
     A Visitor to inspect library-specific experiment setups and extract the setup information.
     For every value there will also be the access string of the item in the original object stored.
@@ -89,7 +89,7 @@ class ExperimentVisitor(abc.ABC):
 
         return result
 
-class DictVisitor(ExperimentVisitor):
+class DictVisitor(Visitor):
     """
     A Visitor-implementation to inspect library-specific experiment setups and extract the setup information by using a template-dictionary.
     For each key in the dicitionary the corresponding value will be applied as visitor to a member of object by the same name as key.
@@ -133,13 +133,13 @@ class DictVisitor(ExperimentVisitor):
             raise TypeError("Inspected object has unsupported Type: " + str(type(object)))
 
         for k in template:
-            ExperimentVisitor.applyVisitor(getter(k), result, template[k], path + "." + k)
+            Visitor.applyVisitor(getter(k), result, template[k], path + "." + k)
                 #print("Warning: Parameter '" + k + "' could not be found in object " + repr(object) + ".")
 
 
         return result
 
-class ListVisitor(ExperimentVisitor):
+class ListVisitor(Visitor):
     """
     A Visitor-implementation to inspect library-specific experiment setups and extract the setup information of a list by using a template on every object of the list.
     The template is represented by a dict, where a value can be of any of the types supported by ExperimentVisitor.applyVisitor.
@@ -173,7 +173,7 @@ class ListVisitor(ExperimentVisitor):
         return result
 
 
-class TupleVisitor(ExperimentVisitor):
+class TupleVisitor(Visitor):
     """
     A Visitor-implementation to inspect library-specific experiment setups and extract the setup information of a tuple-like by applying a template-tuple pairwise on the objects of the tuple.
     The template is represented by a tuple, where a value can be of any of the types supported by ExperimentVisitor.applyVisitor.
@@ -201,7 +201,7 @@ class TupleVisitor(ExperimentVisitor):
             self.applyVisitor(object[i], result, self.template[i], path + "[" + str(i) + "]")
         return result
 
-class SelectVisitor(ExperimentVisitor):
+class SelectVisitor(Visitor):
     """
     A Visitor-implementation to inspect library-specific experiment setups and select the correct visitor using a decision-dict.
     """
@@ -234,7 +234,7 @@ class SelectVisitor(ExperimentVisitor):
             raise TypeError("Unsupported object encountered: " + str(type(object)))
         return self.applyVisitor(object, result, visitor, path)
 
-class CombineVisitor(ExperimentVisitor):
+class CombineVisitor(Visitor):
     """
     A Visitor-implementation to combine multiple visitor-objects.
     """
@@ -259,7 +259,7 @@ class CombineVisitor(ExperimentVisitor):
             self.applyVisitor(object, result, visitor, path)
         return result
 
-class ConstantVisitor(ExperimentVisitor):
+class ConstantVisitor(Visitor):
     """
     A Visitor-implementation that inserts a constant dict of values into the result-dict.
     """
@@ -284,7 +284,7 @@ class ConstantVisitor(ExperimentVisitor):
             self.applyVisitor(self.values[k], result, k, path)
         return result
 
-class SubpathVisitor(ExperimentVisitor):
+class SubpathVisitor(Visitor):
     """
     A Visitor that creates and steps into a subpath of the result dict without changing object and applies its template on the object in the new path.
     """
@@ -325,7 +325,7 @@ class SubpathVisitor(ExperimentVisitor):
         return self.applyVisitor(object, subresult, self.template, path)
 
 
-class AlgorithmVisitor(ExperimentVisitor):
+class AlgorithmVisitor(Visitor):
     """
     A Visitor that uses the information given in mapping.json to extract the information of an object.
     """

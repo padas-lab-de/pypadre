@@ -3,7 +3,7 @@ import unittest
 
 from sklearn.linear_model import Ridge, LinearRegression
 
-from padre.experimentvisitors import DictVisitor
+from padre.visitor import DictVisitor
 
 from sklearn.pipeline import Pipeline
 

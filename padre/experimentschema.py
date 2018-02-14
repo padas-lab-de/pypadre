@@ -1,7 +1,7 @@
-from padre.schema import Attribute, ExperimentSchema, ListAttribute, SelectSchema, AlgorithmSchema
+from padre.schema import Attribute, Schema, ListAttribute, SelectSchema, AlgorithmSchema
 
 
-PipelineSchema = ExperimentSchema(
+PipelineSchema = Schema(
     {
         "steps":ListAttribute("steps", "The steps", False,[
             {
