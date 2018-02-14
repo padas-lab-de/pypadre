@@ -4,10 +4,8 @@ The configuration-file 'mappings.json' is read during import of the module and s
 
 import json
 
-
-with open("../padre/parameters/mapping.json") as f:
-    # print(f.read())
-    algorithms = json.loads(f.read()[3:])['algorithms']
+with open("../padre/parameters/mapping.json", encoding='utf-8-sig') as f:
+    algorithms = json.loads(f.read())['algorithms']
 
 type_mappings = {}
 name_mappings = {}
