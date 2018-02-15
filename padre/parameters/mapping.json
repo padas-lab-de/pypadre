@@ -10,7 +10,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -66,14 +66,14 @@
             "name": "regularisation_strength",
             "kind_of_value": "float, array-like in the shape of the targets",
             "optional": "False",
-            "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. Lambda corresponds to C^-1 in other linear models such as LogisticRegression or LinearSVC.",
+            "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization.",
             "scikit-learn": {
               "default_value": "1.0",
               "path": "alpha"
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
@@ -104,11 +104,11 @@
           },
           {
             "name": "solver",
-            "kind_of_value": "{‘auto’, ‘svd’, ‘cholesky’, ‘lsqr’, ‘sparse_cg’, ‘sag’, ‘saga’}",
+            "kind_of_value": "{'auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'}",
             "optional": "False",
-            "description": "Solver to use in the computational routines: -‘auto’ chooses the solver automatically based on the type of data. -‘svd’ uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than ‘cholesky’. -‘cholesky’ uses the standard scipy.linalg.solve function to obtain a closed-form solution. -‘sparse_cg’ uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than ‘cholesky’ for large-scale data (possibility to set tol and max_iter). -‘lsqr’ uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -‘sag’ uses a Stochastic Average Gradient descent, and ‘saga’ uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
+            "description": "Solver to use in the computational routines: -'auto' chooses the solver automatically based on the type of data. -'svd' uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than 'cholesky'. -'cholesky' uses the standard scipy.linalg.solve function to obtain a closed-form solution. -'sparse_cg' uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than 'cholesky' for large-scale data (possibility to set tol and max_iter). -'lsqr' uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -'sag' uses a Stochastic Average Gradient descent, and 'saga' uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that 'sag' and 'saga' fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
             "scikit-learn": {
-              "default_value": "auto",
+              "default_value": "'auto'",
               "path": "solver"
             }
           }
@@ -149,7 +149,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
@@ -200,11 +200,11 @@
           },
           {
             "name": "selection",
-            "kind_of_value": "string",
+            "kind_of_value": "{'cyclic', 'random'}",
             "optional": "False",
-            "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+            "description": "If set to 'random', a random coefficient is updated every iteration rather than looping over features sequentially by default.",
             "scikit-learn": {
-              "default_value": "cyclic",
+              "default_value": "'cyclic'",
               "path": "selection"
             }
           }
@@ -233,7 +233,7 @@
       "type": "Regression",
       "hyper_parameters": [
         {
-          "name": "lambda",
+          "name": "l1_l2_multiplier",
           "kind_of_value": "float",
           "optional": "True",
           "description": "Constant that multiplies the L1/L2 term.",
@@ -243,7 +243,7 @@
           }
         },
         {
-          "name": "intercept",
+          "name": "fit_intercept",
           "kind_of_value": "boolean",
           "optional": "False",
           "description": "Whether to calculate the intercept for this model.",
@@ -284,11 +284,11 @@
         },
         {
           "name": "selection",
-          "kind_of_value": "string",
+          "kind_of_value": "{'random', 'cyclic'}",
           "optional": "False",
-          "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+          "description": "If set to 'random', a random coefficient is updated every iteration rather than looping over features sequentially by default.",
           "scikit-learn": {
-            "default_value": "cyclic",
+            "default_value": "'cyclic'",
             "path": "selection"
           }
         }
@@ -338,7 +338,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
@@ -389,11 +389,11 @@
           },
           {
             "name": "selection",
-            "kind_of_value": "string",
+            "kind_of_value": "{'random', 'cyclic'}",
             "optional": "False",
-            "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+            "description": "If set to 'random', a random coefficient is updated every iteration rather than looping over features sequentially by default.",
             "scikit-learn": {
-              "default_value": "cyclic",
+              "default_value": "'cyclic'",
               "path": "selection"
             }
           }
@@ -454,7 +454,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
@@ -495,11 +495,11 @@
           },
           {
             "name": "selection",
-            "kind_of_value": "string",
+            "kind_of_value": "{'random', 'cyclic'}",
             "optional": "False",
-            "description": "If set to ‘random’, a random coefficient is updated every iteration rather than looping over features sequentially by default. This (setting to ‘random’) often leads to significantly faster convergence especially when tol is higher than 1e-4.",
+            "description": "If set to 'random', a random coefficient is updated every iteration rather than looping over features sequentially by default.",
             "scikit-learn": {
-              "default_value": "cyclic",
+              "default_value": "'cyclic'",
               "path": "selection"
             }
           }
@@ -532,7 +532,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
@@ -572,7 +572,7 @@
             }
           },
           {
-            "name": "positive",
+            "name": "positive_coef",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "When set to True, forces the coefficients to be positive.",
@@ -619,7 +619,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether to calculate the intercept for this model.",
@@ -649,7 +649,7 @@
             }
           },
           {
-            "name": "positive",
+            "name": "positive_coef",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "When set to True, forces the coefficients to be positive.",
@@ -662,11 +662,11 @@
         "optimisation_parameters": [
           {
             "name": "precompute",
-            "kind_of_value": "{True, False, ‘auto’}",
+            "kind_of_value": "{True, False, 'auto'}",
             "optional": "False",
             "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
             "scikit-learn": {
-              "default_value": "auto",
+              "default_value": "'auto'",
               "path": "precompute"
             }
           },
@@ -696,7 +696,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "nonzero_coefficients",
+            "name": "nonzero_coef",
             "kind_of_value": "integer",
             "optional": "True",
             "description": "Target number of non-zero coefficients.",
@@ -716,7 +716,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -739,11 +739,11 @@
         "optimisation_parameters": [
           {
             "name": "precompute",
-            "kind_of_value": "{True, False, ‘auto’}",
+            "kind_of_value": "{True, False, 'auto'}",
             "optional": "False",
             "description": "Whether to use a precomputed Gram matrix  and Xy matrix to speed up calculations. Matrices can also be directly passed to the fit method.",
             "scikit-learn": {
-              "default_value": "auto",
+              "default_value": "'auto'",
               "path": "precompute"
             }
           }
@@ -804,11 +804,11 @@
         "optimisation_parameters": [
           {
             "name": "precompute",
-            "kind_of_value": "{True, False, ‘auto’}",
+            "kind_of_value": "{True, False, 'auto'}",
             "optional": "False",
             "description": "Whether to perform precomputations.",
             "scikit-learn": {
-              "default_value": "auto",
+              "default_value": "'auto'",
               "path": "precompute"
             }
           }
@@ -876,7 +876,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -983,7 +983,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -1033,12 +1033,12 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "penalty",
+            "name": "penalty_norm",
             "kind_of_value": "{l1, l2}",
             "optional": "False",
             "description": "Used to specify the norm used in the penalization.",
             "scikit-learn": {
-              "default_value": "l2",
+              "default_value": "'l2'",
               "path": "penalty"
             }
           },
@@ -1063,7 +1063,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Specifies if a constant (a.k.a. bias or intercept) should be added to the decision function.",
@@ -1074,7 +1074,7 @@
           },
           {
             "name": "class_weight",
-            "kind_of_value": "dict or ‘balanced’",
+            "kind_of_value": "{dict, 'balanced', None}",
             "optional": "False",
             "description": "Weights associated with classes.",
             "scikit-learn": {
@@ -1084,11 +1084,11 @@
           },
           {
             "name": "solver",
-            "kind_of_value": "{‘newton-cg’, ‘lbfgs’, ‘liblinear’, ‘sag’, ‘saga’}",
+            "kind_of_value": "{'newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'}",
             "optional": "False",
             "description": "Solver to use in the computational routines.",
             "scikit-learn": {
-              "default_value": "liblinear",
+              "default_value": "'liblinear'",
               "path": "solver"
             }
           }
@@ -1141,7 +1141,7 @@
         "model_parameters": [
           {
             "name": "loss_function",
-            "kind_of_value": "{‘hinge’, ‘log’, ‘modified_huber’, ‘squared_hinge’, ‘perceptron’, ‘squared_loss’, ‘huber’, ‘epsilon_insensitive’, ‘squared_epsilon_insensitive’}",
+            "kind_of_value": "{'hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'}",
             "optional": "False",
             "description": "The loss function to be used.",
             "scikit-learn": {
@@ -1155,7 +1155,7 @@
             "optional": "False",
             "description": "The penalty (aka regularization term) to be used.",
             "scikit-learn": {
-              "default_value": "l2",
+              "default_value": "'l2'",
               "path": "penalty"
             }
           },
@@ -1180,7 +1180,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether the intercept should be estimated or not.",
@@ -1213,7 +1213,7 @@
             "name": "eta0",
             "kind_of_value": "double",
             "optional": "False",
-            "description": "The initial learning rate for the ‘constant’ or ‘invscaling’ schedules.",
+            "description": "The initial learning rate for the 'constant' or 'invscaling' schedules.",
             "scikit-learn": {
               "default_value": "0.0",
               "path": "eta0"
@@ -1231,7 +1231,7 @@
           },
           {
             "name": "class_weight",
-            "kind_of_value": "{{class_label: weight}, balanced,  None}",
+            "kind_of_value": "{{class_label: weight}, 'balanced',  None}",
             "optional": "True",
             "description": "Weights associated with classes.",
             "scikit-learn": {
@@ -1265,14 +1265,14 @@
             "name": "jobs",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "The number of CPUs to use to do the OVA (One Versus All, for multi-class problems) computation. -1 means ‘all CPUs’.",
+            "description": "The number of CPUs to use to do the OVA (One Versus All, for multi-class problems) computation. -1 means 'all CPUs'.",
             "scikit-learn": {
               "default_value": "1",
               "path": "n_jobs"
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether the intercept should be estimated or not.",
@@ -1308,7 +1308,7 @@
         "model_parameters": [
           {
             "name": "loss_function",
-            "kind_of_value": "{ ‘squared_loss’, ‘huber’, ‘epsilon_insensitive’, ‘squared_epsilon_insensitive’}",
+            "kind_of_value": "{'squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'}",
             "optional": "False",
             "description": "The loss function to be used.",
             "scikit-learn": {
@@ -1347,7 +1347,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether the intercept should be estimated or not.",
@@ -1380,7 +1380,7 @@
             "name": "eta0",
             "kind_of_value": "double",
             "optional": "False",
-            "description": "The initial learning rate for the ‘constant’ or ‘invscaling’ schedules.",
+            "description": "The initial learning rate for the 'constant' or 'invscaling' schedules.",
             "scikit-learn": {
               "default_value": "0.01",
               "path": "eta0"
@@ -1433,7 +1433,7 @@
         "model_parameters": [
           {
             "name": "regularization_term",
-            "kind_of_value": "{none, l2, l1, elasticnet}",
+            "kind_of_value": "{none, 'l2', 'l1', 'elasticnet'}",
             "optional": "False",
             "description": "The penalty (aka regularization term) to be used.",
             "scikit-learn": {
@@ -1452,7 +1452,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether the intercept should be estimated or not.",
@@ -1475,7 +1475,7 @@
             "name": "eta0",
             "kind_of_value": "double",
             "optional": "False",
-            "description": "The initial learning rate for the ‘constant’ or ‘invscaling’ schedules.",
+            "description": "The initial learning rate for the 'constant' or 'invscaling' schedules.",
             "scikit-learn": {
               "default_value": "1.0",
               "path": "eta0"
@@ -1483,7 +1483,7 @@
           },
           {
             "name": "class_weight",
-            "kind_of_value": "{{class_label: weight}, balanced,  None}",
+            "kind_of_value": "{{class_label: weight}, 'balanced',  None}",
             "optional": "True",
             "description": "Weights associated with classes.",
             "scikit-learn": {
@@ -1567,7 +1567,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether the intercept should be estimated or not.",
@@ -1588,11 +1588,11 @@
           },
           {
             "name": "loss_function",
-            "kind_of_value": "{hinge, squared_hinge}",
+            "kind_of_value": "{'hinge', 'squared_hinge'}",
             "optional": "True",
             "description": "The loss function to be used.",
             "scikit-learn": {
-              "default_value": "hinge",
+              "default_value": "'hinge'",
               "path": "loss"
             }
           },
@@ -1608,7 +1608,7 @@
           },
           {
             "name": "class_weight",
-            "kind_of_value": "dict or ‘balanced’ or None",
+            "kind_of_value": "{dict,'balanced', None}",
             "optional": "True",
             "description": "Weights associated with classes.",
             "scikit-learn": {
@@ -1662,7 +1662,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "False",
             "description": "Whether the intercept should be estimated or not.",
@@ -1683,11 +1683,11 @@
           },
           {
             "name": "loss_function",
-            "kind_of_value": "{epsilon_insensitive, squared_epsilon_insensitive}",
+            "kind_of_value": "{'epsilon_insensitive', 'squared_epsilon_insensitive'}",
             "optional": "True",
             "description": "The loss function to be used.",
             "scikit-learn": {
-              "default_value": "epsilon_insensitive",
+              "default_value": "'epsilon_insensitive'",
               "path": "loss"
             }
           },
@@ -1740,7 +1740,7 @@
         "model_parameters": [
           {
             "name": "base_estimator",
-            "kind_of_value": "object",
+            "kind_of_value": "{object, None}",
             "optional": "True",
             "description": "base_estimator.",
             "scikit-learn": {
@@ -1750,7 +1750,7 @@
           },
           {
             "name": "min_samples",
-            "kind_of_value": "int (>= 1) or float ([0, 1])",
+            "kind_of_value": "[int (>= 1), float ([0, 1])}",
             "optional": "True",
             "description": "Minimum number of samples chosen randomly from original data.",
             "scikit-learn": {
@@ -1770,7 +1770,7 @@
           },
           {
             "name": "loss",
-            "kind_of_value": "{absolute_loss, squared_loss}",
+            "kind_of_value": "{'absolute_loss', 'squared_loss'}",
             "optional": "True",
             "description": "If loss is a callable, then it should be a function that takes two arrays as inputs, the true and predicted value and returns a 1-D array with the i-th value of the array corresponding to the loss on X[i].",
             "scikit-learn": {
@@ -1834,7 +1834,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -1939,7 +1939,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -1987,17 +1987,17 @@
         "model_parameters": [
           {
             "name": "estimation_algorithm",
-            "kind_of_value": "{svd, lsqr, eigen}",
+            "kind_of_value": "{'svd', 'lsqr', 'eigen'}",
             "optional": "True",
             "description": "Possible values: singular value decomposition (svd), least squares solution (lsqr), eigenvalue decomposition (eigen)",
             "scikit-learn": {
-              "default_value": "svd",
+              "default_value": "'svd'",
               "path": "solver"
             }
           },
           {
             "name": "shrinkage",
-            "kind_of_value": "{None, auto, float between 0 and 1}",
+            "kind_of_value": "{None, 'auto', float between 0 and 1}",
             "optional": "True",
             "description": "Shrinkage is a tool to improve estimation of covariance matrices in situations where the number of training samples is small compared to the number of features. Possible values: no shrinkage (None), automatic shrinkage using the Ledoit-Wolf lemma (auto), fixed shrinkage parameter(float between 0 and 1)",
             "scikit-learn": {
@@ -2089,11 +2089,11 @@
           },
           {
             "name": "kernel",
-            "kind_of_value": "{string, callable}",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'cosine', 'gaussian', 'tophat', 'epanechnikov', 'exponential', 'precomputed', callable}",
             "optional": "False",
             "description": "Kernel mapping used internally. A callable should accept two arguments and the keyword arguments passed to this object as kernel_params, and should return a floating point number.",
             "scikit-learn": {
-              "default_value": "linear",
+              "default_value": "'linear'",
               "path": "kernel"
             }
           },
@@ -2177,7 +2177,7 @@
             "name": "poly_degree",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "description": "Degree of the polynomial kernel function ('poly'). ",
             "scikit-learn": {
               "default_value": "3",
               "path": "degree"
@@ -2185,9 +2185,9 @@
           },
           {
             "name": "kernel_coefficient",
-            "kind_of_value": "float or 'auto'",
+            "kind_of_value": "{float, 'auto'}",
             "optional": "True",
-            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If kernel_coefficient is 'auto' then 1/n_features will be used instead.",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "gamma"
@@ -2197,7 +2197,7 @@
             "name": "independent_kernel_term",
             "kind_of_value": "float",
             "optional": "True",
-            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "description": "Independent term in kernel function. It is only significant in 'poly' and 'sigmoid'.",
             "scikit-learn": {
               "default_value": "0.0",
               "path": "coef0"
@@ -2294,7 +2294,7 @@
             "name": "poly_degree",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "description": "Degree of the polynomial kernel function ('poly'). ",
             "scikit-learn": {
               "default_value": "3",
               "path": "degree"
@@ -2304,7 +2304,7 @@
             "name": "kernel_coefficient",
             "kind_of_value": "float or 'auto'",
             "optional": "True",
-            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If kernel_coefficient is 'auto' then 1/n_features will be used instead.",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "gamma"
@@ -2314,7 +2314,7 @@
             "name": "independent_kernel_term",
             "kind_of_value": "float",
             "optional": "True",
-            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "description": "Independent term in kernel function. It is only significant in 'poly' and 'sigmoid'.",
             "scikit-learn": {
               "default_value": "0.0",
               "path": "coef0"
@@ -2388,7 +2388,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "penalty",
+            "name": "penalty_norm",
             "kind_of_value": "{'l1', 'l2'}",
             "optional": "False",
             "description": "Specifies the norm used in the penalization.",
@@ -2399,11 +2399,11 @@
           },
           {
             "name": "loss_function",
-            "kind_of_value": "{'hinge', ‘squared_hinge’}",
+            "kind_of_value": "{'hinge', 'squared_hinge'}",
             "optional": "False",
             "description": "The loss function to be used.",
             "scikit-learn": {
-              "default_value": "‘squared_hinge’",
+              "default_value": "'squared_hinge'",
               "path": "loss"
             }
           },
@@ -2448,7 +2448,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -2528,7 +2528,7 @@
             "name": "poly_degree",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "description": "Degree of the polynomial kernel function ('poly'). ",
             "scikit-learn": {
               "default_value": "3",
               "path": "degree"
@@ -2538,7 +2538,7 @@
             "name": "kernel_coefficient",
             "kind_of_value": "float or 'auto'",
             "optional": "True",
-            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If kernel_coefficient is 'auto' then 1/n_features will be used instead.",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "gamma"
@@ -2548,7 +2548,7 @@
             "name": "independent_kernel_term",
             "kind_of_value": "float",
             "optional": "True",
-            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "description": "Independent term in kernel function. It is only significant in 'poly' and 'sigmoid'.",
             "scikit-learn": {
               "default_value": "0.0",
               "path": "coef0"
@@ -2645,7 +2645,7 @@
             "name": "poly_degree",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "description": "Degree of the polynomial kernel function ('poly'). ",
             "scikit-learn": {
               "default_value": "3",
               "path": "degree"
@@ -2655,7 +2655,7 @@
             "name": "kernel_coefficient",
             "kind_of_value": "float or 'auto'",
             "optional": "True",
-            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If kernel_coefficient is 'auto' then 1/n_features will be used instead.",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "gamma"
@@ -2665,7 +2665,7 @@
             "name": "independent_kernel_term",
             "kind_of_value": "float",
             "optional": "True",
-            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "description": "Independent term in kernel function. It is only significant in 'poly' and 'sigmoid'.",
             "scikit-learn": {
               "default_value": "0.0",
               "path": "coef0"
@@ -2744,7 +2744,7 @@
             "optional": "False",
             "description": "The loss function to be used.",
             "scikit-learn": {
-              "default_value": "’epsilon_insensitive’",
+              "default_value": "'epsilon_insensitive'",
               "path": "loss"
             }
           },
@@ -2769,7 +2769,7 @@
             }
           },
           {
-            "name": "intercept",
+            "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
@@ -2796,7 +2796,9 @@
     },
     {
       "name": "one-class support vector machine",
-      "other_names": ["one-calss SVM"],
+      "other_names": [
+        "one-calss SVM"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.svm.OneClassSVM"
       },
@@ -2827,7 +2829,7 @@
             "name": "poly_degree",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "Degree of the polynomial kernel function (‘poly’). ",
+            "description": "Degree of the polynomial kernel function ('poly'). ",
             "scikit-learn": {
               "default_value": "3",
               "path": "degree"
@@ -2835,9 +2837,9 @@
           },
           {
             "name": "kernel_coefficient",
-            "kind_of_value": "float or 'auto'",
+            "kind_of_value": "{float, 'auto'}",
             "optional": "True",
-            "description": "Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If kernel_coefficient is ‘auto’ then 1/n_features will be used instead.",
+            "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If kernel_coefficient is 'auto' then 1/n_features will be used instead.",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "gamma"
@@ -2847,7 +2849,7 @@
             "name": "independent_kernel_term",
             "kind_of_value": "float",
             "optional": "True",
-            "description": "Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid’.",
+            "description": "Independent term in kernel function. It is only significant in 'poly' and 'sigmoid'.",
             "scikit-learn": {
               "default_value": "0.0",
               "path": "coef0"
@@ -2930,7 +2932,7 @@
           },
           {
             "name": "algorithm",
-            "kind_of_value": "{‘ball_tree’, ‘kd_tree’, ‘brute’, ‘auto’}",
+            "kind_of_value": "{'ball_tree', 'kd_tree', 'brute', 'auto'}",
             "optional": "True",
             "description": "Algorithm used to compute the nearest neighbors.",
             "scikit-learn": {
@@ -2950,11 +2952,11 @@
           },
           {
             "name": "distance_metric",
-            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
             "optional": "False",
             "description": "Metric to use for distance computation.",
             "scikit-learn": {
-              "default_value": "’minkowski’",
+              "default_value": "'minkowski'",
               "path": "metric"
             }
           },
@@ -2996,7 +2998,10 @@
     },
     {
       "name": "k-d tree",
-      "other_names": ["KDTree", "k-dimensional tree"],
+      "other_names": [
+        "KDTree",
+        "k-dimensional tree"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.neighbors.KDTree"
       },
@@ -3019,7 +3024,7 @@
             "optional": "False",
             "description": "The distance metric to use for the tree.",
             "scikit-learn": {
-              "default_value": "’minkowski’",
+              "default_value": "'minkowski'",
               "path": "metric"
             }
           }
@@ -3064,7 +3069,7 @@
             "optional": "False",
             "description": "The distance metric to use for the tree.",
             "scikit-learn": {
-              "default_value": "’minkowski’",
+              "default_value": "'minkowski'",
               "path": "metric"
             }
           }
@@ -3105,17 +3110,17 @@
           },
           {
             "name": "weight_function",
-            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "kind_of_value": "{'uniform', 'distance', callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
             "optional": "False",
             "description": "Weight function used in prediction.",
             "scikit-learn": {
-              "default_value": "‘uniform’",
+              "default_value": "'uniform'",
               "path": "weights"
             }
           },
           {
             "name": "nn_algorithm",
-            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "kind_of_value": "{'auto', 'ball_tree', 'kd_tree', 'brute'}",
             "optional": "True",
             "description": "Algorithm used to compute the nearest neighbors.",
             "scikit-learn": {
@@ -3145,17 +3150,17 @@
           },
           {
             "name": "distance_metric",
-            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
             "optional": "False",
             "description": "The distance metric to use for the tree.",
             "scikit-learn": {
-              "default_value": "’minkowski’",
+              "default_value": "'minkowski'",
               "path": "metric"
             }
           },
           {
             "name": "outlier_label",
-            "kind_of_value": "integer or 'None'",
+            "kind_of_value": "{integer, None}",
             "optional": "True",
             "description": "Label, which is given for outlier samples (samples with no neighbors on given radius). If set to None, ValueError is raised, when outlier is detected.",
             "scikit-learn": {
@@ -3180,7 +3185,9 @@
     },
     {
       "name": "k-nn classifier",
-      "other_names": [" k-nearest neighbors calssifier"],
+      "other_names": [
+        " k-nearest neighbors calssifier"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.neighbors.KNeighborsClassifier"
       },
@@ -3199,17 +3206,17 @@
           },
           {
             "name": "weight_function",
-            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "kind_of_value": "{'uniform', 'distance', callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
             "optional": "False",
             "description": "Weight function used in prediction.",
             "scikit-learn": {
-              "default_value": "‘uniform’",
+              "default_value": "'uniform'",
               "path": "weights"
             }
           },
           {
             "name": "nn_algorithm",
-            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "kind_of_value": "{'auto', 'ball_tree', 'kd_tree', 'brute'}",
             "optional": "True",
             "description": "Algorithm used to compute the nearest neighbors.",
             "scikit-learn": {
@@ -3239,11 +3246,11 @@
           },
           {
             "name": "distance_metric",
-            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
             "optional": "False",
             "description": "The distance metric to use for the tree.",
             "scikit-learn": {
-              "default_value": "’minkowski’",
+              "default_value": "'minkowski'",
               "path": "metric"
             }
           },
@@ -3275,7 +3282,9 @@
     },
     {
       "name": "k-nn regressor",
-      "other_names": [" k-nearest neighbors regressor"],
+      "other_names": [
+        " k-nearest neighbors regressor"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.neighbors.KNeighborsRegressor"
       },
@@ -3294,17 +3303,17 @@
           },
           {
             "name": "weight_function",
-            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "kind_of_value": "{'uniform', 'distance', callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
             "optional": "False",
             "description": "Weight function used in prediction.",
             "scikit-learn": {
-              "default_value": "‘uniform’",
+              "default_value": "'uniform'",
               "path": "weights"
             }
           },
           {
             "name": "nn_algorithm",
-            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "kind_of_value": "{'auto', 'ball_tree', 'kd_tree', 'brute'}",
             "optional": "True",
             "description": "Algorithm used to compute the nearest neighbors.",
             "scikit-learn": {
@@ -3334,11 +3343,11 @@
           },
           {
             "name": "distance_metric",
-            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
             "optional": "False",
             "description": "The distance metric to use for the tree.",
             "scikit-learn": {
-              "default_value": "’minkowski’",
+              "default_value": "'minkowski'",
               "path": "metric"
             }
           },
@@ -3389,17 +3398,17 @@
           },
           {
             "name": "weight_function",
-            "kind_of_value": "{‘uniform’, ‘distance’, callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
+            "kind_of_value": "{'uniform', 'distance', callable: a user-defined function which accepts an array of distances, and returns an array of the same shape containing the weights.}",
             "optional": "False",
             "description": "Weight function used in prediction.",
             "scikit-learn": {
-              "default_value": "‘uniform’",
+              "default_value": "'uniform'",
               "path": "weights"
             }
           },
           {
             "name": "nn_algorithm",
-            "kind_of_value": "{‘auto’, ‘ball_tree’, ‘kd_tree’, ‘brute’}",
+            "kind_of_value": "{'auto', 'ball_tree', 'kd_tree', 'brute'}",
             "optional": "True",
             "description": "Algorithm used to compute the nearest neighbors.",
             "scikit-learn": {
@@ -3429,11 +3438,11 @@
           },
           {
             "name": "distance_metric",
-            "kind_of_value": "{‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’, a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
             "optional": "False",
             "description": "The distance metric to use for the tree.",
             "scikit-learn": {
-              "default_value": "’minkowski’",
+              "default_value": "'minkowski'",
               "path": "metric"
             }
           },
@@ -3463,11 +3472,11 @@
         "model_parameters": [
           {
             "name": "distance_metric",
-            "kind_of_value": "{[‘cityblock’, ‘cosine’, ‘euclidean’, ‘l1’, ‘l2’, ‘manhattan’, ‘braycurtis’, ‘canberra’, ‘chebyshev’, ‘correlation’, ‘dice’, ‘hamming’, ‘jaccard’, ‘kulsinski’, ‘mahalanobis’, ‘matching’, ‘minkowski’, ‘rogerstanimoto’, ‘russellrao’, ‘seuclidean’, ‘sokalmichener’, ‘sokalsneath’, ‘sqeuclidean’, ‘yule’}",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule'}",
             "optional": "False",
             "description": "The metric to use when calculating distance between instances in a feature array.",
             "scikit-learn": {
-              "default_value": "'euclidean'’",
+              "default_value": "'euclidean''",
               "path": "metric"
             }
           },
@@ -3488,7 +3497,9 @@
     },
     {
       "name": "gaussian process regression",
-      "other_names": ["GPR"],
+      "other_names": [
+        "GPR"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.gaussian_process.GaussianProcessRegressor"
       },
@@ -3519,7 +3530,7 @@
             "name": "n_restarts_optimizer",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "The number of restarts of the optimizer for finding the kernel’s parameters which maximize the log-marginal likelihood. The first run of the optimizer is performed from the kernel’s initial parameters, the remaining ones (if any) from thetas sampled log-uniform randomly from the space of allowed theta-values.",
+            "description": "The number of restarts of the optimizer for finding the kernel's parameters which maximize the log-marginal likelihood. The first run of the optimizer is performed from the kernel's initial parameters, the remaining ones (if any) from thetas sampled log-uniform randomly from the space of allowed theta-values.",
             "scikit-learn": {
               "default_value": "0",
               "path": "n_restarts_optimizer"
@@ -3529,7 +3540,7 @@
             "name": "normalize_y",
             "kind_of_value": "boolean",
             "optional": "True",
-            "description": "Whether the target values y are normalized, i.e., the mean of the observed target values become zero. This parameter should be set to True if the target values’ mean is expected to differ considerable from zero. When enabled, the normalization effectively modifies the GP’s prior based on the data, which contradicts the likelihood principle.",
+            "description": "Whether the target values y are normalized, i.e., the mean of the observed target values become zero. This parameter should be set to True if the target values' mean is expected to differ considerable from zero. When enabled, the normalization effectively modifies the GP's prior based on the data, which contradicts the likelihood principle.",
             "scikit-learn": {
               "default_value": "False",
               "path": "normalize_y"
@@ -3542,7 +3553,9 @@
     },
     {
       "name": "gaussian process classification",
-      "other_names": ["GPC"],
+      "other_names": [
+        "GPC"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.gaussian_process.GaussianProcessClassifier"
       },
@@ -3573,7 +3586,7 @@
             "name": "n_restarts_optimizer",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "The number of restarts of the optimizer for finding the kernel’s parameters which maximize the log-marginal likelihood. The first run of the optimizer is performed from the kernel’s initial parameters, the remaining ones (if any) from thetas sampled log-uniform randomly from the space of allowed theta-values.",
+            "description": "The number of restarts of the optimizer for finding the kernel's parameters which maximize the log-marginal likelihood. The first run of the optimizer is performed from the kernel's initial parameters, the remaining ones (if any) from thetas sampled log-uniform randomly from the space of allowed theta-values.",
             "scikit-learn": {
               "default_value": "0",
               "path": "n_restarts_optimizer"
@@ -3591,7 +3604,7 @@
           },
           {
             "name": "multi_class",
-            "kind_of_value": "'one_vs_rest', 'one_vs_one'",
+            "kind_of_value": "{'one_vs_rest', 'one_vs_one'}",
             "optional": "False",
             "description": "Specifies how multi-class classification problems are handled.",
             "scikit-learn": {
@@ -3617,7 +3630,9 @@
     },
     {
       "name": "partial least squares regression",
-      "other_names": ["PLS Regession"],
+      "other_names": [
+        "PLS Regession"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.cross_decomposition.PLSRegression"
       },
@@ -3672,7 +3687,9 @@
     },
     {
       "name": "2 blocks canonical partial least squares",
-      "other_names": ["PLS Canonical"],
+      "other_names": [
+        "PLS Canonical"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.cross_decomposition.PLSCanonical"
       },
@@ -3737,7 +3754,9 @@
     },
     {
       "name": "partial least squares singular value decomposition",
-      "other_names": ["PLSSVD"],
+      "other_names": [
+        "PLSSVD"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.cross_decomposition.PLSSVD"
       },
@@ -3771,7 +3790,9 @@
     },
     {
       "name": "canonical correlation analysis",
-      "other_names": ["CCA"],
+      "other_names": [
+        "CCA"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.cross_decomposition.CCA"
       },
@@ -3901,7 +3922,7 @@
       "type": "Classification",
       "hyper_parameters": {
         "model_parameters": [
-           {
+          {
             "name": "smoothing parameter",
             "kind_of_value": "float",
             "optional": "True",
@@ -3998,7 +4019,7 @@
           },
           {
             "name": "min_samples_split",
-            "kind_of_value": "integer or float",
+            "kind_of_value": "{integer, float}",
             "optional": "True",
             "description": "The minimum number of samples required to split an internal node.",
             "scikit-learn": {
@@ -4008,7 +4029,7 @@
           },
           {
             "name": "min_samples_leaf",
-            "kind_of_value": "integer or float",
+            "kind_of_value": "{integer, float}",
             "optional": "True",
             "description": "The minimum number of samples required to be at a leaf node.",
             "scikit-learn": {
@@ -4056,7 +4077,7 @@
               "path": "min_impurity_decrease"
             }
           },
-           {
+          {
             "name": "class_weight",
             "kind_of_value": "{dict, list of dicts, 'balanced', None}",
             "optional": "False",
@@ -4068,6 +4089,795 @@
           }
         ],
         "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "decision tree regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.tree.DecisionTreeRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "split_quality",
+            "kind_of_value": "{'mse', 'friedman_mse', 'mae'}",
+            "optional": "True",
+            "description": "The function to measure the quality of a split.",
+            "scikit-learn": {
+              "default_value": "'mse'",
+              "path": "criterion"
+            }
+          },
+          {
+            "name": "splitting_strategy",
+            "kind_of_value": "{'best', 'random'}",
+            "optional": "True",
+            "description": "The strategy used to choose the split at each node.",
+            "scikit-learn": {
+              "default_value": "'best'",
+              "path": "splitter"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum depth of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float, 'auto', 'sqrt', 'log2', None}",
+            "optional": "True",
+            "description": "The number of features to consider when looking for the best split.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "presort",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to presort the data to speed up the finding of best splits in fitting.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "presort"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "extra-trees regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.ExtraTreesRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of trees in the forest.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "split_quality",
+            "kind_of_value": "{'mse', 'mae'}",
+            "optional": "True",
+            "description": "The function to measure the quality of a split.",
+            "scikit-learn": {
+              "default_value": "'mse'",
+              "path": "criterion"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float, 'auto', 'sqrt', 'log2', None}",
+            "optional": "True",
+            "description": "The number of features to consider when looking for the best split.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "The maximum depth of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new forest.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "extra-trees classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.ExtraTreesClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of trees in the forest.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "split_quality",
+            "kind_of_value": "{'gini', 'entropy'}",
+            "optional": "True",
+            "description": "The function to measure the quality of a split.",
+            "scikit-learn": {
+              "default_value": "'gini'",
+              "path": "criterion"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float, 'auto', 'sqrt', 'log2', None}",
+            "optional": "True",
+            "description": "The number of features to consider when looking for the best split.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "The maximum depth of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new forest.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "{dict, 'balanced', 'balanced_subsample', None}",
+            "optional": "True",
+            "description": "Weights associated with classes.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "random forest regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.RandomForestRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of trees in the forest.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "split_quality",
+            "kind_of_value": "{'mse', 'mae'}",
+            "optional": "True",
+            "description": "The function to measure the quality of a split.",
+            "scikit-learn": {
+              "default_value": "'mse'",
+              "path": "criterion"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float, 'auto', 'sqrt', 'log2', None}",
+            "optional": "True",
+            "description": "The number of features to consider when looking for the best split.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "The maximum depth of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new forest.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "random forest classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.RandomForestClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of trees in the forest.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "split_quality",
+            "kind_of_value": "{'gini', 'entropy'}",
+            "optional": "True",
+            "description": "The function to measure the quality of a split.",
+            "scikit-learn": {
+              "default_value": "'gini'",
+              "path": "criterion"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float, 'auto', 'sqrt', 'log2', None}",
+            "optional": "True",
+            "description": "The number of features to consider when looking for the best split.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "The maximum depth of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new forest.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "class_weight",
+            "kind_of_value": "{dict, 'balanced', None}",
+            "optional": "False",
+            "description": "Weights associated with classes.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "class_weight"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "bagging classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.BaggingClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "base_estimator",
+            "kind_of_value": "{object, None}",
+            "optional": "True",
+            "description": "The base estimator to fit on random subsets of the dataset.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "base_estimator"
+            }
+          },
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of trees in the forest.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "max_samples",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The number of samples to draw from X to train each base estimator.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "max_samples"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The number of features to draw from X to train each base estimator.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "bootstrap",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether samples are drawn with replacement.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "bootstrap"
+            }
+          },
+          {
+            "name": "bootstrap_features",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether features are drawn with replacement.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "bootstrap_features"
+            }
+          },
+          {
+            "name": "oob_samples",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to use out-of-bag samples to estimate the generalization error.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "oob_score"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new ensemble.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
         "execution_parameters": []
       }
     },
