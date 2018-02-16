@@ -1854,7 +1854,7 @@
             }
           },
           {
-            "name": "n_subsamples",
+            "name": "num_subsamples",
             "kind_of_value": "integer",
             "optional": "True",
             "description": "Number of samples to calculate the parameters.",
@@ -4306,6 +4306,26 @@
             }
           },
           {
+            "name": "bootstrap",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether bootstrap samples are used when building trees.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "bootstrap"
+            }
+          },
+          {
+            "name": "oob_samples",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to use out-of-bag samples to estimate the R^2 on unseen data.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "oob_score"
+            }
+          },
+          {
             "name": "verbose",
             "kind_of_value": "integer",
             "optional": "True",
@@ -4438,6 +4458,26 @@
             "scikit-learn": {
               "default_value": "0.0",
               "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "bootstrap",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether bootstrap samples are used when building trees.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "bootstrap"
+            }
+          },
+          {
+            "name": "oob_samples",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to use out-of-bag samples to estimate the generalization accuracy.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "oob_score"
             }
           },
           {
@@ -4586,6 +4626,26 @@
             }
           },
           {
+            "name": "bootstrap",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether bootstrap samples are used when building trees.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "bootstrap"
+            }
+          },
+          {
+            "name": "oob_samples",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use out-of-bag samples to estimate the R^2 on unseen data.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "oob_score"
+            }
+          },
+          {
             "name": "verbose",
             "kind_of_value": "integer",
             "optional": "True",
@@ -4718,6 +4778,26 @@
             "scikit-learn": {
               "default_value": "0.0",
               "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "bootstrap",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether bootstrap samples are used when building trees.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "bootstrap"
+            }
+          },
+          {
+            "name": "oob_samples",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to use out-of-bag samples to estimate the generalization accuracy.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "oob_score"
             }
           },
           {
@@ -4863,6 +4943,791 @@
             "scikit-learn": {
               "default_value": "0",
               "path": "verbose"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "bagging regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.BaggingRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "base_estimator",
+            "kind_of_value": "{object, None}",
+            "optional": "True",
+            "description": "The base estimator to fit on random subsets of the dataset.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "base_estimator"
+            }
+          },
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of trees in the forest.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "max_samples",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The number of samples to draw from X to train each base estimator.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "max_samples"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The number of features to draw from X to train each base estimator.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "bootstrap",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether samples are drawn with replacement.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "bootstrap"
+            }
+          },
+          {
+            "name": "bootstrap_features",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether features are drawn with replacement.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "bootstrap_features"
+            }
+          },
+          {
+            "name": "oob_samples",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to use out-of-bag samples to estimate the generalization error.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "oob_score"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new ensemble.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "vating classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.VotingClassifier"
+      },
+      "type": "Classifcation",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "estimators",
+            "kind_of_value": "string, estimator tuple{('lr', clf1), ('rf', clf2), ('gnb', clf3), ('dt', clf1), ('knn', clf2), ('svc', clf3)}",
+            "optional": "False",
+            "description": "Used estimators.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "estimators"
+            }
+          },
+          {
+            "name": "voting",
+            "kind_of_value": "{'hard', 'soft'}",
+            "optional": "False",
+            "description": "If 'hard', uses predicted class labels for majority rule voting. Else if 'soft', predicts the class label based on the argmax of the sums of the predicted probabilities, which is recommended for an ensemble of well-calibrated classifiers.",
+            "scikit-learn": {
+              "default_value": "'hard'",
+              "path": "voting"
+            }
+          },
+          {
+            "name": "weights",
+            "kind_of_value": "array-like, shape = [n_classifiers] integer, float, None",
+            "optional": "True",
+            "description": "Sequence of weights (float or int) to weight the occurrences of predicted class labels (hard voting) or class probabilities before averaging (soft voting). Uses uniform weights if None.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "weights"
+            }
+          },
+          {
+            "name": "flatten_transform",
+            "kind_of_value": "boolean, None",
+            "optional": "True",
+            "description": "Affects shape of transform output only when voting='soft'.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "flatten_transform"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "gradient boosting for regression",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.GradientBoostingRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "loss",
+            "kind_of_value": "{'ls', 'lad', 'huber', 'quantile'}",
+            "optional": "True",
+            "description": "Loss function to be optimized.",
+            "scikit-learn": {
+              "default_value": "'ls'",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "learning rate shrinks the contribution of each tree by learning_rate.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of boosting stages to perform. Gradient boosting is fairly robust to over-fitting so a large number usually results in better performance.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum depth of the individual regression estimators. The maximum depth limits the number of nodes in the tree. Tune this parameter for best performance; the best value depends on the interaction of the input variables.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "split_quality",
+            "kind_of_value": "{'mse', 'friedman_mse', 'mae'}",
+            "optional": "True",
+            "description": "The function to measure the quality of a split.",
+            "scikit-learn": {
+              "default_value": "'friedman_mse'",
+              "path": "criterion"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "frac_subsample",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The fraction of samples to be used for fitting the individual base learners.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "subsample"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float, 'auto', 'sqrt', 'log2', None}",
+            "optional": "True",
+            "description": "The number of features to consider when looking for the best split.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "integer, None",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "alpha_quantile",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The alpha-quantile of the huber loss function and the quantile loss function. ",
+            "scikit-learn": {
+              "default_value": "0.9",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "init_estimator",
+            "kind_of_value": "BaseEstimator, None",
+            "optional": "True",
+            "description": "An estimator object that is used to compute the initial predictions.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "init"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "presort",
+            "kind_of_value": "{boolean, 'auto'}",
+            "optional": "True",
+            "description": "Whether to presort the data to speed up the finding of best splits in fitting.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "presort"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "gradient boosting for classification",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.GradientBoostingClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "loss",
+            "kind_of_value": "{'deviance', 'exponential'}",
+            "optional": "True",
+            "description": "Loss function to be optimized.",
+            "scikit-learn": {
+              "default_value": "'deviance'",
+              "path": "loss"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "learning rate shrinks the contribution of each tree by learning_rate.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of boosting stages to perform. Gradient boosting is fairly robust to over-fitting so a large number usually results in better performance.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum depth of the individual regression estimators. The maximum depth limits the number of nodes in the tree. Tune this parameter for best performance; the best value depends on the interaction of the input variables.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "split_quality",
+            "kind_of_value": "{'mse', 'friedman_mse', 'mae'}",
+            "optional": "True",
+            "description": "The function to measure the quality of a split.",
+            "scikit-learn": {
+              "default_value": "'friedman_mse'",
+              "path": "criterion"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "frac_subsample",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The fraction of samples to be used for fitting the individual base learners.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "subsample"
+            }
+          },
+          {
+            "name": "max_features",
+            "kind_of_value": "{integer, float, 'auto', 'sqrt', 'log2', None}",
+            "optional": "True",
+            "description": "The number of features to consider when looking for the best split.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_features"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "integer, None",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "init_estimator",
+            "kind_of_value": "BaseEstimator, None",
+            "optional": "True",
+            "description": "An estimator object that is used to compute the initial predictions.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "init"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "presort",
+            "kind_of_value": "{boolean, 'auto'}",
+            "optional": "True",
+            "description": "Whether to presort the data to speed up the finding of best splits in fitting.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "presort"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "adaBoost regressor",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.AdaBoostRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "base_estimator",
+            "kind_of_value": "{object, None}",
+            "optional": "True",
+            "description": "base_estimator.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "base_estimator"
+            }
+          },
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum number of estimators at which boosting is terminated. In case of perfect fit, the learning procedure is stopped early.",
+            "scikit-learn": {
+              "default_value": "50",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Learning rate shrinks the contribution of each regressor by learning_rate.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "loss",
+            "kind_of_value": "{'linear', 'square', 'exponential'}",
+            "optional": "True",
+            "description": "Loss function to be optimized.",
+            "scikit-learn": {
+              "default_value": "'linear'",
+              "path": "loss"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "adaBoost classifier",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.AdaBoostClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "base_estimator",
+            "kind_of_value": "{object, None}",
+            "optional": "True",
+            "description": "base_estimator.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "base_estimator"
+            }
+          },
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum number of estimators at which boosting is terminated. In case of perfect fit, the learning procedure is stopped early.",
+            "scikit-learn": {
+              "default_value": "50",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Learning rate shrinks the contribution of each regressor by learning_rate.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "boosting_algorithm",
+            "kind_of_value": " {'SAMME', 'SAMME.R'}",
+            "optional": "True",
+            "description": "If ‘SAMME.R’ then use the SAMME.R real boosting algorithm. base_estimator must support calculation of class probabilities. If ‘SAMME’ then use the SAMME discrete boosting algorithm. The SAMME.R algorithm typically converges faster than SAMME, achieving a lower test error with fewer boosting iterations.",
+            "scikit-learn": {
+              "default_value": "'SAMME.R'",
+              "path": "algorithm"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "random trees ensemble",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.ensemble.RandomTreesEmbedding"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_estimators",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of trees in the forest.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_estimators"
+            }
+          },
+          {
+            "name": "max_depth_tree",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "The maximum depth of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_depth"
+            }
+          },
+          {
+            "name": "min_samples_split",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to split an internal node.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "min_samples_split"
+            }
+          },
+          {
+            "name": "min_samples_leaf",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "The minimum number of samples required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_samples_leaf"
+            }
+          },
+          {
+            "name": "min_weight_fraction_leaf",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_weight_fraction_leaf"
+            }
+          },
+          {
+            "name": "max_leaf_nodes",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Grow a tree with max_leaf_nodes in best-first fashion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_leaf_nodes"
+            }
+          },
+          {
+            "name": "min_impurity_decrease",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "A node will be split if this split induces a decrease of the impurity greater than or equal to this value.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "min_impurity_decrease"
+            }
+          },
+          {
+            "name": "bootstrap",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether bootstrap samples are used when building trees.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "bootstrap"
+            }
+          },
+          {
+            "name": "sparse_output",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether or not to return a sparse CSR matrix, as default behavior, or to return a dense array compatible with dense pipeline operators.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "sparse_output"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity of the tree building process.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new forest.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
             }
           }
         ],
