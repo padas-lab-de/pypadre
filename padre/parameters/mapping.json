@@ -5502,7 +5502,7 @@
       }
     },
     {
-      "name": "adaBoost regressor",
+      "name": "AdaBoost regressor",
       "other_names": [],
       "implementation": {
         "scikit-learn": "sklearn.ensemble.AdaBoostRegressor"
@@ -5557,7 +5557,7 @@
       }
     },
     {
-      "name": "adaBoost classifier",
+      "name": "AdaBoost classifier",
       "other_names": [],
       "implementation": {
         "scikit-learn": "sklearn.ensemble.AdaBoostClassifier"
@@ -5971,6 +5971,647 @@
             }
           }
         ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "select from model",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.SelectFromModel"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "estimator",
+            "kind_of_value": "estimator object",
+            "optional": "False",
+            "description": "The base estimator from which the transformer is built.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "estimator"
+            }
+          },
+          {
+            "name": "threshold",
+            "kind_of_value": "{'median', 'mean', float, None}",
+            "optional": "True",
+            "description": "The threshold value to use for feature selection.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "threshold"
+            }
+          },
+          {
+            "name": "prefit_model",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether a prefit model is expected to be passed into the constructor directly or not.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "prefit"
+            }
+          },
+          {
+            "name": "norm_order",
+            "kind_of_value": "non-zero integer",
+            "optional": "False",
+            "description": "Order of the norm used to filter the vectors of coefficients below threshold in the case where the coef_ attribute of the estimator is of dimension 2.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "norm_order"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "recursive feature elimination with cross-validation",
+      "other_names": ["RFECV"],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.RFECV"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "estimator",
+            "kind_of_value": "estimator object",
+            "optional": "False",
+            "description": "The base estimator from which the transformer is built.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "estimator"
+            }
+          },
+          {
+            "name": "step",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "If greater than or equal to 1, then step corresponds to the (integer) number of features to remove at each iteration. If within (0.0, 1.0), then step corresponds to the percentage (rounded down) of features to remove at each iteration.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "step"
+            }
+          },
+          {
+            "name": "cross-validation",
+            "kind_of_value": "{integer, object (cross-validation generator),  iterable yielding train, test splits, None",
+            "optional": "True",
+            "description": "Determines whether to use cross validated predictions or true labels for the results of previous estimators in the chain.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "cv"
+            }
+          },
+          {
+            "name": "scoring",
+            "kind_of_value": "{callable, None, 'accuracy', 'average_precision', 'f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'f1_samples', 'neg_log_loss', 'precision', 'recall', 'roc_auc', 'adjusted_mutual_info_score', 'adjusted_rand_score', 'completeness_score', 'fowlkes_mallows_score', 'homogeneity_score', 'mutual_info_score', 'normalized_mutual_info_score', 'v_measure_score', 'explained_variance', 'neg_mean_absolute_error', '‘neg_mean_squared_error', 'neg_mean_squared_log_error', 'neg_median_absolute_error', 'r2'}",
+            "optional": "True",
+            "description": "Scoring parameter that is applied to the evaluated estimator.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "scoring"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Controls verbosity of output.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "recursive feature elimination",
+      "other_names": ["RFE"],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.RFE"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "estimator",
+            "kind_of_value": "estimator object",
+            "optional": "False",
+            "description": "The base estimator from which the transformer is built.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "estimator"
+            }
+          },
+          {
+            "name": "n_features_to_select",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "The number of features to select. If None, half of the features are selected.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_features_to_select"
+            }
+          },
+          {
+            "name": "step",
+            "kind_of_value": "{integer, float}",
+            "optional": "True",
+            "description": "If greater than or equal to 1, then step corresponds to the (integer) number of features to remove at each iteration. If within (0.0, 1.0), then step corresponds to the percentage (rounded down) of features to remove at each iteration.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "step"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Controls verbosity of output.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "mutual information classification",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.mutual_info_classif"
+      },
+      "type": "Scoring Function",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "feature_matrix",
+            "kind_of_value": " array_like or sparse matrix, shape (n_samples, n_features)",
+            "optional": "False",
+            "description": "Feature matrix.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "target_vector",
+            "kind_of_value": "array_like, shape (n_samples)",
+            "optional": "False",
+            "description": "Target vector.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "y"
+            }
+          },
+          {
+            "name": "discrete_features",
+            "kind_of_value": "{'auto', bool, array_like}",
+            "optional": "False",
+            "description": "If bool, then determines whether to consider all features discrete or continuous. If array, then it should be either a boolean mask with shape (n_features,) or array with indices of discrete features. If ‘auto’, it is assigned to False for dense X and to True for sparse X.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "discrete_features"
+            }
+          },
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of neighbors to use for MI estimation for continuous variables.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "n_neighbors"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "mutual information regression",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.mutual_info_regression"
+      },
+      "type": "Scoring Function",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "feature_matrix",
+            "kind_of_value": " array_like or sparse matrix, shape (n_samples, n_features)",
+            "optional": "False",
+            "description": "Feature matrix.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "target_vector",
+            "kind_of_value": "array_like, shape (n_samples)",
+            "optional": "False",
+            "description": "Target vector.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "y"
+            }
+          },
+          {
+            "name": "discrete_features",
+            "kind_of_value": "{'auto', bool, array_like}",
+            "optional": "False",
+            "description": "If bool, then determines whether to consider all features discrete or continuous. If array, then it should be either a boolean mask with shape (n_features,) or array with indices of discrete features. If ‘auto’, it is assigned to False for dense X and to True for sparse X.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "discrete_features"
+            }
+          },
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of neighbors to use for MI estimation for continuous variables.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "n_neighbors"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "f classification",
+      "other_names": ["analysis of variance f-value"],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.f_classif"
+      },
+      "type": "Scoring Function",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "regressor_set",
+            "kind_of_value": "{array-like, sparse matrix} shape = [n_samples, n_features]",
+            "optional": "False",
+            "description": "The set of regressors that will be tested sequentially.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "data_matrix",
+            "kind_of_value": "array of shape(n_samples)",
+            "optional": "False",
+            "description": "The data matrix.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "y"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "f regression",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.f_regression"
+      },
+      "type": "Scoring Function",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "regressor_set",
+            "kind_of_value": "{array-like, sparse matrix} shape = [n_samples, n_features]",
+            "optional": "False",
+            "description": "The set of regressors that will be tested sequentially.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "data_matrix",
+            "kind_of_value": "array of shape(n_samples)",
+            "optional": "False",
+            "description": "The data matrix.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "y"
+            }
+          },
+          {
+            "name": "center",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If true, regressor_set and data_matrix will be centered.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "center"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "chi2",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.chi2"
+      },
+      "type": "Scoring Function",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "sample_vectors",
+            "kind_of_value": "{array-like, sparse matrix}, shape = (n_samples, n_features_in)",
+            "optional": "False",
+            "description": "Sample vectors.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "target_vector",
+            "kind_of_value": "array-like, shape = (n_samples)",
+            "optional": "False",
+            "description": "Target vector (class labels).",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "y"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "univariate feature selector",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.GenericUnivariateSelect"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "score_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "Function taking two arrays X and y, and returning a pair of arrays (scores, pvalues). ",
+            "scikit-learn": {
+              "default_value": "<function f_classif>",
+              "path": "score_func"
+            }
+          },
+          {
+            "name": "mode",
+            "kind_of_value": " {'percentile', 'k_best', 'fpr', 'fdr', 'fwe'}",
+            "optional": "False",
+            "description": "Feature selection mode.",
+            "scikit-learn": {
+              "default_value": "'percentile'",
+              "path": "mode"
+            }
+          },
+          {
+            "name": "mode_parameter",
+            "kind_of_value": "{float, integer}",
+            "optional": "False",
+            "description": "Parameter of the corresponding mode.",
+            "scikit-learn": {
+              "default_value": "0,00001",
+              "path": "param"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "select familiy-wise error rate",
+      "other_names": ["select Fwe"],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.SelectFwe"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "score_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "Function taking two arrays X and y, and returning a pair of arrays (scores, pvalues). ",
+            "scikit-learn": {
+              "default_value": "<function f_classif>",
+              "path": "score_func"
+            }
+          },
+          {
+            "name": "max_uncorrected_p-value",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The highest uncorrected p-value for features to keep.",
+            "scikit-learn": {
+              "default_value": "0.05",
+              "path": "alpha"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "select estimated false discovery rate",
+      "other_names": ["select Fdr"],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.SelectFdr"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "score_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "Function taking two arrays X and y, and returning a pair of arrays (scores, pvalues). ",
+            "scikit-learn": {
+              "default_value": "<function f_classif>",
+              "path": "score_func"
+            }
+          },
+          {
+            "name": "max_uncorrected_p-value",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The highest uncorrected p-value for features to keep.",
+            "scikit-learn": {
+              "default_value": "0.05",
+              "path": "alpha"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "select below false positive rate",
+      "other_names": ["select Fpr"],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.SelectFpr"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "score_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "Function taking two arrays X and y, and returning a pair of arrays (scores, pvalues). ",
+            "scikit-learn": {
+              "default_value": "<function f_classif>",
+              "path": "score_func"
+            }
+          },
+          {
+            "name": "max_uncorrected_p-value",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The highest uncorrected p-value for features to keep.",
+            "scikit-learn": {
+              "default_value": "0.05",
+              "path": "alpha"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "select percentile",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.SelectPercentile"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "score_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "Function taking two arrays X and y, and returning a pair of arrays (scores, pvalues). ",
+            "scikit-learn": {
+              "default_value": "<function f_classif>",
+              "path": "score_func"
+            }
+          },
+          {
+            "name": "percentile",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Percent of features to keep.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "percentile"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "select k best",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.SelectKBest"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "score_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "Function taking two arrays X and y, and returning a pair of arrays (scores, pvalues). ",
+            "scikit-learn": {
+              "default_value": "<function f_classif>",
+              "path": "score_func"
+            }
+          },
+          {
+            "name": "k",
+            "kind_of_value": "{integer, 'all'}",
+            "optional": "True",
+            "description": "Number of top features to select.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "k"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "variance threshold",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.feature_selection.VarianceThreshold"
+      },
+      "type": "Feature Selection",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "threshold",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Features with a training-set variance lower than this threshold will be removed.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "threshold"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
         "execution_parameters": []
       }
     },
