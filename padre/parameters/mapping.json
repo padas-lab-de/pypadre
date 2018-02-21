@@ -6616,6 +6616,353 @@
       }
     },
     {
+      "name": "label probagation",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.semi_supervised.LabelPropagation"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "kernel",
+            "kind_of_value": "{'knn', 'rbf', a callable taking two inputs in shape (n_samples, n_features) and returns weight matrix in shape [n_samples, n_samples]}",
+            "optional": "False",
+            "description": "Specifies the kernel type to be used in the algorithm.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "rbf_parameter",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Parameter for rbf kernel",
+            "scikit-learn": {
+              "default_value": "20",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer > 0",
+            "optional": "True",
+            "description": "Number of neighbors to use by for knn kernel.",
+            "scikit-learn": {
+              "default_value": "7",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Convergence tolerance: threshold to consider the system at steady state",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "label spreading",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.semi_supervised.LabelSpreading"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "kernel",
+            "kind_of_value": "{'knn', 'rbf', a callable taking two inputs in shape (n_samples, n_features) and returns weight matrix in shape [n_samples, n_samples]}",
+            "optional": "False",
+            "description": "Specifies the kernel type to be used in the algorithm.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "rbf_parameter",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Parameter for rbf kernel",
+            "scikit-learn": {
+              "default_value": "20",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer > 0",
+            "optional": "True",
+            "description": "Number of neighbors to use by for knn kernel.",
+            "scikit-learn": {
+              "default_value": "7",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "calmping_factor",
+            "kind_of_value": "float in [0,1]",
+            "optional": "False",
+            "description": "Clamping factor. A value in [0, 1] that specifies the relative amount that an instance should adopt the information from its neighbors as opposed to its initial label. 0 means  keeping the initial label information; 1 means replacing all initial information.",
+            "scikit-learn": {
+              "default_value": "0.2",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Convergence tolerance: threshold to consider the system at steady state",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "isotonic regression",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.isotonic.IsotonicRegression"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "min_fit",
+            "kind_of_value": "{float, None}",
+            "optional": "True",
+            "description": "If not None, set the lowest value of the fit to min_fit",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "y_min"
+            }
+          },
+          {
+            "name": "max_fit",
+            "kind_of_value": "{float, None}",
+            "optional": "True",
+            "description": "If not None, set the highest value of the fit to max_fit",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "y_max"
+            }
+          },
+          {
+            "name": "increasing",
+            "kind_of_value": "{'auto', boolean}",
+            "optional": "True",
+            "description": "If boolean, whether or not to fit the isotonic regression with outputs increasing or decreasing. The string value “auto” determines whether outputs should increase or decrease based on the Spearman correlation estimate’s sign.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "increasing"
+            }
+          },
+          {
+            "name": "out_of_bounds",
+            "kind_of_value": "{'nan, 'clip', 'raise'}",
+            "optional": "True",
+            "description": "Defines how input-values outside the training domain should be handled. 'nan' set predictions to NaN, 'clip' set predicted values to the value corresponding to the nearest train interval endpoint. 'raise' allows to throw a ValueError.",
+            "scikit-learn": {
+              "default_value": "'nan'",
+              "path": "out_of_bounds"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "probability calibration with cross validation",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.calibration.CalibratedClassifierCV"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "base_estimator",
+            "kind_of_value": "{object, None}",
+            "optional": "False",
+            "description": "The classifier whose output decision function needs to be calibrated to offer more accurate prediction probability outputs. ",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "base_estimator"
+            }
+          },
+          {
+            "name": "calibration_method",
+            "kind_of_value": "{'sigmoid', 'isotonic'}",
+            "optional": "False",
+            "description": "The method to use for calibration.",
+            "scikit-learn": {
+              "default_value": "'sigmoid'",
+              "path": "method"
+            }
+          },
+          {
+            "name": "cross-validation",
+            "kind_of_value": "{integer, object (cross-validation generator),  iterable yielding train and test splits, None, 'prefit'",
+            "optional": "True",
+            "description": "Determines the cross-validation splitting strategy.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "cv"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "Brier score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": ""
+      },
+      "type": "Scoring Function",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "true_targets",
+            "kind_of_value": "array, shape (n_samples)",
+            "optional": "False",
+            "description": "True targets.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "y_true"
+            }
+          },
+          {
+            "name": "positive_probabilities",
+            "kind_of_value": "array, shape (n_samples)",
+            "optional": "False",
+            "description": "Probabilities of the positive class.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "y_prob"
+            }
+          },
+          {
+            "name": "sample_weight",
+            "kind_of_value": "{array, shape (n_samples), None}",
+            "optional": "True",
+            "description": "Sample weights.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "sample_weight"
+            }
+          },
+          {
+            "name": "positive_label",
+            "kind_of_value": "{integer, string}",
+            "optional": "False",
+            "description": "Label of the positive class. If None, the maximum label is used as positive class",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "pos_label"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "multi layer perceptron regressor",
+      "other_names": ["MLP regressor"],
+      "implementation": {
+        "scikit-learn": "sklearn.neural_network.MLPRegressor"
+      },
+      "type": "Regression",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "",
+            "kind_of_value": "",
+            "optional": "",
+            "description": "",
+            "scikit-learn": {
+              "default_value": "",
+              "path": ""
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "",
+            "kind_of_value": "",
+            "optional": "",
+            "description": "",
+            "scikit-learn": {
+              "default_value": "",
+              "path": ""
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
       "name": "",
       "other_names": [],
       "implementation": {
