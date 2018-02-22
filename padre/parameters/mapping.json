@@ -6928,7 +6928,7 @@
       }
     },
     {
-      "name": "multi layer perceptron regressor",
+      "name": "multi-layer perceptron regressor",
       "other_names": ["MLP regressor"],
       "implementation": {
         "scikit-learn": "sklearn.neural_network.MLPRegressor"
@@ -6937,25 +6937,525 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "",
-            "kind_of_value": "",
-            "optional": "",
-            "description": "",
+            "name": "hidden_layer_sizes",
+            "kind_of_value": "tuple, length = n_layers - 2",
+            "optional": "False",
+            "description": "The ith element represents the number of neurons in the ith hidden layer.",
             "scikit-learn": {
-              "default_value": "",
-              "path": ""
+              "default_value": "(100,)",
+              "path": "hidden_layer_sizes"
+            }
+          },
+          {
+            "name": "activation",
+            "kind_of_value": " {'identity', 'logistic', 'tanh', 'relu'}",
+            "optional": "False",
+            "description": "Activation function for the hidden layer.",
+            "scikit-learn": {
+              "default_value": "'relu'",
+              "path": "activation"
+            }
+          },
+          {
+            "name": "solver",
+            "kind_of_value": "{'lbfgs', 'sgd', 'adam'}",
+            "optional": "False",
+            "description": "The solver for weight optimization.",
+            "scikit-learn": {
+              "default_value": "'adam'",
+              "path": "solver"
+            }
+          },
+          {
+            "name": "l2_penalty",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "L2 penalty (regularization term) parameter.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "{integer, 'auto'}",
+            "optional": "True",
+            "description": "Size of minibatches for stochastic optimizers.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "batch_size"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "{'constant', 'invscaling', 'adaptive'}",
+            "optional": "False",
+            "description": "Learning rate schedule for weight updates.",
+            "scikit-learn": {
+              "default_value": "'constant'",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "learning_rate_init",
+            "kind_of_value": "double",
+            "optional": "True",
+            "description": "The initial learning rate used. It controls the step-size in updating the weights.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "learning_rate_init"
+            }
+          },
+          {
+            "name": "inverse_scaling_exponent",
+            "kind_of_value": "double",
+            "optional": "True",
+            "description": "The exponent for inverse scaling learning rate.",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "power_t"
+            }
+          },
+          {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to shuffle samples in each iteration.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Precision of the solution. (The tolerance for the optimisation.)",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "gradient_momentum",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Momentum for gradient descent update.",
+            "scikit-learn": {
+              "default_value": "0.9",
+              "path": "momentum"
+            }
+          },
+          {
+            "name": "nesterovs_momentum",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to use Nesterov’s momentum.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "nesterovs_momentum"
+            }
+          },
+          {
+            "name": "early_stopping",
+            "kind_of_value": "boolean",
+            "optional": "Flase",
+            "description": "Whether to use early stopping to terminate training when validation score is not improving. If set to true, it will automatically set aside 10% of training data as validation and terminate training when validation score is not improving by at least tol for two consecutive epochs.",
+            "scikit-learn": {
+              "default_value": "Flase",
+              "path": "early_stopping"
+            }
+          },
+          {
+            "name": "validation_fraction",
+            "kind_of_value": "float between 0 and 1",
+            "optional": "True",
+            "description": "The proportion of training data to set aside as validation set for early stopping.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "validation_fraction"
+            }
+          },
+          {
+            "name": "adam_beta_1",
+            "kind_of_value": "float should be in [0, 1)",
+            "optional": "True",
+            "description": "Exponential decay rate for estimates of first moment vector in adam.",
+            "scikit-learn": {
+              "default_value": "0.9",
+              "path": "beta_1"
+            }
+          },
+          {
+            "name": "adam_beta_2",
+            "kind_of_value": "float should be in [0, 1)",
+            "optional": "True",
+            "description": "Exponential decay rate for estimates of second moment vector in adam.",
+            "scikit-learn": {
+              "default_value": "0.999",
+              "path": "beta_2"
+            }
+          },
+          {
+            "name": "adam_epsilon",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Value for numerical stability in adam.",
+            "scikit-learn": {
+              "default_value": "0.00000001",
+              "path": "epsilon"
             }
           }
         ],
         "optimisation_parameters": [
           {
-            "name": "",
-            "kind_of_value": "",
-            "optional": "",
-            "description": "",
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
             "scikit-learn": {
-              "default_value": "",
-              "path": ""
+              "default_value": "200",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "multi-layer perceptron classifier",
+      "other_names": ["MLP classifier"],
+      "implementation": {
+        "scikit-learn": "sklearn.neural_network.MLPClassifier"
+      },
+      "type": "Classification",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "hidden_layer_sizes",
+            "kind_of_value": "tuple, length = n_layers - 2",
+            "optional": "False",
+            "description": "The ith element represents the number of neurons in the ith hidden layer.",
+            "scikit-learn": {
+              "default_value": "(100,)",
+              "path": "hidden_layer_sizes"
+            }
+          },
+          {
+            "name": "activation",
+            "kind_of_value": " {'identity', 'logistic', 'tanh', 'relu'}",
+            "optional": "False",
+            "description": "Activation function for the hidden layer.",
+            "scikit-learn": {
+              "default_value": "'relu'",
+              "path": "activation"
+            }
+          },
+          {
+            "name": "solver",
+            "kind_of_value": "{'lbfgs', 'sgd', 'adam'}",
+            "optional": "False",
+            "description": "The solver for weight optimization.",
+            "scikit-learn": {
+              "default_value": "'adam'",
+              "path": "solver"
+            }
+          },
+          {
+            "name": "l2_penalty",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "L2 penalty (regularization term) parameter.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "{integer, 'auto'}",
+            "optional": "True",
+            "description": "Size of minibatches for stochastic optimizers.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "batch_size"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "{'constant', 'invscaling', 'adaptive'}",
+            "optional": "False",
+            "description": "Learning rate schedule for weight updates.",
+            "scikit-learn": {
+              "default_value": "'constant'",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "learning_rate_init",
+            "kind_of_value": "double",
+            "optional": "True",
+            "description": "The initial learning rate used. It controls the step-size in updating the weights.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "learning_rate_init"
+            }
+          },
+          {
+            "name": "inverse_scaling_exponent",
+            "kind_of_value": "double",
+            "optional": "True",
+            "description": "The exponent for inverse scaling learning rate.",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "power_t"
+            }
+          },
+          {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to shuffle samples in each iteration.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Precision of the solution. (The tolerance for the optimisation.)",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
+          {
+            "name": "gradient_momentum",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Momentum for gradient descent update.",
+            "scikit-learn": {
+              "default_value": "0.9",
+              "path": "momentum"
+            }
+          },
+          {
+            "name": "nesterovs_momentum",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to use Nesterov’s momentum.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "nesterovs_momentum"
+            }
+          },
+          {
+            "name": "early_stopping",
+            "kind_of_value": "boolean",
+            "optional": "Flase",
+            "description": "Whether to use early stopping to terminate training when validation score is not improving. If set to true, it will automatically set aside 10% of training data as validation and terminate training when validation score is not improving by at least tol for two consecutive epochs.",
+            "scikit-learn": {
+              "default_value": "Flase",
+              "path": "early_stopping"
+            }
+          },
+          {
+            "name": "validation_fraction",
+            "kind_of_value": "float between 0 and 1",
+            "optional": "True",
+            "description": "The proportion of training data to set aside as validation set for early stopping.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "validation_fraction"
+            }
+          },
+          {
+            "name": "adam_beta_1",
+            "kind_of_value": "float should be in [0, 1)",
+            "optional": "True",
+            "description": "Exponential decay rate for estimates of first moment vector in adam.",
+            "scikit-learn": {
+              "default_value": "0.9",
+              "path": "beta_1"
+            }
+          },
+          {
+            "name": "adam_beta_2",
+            "kind_of_value": "float should be in [0, 1)",
+            "optional": "True",
+            "description": "Exponential decay rate for estimates of second moment vector in adam.",
+            "scikit-learn": {
+              "default_value": "0.999",
+              "path": "beta_2"
+            }
+          },
+          {
+            "name": "adam_epsilon",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Value for numerical stability in adam.",
+            "scikit-learn": {
+              "default_value": "0.00000001",
+              "path": "epsilon"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "Gaussian mixture",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.mixture.GaussianMixture"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of mixture components.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "covariance_type",
+            "kind_of_value": "{'full', 'tied', 'diag', 'spherical'}",
+            "optional": "False",
+            "description": "String describing the type of covariance parameters to use.",
+            "scikit-learn": {
+              "default_value": "'full'",
+              "path": "covariance_type"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The convergence threshold.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "reg_covariance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Non-negative regularization added to the diagonal of covariance. Allows to assure that the covariance matrices are all positive.",
+            "scikit-learn": {
+              "default_value": "0.000001",
+              "path": "reg_covar"
+            }
+          },
+          {
+            "name": "num_init",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of initializations to perform. The best results are kept.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "init_params",
+            "kind_of_value": "{'kmeans', 'random'}",
+            "optional": "False",
+            "description": "The method used to initialize the weights, the means and the precisions.",
+            "scikit-learn": {
+              "default_value": "'kmeans'",
+              "path": "init_params"
+            }
+          },
+          {
+            "name": "weights_init",
+            "kind_of_value": "{array-like, shape (n_components, ), None}",
+            "optional": "True",
+            "description": "The user-provided initial weights.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "weights_init"
+            }
+          },
+          {
+            "name": "means_init",
+            "kind_of_value": "{array-like, shape (n_components,  n_features), None}",
+            "optional": "True",
+            "description": "The user-provided initial means.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "means_init"
+            }
+          },
+          {
+            "name": "precisions_init",
+            "kind_of_value": "{array-like depending on 'covariance_type': (n_components,) if 'spherical', (n_features, n_features) if 'tied', (n_components, n_features) if 'diag',(n_components, n_features, n_features) if 'full', None}",
+            "optional": "True",
+            "description": "The user-provided initial precisions (inverse of the covariance matrices).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "precisions_init"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_iter"
             }
           }
         ],
