@@ -7387,7 +7387,7 @@
             }
           },
           {
-            "name": "num_init",
+            "name": "num_initializations",
             "kind_of_value": "integer",
             "optional": "False",
             "description": "The number of initializations to perform. The best results are kept.",
@@ -7456,6 +7456,886 @@
             "scikit-learn": {
               "default_value": "100",
               "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "Bayesian Gaussian mixture",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.mixture.BayesianGaussianMixture"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of mixture components.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "covariance_type",
+            "kind_of_value": "{'full', 'tied', 'diag', 'spherical'}",
+            "optional": "False",
+            "description": "String describing the type of covariance parameters to use.",
+            "scikit-learn": {
+              "default_value": "'full'",
+              "path": "covariance_type"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The convergence threshold.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "reg_covariance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Non-negative regularization added to the diagonal of covariance. Allows to assure that the covariance matrices are all positive.",
+            "scikit-learn": {
+              "default_value": "0.000001",
+              "path": "reg_covar"
+            }
+          },
+          {
+            "name": "num_initializations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of initializations to perform. The best results are kept.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "init_params",
+            "kind_of_value": "{'kmeans', 'random'}",
+            "optional": "False",
+            "description": "The method used to initialize the weights, the means and the precisions.",
+            "scikit-learn": {
+              "default_value": "'kmeans'",
+              "path": "init_params"
+            }
+          },
+          {
+            "name": "weight_concentration_prior_type",
+            "kind_of_value": "{'dirichlet_process', 'dirichlet_distribution'}",
+            "optional": "False",
+            "description": "String describing the type of the weight concentration prior.",
+            "scikit-learn": {
+              "default_value": "'dirichlet_process'",
+              "path": "weight_concentration_prior_type"
+            }
+          },
+          {
+            "name": "weight_concentration_prior",
+            "kind_of_value": "{float > 0, None}",
+            "optional": "True",
+            "description": "The dirichlet concentration of each component on the weight distribution (Dirichlet). This is commonly called gamma in the literature. The higher concentration puts more mass in the center and will lead to more components being active, while a lower concentration parameter will lead to more mass at the edge of the mixture weights simplex.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "weight_concentration_prior"
+            }
+          },
+          {
+            "name": "mean_precision_prior",
+            "kind_of_value": "{float > 0, None}",
+            "optional": "True",
+            "description": "The precision prior on the mean distribution (Gaussian). Controls the extend to where means can be placed. Smaller values concentrate the means of each clusters around mean_prior.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "mean_precision_prior"
+            }
+          },
+          {
+            "name": "mean_prior",
+            "kind_of_value": "{array-like, shape (n_features, ), None}",
+            "optional": "True",
+            "description": "The prior on the mean distribution (Gaussian).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "mean_prior"
+            }
+          },
+          {
+            "name": "degrees_of_freedom_prior",
+            "kind_of_value": "{float, None}",
+            "optional": "True",
+            "description": "The prior of the number of degrees of freedom on the covariance distributions (Wishart). ",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "degrees_of_freedom_prior"
+            }
+          },
+          {
+            "name": "covariance_prior",
+            "kind_of_value": "{array-like depending on 'covariance_type': float if 'spherical', (n_features, n_features) if 'tied', (n_features, ) if 'diag',(n_features, n_features) if 'full', None}",
+            "optional": "True",
+            "description": "The user-provided initial precisions (inverse of the covariance matrices).",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "covariance_prior"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "isomap embedding",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.manifold.Isomap"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of neighbors to consider for each point.",
+            "scikit-learn": {
+              "default_value": "5",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of coordinates for the manifold.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "eigen_solver",
+            "kind_of_value": "{'auto', 'arpack', 'dense']",
+            "optional": "False",
+            "description": "Solver for the eigenvalue decomposition.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "eigen_solver"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Tolerance passed to the eigenvalue decomposition solver",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "path_method",
+            "kind_of_value": "{'auto', 'FW', 'D'}",
+            "optional": "False",
+            "description": "Method to use in finding shortest path. 'auto' : attempt to choose the best algorithm automatically. 'FW' : Floyd-Warshall algorithm. 'D' : Dijkstra’s algorithm.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "path_method"
+            }
+          },
+          {
+            "name": "neighbors_algorithm",
+            "kind_of_value": "{'auto', 'brute', 'kd_tree', 'ball_tree'}",
+            "optional": "False",
+            "description": "Algorithm to use for nearest neighbors search, passed to neighbors. NearestNeighbors instance.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "neighbors_algorithm"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations for eigenvalue decomposition solver.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "locally linear embedding analysis",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.manifold.locally_linear_embedding"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+
+          {
+            "name": "sample_data",
+            "kind_of_value": "{array-like shape (n_samples, n_features), sparse matrix, BallTree, KDTree, NearestNeighbors}",
+            "optional": "False",
+            "description": "Sample data.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of neighbors to consider for each point.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of coordinates for the manifold.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "regularization_constant",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Regularization constant, multiplies the trace of the local covariance matrix of the distances.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "reg"
+            }
+          },
+          {
+            "name": "eigen_solver",
+            "kind_of_value": "{'auto', 'arpack', 'dense']",
+            "optional": "False",
+            "description": "Solver for the eigenvalue decomposition.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "eigen_solver"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance passed to the eigenvalue decomposition solver",
+            "scikit-learn": {
+              "default_value": "0.000001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "embedding_method",
+            "kind_of_value": "{'standard', 'hessian', 'modified', 'ltsa'}",
+            "optional": "False",
+            "description": "Embedding method.",
+            "scikit-learn": {
+              "default_value": "'standard'",
+              "path": "method"
+            }
+          },
+          {
+            "name": "hessian_tol",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for Hessian eigenmapping method.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "hessian_tol"
+            }
+          },
+          {
+            "name": "modified_tol",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for modified LLE method.",
+            "scikit-learn": {
+              "default_value": "0.000000000001",
+              "path": "modified_tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations for eigenvalue decomposition solver.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "object oriented locally linear embedding analysis",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.manifold.LocallyLinearEmbedding"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of neighbors to consider for each point.",
+            "scikit-learn": {
+              "default_value": "5",
+              "path": "n_neighbors"
+            }
+          },
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of coordinates for the manifold.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "regularization_constant",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Regularization constant, multiplies the trace of the local covariance matrix of the distances.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "reg"
+            }
+          },
+          {
+            "name": "eigen_solver",
+            "kind_of_value": "{'auto', 'arpack', 'dense']",
+            "optional": "False",
+            "description": "Solver for the eigenvalue decomposition.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "eigen_solver"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance passed to the eigenvalue decomposition solver",
+            "scikit-learn": {
+              "default_value": "0.000001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "embedding_method",
+            "kind_of_value": "{'standard', 'hessian', 'modified', 'ltsa'}",
+            "optional": "False",
+            "description": "Embedding method.",
+            "scikit-learn": {
+              "default_value": "'standard'",
+              "path": "method"
+            }
+          },
+          {
+            "name": "hessian_tol",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for Hessian eigenmapping method.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "hessian_tol"
+            }
+          },
+          {
+            "name": "modified_tol",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for modified LLE method.",
+            "scikit-learn": {
+              "default_value": "0.000000000001",
+              "path": "modified_tol"
+            }
+          },
+          {
+            "name": "neighbors_algorithm",
+            "kind_of_value": "{'auto', 'brute', 'kd_tree', 'ball_tree'}",
+            "optional": "False",
+            "description": "Algorithm to use for nearest neighbors search, passed to neighbors.NearestNeighbors instance.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "neighbors_algorithm"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations for eigenvalue decomposition solver.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "multidimensional scaling",
+      "other_names": ["MDS"],
+      "implementation": {
+        "scikit-learn": "sklearn.manifold.MDS"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of coordinates for the manifold.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "metric_MDS",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, perform metric MDS; otherwise, perform nonmetric MDS.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "num_initializations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of times the SMACOF algorithm will be run with different initializations. The final results will be the best output of the runs, determined by the run with the smallest final stress.",
+            "scikit-learn": {
+              "default_value": "4",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Level of verbosity.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "eps",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Relative tolerance with respect to stress at which to declare convergence.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "eps"
+            }
+          },
+          {
+            "name": "dissimilarity",
+            "kind_of_value": "{'euclidean', 'precomputed'}",
+            "optional": "True",
+            "description": "Dissimilarity measure to use.",
+            "scikit-learn": {
+              "default_value": "'euclidean'",
+              "path": "dissimilarity"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations of the SMACOF algorithm for a single run.",
+            "scikit-learn": {
+              "default_value": "300",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "spectral embedding",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.manifold.spectral_embedding"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "adjacency_matrix",
+            "kind_of_value": "array-like or sparse matrix, shape: (n_samples, n_samples)",
+            "optional": "False",
+            "description": "The adjacency matrix of the graph to embed.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "adjacency"
+            }
+          },
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The dimension of the projection subspace.",
+            "scikit-learn": {
+              "default_value": "8",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "eigen_solver",
+            "kind_of_value": "{'arpack', 'lobpcg', 'amg', None}",
+            "optional": "False",
+            "description": "Solver for the eigenvalue decomposition.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "eigen_solver"
+            }
+          },
+          {
+            "name": "eigen_tol",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Stopping criterion for eigendecomposition of the Laplacian matrix.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "eigen_tol"
+            }
+          },
+          {
+            "name": "norm_laplacian",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, then compute normalized Laplacian.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "norm_laplacian"
+            }
+          },
+          {
+            "name": "drop_first",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to drop the first eigenvector. For spectral embedding, this should be True as the first eigenvector should be constant vector for connected graph, but for spectral clustering, this should be kept as False to retain the first eigenvector.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "drop_first"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "object oriented spectral embedding",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.manifold.SpectralEmbedding"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The dimension of the projection subspace.",
+            "scikit-learn": {
+              "default_value": "8",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "affinity_matrix",
+            "kind_of_value": "{'nearest_neighbors', 'rbf', 'precomputed', callable: use passed in function as affinity the function takes in data matrix (n_samples, n_features) and return affinity matrix (n_samples, n_samples)}",
+            "optional": "False",
+            "description": "How to construct the affinity matrix.",
+            "scikit-learn": {
+              "default_value": "'nearest_neighbors'",
+              "path": "affinity"
+            }
+          },
+          {
+            "name": "gamma",
+            "kind_of_value": "{float, None}",
+            "optional": "True",
+            "description": "Kernel coefficient for rbf kernel.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "eigen_solver",
+            "kind_of_value": "{'arpack', 'lobpcg', 'amg', None}",
+            "optional": "False",
+            "description": "Solver for the eigenvalue decomposition.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "eigen_solver"
+            }
+          },
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of nearest neighbors for nearest_neighbors graph building.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_neighbors"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "t-distributed stochastic neighbor embedding",
+      "other_names": ["TSNE", "t-SNE"],
+      "implementation": {
+        "scikit-learn": "sklearn.manifold.TSNE"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The dimension of the projection subspace.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "perplexity",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The perplexity is related to the number of nearest neighbors that is used in other manifold learning algorithms. Larger datasets usually require a larger perplexity. Consider selecting a value between 5 and 50. The choice is not extremely critical since t-SNE is quite insensitive to this parameter.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "perplexity"
+            }
+          },
+          {
+            "name": "early_exaggeration",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Controls how tight natural clusters in the original space are in the embedded space and how much space will be between them. For larger values, the space between natural clusters will be larger in the embedded space. Again, the choice of this parameter is not very critical. If the cost function increases during initial optimization, the early exaggeration factor or the learning rate might be too high.",
+            "scikit-learn": {
+              "default_value": "12.0",
+              "path": "early_exaggeration"
+            }
+          },
+          {
+            "name": "learning_rate",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The learning rate for t-SNE is usually in the range [10.0, 1000.0]. If the learning rate is too high, the data may look like a ‘ball’ with any point approximately equidistant from its nearest neighbours. If the learning rate is too low, most points may look compressed in a dense cloud with few outliers. If the cost function gets stuck in a bad local minimum increasing the learning rate may help.",
+            "scikit-learn": {
+              "default_value": "200.0",
+              "path": "learning_rate"
+            }
+          },
+          {
+            "name": "min_grad_norm",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "If the gradient norm is below this threshold, the optimization will be stopped.",
+            "scikit-learn": {
+              "default_value": "0.0000001",
+              "path": "min_grad_norm"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "The metric to use when calculating distance between instances in a feature array.",
+            "scikit-learn": {
+              "default_value": "'euclidean'",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "initialisation",
+            "kind_of_value": "{'random', 'pca', numpy array of shape (n_samples, n_components)}",
+            "optional": "True",
+            "description": "Initialization of embedding.",
+            "scikit-learn": {
+              "default_value": "'random'",
+              "path": "init"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity level.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "optimisation_method",
+            "kind_of_value": "{'barnes_hut', 'exact'}",
+            "optional": "False",
+            "description": "Gradient calculation algorithm optimisation.",
+            "scikit-learn": {
+              "default_value": "'barnes_hut'",
+              "path": "method"
+            }
+          },
+          {
+            "name": "angle",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The angular size of a distant node as measured from a point. If this size is below 'angle' then it is used as a summary node of all points contained within it. This method is not very sensitive to changes in this parameter in the range of 0.2 - 0.8. Angle less than 0.2 has quickly increasing computation time and angle greater 0.8 has quickly increasing error.",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "angle"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations for the optimization.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "n_iter"
+            }
+          },
+          {
+            "name": "max_iterations_without_progress",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations without progress before we abort the optimization, used after 250 initial iterations with early exaggeration. Note that progress is only checked every 50 iterations so this value is rounded to the next multiple of 50.",
+            "scikit-learn": {
+              "default_value": "300",
+              "path": "n_iter_without_progress"
             }
           }
         ],
