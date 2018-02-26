@@ -106,7 +106,7 @@
             "name": "solver",
             "kind_of_value": "{'auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'}",
             "optional": "False",
-            "description": "Solver to use in the computational routines: -'auto' chooses the solver automatically based on the type of data. -'svd' uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than 'cholesky'. -'cholesky' uses the standard scipy.linalg.solve function to obtain a closed-form solution. -'sparse_cg' uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than 'cholesky' for large-scale data (possibility to set tol and max_iter). -'lsqr' uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -'sag' uses a Stochastic Average Gradient descent, and 'saga' uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that 'sag' and 'saga' fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
+            "description": "Solver to use in the computational routines: -'auto' chooses the solver automatically based on the type of data. -'svd' uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than 'cholesky'. -'cholesky' uses the standard scipy.linalg.solve function to obtain a closed-form solution. -'sparse_cg' uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than 'cholesky' for large-scale data. -'lsqr' uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -'sag' uses a Stochastic Average Gradient descent, and 'saga' uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that 'sag' and 'saga' fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "solver"
@@ -8339,6 +8339,596 @@
             }
           }
         ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "k-means clustering",
+      "other_names": ["Lloyd’s algorithm"],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.KMeans"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_clusters",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of clusters to form as well as the number of centroids to generate.",
+            "scikit-learn": {
+              "default_value": "8",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "initialization_method",
+            "kind_of_value": "{'k-means++', 'random',  array of shape (n_clusters, n_features)}",
+            "optional": "False",
+            "description": "Method for initialization.",
+            "scikit-learn": {
+              "default_value": "'k-means++'",
+              "path": "init"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Relative tolerance with regards to inertia to declare convergence",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Verbosity mode.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "algorithm",
+            "kind_of_value": "{'auto', 'full', 'elkan'}",
+            "optional": "False",
+            "description": "K-means algorithm to use.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "algorithm"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "num_initialization",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of time the k-means algorithm will be run with different centroid seeds.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of iterations of the k-means algorithm for a single run.",
+            "scikit-learn": {
+              "default_value": "300",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "precompute_distances",
+            "kind_of_value": "{'auto', True, False}",
+            "optional": "False",
+            "description": "Precompute distances (faster but takes more memory). ‘auto’ : do not precompute distances if n_samples * n_clusters > 12 million. This corresponds to about 100MB overhead per job using double precision.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "precompute_distances"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "mini batch k-means clustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.MiniBatchKMeans"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_clusters",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of clusters to form as well as the number of centroids to generate.",
+            "scikit-learn": {
+              "default_value": "8",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "initialization_method",
+            "kind_of_value": "{'k-means++', 'random',  array of shape (n_clusters, n_features)}",
+            "optional": "False",
+            "description": "Method for initialization.",
+            "scikit-learn": {
+              "default_value": "'k-means++'",
+              "path": "init"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Size of the mini batches.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "batch_size"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Verbosity mode.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "compute_labels",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Compute label assignment and inertia for the complete dataset once the minibatch optimization has converged in fit.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "compute_labels"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Control early stopping based on the relative center changes as measured by a smoothed, variance-normalized of the mean center squared position changes. This early stopping heuristics is closer to the one used for the batch variant of the algorithms but induces a slight computational and memory overhead over the inertia heuristic.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations over the complete dataset before stopping independently of any early stopping criterion heuristics.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "max_no_improvement",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Control early stopping based on the consecutive number of mini batches that does not yield an improvement on the smoothed inertia.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "max_no_improvement"
+            }
+          },
+          {
+            "name": "initialization_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of samples to randomly sample for speeding up the initialization (sometimes at the expense of accuracy).",
+            "scikit-learn": {
+              "default_value": "3*batch size",
+              "path": "init_size"
+            }
+          },
+          {
+            "name": "num_initialization",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of random initializations that are tried.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "reassignment_ratio",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Control the fraction of the maximum number of counts for a center to be reassigned. A higher value means that low count centers are more easily reassigned, which means that the model will take longer to converge, but should converge in a better clustering.",
+            "scikit-learn": {
+              "default_value": "0.01",
+              "path": "reassignment_ratio"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "affinity propagation clustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.AffinityPropagation"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "damping",
+            "kind_of_value": "float (between 0.5 and 1)",
+            "optional": "",
+            "description": "Damping factor is the extent to which the current value is maintained relative to incoming values (weighted 1 - damping). This in order to avoid numerical oscillations when updating these values (messages).",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "damping"
+            }
+          },
+          {
+            "name": "preference",
+            "kind_of_value": "{array-like, shape (n_samples,), float, None}",
+            "optional": "True",
+            "description": "Preferences for each point - points with larger values of preferences are more likely to be chosen as exemplars. The number of exemplars, ie of clusters, is influenced by the input preferences value. If the preferences are not passed as arguments, they will be set to the median of the input similarities.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "preference"
+            }
+          },
+          {
+            "name": "affinity",
+            "kind_of_value": "{'precomputed', 'euclidean'}'",
+            "optional": "True",
+            "description": "Which affinity to use.",
+            "scikit-learn": {
+              "default_value": "'euclidean'",
+              "path": "affinity"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to be verbose.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations over the complete dataset before stopping independently of any early stopping criterion heuristics.",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "convergence_iteration",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of iterations with no change in the number of estimated clusters that stops the convergence.",
+            "scikit-learn": {
+              "default_value": "15",
+              "path": "convergence_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "mean shift clustering with flat kernel",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.MeanShift"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "bandwidth",
+            "kind_of_value": "{float, None}",
+            "optional": "True",
+            "description": "Bandwidth used in the RBF kernel.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "bandwidth"
+            }
+          },
+          {
+            "name": "seeds",
+            "kind_of_value": "{array of shape=[n_samples, n_features], None}",
+            "optional": "True",
+            "description": "Seeds used to initialize kernels.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "seeds"
+            }
+          },
+          {
+            "name": "bin_seeding",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If true, initial kernel locations are not locations of all points, but rather the location of the discretized version of points, where points are binned onto a grid whose coarseness corresponds to the bandwidth. Setting this option to True will speed up the algorithm because fewer seeds will be initialized.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "bin_seeding"
+            }
+          },
+          {
+            "name": "min_bin_freq",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "To speed up the algorithm, accept only those bins with at least min_bin_freq points as seeds.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "min_bin_freq"
+            }
+          },
+          {
+            "name": "cluster_all",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If true, then all points are clustered, even those orphans that are not within any kernel. Orphans are assigned to the nearest kernel. If false, then orphans are given cluster label -1.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "cluster_all"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "spectral clustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.SpectralClustering"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_clusters",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The dimension of the projection subspace.",
+            "scikit-learn": {
+              "default_value": "8",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "eigen_solver",
+            "kind_of_value": "{'lobpcg', 'arpack', 'amg', None]",
+            "optional": "False",
+            "description": "The eigenvalue decomposition strategy to use.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "eigen_solver"
+            }
+          },
+          {
+            "name": "num_initialization",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of time the k-means algorithm will be run with different centroid seeds.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "kernel_coefficient",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "affinity",
+            "kind_of_value": "{'nearest_neighbors', 'precomputed', 'rbf', 'sigmoid', 'polynomial', 'poly', 'linear', 'cosine', array-like, callable}'",
+            "optional": "True",
+            "description": "Which affinity to use.",
+            "scikit-learn": {
+              "default_value": "'rbf'",
+              "path": "affinity"
+            }
+          },
+          {
+            "name": "num_neighbours",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of neighbors to use when constructing the affinity matrix using the nearest neighbors method.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_neighbors"
+            }
+          },
+          ,
+          {
+            "name": "eigen_tol",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Stopping criterion for eigendecomposition of the Laplacian matrix.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "eigen_tol"
+            }
+          },
+          {
+            "name": "assign_labels",
+            "kind_of_value": "{'kmeans', 'discretize'}",
+            "optional": "False",
+            "description": "The strategy to use to assign labels in the embedding space. There are two ways to assign labels after the laplacian embedding. k-means can be applied and is a popular choice. But it can also be sensitive to initialization. Discretization is another approach which is less sensitive to random initialization.",
+            "scikit-learn": {
+              "default_value": "'kmeans'",
+              "path": "assign_labels"
+            }
+          },
+          {
+            "name": "kernel_degree",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Degree of the polynomial kernel.",
+            "scikit-learn": {
+              "default_value": "3.0",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "zero_coefficient",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Zero coefficient for polynomial and sigmoid kernels.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "kernel_parameters",
+            "kind_of_value": "dictionary of string to any",
+            "optional": "True",
+            "description": "Additional parameters (keyword arguments) for kernel function passed as callable object.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "kernel_params"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "agglomerative clustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.AgglomerativeClustering"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_clusters",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of clusters to find.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "affinity",
+            "kind_of_value": "{'precomputed', 'euclidean', 'l1', 'l2', 'manhattan', 'cosine'}'",
+            "optional": "False",
+            "description": "Which affinity to use.",
+            "scikit-learn": {
+              "default_value": "'euclidean'",
+              "path": "affinity"
+            }
+          },
+          {
+            "name": "connectivity_matrix",
+            "kind_of_value": "{array-like, callable, None}",
+            "optional": "True",
+            "description": "Connectivity matrix. Defines for each sample the neighboring samples following a given structure of the data. This can be a connectivity matrix itself or a callable that transforms the data into a connectivity matrix.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "connectivity"
+            }
+          },
+          {
+            "name": "compute_full_tree",
+            "kind_of_value": "{boolean, 'auto'}",
+            "optional": "True",
+            "description": "Stop early the construction of the tree at num_clusters. This is useful to decrease computation time if the number of clusters is not small compared to the number of samples. This option is useful only when specifying a connectivity matrix. Note also that when varying the number of clusters and using caching, it may be advantageous to compute the full tree.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "compute_full_tree"
+            }
+          },
+          {
+            "name": "linkage_criterion",
+            "kind_of_value": "{'ward', 'complete', 'average'}",
+            "optional": "True",
+            "description": "Which linkage criterion to use. The linkage criterion determines which distance to use between sets of observation. The algorithm will merge the pairs of cluster that minimize this criterion.",
+            "scikit-learn": {
+              "default_value": "'ward'",
+              "path": "linkage"
+            }
+          },
+          {
+            "name": "pooling_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "This combines the values of agglomerated features into a single value, and should accept an array of shape [M, N] and the keyword argument axis=1, and reduce it to an array of size [M].",
+            "scikit-learn": {
+              "default_value": "np.mean",
+              "path": "pooling_func"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
         "execution_parameters": []
       }
     },
