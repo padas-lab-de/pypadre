@@ -8791,7 +8791,6 @@
               "path": "n_neighbors"
             }
           },
-          ,
           {
             "name": "eigen_tol",
             "kind_of_value": "float",
