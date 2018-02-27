@@ -7387,16 +7387,6 @@
             }
           },
           {
-            "name": "num_initializations",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "The number of initializations to perform. The best results are kept.",
-            "scikit-learn": {
-              "default_value": "1",
-              "path": "n_init"
-            }
-          },
-          {
             "name": "init_params",
             "kind_of_value": "{'kmeans', 'random'}",
             "optional": "False",
@@ -7457,6 +7447,16 @@
               "default_value": "100",
               "path": "max_iter"
             }
+          },
+          {
+            "name": "num_initializations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of initializations to perform. The best results are kept.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_init"
+            }
           }
         ],
         "execution_parameters": []
@@ -7509,16 +7509,6 @@
             "scikit-learn": {
               "default_value": "0.000001",
               "path": "reg_covar"
-            }
-          },
-          {
-            "name": "num_initializations",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "The number of initializations to perform. The best results are kept.",
-            "scikit-learn": {
-              "default_value": "1",
-              "path": "n_init"
             }
           },
           {
@@ -7611,6 +7601,16 @@
             "scikit-learn": {
               "default_value": "100",
               "path": "max_iter"
+            }
+          },
+          {
+            "name": "num_initializations",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of initializations to perform. The best results are kept.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_init"
             }
           }
         ],
@@ -7993,16 +7993,6 @@
             }
           },
           {
-            "name": "num_initializations",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "Number of times the SMACOF algorithm will be run with different initializations. The final results will be the best output of the runs, determined by the run with the smallest final stress.",
-            "scikit-learn": {
-              "default_value": "4",
-              "path": "n_init"
-            }
-          },
-          {
             "name": "verbose",
             "kind_of_value": "integer",
             "optional": "True",
@@ -8052,6 +8042,16 @@
             "scikit-learn": {
               "default_value": "1",
               "path": "n_jobs"
+            }
+          },
+          {
+            "name": "num_initializations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of times the SMACOF algorithm will be run with different initializations. The final results will be the best output of the runs, determined by the run with the smallest final stress.",
+            "scikit-learn": {
+              "default_value": "4",
+              "path": "n_init"
             }
           }
         ],
@@ -8752,16 +8752,6 @@
             }
           },
           {
-            "name": "num_initialization",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "Number of time the k-means algorithm will be run with different centroid seeds.",
-            "scikit-learn": {
-              "default_value": "10",
-              "path": "n_init"
-            }
-          },
-          {
             "name": "kernel_coefficient",
             "kind_of_value": "float",
             "optional": "False",
@@ -8852,6 +8842,16 @@
               "default_value": "1",
               "path": "n_jobs"
             }
+          },
+          {
+            "name": "num_initialization",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of time the k-means algorithm will be run with different centroid seeds.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_init"
+            }
           }
         ],
         "execution_parameters": []
@@ -8922,12 +8922,870 @@
             "optional": "False",
             "description": "This combines the values of agglomerated features into a single value, and should accept an array of shape [M, N] and the keyword argument axis=1, and reduce it to an array of size [M].",
             "scikit-learn": {
-              "default_value": "np.mean",
+              "default_value": "<function mean>",
               "path": "pooling_func"
             }
           }
         ],
         "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "feature agglomerative clustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.FeatureAgglomeration"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_clusters",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of clusters to find.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "affinity",
+            "kind_of_value": "{'precomputed', 'euclidean', 'l1', 'l2', 'manhattan', 'cosine'}'",
+            "optional": "False",
+            "description": "Which affinity to use.",
+            "scikit-learn": {
+              "default_value": "'euclidean'",
+              "path": "affinity"
+            }
+          },
+          {
+            "name": "connectivity_matrix",
+            "kind_of_value": "{array-like, callable, None}",
+            "optional": "True",
+            "description": "Connectivity matrix. Defines for each sample the neighboring samples following a given structure of the data. This can be a connectivity matrix itself or a callable that transforms the data into a connectivity matrix.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "connectivity"
+            }
+          },
+          {
+            "name": "compute_full_tree",
+            "kind_of_value": "{boolean, 'auto'}",
+            "optional": "True",
+            "description": "Stop early the construction of the tree at num_clusters. This is useful to decrease computation time if the number of clusters is not small compared to the number of samples. This option is useful only when specifying a connectivity matrix. Note also that when varying the number of clusters and using caching, it may be advantageous to compute the full tree.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "compute_full_tree"
+            }
+          },
+          {
+            "name": "linkage_criterion",
+            "kind_of_value": "{'ward', 'complete', 'average'}",
+            "optional": "True",
+            "description": "Which linkage criterion to use. The linkage criterion determines which distance to use between sets of observation. The algorithm will merge the pairs of cluster that minimize this criterion.",
+            "scikit-learn": {
+              "default_value": "'ward'",
+              "path": "linkage"
+            }
+          },
+          {
+            "name": "pooling_function",
+            "kind_of_value": "callable",
+            "optional": "False",
+            "description": "This combines the values of agglomerated features into a single value, and should accept an array of shape [M, N] and the keyword argument axis=1, and reduce it to an array of size [M].",
+            "scikit-learn": {
+              "default_value": "<function mean>",
+              "path": "pooling_func"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "DBSCAN",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.DBSCAN"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "eps",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The maximum distance between two samples for them to be considered as in the same neighborhood.",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "eps"
+            }
+          },
+          {
+            "name": "min_samples",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself.",
+            "scikit-learn": {
+              "default_value": "5",
+              "path": "min_samples"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "The metric to use when calculating distance between instances in a feature array.",
+            "scikit-learn": {
+              "default_value": "'euclidean'",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "metric_parameters",
+            "kind_of_value": "dict",
+            "optional": "True",
+            "description": "Additional keyword arguments for the metric function.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "metric_params"
+            }
+          },
+          {
+            "name": "algorithm",
+            "kind_of_value": "{'auto', 'ball_tree', 'kd_tree', 'brute'}",
+            "optional": "True",
+            "description": "The algorithm to be used by the NearestNeighbors module to compute pointwise distances and find nearest neighbors. See NearestNeighbors module documentation for details.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "leaf_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Leaf size passed to BallTree or KDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. The optimal value depends on the nature of the problem.",
+            "scikit-learn": {
+              "default_value": "30",
+              "path": "leaf_size"
+            }
+          },
+          {
+            "name": "minkowski_parameter",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "The power of the Minkowski metric to be used to calculate distance between points.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "p"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "birch clustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.Birch"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "threshold",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "The radius of the subcluster obtained by merging a new sample and the closest subcluster should be lesser than the threshold. Otherwise a new subcluster is started. Setting this value to be very low promotes splitting and vice-versa.",
+            "scikit-learn": {
+              "default_value": "0.5",
+              "path": "threshold"
+            }
+          },
+          {
+            "name": "branching_factor",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Maximum number of CF subclusters in each node. If a new samples enters such that the number of subclusters exceed the branching_factor then that node is split into two nodes with the subclusters redistributed in each. The parent subcluster of that node is removed and two new subclusters are added as parents of the 2 split nodes.",
+            "scikit-learn": {
+              "default_value": "50",
+              "path": "branching_factor"
+            }
+          },
+          {
+            "name": "num_clusters",
+            "kind_of_value": "{integer, instance of sklearn.cluster model, None}",
+            "optional": "False",
+            "description": "Number of clusters after the final clustering step, which treats the subclusters from the leaves as new samples.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "compute_labels",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether or not to compute labels for each fit.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "compute_labels"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "",
+            "kind_of_value": "",
+            "optional": "",
+            "description": "",
+            "scikit-learn": {
+              "default_value": "",
+              "path": ""
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "adjusted rand index",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.adjusted_rand_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "mutual information score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.mutual_info_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          },
+          {
+            "name": "contingency",
+            "kind_of_value": "{None, array shape = [n_classes_true, n_classes_pred], sparse matrix shape = [n_classes_true, n_classes_pred]}",
+            "optional": "False",
+            "description": "A contingency matrix given by the contingency_matrix function.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "contingency"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "adjusted mutual information score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.adjusted_mutual_info_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "normalized mutual information score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.normalized_mutual_info_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "homogeneity score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.homogeneity_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "completeness score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.completeness_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "v-measure score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.v_measure_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "homogeneity completeness v-measure score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.homogeneity_completeness_v_measure"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "Fowlkes-Mallows score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.fowlkes_mallows_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "labels_true",
+            "kind_of_value": "integer array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Ground truth class labels to be used as a reference",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_true"
+            }
+          },
+          {
+            "name": "labels_pred",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Cluster labels to evaluate",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels_pred"
+            }
+          },
+          {
+            "name": "sparse",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Compute contingency matrix internally with sparse matrix.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "sparse"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "silhouette coefficient score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.silhouette_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "distance_array",
+            "kind_of_value": "array [n_samples_a, n_samples_a] if metric == “precomputed”, or, [n_samples_a, n_features] otherwise",
+            "optional": "False",
+            "description": "Array of pairwise distances between samples, or a feature array.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "labels",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Predicted labels for each sample.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels"
+            }
+          },
+          {
+            "name": "distance_metric",
+            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
+            "optional": "False",
+            "description": "The metric to use when calculating distance between instances in a feature array.",
+            "scikit-learn": {
+              "default_value": "'euclidean'",
+              "path": "metric"
+            }
+          },
+          {
+            "name": "sample_size",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "The size of the sample to use when computing the Silhouette Coefficient on a random subset of the data. ",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "sample_size"
+            }
+          },
+          {
+            "name": "**kwds",
+            "kind_of_value": "optional keyword parameters",
+            "optional": "True",
+            "description": "Any further parameters are passed directly to the distance function.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "**kwds"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "Calinski Harabaz score",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.metrics.calinski_harabaz_score"
+      },
+      "type": "Similarity Measure",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "distance_array",
+            "kind_of_value": "array [n_samples_a, n_features]",
+            "optional": "False",
+            "description": "List of n_features-dimensional data points. Each row corresponds to a single data point.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "X"
+            }
+          },
+          {
+            "name": "labels",
+            "kind_of_value": "array, shape = [n_samples]",
+            "optional": "False",
+            "description": "Predicted labels for each sample.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "labels"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "spectral co-clustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.bicluster.SpectralCoclustering"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_clusters",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of biclusters to find.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "svd_method",
+            "kind_of_value": "{'randomized', 'arpack'}",
+            "optional": "True",
+            "description": "Selects the algorithm for finding singular vectors.",
+            "scikit-learn": {
+              "default_value": "'randomized'",
+              "path": "svd_method"
+            }
+          },
+          {
+            "name": "num_svd_vecs",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Number of vectors to use in calculating the SVD.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_svd_vecs"
+            }
+          },
+          {
+            "name": "mini_batch",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use mini-batch k-means, which is faster but may get different results.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "mini_batch"
+            }
+          },
+          {
+            "name": "initialization_method",
+            "kind_of_value": "{'k-means++', 'random',  array of shape (n_clusters, n_features)}",
+            "optional": "False",
+            "description": "Method for initialization of k-means algorithm.",
+            "scikit-learn": {
+              "default_value": "'k-means++'",
+              "path": "init"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "num_initialization",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of time the k-means algorithm will be run with different centroid seeds.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "spectral biclustering",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.cluster.bicluster.SpectralBiclustering"
+      },
+      "type": "Clustering",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_clusters",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of biclusters to find.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "n_clusters"
+            }
+          },
+          {
+            "name": "method",
+            "kind_of_value": "{'scale', 'bistochastic', 'log'}",
+            "optional": "True",
+            "description": "Method of normalizing and converting singular vectors into biclusters.",
+            "scikit-learn": {
+              "default_value": "'bistochastic'",
+              "path": "method"
+            }
+          },
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of singular vectors to check.",
+            "scikit-learn": {
+              "default_value": "6",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "num_best",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of best singular vectors to which to project the data for clustering.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "n_best"
+            }
+          },
+          {
+            "name": "svd_method",
+            "kind_of_value": "{'randomized', 'arpack'}",
+            "optional": "True",
+            "description": "Selects the algorithm for finding singular vectors.",
+            "scikit-learn": {
+              "default_value": "'randomized'",
+              "path": "svd_method"
+            }
+          },
+          {
+            "name": "num_svd_vecs",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Number of vectors to use in calculating the SVD.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_svd_vecs"
+            }
+          },
+          {
+            "name": "mini_batch",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to use mini-batch k-means, which is faster but may get different results.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "mini_batch"
+            }
+          },
+          {
+            "name": "initialization_method",
+            "kind_of_value": "{'k-means++', 'random',  array of shape (n_clusters, n_features)}",
+            "optional": "False",
+            "description": "Method for initialization of k-means algorithm.",
+            "scikit-learn": {
+              "default_value": "'k-means++'",
+              "path": "init"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "num_initialization",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of time the k-means algorithm will be run with different centroid seeds.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_init"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
         "execution_parameters": []
       }
     },
