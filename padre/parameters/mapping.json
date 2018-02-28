@@ -2006,7 +2006,7 @@
             }
           },
           {
-            "name": "n_components",
+            "name": "num_components",
             "kind_of_value": "integer",
             "optional": "True",
             "description": "Number of components (< n_classes - 1) for dimensionality reduction.",
@@ -2089,9 +2089,9 @@
           },
           {
             "name": "kernel",
-            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'cosine', 'gaussian', 'tophat', 'epanechnikov', 'exponential', 'precomputed', callable}",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'cosine', 'gaussian', 'tophat', 'epanechnikov', 'exponential', 'precomputed', callable which accepts two arguments and the keyword arguments passed to this object as kernel_params, and should return a floating point number.}",
             "optional": "False",
-            "description": "Kernel mapping used internally. A callable should accept two arguments and the keyword arguments passed to this object as kernel_params, and should return a floating point number.",
+            "description": "Kernel mapping used internally.",
             "scikit-learn": {
               "default_value": "'linear'",
               "path": "kernel"
@@ -2110,7 +2110,7 @@
           {
             "name": "kernel_degree",
             "kind_of_value": "float",
-            "optional": "float",
+            "optional": "False",
             "description": "Degree of the polynomial kernel.",
             "scikit-learn": {
               "default_value": "3.0",
@@ -3640,7 +3640,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "n_components",
+            "name": "num_components",
             "kind_of_value": "integer",
             "optional": "False",
             "description": "Number of components to keep.",
@@ -3697,7 +3697,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "n_components",
+            "name": "num_components",
             "kind_of_value": "integer",
             "optional": "False",
             "description": "Number of components to keep.",
@@ -3764,7 +3764,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "n_components",
+            "name": "num_components",
             "kind_of_value": "integer",
             "optional": "False",
             "description": "Number of components to keep.",
@@ -3800,7 +3800,7 @@
       "hyper_parameters": {
         "model_parameters": [
           {
-            "name": "n_components",
+            "name": "num_components",
             "kind_of_value": "integer",
             "optional": "False",
             "description": "Number of components to keep.",
@@ -9783,6 +9783,543 @@
             "scikit-learn": {
               "default_value": "1",
               "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "principal component analysis",
+      "other_names": ["PCA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.PCA"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, float, None, 'mle'}",
+            "optional": "False",
+            "description": "Number of components to keep.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "whiten",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When True (False by default) the components_ vectors are multiplied by the square root of n_samples and then divided by the singular values to ensure uncorrelated outputs with unit component-wise variances. Whitening will remove some information from the transformed signal (the relative variance scales of the components) but can sometime improve the predictive accuracy of the downstream estimators by making their data respect some hard-wired assumptions.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "whiten"
+            }
+          },
+          {
+            "name": "svd_solver",
+            "kind_of_value": " {'auto', 'full', 'arpack', 'randomized'}",
+            "optional": "False",
+            "description": "singular value decomposition solver",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "svd_solver"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float >= 0",
+            "optional": "False",
+            "description": "Tolerance for singular values computed by svd_solver == 'arpack'.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "iterated_power",
+            "kind_of_value": "{integer >= 0, 'auto'}",
+            "optional": "False",
+            "description": "Number of iterations for the power method computed by svd_solver == 'randomized'.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "iterated_power"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "incremental principal component analysis",
+      "other_names": ["incremental PCA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.IncrementalPCA"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of components to keep.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "whiten",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When True (False by default) the components_ vectors are multiplied by the square root of n_samples and then divided by the singular values to ensure uncorrelated outputs with unit component-wise variances. Whitening will remove some information from the transformed signal (the relative variance scales of the components) but can sometime improve the predictive accuracy of the downstream estimators by making their data respect some hard-wired assumptions.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "whiten"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "The number of samples to use for each batch.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "batch_size"
+            }
+          }
+        ],
+        "optimisation_parameters": [],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "kernel principal component analysis",
+      "other_names": ["kernel PCA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.KernelPCA"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of components to keep.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "whiten",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When True (False by default) the components_ vectors are multiplied by the square root of n_samples and then divided by the singular values to ensure uncorrelated outputs with unit component-wise variances. Whitening will remove some information from the transformed signal (the relative variance scales of the components) but can sometime improve the predictive accuracy of the downstream estimators by making their data respect some hard-wired assumptions.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "whiten"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "The number of samples to use for each batch.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "batch_size"
+            }
+          },
+          {
+            "name": "kernel",
+            "kind_of_value": "{'linear', 'poly', 'rbf', 'sigmoid', 'cosine', 'precomputed'}",
+            "optional": "False",
+            "description": "Kernel mapping used internally.",
+            "scikit-learn": {
+              "default_value": "'linear'",
+              "path": "kernel"
+            }
+          },
+          {
+            "name": "gamma",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Gamma parameter for the RBF, polynomial and sigmoid kernels. Interpretation depends on kernels.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "gamma"
+            }
+          },
+          {
+            "name": "kernel_degree",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Degree of the polynomial kernel.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "degree"
+            }
+          },
+          {
+            "name": "zero_coefficient",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Zero coefficient for polynomial and sigmoid kernels.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "coef0"
+            }
+          },
+          {
+            "name": "kernel_parameters",
+            "kind_of_value": "mapping of string to any",
+            "optional": "False",
+            "description": "Additional parameters (keyword arguments) for kernel function passed as callable object.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "kernel_params"
+            }
+          },
+          {
+            "name": "ridge_alpha",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Hyperparameter of the ridge regression that learns the inverse transform.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "fit_inverse_transform",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Learn the inverse transform for non-precomputed kernels. (i.e. learn to find the pre-image of a point)",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "fit_inverse_transform"
+            }
+          },
+          {
+            "name": "eigen_solver",
+            "kind_of_value": "{'auto', 'arpack', 'dense']",
+            "optional": "False",
+            "description": "Solver for the eigenvalue decomposition.  If num_components is much less than the number of training samples, arpack may be more efficient than the dense eigensolver.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "eigen_solver"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Convergence tolerance for arpack. If 0, optimal value will be chosen by arpack.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "remove_zero_eigenvalue",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If True, then all components with zero eigenvalues are removed.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "remove_zero_eig"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations for arpack. If None, optimal value will be chosen by arpack.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "sparse principal component analysis",
+      "other_names": ["sparse PCA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.SparsePCA"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of sparse atoms to extract.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "sparsity_parmeter",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Sparsity controlling parameter. Higher values lead to sparser components.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "ridge_alpha",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Amount of ridge shrinkage to apply in order to improve conditioning when calling the transform method.",
+            "scikit-learn": {
+              "default_value": "0.01",
+              "path": "ridge_alpha"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Tolerance for the stopping condition.",
+            "scikit-learn": {
+              "default_value": "0.00000001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "lasso_method",
+            "kind_of_value": "{'lars', 'cd'}",
+            "optional": "False",
+            "description": "Embedding method.",
+            "scikit-learn": {
+              "default_value": "'lars'",
+              "path": "method"
+            }
+          },
+          {
+            "name": "U_init",
+            "kind_of_value": "array of shape (n_samples, n_components)",
+            "optional": "False",
+            "description": "Initial values for the loadings for warm restart scenarios.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "U_init"
+            }
+          },
+          {
+            "name": "V_init",
+            "kind_of_value": "array of shape (n_components, n_features)",
+            "optional": "False",
+            "description": "Initial values for the components for warm restart scenarios.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "V_init"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations to perform.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "mini batch sparse principal component analysis",
+      "other_names": ["mini batch sparse PCA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.MiniBatchSparsePCA"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of sparse atoms to extract.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },{
+            "name": "sparsity_parmeter",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Sparsity controlling parameter. Higher values lead to sparser components.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "ridge_alpha",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Amount of ridge shrinkage to apply in order to improve conditioning when calling the transform method.",
+            "scikit-learn": {
+              "default_value": "0.01",
+              "path": "ridge_alpha"
+            }
+          },
+          {
+            "name": "callback",
+            "kind_of_value": "{callable, None}",
+            "optional": "True",
+            "description": "",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "callback"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of features to take in each mini batch.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "batch_size"
+            }
+          },
+          {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to shuffle the data before splitting it in batches.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "lasso_method",
+            "kind_of_value": "{'lars', 'cd'}",
+            "optional": "False",
+            "description": "Embedding method.",
+            "scikit-learn": {
+              "default_value": "'lars'",
+              "path": "method"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "num_iter",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of iterations to perform for each mini batch.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "n_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "truncated single value decomposition",
+      "other_names": ["truncated SVD", "LSA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.TruncatedSVD"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of sparse atoms to extract.",
+            "scikit-learn": {
+              "default_value": "2",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "svd_solver",
+            "kind_of_value": " {'arpack', 'randomized'}",
+            "optional": "False",
+            "description": "singular value decomposition solver",
+            "scikit-learn": {
+              "default_value": "'randomized'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for ARPACK. 0 means machine precision. Ignored by randomized SVD solver.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "tol"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "num_iter",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of iterations for randomized SVD solver. Not used by ARPACK. The default is larger than the default in randomized_svd to handle sparse matrices that may have large slowly decaying spectrum.",
+            "scikit-learn": {
+              "default_value": "5",
+              "path": "n_iter"
             }
           }
         ],
