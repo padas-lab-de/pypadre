@@ -106,7 +106,7 @@
             "name": "solver",
             "kind_of_value": "{'auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'}",
             "optional": "False",
-            "description": "Solver to use in the computational routines: -'auto' chooses the solver automatically based on the type of data. -'svd' uses a Singular Value Decomposition of X to compute the Ridge coefficients. More stable for singular matrices than 'cholesky'. -'cholesky' uses the standard scipy.linalg.solve function to obtain a closed-form solution. -'sparse_cg' uses the conjugate gradient solver as found in scipy.sparse.linalg.cg. As an iterative algorithm, this solver is more appropriate than 'cholesky' for large-scale data. -'lsqr' uses the dedicated regularized least-squares routine scipy.sparse.linalg.lsqr. It is the fastest but may not be available in old scipy versions. It also uses an iterative procedure. -'sag' uses a Stochastic Average Gradient descent, and 'saga' uses its improved, unbiased version named SAGA. Both methods also use an iterative procedure, and are often faster than other solvers when both n_samples and n_features are large. Note that 'sag' and 'saga' fast convergence is only guaranteed on features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.",
+            "description": "Solver to use in the computational routines.",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "solver"
@@ -10320,6 +10320,812 @@
             "scikit-learn": {
               "default_value": "5",
               "path": "n_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "sparse coding",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.SparseCoder"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "dictionary",
+            "kind_of_value": "array of shape [n_components, n_features]",
+            "optional": "False",
+            "description": "The dictionary atoms used for sparse coding. Lines are assumed to be normalized to unit norm.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "dictionary"
+            }
+          },
+          {
+            "name": "transform_algorithm",
+            "kind_of_value": "{'lasso_lars', 'lasso_cd', 'lars', 'omp', 'threshold'}",
+            "optional": "False",
+            "description": "Algorithm used to transform the data.",
+            "scikit-learn": {
+              "default_value": "'omp'",
+              "path": "transform_algorithm"
+            }
+          },
+          {
+            "name": "transform_num_nonzero_coefs",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of nonzero coefficients to target in each column of the solution.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "transform_n_nonzero_coefs"
+            }
+          },
+          {
+            "name": "l1_penalty",
+            "kind_of_value": "{float, None}",
+            "optional": "False",
+            "description": "Penalty applied to the L1 norm.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "transform_alpha"
+            }
+          },
+          {
+            "name": "split_sign",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to split the sparse feature vector into the concatenation of its negative part and its positive part. This can improve the performance of downstream classifiers.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "split_sign"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "dictionary learning",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.DictionaryLearning"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of dictionary elements to extract.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "sparsity_control_param",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "sparsity controlling parameter",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for numerical error.",
+            "scikit-learn": {
+              "default_value": "0.00000001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "fit_algorithm",
+            "kind_of_value": "{'lars', 'cd'}",
+            "optional": "False",
+            "description": "Method to solve the Lasso problem.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "fit_algorithm"
+            }
+          },
+          {
+            "name": "transform_algorithm",
+            "kind_of_value": "{'lasso_lars', 'lasso_cd', 'lars', 'omp', 'threshold'}",
+            "optional": "False",
+            "description": "Algorithm used to transform the data.",
+            "scikit-learn": {
+              "default_value": "'omp'",
+              "path": "transform_algorithm"
+            }
+          },
+          {
+            "name": "transform_num_nonzero_coefs",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of nonzero coefficients to target in each column of the solution.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "transform_n_nonzero_coefs"
+            }
+          },
+          {
+            "name": "l1_penalty",
+            "kind_of_value": "{float, None}",
+            "optional": "False",
+            "description": "Penalty applied to the L1 norm.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "transform_alpha"
+            }
+          },
+          {
+            "name": "code_init",
+            "kind_of_value": "{array of shape (n_samples, n_components), None}",
+            "optional": "False",
+            "description": "Initial value for the code, for warm restart.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "code_init"
+            }
+          },
+          {
+            "name": "dict_init",
+            "kind_of_value": "{array of shape (n_components, n_features), None}",
+            "optional": "False",
+            "description": "Initial value for the dictionary, for warm restart.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "dict_init"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "To control the verbosity of the procedure.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "split_sign",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to split the sparse feature vector into the concatenation of its negative part and its positive part. This can improve the performance of downstream classifiers.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "split_sign"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "mini batch dictionary learning",
+      "other_names": [],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.MiniBatchDictionaryLearning"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of dictionary elements to extract.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "sparsity_control_param",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "sparsity controlling parameter",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "fit_algorithm",
+            "kind_of_value": "{'lars', 'cd'}",
+            "optional": "False",
+            "description": "Method to solve the Lasso problem.",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "fit_algorithm"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Size of minibatches for stochastic optimizers.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "batch_size"
+            }
+          },
+          {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to shuffle the samples before forming batches.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "dict_init",
+            "kind_of_value": "{array of shape (n_components, n_features), None}",
+            "optional": "False",
+            "description": "Initial value for the dictionary, for warm restart.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "dict_init"
+            }
+          },
+          {
+            "name": "transform_algorithm",
+            "kind_of_value": "{'lasso_lars', 'lasso_cd', 'lars', 'omp', 'threshold'}",
+            "optional": "False",
+            "description": "Algorithm used to transform the data.",
+            "scikit-learn": {
+              "default_value": "'omp'",
+              "path": "transform_algorithm"
+            }
+          },
+          {
+            "name": "transform_num_nonzero_coefs",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Number of nonzero coefficients to target in each column of the solution.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "transform_n_nonzero_coefs"
+            }
+          },
+          {
+            "name": "l1_penalty",
+            "kind_of_value": "{float, None}",
+            "optional": "False",
+            "description": "Penalty applied to the L1 norm.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "transform_alpha"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "To control the verbosity of the procedure.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "split_sign",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to split the sparse feature vector into the concatenation of its negative part and its positive part. This can improve the performance of downstream classifiers.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "split_sign"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "n_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "factor analysis",
+      "other_names": ["FA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.FactorAnalysis"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "False",
+            "description": "Dimensionality of latent space, the number of components of X that are obtained after transform.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Stopping tolerance for EM algorithm.",
+            "scikit-learn": {
+              "default_value": "0.01",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "noise_variance_init",
+            "kind_of_value": "{array of shape (n_features,), None}",
+            "optional": "False",
+            "description": "The initial guess of the noise variance for each feature.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "noise_variance_init"
+            }
+          },
+          {
+            "name": "svd_method",
+            "kind_of_value": "{'randomized', 'lapack'}",
+            "optional": "False",
+            "description": "Selects the algorithm for finding singular vectors.",
+            "scikit-learn": {
+              "default_value": "'randomized'",
+              "path": "svd_method"
+            }
+          },
+          {
+            "name": "iterated_power",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of iterations for the power method computed by svd_solver == 'randomized'.",
+            "scikit-learn": {
+              "default_value": "3",
+              "path": "iterated_power"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "1000",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "fast independent component analysis",
+      "other_names": ["fast ICA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.FastICA"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Number of components to use. If none is passed, all are used.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "algorithm",
+            "kind_of_value": "{'parallel', 'deflation'}",
+            "optional": "False",
+            "description": "Apply parallel or deflational algorithm for FastICA.",
+            "scikit-learn": {
+              "default_value": "'parallel'",
+              "path": "algorithm"
+            }
+          },
+          {
+            "name": "whiten",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If whiten is false, the data is already considered to be whitened, and no whitening is performed.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "whiten"
+            }
+          },
+          {
+            "name": "functional_function_form",
+            "kind_of_value": "{'logcosh', 'exp', 'cube', function that contains a tuple containing the value of the function, and of its derivative}",
+            "optional": "True",
+            "description": "The functional form of the G function used in the approximation to neg-entropy.",
+            "scikit-learn": {
+              "default_value": "'logcosh'",
+              "path": "fun"
+            }
+          },
+          {
+            "name": "function_arguments",
+            "kind_of_value": "{dictionary, None}",
+            "optional": "True",
+            "description": "Arguments to send to the functional form.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "fun_args"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance on update at each iteration.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "w_init",
+            "kind_of_value": "{array of shape (n_components, n_components), None}",
+            "optional": "False",
+            "description": "The mixing matrix to be used to initialize the algorithm.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "w_init"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations during fit.",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "non-negative matrix factorization",
+      "other_names": ["NFM"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.NMF"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "{integer, None}",
+            "optional": "True",
+            "description": "Number of components to use. If none is passed, all are used.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "initialization_method",
+            "kind_of_value": "{'random', 'nndsvd', 'nndsvda', 'nndsvdar', 'custom', None}",
+            "optional": "False",
+            "description": "Method used to initialize the procedure.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "init"
+            }
+          },
+          {
+            "name": "solver",
+            "kind_of_value": "{'cd', 'mu'}",
+            "optional": "False",
+            "description": "Numerical solver to use.",
+            "scikit-learn": {
+              "default_value": "'cd'",
+              "path": "solver"
+            }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Tolerance of the stopping condition.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "regularization_multiplier",
+            "kind_of_value": "double",
+            "optional": "False",
+            "description": "Constant that multiplies the regularization terms. Set it to zero to have no regularization.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "l1_ratio",
+            "kind_of_value": "double",
+            "optional": "False",
+            "description": "The ElasticNet mixing parameter, with 0 <= l1_ratio <= 1. For l1_ratio = 0 the penalty is an elementwise L2 penalty (aka Frobenius Norm). For l1_ratio = 1 it is an elementwise L1 penalty. For 0 < l1_ratio < 1, the penalty is a combination of L1 and L2.",
+            "scikit-learn": {
+              "default_value": "0.0",
+              "path": "l1_ratio"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to be verbose.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If true, randomize the order of coordinates in the CD solver.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "shuffle"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations during fit.",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "max_iter"
+            }
+          }
+        ],
+        "execution_parameters": []
+      }
+    },
+    {
+      "name": "latent Dirichlet allocation",
+      "other_names": ["LDA"],
+      "implementation": {
+        "scikit-learn": "sklearn.decomposition.LatentDirichletAllocation"
+      },
+      "type": "Dimensionality Reduction",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "num_components",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of topics.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "n_components"
+            }
+          },
+          {
+            "name": "doc_topic_prior",
+            "kind_of_value": "{float, None}",
+            "optional": "True",
+            "description": "Prior of document topic distribution theta. If the value is None, defaults to 1 / n_components. In the literature, this is called alpha.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "doc_topic_prior"
+            }
+          },
+          {
+            "name": "topic_word_prior",
+            "kind_of_value": "{float, None}",
+            "optional": "True",
+            "description": "Prior of topic word distribution beta. If the value is None, defaults to 1 / n_components. In the literature, this is called eta.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "topic_word_prior"
+            }
+          },
+          {
+            "name": "learning_method",
+            "kind_of_value": "{'batch', 'online'}",
+            "optional": "False",
+            "description": "Method used to update _component. Only used in fit method. In general, if the data size is large, the online update will be much faster than the batch update.",
+            "scikit-learn": {
+              "default_value": "'online'",
+              "path": "learning_method"
+            }
+          },
+          {
+            "name": "learning_decay",
+            "kind_of_value": "float between (0.5, 1.0]",
+            "optional": "True",
+            "description": "It is a parameter that control learning rate in the online learning method. The value should be set between (0.5, 1.0] to guarantee asymptotic convergence. When the value is 0.0 and batch_size is n_samples, the update method is same as batch learning. In the literature, this is called kappa.",
+            "scikit-learn": {
+              "default_value": "0.7",
+              "path": "learning_decay"
+            }
+          },
+          {
+            "name": "learning_offset",
+            "kind_of_value": "float > 0",
+            "optional": "True",
+            "description": "A (positive) parameter that downweights early iterations in online learning. It should be greater than 1.0. In the literature, this is called tau_0.",
+            "scikit-learn": {
+              "default_value": "10.",
+              "path": "learning_offset"
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Number of documents to use in each EM iteration. Only used in online learning.",
+            "scikit-learn": {
+              "default_value": "128",
+              "path": "batch_size"
+            }
+          },
+          {
+            "name": "evaluate_every",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "How often to evaluate perplexity. Only used in fit method. set it to 0 or negative number to not evalute perplexity in training at all. Evaluating perplexity can help you check convergence in training process, but it will also increase total training time. Evaluating perplexity in every iteration might increase training time up to two-fold.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "evaluate_every"
+            }
+          },
+          {
+            "name": "total_samples",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Total number of documents. Only used in the partial_fit method.",
+            "scikit-learn": {
+              "default_value": "1000000",
+              "path": "total_samples"
+            }
+          },
+          {
+            "name": "perplexity_tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Perplexity tolerance in batch learning.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "perp_tol"
+            }
+          },
+          {
+            "name": "mean_change_tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Stopping tolerance for updating document topic distribution in E-step.",
+            "scikit-learn": {
+              "default_value": "0.001",
+              "path": "mean_change_tolerance"
+            }
+          },
+          {
+            "name": "max_doc_update_iteration",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Max number of iterations for updating document topic distribution in the E-step.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_doc_update_iter"
+            }
+          }
+        ,
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity level.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations during fit.",
+            "scikit-learn": {
+              "default_value": "200",
+              "path": "max_iter"
+            }
+          },
+          {
+            "name": "jobs",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The number of jobs to use in the E-step. If -1, all CPUs are used. If -1 all CPUs are used.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "n_jobs"
             }
           }
         ],
