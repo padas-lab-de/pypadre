@@ -28,6 +28,16 @@
               "default_value": "False",
               "path": "normalize"
             }
+          },
+          {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -93,6 +103,16 @@
             }
           },
           {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "False",
@@ -110,6 +130,16 @@
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "solver"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -169,6 +199,16 @@
             }
           },
           {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "True",
@@ -199,6 +239,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "selection",
             "kind_of_value": "{'cyclic', 'random'}",
             "optional": "False",
@@ -218,6 +268,16 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "max_iter"
+            }
+          },
+          {
+            "name": "precompute",
+            "kind_of_value": "{boolean, array-like, 'auto'}",
+            "optional": "False",
+            "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "precompute"
             }
           }
         ],
@@ -263,6 +323,16 @@
           }
         },
         {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+        },
+        {
           "name": "tolerance",
           "kind_of_value": "float",
           "optional": "True",
@@ -282,6 +352,16 @@
             "path": "warm_start"
           }
         },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
         {
           "name": "selection",
           "kind_of_value": "{'random', 'cyclic'}",
@@ -358,6 +438,16 @@
             }
           },
           {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "True",
@@ -388,6 +478,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "selection",
             "kind_of_value": "{'random', 'cyclic'}",
             "optional": "False",
@@ -401,7 +501,7 @@
         "optimisation_parameters": [
           {
             "name": "precompute",
-            "kind_of_value": "boolean, array-like",
+            "kind_of_value": "{boolean, array-like, 'auto'}",
             "optional": "False",
             "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
             "scikit-learn": {
@@ -474,6 +574,16 @@
             }
           },
           {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "True",
@@ -491,6 +601,16 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "warm_start"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           },
           {
@@ -572,6 +692,16 @@
             }
           },
           {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
             "name": "positive_coef",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -585,12 +715,22 @@
         "optimisation_parameters": [
           {
             "name": "precompute",
-            "kind_of_value": "boolean, array-like",
+            "kind_of_value": "{boolean, array-like, 'auto'}",
             "optional": "False",
             "description": "Whether to use a precomputed Gram matrix to speed up calculations. The Gram matrix can also be passed as argument.",
             "scikit-learn": {
               "default_value": "False",
               "path": "precompute"
+            }
+          },
+          {
+            "name": "fit_path",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If True the full path is stored in the coef_path_ attribute. If you compute the solution for a large problem or many targets, setting fit_path to False will lead to a speedup, especially with a small alpha.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_path"
             }
           }
         ],
@@ -629,6 +769,16 @@
             }
           },
           {
+            "name": "verbose",
+            "kind_of_value": "{boolean, integer}",
+            "optional": "True",
+            "description": "Sets the verbosity amount.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          },
+          {
             "name": "normalize",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -646,6 +796,16 @@
             "scikit-learn": {
               "default_value": "2.2204460492503131e-16",
               "path": "eps"
+            }
+          },
+          {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
             }
           },
           {
@@ -678,6 +838,16 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "max_iter"
+            }
+          },
+          {
+            "name": "fit_path",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If True the full path is stored in the coef_path_ attribute. If you compute the solution for a large problem or many targets, setting fit_path to False will lead to a speedup, especially with a small alpha.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_path"
             }
           }
         ],
@@ -739,7 +909,7 @@
         "optimisation_parameters": [
           {
             "name": "precompute",
-            "kind_of_value": "{True, False, 'auto'}",
+            "kind_of_value": "{boolean, 'auto'}",
             "optional": "False",
             "description": "Whether to use a precomputed Gram matrix  and Xy matrix to speed up calculations. Matrices can also be directly passed to the fit method.",
             "scikit-learn": {
@@ -798,6 +968,36 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "tol"
+            }
+          },
+          {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
+            "name": "return_path",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to return every value of the nonzero coefficients along the forward path. Useful for cross-validation.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "return_path"
+            }
+          },
+          {
+            "name": "return_n_iter",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether or not to return the number of iterations.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "return_n_iter"
             }
           }
         ],
@@ -894,6 +1094,26 @@
               "default_value": "False",
               "path": "normalize"
             }
+          },
+          {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Verbose mode when fitting the model.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -905,6 +1125,16 @@
             "scikit-learn": {
               "default_value": "300",
               "path": "n_iter"
+            }
+          },
+          {
+            "name": "compute_score",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, compute the objective function at each step of the model.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "compute_score"
             }
           }
         ],
@@ -1001,6 +1231,26 @@
               "default_value": "False",
               "path": "normalize"
             }
+          },
+          {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Verbose mode when fitting the model.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -1012,6 +1262,16 @@
             "scikit-learn": {
               "default_value": "300",
               "path": "n_iter"
+            }
+          },
+          {
+            "name": "compute_score",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, compute the objective function at each step of the model.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "compute_score"
             }
           }
         ],
@@ -1040,6 +1300,16 @@
             "scikit-learn": {
               "default_value": "'l2'",
               "path": "penalty"
+            }
+          },
+          {
+            "name": "dual",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Dual or primal formulation.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "dual"
             }
           },
           {
@@ -1073,6 +1343,16 @@
             }
           },
           {
+            "name": "intercept_scaling",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Useful only when the solver ‘liblinear’ is used and self.fit_intercept is set to True. In this case, x becomes [x, self.intercept_scaling], i.e. a “synthetic” feature with constant value equal to intercept_scaling is appended to the instance vector. The intercept becomes intercept_scaling * synthetic_feature_weight.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "intercept_scaling"
+            }
+          },
+          {
             "name": "class_weight",
             "kind_of_value": "{dict, 'balanced', None}",
             "optional": "False",
@@ -1083,6 +1363,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "solver",
             "kind_of_value": "{'newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'}",
             "optional": "False",
@@ -1090,6 +1380,26 @@
             "scikit-learn": {
               "default_value": "'liblinear'",
               "path": "solver"
+            }
+          },
+          {
+            "name": "multi_class",
+            "kind_of_value": "{'ovr', 'multinomial'}",
+            "optional": "False",
+            "description": "Multiclass option can be either ‘ovr’ or ‘multinomial’. If the option chosen is ‘ovr’, then a binary problem is fit for each label. Else the loss minimised is the multinomial loss fit across the entire probability distribution. Does not work for liblinear solver.",
+            "scikit-learn": {
+              "default_value": "'ovr'",
+              "path": "multi_class"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "For the liblinear and lbfgs solvers set verbose to any positive number for verbosity.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
             }
           }
         ],
@@ -1200,6 +1510,46 @@
             }
           },
           {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether or not the training data should be shuffled after each epoch.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The verbosity level.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "epsilon",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "For ‘huber’, determines the threshold at which it becomes less important to get the prediction exactly right. For epsilon-insensitive, any differences between the current prediction and the correct label are ignored if they are less than this threshold.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "epsilon"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "learning_rate",
             "kind_of_value": "{constant, optimal, invscaling}",
             "optional": "True",
@@ -1248,6 +1598,26 @@
               "default_value": "False",
               "path": "warm_start"
             }
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The stopping criterion.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "average",
+            "kind_of_value": "{boolean, integer}",
+            "optional": "True",
+            "description": "When set to True, computes the averaged SGD weights and stores the result in the coef_ attribute. If set to an int greater than 1, averaging will begin once the total number of samples seen reaches average. So average=10 will begin averaging after seeing 10 samples.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "average"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -1279,16 +1649,6 @@
             "scikit-learn": {
               "default_value": "True",
               "path": "fit_intercept"
-            }
-          },
-          {
-            "name": "tolerance",
-            "kind_of_value": "float",
-            "optional": "True",
-            "description": "The stopping criterion.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "tol"
             }
           }
         ],
@@ -1367,6 +1727,46 @@
             }
           },
           {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether or not the training data should be shuffled after each epoch.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The verbosity level.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "epsilon",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "For ‘huber’, determines the threshold at which it becomes less important to get the prediction exactly right. For epsilon-insensitive, any differences between the current prediction and the correct label are ignored if they are less than this threshold.",
+            "scikit-learn": {
+              "default_value": "0.1",
+              "path": "epsilon"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "learning_rate",
             "kind_of_value": "{'constant', 'optimal', 'invscaling'}",
             "optional": "True",
@@ -1404,6 +1804,16 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "warm_start"
+            }
+          },
+          {
+            "name": "average",
+            "kind_of_value": "{boolean, integer}",
+            "optional": "True",
+            "description": "When set to True, computes the averaged SGD weights and stores the result in the coef_ attribute. If set to an int greater than 1, averaging will begin once the total number of samples seen reaches average. So average=10 will begin averaging after seeing 10 samples.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "average"
             }
           }
         ],
@@ -1472,6 +1882,26 @@
             }
           },
           {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether or not the training data should be shuffled after each epoch.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The verbosity level.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
             "name": "eta0",
             "kind_of_value": "double",
             "optional": "False",
@@ -1521,16 +1951,6 @@
             "scikit-learn": {
               "default_value": "1",
               "path": "n_jobs"
-            }
-          },
-          {
-            "name": "epochs",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "The number of passes over the training data (aka epochs).",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "n_iter"
             }
           },
           {
@@ -1587,6 +2007,26 @@
             }
           },
           {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether or not the training data should be shuffled after each epoch.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The verbosity level.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
             "name": "loss_function",
             "kind_of_value": "{'hinge', 'squared_hinge'}",
             "optional": "True",
@@ -1594,6 +2034,16 @@
             "scikit-learn": {
               "default_value": "'hinge'",
               "path": "loss"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           },
           {
@@ -1614,6 +2064,16 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "class_weight"
+            }
+          },
+          {
+            "name": "average",
+            "kind_of_value": "{boolean, integer}",
+            "optional": "True",
+            "description": "When set to True, computes the averaged SGD weights and stores the result in the coef_ attribute. If set to an int greater than 1, averaging will begin once the total number of samples seen reaches average. So average=10 will begin averaging after seeing 10 samples.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "average"
             }
           }
         ],
@@ -1682,6 +2142,26 @@
             }
           },
           {
+            "name": "shuffle",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether or not the training data should be shuffled after each epoch.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "shuffle"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The verbosity level.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
             "name": "loss_function",
             "kind_of_value": "{'epsilon_insensitive', 'squared_epsilon_insensitive'}",
             "optional": "True",
@@ -1702,6 +2182,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "reuse_previous",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -1709,6 +2199,16 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "warm_start"
+            }
+          },
+          {
+            "name": "average",
+            "kind_of_value": "{boolean, integer}",
+            "optional": "True",
+            "description": "When set to True, computes the averaged SGD weights and stores the result in the coef_ attribute. If set to an int greater than 1, averaging will begin once the total number of samples seen reaches average. So average=10 will begin averaging after seeing 10 samples.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "average"
             }
           }
         ],
@@ -1769,6 +2269,26 @@
             }
           },
           {
+            "name": "is_data_valid",
+            "kind_of_value": "callable",
+            "optional": "True",
+            "description": "This function is called with the randomly selected data before the model is fitted to it: is_data_valid(X, y). If its return value is False the current randomly chosen sub-sample is skipped.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "is_data_valid"
+            }
+          },
+          {
+            "name": "is_model_valid",
+            "kind_of_value": "callable",
+            "optional": "True",
+            "description": "This function is called with the estimated model and the randomly selected data: is_model_valid(model, X, y). If its return value is False the current randomly chosen sub-sample is skipped. Rejecting samples with this function is computationally costlier than with is_data_valid. is_model_valid should therefore only be used if the estimated model is needed for making the rejection decision..",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "is_model_valid"
+            }
+          },
+          {
             "name": "loss",
             "kind_of_value": "{'absolute_loss', 'squared_loss'}",
             "optional": "True",
@@ -1776,6 +2296,16 @@
             "scikit-learn": {
               "default_value": "absolute_loss",
               "path": "loss"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -1819,6 +2349,16 @@
               "default_value": "inf",
               "path": "stop_score"
             }
+          },
+          {
+            "name": "stop_probability",
+            "kind_of_value": "float in range [0,1]",
+            "optional": "True",
+            "description": "RANSAC iteration stops if at least one outlier-free set of the training data is sampled in RANSAC.",
+            "scikit-learn": {
+              "default_value": "0.99",
+              "path": "stop_probability"
+            }
           }
         ],
         "execution_parameters": []
@@ -1844,10 +2384,20 @@
             }
           },
           {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, X will be copied; else, it may be overwritten.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
+            }
+          },
+          {
             "name": "max_subpopulation",
             "kind_of_value": "integer",
             "optional": "True",
-            "description": "",
+            "description": "Instead of computing with a set of cardinality ‘n choose k’, where n is the number of samples and k is the number of subsamples (at least number of features), consider only a stochastic subpopulation of a given maximal size if ‘n choose k’ is larger than max_subpopulation. For other than small problem sizes this parameter will determine memory usage and runtime if n_subsamples is not changed.",
             "scikit-learn": {
               "default_value": "10000",
               "path": "max_subpopulation"
@@ -1871,6 +2421,26 @@
             "scikit-learn": {
               "default_value": "0.001",
               "path": "tol"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Verbose mode when fitting the model.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
             }
           }
         ],
@@ -2006,6 +2576,16 @@
             }
           },
           {
+            "name": "priors",
+            "kind_of_value": "array in shape of (n_classes,)",
+            "optional": "True",
+            "description": "Class priors.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "priors"
+            }
+          },
+          {
             "name": "num_components",
             "kind_of_value": "integer",
             "optional": "True",
@@ -2013,6 +2593,16 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "n_components"
+            }
+          },
+          {
+            "name": "store_covariance",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Additionally compute class covariance matrix (default False), used only in ‘svd’ solver.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "store_covariance"
             }
           },
           {
@@ -2042,6 +2632,16 @@
       "hyper_parameters": {
         "model_parameters": [
           {
+            "name": "priors",
+            "kind_of_value": "array in shape of [n_classes]",
+            "optional": "True",
+            "description": "Class priors.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "priors"
+            }
+          },
+          {
             "name": "regularisation_parameter",
             "kind_of_value": "float",
             "optional": "True",
@@ -2049,6 +2649,16 @@
             "scikit-learn": {
               "default_value": "0.0",
               "path": "reg_param"
+            }
+          },
+          {
+            "name": "store_covariance",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If True the covariance matrices are computed and stored in the self.covariance_ attribute.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "store_covariance"
             }
           },
           {
@@ -2204,6 +2814,16 @@
             }
           },
           {
+            "name": "probability",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to enable probability estimates. This must be enabled prior to calling fit, and will slow down that method.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "probability"
+            }
+          },
+          {
             "name": "shrinking",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -2231,6 +2851,36 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "class_weight"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Enable verbose output.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "decision_function_shape",
+            "kind_of_value": "{'ovo', 'ovr'}",
+            "optional": "False",
+            "description": "Whether to return a one-vs-rest ('ovr') decision function of shape (n_samples, n_classes) as all other classifiers, or the original one-vs-one ('ovo') decision function of libsvm which has shape (n_samples, n_classes * (n_classes - 1) / 2).",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "decision_function_shape"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -2302,7 +2952,7 @@
           },
           {
             "name": "kernel_coefficient",
-            "kind_of_value": "float or 'auto'",
+            "kind_of_value": "{float, 'auto'}",
             "optional": "True",
             "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If kernel_coefficient is 'auto' then 1/n_features will be used instead.",
             "scikit-learn": {
@@ -2331,6 +2981,16 @@
             }
           },
           {
+            "name": "probability",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to enable probability estimates. This must be enabled prior to calling fit, and will slow down that method.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "probability"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "True",
@@ -2348,6 +3008,36 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "class_weight"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Enable verbose output.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "decision_function_shape",
+            "kind_of_value": "{'ovo', 'ovr'}",
+            "optional": "False",
+            "description": "Whether to return a one-vs-rest ('ovr') decision function of shape (n_samples, n_classes) as all other classifiers, or the original one-vs-one ('ovo') decision function of libsvm which has shape (n_samples, n_classes * (n_classes - 1) / 2).",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "decision_function_shape"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -2458,6 +3148,16 @@
             }
           },
           {
+            "name": "intercept_scaling",
+            "kind_of_value": "float",
+            "optional": "False",
+            "description": "Useful only when the solver ‘liblinear’ is used and self.fit_intercept is set to True. In this case, x becomes [x, self.intercept_scaling], i.e. a “synthetic” feature with constant value equal to intercept_scaling is appended to the instance vector. The intercept becomes intercept_scaling * synthetic_feature_weight.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "intercept_scaling"
+            }
+          },
+          {
             "name": "class_weight",
             "kind_of_value": "{dictionary with weights for all calsses, 'balanced', None}",
             "optional": "True",
@@ -2465,6 +3165,26 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "class_weight"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Enable verbose output.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -2573,6 +3293,16 @@
               "default_value": "0.001",
               "path": "tol"
             }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Enable verbose output.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -2653,7 +3383,7 @@
           },
           {
             "name": "kernel_coefficient",
-            "kind_of_value": "float or 'auto'",
+            "kind_of_value": "{float, 'auto'}",
             "optional": "True",
             "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If kernel_coefficient is 'auto' then 1/n_features will be used instead.",
             "scikit-learn": {
@@ -2689,6 +3419,16 @@
             "scikit-learn": {
               "default_value": "0.001",
               "path": "tol"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Enable verbose output.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
             }
           }
         ],
@@ -2769,6 +3509,16 @@
             }
           },
           {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Tolerance for stopping criterion.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
             "name": "fit_intercept",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -2776,6 +3526,36 @@
             "scikit-learn": {
               "default_value": "True",
               "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "intercept_scaling",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "When self.fit_intercept is True, instance vector x becomes [x, self.intercept_scaling], i.e. a “synthetic” feature with constant value equals to intercept_scaling is appended to the instance vector. The intercept becomes intercept_scaling * synthetic feature weight Note! the synthetic feature weight is subject to l1/l2 regularization as all other features. To lessen the effect of regularization on synthetic feature weight (and therefore on the intercept) intercept_scaling has to be increased.",
+            "scikit-learn": {
+              "default_value": "1",
+              "path": "intercept_scaling"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Enable verbose output.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -2873,6 +3653,26 @@
             "scikit-learn": {
               "default_value": "0.001",
               "path": "tol"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Enable verbose output.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -3027,6 +3827,16 @@
               "default_value": "'minkowski'",
               "path": "metric"
             }
+          },
+          {
+            "name": "**kwargs",
+            "kind_of_value": "parameter",
+            "optional": "False",
+            "description": "additional parameters",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "**kwargs"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -3071,6 +3881,16 @@
             "scikit-learn": {
               "default_value": "'minkowski'",
               "path": "metric"
+            }
+          },
+          {
+            "name": "**kwargs",
+            "kind_of_value": "parameter",
+            "optional": "False",
+            "description": "additional parameters",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "**kwargs"
             }
           }
         ],
@@ -3176,6 +3996,16 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "metric_params"
+            }
+          },
+          {
+            "name": "**kwargs",
+            "kind_of_value": "parameter",
+            "optional": "False",
+            "description": "additional parameters",
+            "scikit-learn": {
+              "default_value": "",
+              "path": "**kwargs"
             }
           }
         ],
@@ -3482,7 +4312,7 @@
           },
           {
             "name": "shrink_threshold",
-            "kind_of_value": "float or None",
+            "kind_of_value": "{float, None}",
             "optional": "True",
             "description": "Threshold for shrinking centroids to remove features.",
             "scikit-learn": {
@@ -3517,6 +4347,16 @@
             }
           },
           {
+            "name": "alpha",
+            "kind_of_value": "{float, array}",
+            "optional": "True",
+            "description": "Value added to the diagonal of the kernel matrix during fitting. Larger values correspond to increased noise level in the observations. This can also prevent a potential numerical issue during fitting, by ensuring that the calculated values form a positive definite matrix. If an array is passed, it must have the same number of entries as the data used for fitting and is used as datapoint-dependent noise level. Note that this is equivalent to adding a WhiteKernel with c=alpha. Allowing to specify the noise level directly as a parameter is mainly for convenience and for consistency with Ridge.",
+            "scikit-learn": {
+              "default_value": "0.0000000001",
+              "path": "alpha"
+            }
+          },
+          {
             "name": "kernel_optimizer",
             "kind_of_value": "{'fmin_l_bfgs_b', externally defined optimizer passed as a callable }",
             "optional": "True",
@@ -3544,6 +4384,26 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "normalize_y"
+            }
+          },
+          {
+            "name": "copy_X_train",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, a persistent copy of the training data is stored in the object. Otherwise, just a reference to the training data is stored, which might cause predictions to change if the data is modified externally.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X_train"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -3603,6 +4463,26 @@
             }
           },
           {
+            "name": "copy_X_train",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, a persistent copy of the training data is stored in the object. Otherwise, just a reference to the training data is stored, which might cause predictions to change if the data is modified externally.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X_train"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "multi_class",
             "kind_of_value": "{'one_vs_rest', 'one_vs_one'}",
             "optional": "False",
@@ -3614,6 +4494,16 @@
           }
         ],
         "optimisation_parameters": [
+          {
+            "name": "max_iter_predict",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "The maximum number of iterations in Newton’s method for approximating the posterior during predict. Smaller values will reduce computation time at the cost of worse results.",
+            "scikit-learn": {
+              "default_value": "100",
+              "path": "max_iter_predict"
+            }
+          },
           {
             "name": "jobs",
             "kind_of_value": "integer",
@@ -3667,6 +4557,16 @@
             "scikit-learn": {
               "default_value": "0.000006",
               "path": "tol"
+            }
+          },
+          {
+            "name": "copy",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether the deflation should be done on a copy. Let the default value to True unless you don’t care about side effect.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy"
             }
           }
         ],
@@ -3735,6 +4635,16 @@
               "default_value": "0.000006",
               "path": "tol"
             }
+          },
+          {
+            "name": "copy",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether the deflation should be done on a copy. Let the default value to True unless you don’t care about side effect.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -3760,7 +4670,7 @@
       "implementation": {
         "scikit-learn": "sklearn.cross_decomposition.PLSSVD"
       },
-      "type": "Regression",
+      "type": "Matrix Decomposition",
       "hyper_parameters": {
         "model_parameters": [
           {
@@ -3782,6 +4692,16 @@
               "default_value": "True",
               "path": "scale"
             }
+          },
+          {
+            "name": "copy",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether the deflation should be done on a copy. Let the default value to True unless you don’t care about side effect.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy"
+            }
           }
         ],
         "optimisation_parameters": [],
@@ -3796,7 +4716,7 @@
       "implementation": {
         "scikit-learn": "sklearn.cross_decomposition.CCA"
       },
-      "type": "Regression",
+      "type": "Matrix Decomposition",
       "hyper_parameters": {
         "model_parameters": [
           {
@@ -3828,6 +4748,16 @@
               "default_value": "0.000006",
               "path": "tol"
             }
+          },
+          {
+            "name": "copy",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether the deflation should be done on a copy. Let the default value to True unless you don’t care about side effect.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -3856,7 +4786,7 @@
         "model_parameters": [
           {
             "name": "class_priors",
-            "kind_of_value": "array-like, shape (n_classes)",
+            "kind_of_value": "array-like, shape (n_classes,)",
             "optional": "False",
             "description": "Prior probabilities of the classes. If specified the priors are not adjusted according to the data.",
             "scikit-learn": {
@@ -3900,7 +4830,7 @@
           },
           {
             "name": "class_priors",
-            "kind_of_value": "array-like, shape (n_classes)",
+            "kind_of_value": "array-like, shape (n_classes,)",
             "optional": "False",
             "description": "Prior probabilities of the classes. If specified the priors are not adjusted according to the data.",
             "scikit-learn": {
@@ -3954,7 +4884,7 @@
           },
           {
             "name": "class_priors",
-            "kind_of_value": "array-like, shape (n_classes)",
+            "kind_of_value": "array-like, shape (n_classes,)",
             "optional": "False",
             "description": "Prior probabilities of the classes. If specified the priors are not adjusted according to the data.",
             "scikit-learn": {
@@ -4058,6 +4988,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "max_leaf_nodes",
             "kind_of_value": "integer",
             "optional": "True",
@@ -4088,7 +5028,18 @@
             }
           }
         ],
-        "optimisation_parameters": [],
+        "optimisation_parameters": [
+          {
+            "name": "presort",
+            "kind_of_value": "{boolean, 'auto'}",
+            "optional": "True",
+            "description": "Whether to presort the data to speed up the finding of best splits in fitting.",
+            "scikit-learn": {
+              "default_value": "'auto'",
+              "path": "presort"
+            }
+          }
+        ],
         "execution_parameters": []
       }
     },
@@ -4172,6 +5123,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "max_leaf_nodes",
             "kind_of_value": "integer",
             "optional": "True",
@@ -4190,7 +5151,9 @@
               "default_value": "0",
               "path": "min_impurity_decrease"
             }
-          },
+          }
+        ],
+        "optimisation_parameters": [
           {
             "name": "presort",
             "kind_of_value": "boolean",
@@ -4200,9 +5163,7 @@
               "default_value": "False",
               "path": "presort"
             }
-          }
-        ],
-        "optimisation_parameters": [],
+          }],
         "execution_parameters": []
       }
     },
@@ -4344,6 +5305,16 @@
               "default_value": "False",
               "path": "warm_start"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -4478,6 +5449,16 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "oob_score"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           },
           {
@@ -4646,6 +5627,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "verbose",
             "kind_of_value": "integer",
             "optional": "True",
@@ -4801,6 +5792,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "verbose",
             "kind_of_value": "integer",
             "optional": "True",
@@ -4936,6 +5937,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "verbose",
             "kind_of_value": "integer",
             "optional": "True",
@@ -5051,6 +6062,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "verbose",
             "kind_of_value": "integer",
             "optional": "True",
@@ -5117,7 +6138,7 @@
           },
           {
             "name": "flatten_transform",
-            "kind_of_value": "boolean, None",
+            "kind_of_value": "{boolean, None}",
             "optional": "True",
             "description": "Affects shape of transform output only when voting='soft'.",
             "scikit-learn": {
@@ -5311,6 +6332,18 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
             "name": "presort",
             "kind_of_value": "{boolean, 'auto'}",
             "optional": "True",
@@ -5320,8 +6353,6 @@
               "path": "presort"
             }
           }
-        ],
-        "optimisation_parameters": [
         ],
         "execution_parameters": []
       }
@@ -5486,6 +6517,18 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          }
+        ],
+        "optimisation_parameters": [
+          {
             "name": "presort",
             "kind_of_value": "{boolean, 'auto'}",
             "optional": "True",
@@ -5495,8 +6538,6 @@
               "path": "presort"
             }
           }
-        ],
-        "optimisation_parameters": [
         ],
         "execution_parameters": []
       }
@@ -5548,6 +6589,16 @@
             "scikit-learn": {
               "default_value": "'linear'",
               "path": "loss"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -5603,6 +6654,16 @@
             "scikit-learn": {
               "default_value": "'SAMME.R'",
               "path": "algorithm"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -5729,6 +6790,16 @@
               "default_value": "False",
               "path": "warm_start"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -5776,13 +6847,23 @@
             }
           },
           {
-            "name": "cross-validation",
+            "name": "cross_validation",
             "kind_of_value": "{integer, object (cross-validation generator),  iterable yielding train and test splits, None",
             "optional": "True",
             "description": "Determines the cross-validation splitting strategy.",
             "scikit-learn": {
               "default_value": "None",
               "path": "cv"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -5826,40 +6907,6 @@
       }
     },
     {
-      "name": "multi label binarizer",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.preprocessing.MultiLabelBinarizer"
-      },
-      "type": "Transformation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "classes",
-            "kind_of_value": "{array-like of shape [n_classes], None}",
-            "optional": "True",
-            "description": "Indicates an ordering for the class labels",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "classes"
-            }
-          },
-          {
-            "name": "sparse_output",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "Set to true if output binary array is desired in CSR sparse format",
-            "scikit-learn": {
-              "default_value": "Flase",
-              "path": "sparse_output"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
       "name": "output code classifier",
       "other_names": [],
       "implementation": {
@@ -5886,6 +6933,16 @@
             "scikit-learn": {
               "default_value": "1.5",
               "path": "code_size"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -6058,7 +7115,7 @@
             }
           },
           {
-            "name": "cross-validation",
+            "name": "cross_validation",
             "kind_of_value": "{integer, object (cross-validation generator),  iterable yielding train and test splits, None",
             "optional": "True",
             "description": "Determines the cross-validation splitting strategy.",
@@ -6116,7 +7173,7 @@
             "name": "estimator",
             "kind_of_value": "estimator object",
             "optional": "False",
-            "description": "The base estimator from which the transformer is built.",
+            "description": "A supervised learning estimator with a fit method that provides information about feature importance either through a coef_ attribute or through a feature_importances_ attribute.",
             "scikit-learn": {
               "default_value": "",
               "path": "estimator"
@@ -6150,226 +7207,6 @@
             "scikit-learn": {
               "default_value": "0",
               "path": "verbose"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "mutual information classification",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.feature_selection.mutual_info_classif"
-      },
-      "type": "Scoring Function",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "feature_matrix",
-            "kind_of_value": " array_like or sparse matrix, shape (n_samples, n_features)",
-            "optional": "False",
-            "description": "Feature matrix.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "target_vector",
-            "kind_of_value": "array_like, shape (n_samples)",
-            "optional": "False",
-            "description": "Target vector.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "y"
-            }
-          },
-          {
-            "name": "discrete_features",
-            "kind_of_value": "{'auto', bool, array_like}",
-            "optional": "False",
-            "description": "If bool, then determines whether to consider all features discrete or continuous. If array, then it should be either a boolean mask with shape (n_features,) or array with indices of discrete features. If ‘auto’, it is assigned to False for dense X and to True for sparse X.",
-            "scikit-learn": {
-              "default_value": "'auto'",
-              "path": "discrete_features"
-            }
-          },
-          {
-            "name": "num_neighbours",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "Number of neighbors to use for MI estimation for continuous variables.",
-            "scikit-learn": {
-              "default_value": "3",
-              "path": "n_neighbors"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "mutual information regression",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.feature_selection.mutual_info_regression"
-      },
-      "type": "Scoring Function",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "feature_matrix",
-            "kind_of_value": " array_like or sparse matrix, shape (n_samples, n_features)",
-            "optional": "False",
-            "description": "Feature matrix.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "target_vector",
-            "kind_of_value": "array_like, shape (n_samples)",
-            "optional": "False",
-            "description": "Target vector.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "y"
-            }
-          },
-          {
-            "name": "discrete_features",
-            "kind_of_value": "{'auto', bool, array_like}",
-            "optional": "False",
-            "description": "If bool, then determines whether to consider all features discrete or continuous. If array, then it should be either a boolean mask with shape (n_features,) or array with indices of discrete features. If ‘auto’, it is assigned to False for dense X and to True for sparse X.",
-            "scikit-learn": {
-              "default_value": "'auto'",
-              "path": "discrete_features"
-            }
-          },
-          {
-            "name": "num_neighbours",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "Number of neighbors to use for MI estimation for continuous variables.",
-            "scikit-learn": {
-              "default_value": "3",
-              "path": "n_neighbors"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "f classification",
-      "other_names": ["analysis of variance f-value"],
-      "implementation": {
-        "scikit-learn": "sklearn.feature_selection.f_classif"
-      },
-      "type": "Scoring Function",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "regressor_set",
-            "kind_of_value": "{array-like, sparse matrix} shape = [n_samples, n_features]",
-            "optional": "False",
-            "description": "The set of regressors that will be tested sequentially.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "data_matrix",
-            "kind_of_value": "array of shape(n_samples)",
-            "optional": "False",
-            "description": "The data matrix.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "y"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "f regression",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.feature_selection.f_regression"
-      },
-      "type": "Scoring Function",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "regressor_set",
-            "kind_of_value": "{array-like, sparse matrix} shape = [n_samples, n_features]",
-            "optional": "False",
-            "description": "The set of regressors that will be tested sequentially.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "data_matrix",
-            "kind_of_value": "array of shape(n_samples)",
-            "optional": "False",
-            "description": "The data matrix.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "y"
-            }
-          },
-          {
-            "name": "center",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If true, regressor_set and data_matrix will be centered.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "center"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "chi2",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.feature_selection.chi2"
-      },
-      "type": "Scoring Function",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "sample_vectors",
-            "kind_of_value": "{array-like, sparse matrix}, shape = (n_samples, n_features_in)",
-            "optional": "False",
-            "description": "Sample vectors.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "target_vector",
-            "kind_of_value": "array-like, shape = (n_samples)",
-            "optional": "False",
-            "description": "Target vector (class labels).",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "y"
             }
           }
         ],
@@ -6859,67 +7696,13 @@
             }
           },
           {
-            "name": "cross-validation",
+            "name": "cross_validation",
             "kind_of_value": "{integer, object (cross-validation generator),  iterable yielding train and test splits, None, 'prefit'",
             "optional": "True",
             "description": "Determines the cross-validation splitting strategy.",
             "scikit-learn": {
               "default_value": "3",
               "path": "cv"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "Brier score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": ""
-      },
-      "type": "Scoring Function",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "true_targets",
-            "kind_of_value": "array, shape (n_samples)",
-            "optional": "False",
-            "description": "True targets.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "y_true"
-            }
-          },
-          {
-            "name": "positive_probabilities",
-            "kind_of_value": "array, shape (n_samples)",
-            "optional": "False",
-            "description": "Probabilities of the positive class.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "y_prob"
-            }
-          },
-          {
-            "name": "sample_weight",
-            "kind_of_value": "{array, shape (n_samples), None}",
-            "optional": "True",
-            "description": "Sample weights.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "sample_weight"
-            }
-          },
-          {
-            "name": "positive_label",
-            "kind_of_value": "{integer, string}",
-            "optional": "False",
-            "description": "Label of the positive class. If None, the maximum label is used as positive class",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "pos_label"
             }
           }
         ],
@@ -7027,6 +7810,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "True",
@@ -7034,6 +7827,16 @@
             "scikit-learn": {
               "default_value": "0.0001",
               "path": "tol"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to print progress messages to stdout.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
             }
           },
           {
@@ -7232,6 +8035,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "True",
@@ -7239,6 +8052,16 @@
             "scikit-learn": {
               "default_value": "0.0001",
               "path": "tol"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Whether to print progress messages to stdout.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "verbose"
             }
           },
           {
@@ -7427,6 +8250,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "reuse_previous",
             "kind_of_value": "boolean",
             "optional": "False",
@@ -7434,6 +8267,26 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "warm_start"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Enable verbose output. If 1 then it prints the current initialization and each iteration step. If greater than 1 then it prints also the log probability and the time needed for each step.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "verbose_interval",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of iteration done before the next print.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "verbose_interval"
             }
           }
         ],
@@ -7582,6 +8435,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "reuse_previous",
             "kind_of_value": "boolean",
             "optional": "False",
@@ -7589,6 +8452,26 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "warm_start"
+            }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Enable verbose output. If 1 then it prints the current initialization and each iteration step. If greater than 1 then it prints also the log probability and the time needed for each step.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "verbose_interval",
+            "kind_of_value": "integer",
+            "optional": "False",
+            "description": "Number of iteration done before the next print.",
+            "scikit-learn": {
+              "default_value": "10",
+              "path": "verbose_interval"
             }
           }
         ],
@@ -7811,6 +8694,16 @@
               "default_value": "0.000000000001",
               "path": "modified_tol"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -7936,6 +8829,16 @@
               "default_value": "'auto'",
               "path": "neighbors_algorithm"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -8010,6 +8913,16 @@
             "scikit-learn": {
               "default_value": "0.001",
               "path": "eps"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           },
           {
@@ -8297,6 +9210,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "optimisation_method",
             "kind_of_value": "{'barnes_hut', 'exact'}",
             "optional": "False",
@@ -8389,6 +9312,26 @@
             "scikit-learn": {
               "default_value": "0",
               "path": "verbose"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When pre-computing distances it is more numerically accurate to center the data first. If copy_x is True, then the original data is not modified. If False, the original data is modified, and put back before the function returns, but small numerical differences may be introduced by subtracting and then adding the data mean.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
             }
           },
           {
@@ -8507,6 +9450,16 @@
             }
           },
           {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
             "name": "tolerance",
             "kind_of_value": "float",
             "optional": "False",
@@ -8584,11 +9537,21 @@
           {
             "name": "damping",
             "kind_of_value": "float (between 0.5 and 1)",
-            "optional": "",
+            "optional": "True",
             "description": "Damping factor is the extent to which the current value is maintained relative to incoming values (weighted 1 - damping). This in order to avoid numerical oscillations when updating these values (messages).",
             "scikit-learn": {
               "default_value": "0.5",
               "path": "damping"
+            }
+          },
+          {
+            "name": "copy",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Make a copy of input data.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy"
             }
           },
           {
@@ -8878,12 +9841,22 @@
           },
           {
             "name": "affinity",
-            "kind_of_value": "{'precomputed', 'euclidean', 'l1', 'l2', 'manhattan', 'cosine'}'",
+            "kind_of_value": "{'precomputed', 'euclidean', 'l1', 'l2', 'manhattan', 'cosine'}",
             "optional": "False",
             "description": "Which affinity to use.",
             "scikit-learn": {
               "default_value": "'euclidean'",
               "path": "affinity"
+            }
+          },
+          {
+            "name": "memory",
+            "kind_of_value": "{None, object with the joblib.Memory interface, path to cashing directory}",
+            "optional": "True",
+            "description": "Used to cache the output of the computation of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "memory"
             }
           },
           {
@@ -8958,6 +9931,16 @@
             "scikit-learn": {
               "default_value": "'euclidean'",
               "path": "affinity"
+            }
+          },
+          {
+            "name": "memory",
+            "kind_of_value": "{None, object with the joblib.Memory interface, path to cashing directory}",
+            "optional": "True",
+            "description": "Used to cache the output of the computation of the tree.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "memory"
             }
           },
           {
@@ -9148,440 +10131,15 @@
               "default_value": "True",
               "path": "compute_labels"
             }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "",
-            "kind_of_value": "",
-            "optional": "",
-            "description": "",
-            "scikit-learn": {
-              "default_value": "",
-              "path": ""
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "adjusted rand index",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.adjusted_rand_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
           },
           {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "mutual information score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.mutual_info_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          },
-          {
-            "name": "contingency",
-            "kind_of_value": "{None, array shape = [n_classes_true, n_classes_pred], sparse matrix shape = [n_classes_true, n_classes_pred]}",
-            "optional": "False",
-            "description": "A contingency matrix given by the contingency_matrix function.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "contingency"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "adjusted mutual information score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.adjusted_mutual_info_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "normalized mutual information score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.normalized_mutual_info_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "homogeneity score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.homogeneity_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "completeness score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.completeness_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "v-measure score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.v_measure_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "homogeneity completeness v-measure score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.homogeneity_completeness_v_measure"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "Fowlkes-Mallows score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.fowlkes_mallows_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "labels_true",
-            "kind_of_value": "integer array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Ground truth class labels to be used as a reference",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_true"
-            }
-          },
-          {
-            "name": "labels_pred",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Cluster labels to evaluate",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels_pred"
-            }
-          },
-          {
-            "name": "sparse",
+            "name": "copy",
             "kind_of_value": "boolean",
             "optional": "False",
-            "description": "Compute contingency matrix internally with sparse matrix.",
+            "description": "Whether or not to make a copy of the given data. If set to False, the initial data will be overwritten.",
             "scikit-learn": {
-              "default_value": "False",
-              "path": "sparse"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "silhouette coefficient score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.silhouette_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "distance_array",
-            "kind_of_value": "array [n_samples_a, n_samples_a] if metric == “precomputed”, or, [n_samples_a, n_features] otherwise",
-            "optional": "False",
-            "description": "Array of pairwise distances between samples, or a feature array.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "labels",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Predicted labels for each sample.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels"
-            }
-          },
-          {
-            "name": "distance_metric",
-            "kind_of_value": "{'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan', 'braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', a callable that should take two arrays as input and return one value indicating the distance between them}",
-            "optional": "False",
-            "description": "The metric to use when calculating distance between instances in a feature array.",
-            "scikit-learn": {
-              "default_value": "'euclidean'",
-              "path": "metric"
-            }
-          },
-          {
-            "name": "sample_size",
-            "kind_of_value": "{integer, None}",
-            "optional": "False",
-            "description": "The size of the sample to use when computing the Silhouette Coefficient on a random subset of the data. ",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "sample_size"
-            }
-          },
-          {
-            "name": "**kwds",
-            "kind_of_value": "optional keyword parameters",
-            "optional": "True",
-            "description": "Any further parameters are passed directly to the distance function.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "**kwds"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "Calinski Harabaz score",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.metrics.calinski_harabaz_score"
-      },
-      "type": "Similarity Measure",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "distance_array",
-            "kind_of_value": "array [n_samples_a, n_features]",
-            "optional": "False",
-            "description": "List of n_features-dimensional data points. Each row corresponds to a single data point.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "labels",
-            "kind_of_value": "array, shape = [n_samples]",
-            "optional": "False",
-            "description": "Predicted labels for each sample.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "labels"
+              "default_value": "True",
+              "path": "copy"
             }
           }
         ],
@@ -9646,6 +10204,16 @@
             "scikit-learn": {
               "default_value": "'k-means++'",
               "path": "init"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -9762,6 +10330,16 @@
               "default_value": "'k-means++'",
               "path": "init"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -9809,6 +10387,16 @@
             }
           },
           {
+            "name": "copy",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If False, data passed to fit are overwritten and running fit(X).transform(X) will not yield the expected results, use fit_transform(X) instead.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy"
+            }
+          },
+          {
             "name": "whiten",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -9847,6 +10435,16 @@
               "default_value": "'auto'",
               "path": "iterated_power"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [],
@@ -9883,6 +10481,16 @@
             }
           },
           {
+            "name": "copy",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "If False, data passed to fit are overwritten and running fit(X).transform(X) will not yield the expected results, use fit_transform(X) instead.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy"
+            }
+          },
+          {
             "name": "batch_size",
             "kind_of_value": "{integer, None}",
             "optional": "False",
@@ -9914,26 +10522,6 @@
             "scikit-learn": {
               "default_value": "None",
               "path": "n_components"
-            }
-          },
-          {
-            "name": "whiten",
-            "kind_of_value": "boolean",
-            "optional": "True",
-            "description": "When True (False by default) the components_ vectors are multiplied by the square root of n_samples and then divided by the singular values to ensure uncorrelated outputs with unit component-wise variances. Whitening will remove some information from the transformed signal (the relative variance scales of the components) but can sometime improve the predictive accuracy of the downstream estimators by making their data respect some hard-wired assumptions.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "whiten"
-            }
-          },
-          {
-            "name": "batch_size",
-            "kind_of_value": "{integer, None}",
-            "optional": "False",
-            "description": "The number of samples to use for each batch.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "batch_size"
             }
           },
           {
@@ -10034,6 +10622,26 @@
             "scikit-learn": {
               "default_value": "False",
               "path": "remove_zero_eig"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
+          },
+          {
+            "name": "copy_X",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "If True, input X is copied and stored by the model in the X_fit_ attribute. If no further changes will be done to X, setting copy_X=False saves memory by storing a reference.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "copy_X"
             }
           }
         ],
@@ -10140,6 +10748,26 @@
               "default_value": "None",
               "path": "V_init"
             }
+          },
+          {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity; the higher, the more messages.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -10226,6 +10854,16 @@
             }
           },
           {
+            "name": "verbose",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Controls the verbosity; the higher, the more messages.",
+            "scikit-learn": {
+              "default_value": "0",
+              "path": "verbose"
+            }
+          },
+          {
             "name": "shuffle",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -10243,6 +10881,16 @@
             "scikit-learn": {
               "default_value": "'lars'",
               "path": "method"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -10308,6 +10956,16 @@
             "scikit-learn": {
               "default_value": "0.0",
               "path": "tol"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -10519,6 +11177,16 @@
               "default_value": "False",
               "path": "split_sign"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -10664,6 +11332,16 @@
               "default_value": "False",
               "path": "split_sign"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -10748,6 +11426,16 @@
             "scikit-learn": {
               "default_value": "3",
               "path": "iterated_power"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -10844,6 +11532,16 @@
               "default_value": "None",
               "path": "w_init"
             }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
+            }
           }
         ],
         "optimisation_parameters": [
@@ -10908,6 +11606,16 @@
             "scikit-learn": {
               "default_value": "0.0001",
               "path": "tol"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           },
           {
@@ -11094,8 +11802,7 @@
               "default_value": "100",
               "path": "max_doc_update_iter"
             }
-          }
-        ,
+          },
           {
             "name": "verbose",
             "kind_of_value": "integer",
@@ -11104,6 +11811,16 @@
             "scikit-learn": {
               "default_value": "0",
               "path": "verbose"
+            }
+          },
+          {
+            "name": "random_state",
+            "kind_of_value": "{integer, RandomState instance, None}",
+            "optional": "True",
+            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "random_state"
             }
           }
         ],
@@ -11123,476 +11840,6 @@
             "kind_of_value": "integer",
             "optional": "True",
             "description": "The number of jobs to use in the E-step. If -1, all CPUs are used. If -1 all CPUs are used.",
-            "scikit-learn": {
-              "default_value": "1",
-              "path": "n_jobs"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "empirical covariance function",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.empirical_covariance"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "feature_matrix",
-            "kind_of_value": "array of shape (n_samples, n_features)",
-            "optional": "False",
-            "description": "Data from which to compute the covariance estimate.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "empirical covariance object",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.EmpiricalCovariance"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "store_precision",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "Specifies if the estimated precision is stored.",
-            "scikit-learn": {
-              "default_value": "True",
-              "path": "store_precision"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "shrunk covariance function",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.shrunk_covariance"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "input_matrix",
-            "kind_of_value": "array of shape (n_features, n_features)",
-            "optional": "False",
-            "description": "Covariance matrix to be shrunk.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "emp_cov"
-            }
-          },
-          {
-            "name": "shrinkage",
-            "kind_of_value": "float >= 0 && <= 1",
-            "optional": "False",
-            "description": "Coefficient in the convex combination used for the computation of the shrunk estimate.",
-            "scikit-learn": {
-              "default_value": "0.1",
-              "path": "shrinkage"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "shrunk covariance object",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.ShrunkCovariance"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "store_precision",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "Specifies if the estimated precision is stored.",
-            "scikit-learn": {
-              "default_value": "True",
-              "path": "store_precision"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          },
-          {
-            "name": "shrinkage",
-            "kind_of_value": "float >= 0 && <= 1",
-            "optional": "False",
-            "description": "Coefficient in the convex combination used for the computation of the shrunk estimate.",
-            "scikit-learn": {
-              "default_value": "0.1",
-              "path": "shrinkage"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "Ledoit-Wolf covariance function",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.ledoit_wolf"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "feature_matrix",
-            "kind_of_value": "array of shape (n_samples, n_features)",
-            "optional": "False",
-            "description": "Data from which to compute the covariance estimate.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "block_size",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Size of the blocks into which the covariance matrix will be split. This is purely a memory optimization and does not affect results.",
-            "scikit-learn": {
-              "default_value": "1000",
-              "path": "block_size"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "Ledoit-Wolf covariance object",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.LedoitWolf"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "store_precision",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "Specifies if the estimated precision is stored.",
-            "scikit-learn": {
-              "default_value": "True",
-              "path": "store_precision"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "block_size",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Size of the blocks into which the covariance matrix will be split. This is purely a memory optimization and does not affect results.",
-            "scikit-learn": {
-              "default_value": "1000",
-              "path": "block_size"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "oracle approximating shrinkage",
-      "other_names": ["OAS"],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.OAS"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "store_precision",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "Specifies if the estimated precision is stored.",
-            "scikit-learn": {
-              "default_value": "True",
-              "path": "store_precision"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "graph lasso",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.GraphLasso"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "alpha",
-            "kind_of_value": "positive float",
-            "optional": "True",
-            "description": "The regularization parameter: the higher alpha, the more regularization, the sparser the inverse covariance.",
-            "scikit-learn": {
-              "default_value": "0.01",
-              "path": "alpha"
-            }
-          },
-          {
-            "name": "mode",
-            "kind_of_value": " {'cd', 'lars'}",
-            "optional": "False",
-            "description": "The Lasso solver to use: coordinate descent or LARS. Use LARS for very sparse underlying graphs, where number of features is greater than number of samples. Elsewhere prefer cd which is more numerically stable.",
-            "scikit-learn": {
-              "default_value": "'cd'",
-              "path": "mode"
-            }
-          },
-          {
-            "name": "tolerance",
-            "kind_of_value": "float",
-            "optional": "True",
-            "description": "The tolerance to declare convergence: if the dual gap goes below this value, iterations are stopped.",
-            "scikit-learn": {
-              "default_value": "0.0001",
-              "path": "tol"
-            }
-          },
-          {
-            "name": "elastic_net_tol",
-            "kind_of_value": "positive float",
-            "optional": "True",
-            "description": "The tolerance for the elastic net solver used to calculate the descent direction. This parameter controls the accuracy of the search direction for a given column update, not of the overall parameter estimate.",
-            "scikit-learn": {
-              "default_value": "0.0001",
-              "path": "enet_tol"
-            }
-          },
-          {
-            "name": "verbose",
-            "kind_of_value": "boolean",
-            "optional": "True",
-            "description": "If verbose is True, the objective function and duality gap are printed at each iteration.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "verbose"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-           {
-            "name": "max_iterations",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "Maximum number of iterations.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "max_iter"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "graph lasso with cross validation",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.covariance.GraphLassoCV"
-      },
-      "type": "Covariance Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "alphas",
-            "kind_of_value": "{integer, list of positive float}",
-            "optional": "True",
-            "description": "If an integer is given, it fixes the number of points on the grids of alpha to be used. If a list is given, it gives the grid to be used.",
-            "scikit-learn": {
-              "default_value": "4",
-              "path": "alphas"
-            }
-          },
-          {
-            "name": "num_refinements",
-            "kind_of_value": "positive integer",
-            "optional": "False",
-            "description": "The number of times the grid is refined. Not used if explicit values of alphas are passed.",
-            "scikit-learn": {
-              "default_value": "4",
-              "path": "n_refinements"
-            }
-          },
-          {
-            "name": "cross_validation",
-            "kind_of_value": "{integer,  object to be used as a cross-validation generator, iterable yielding train/test splits, None}",
-            "optional": "True",
-            "description": "Determines the cross-validation splitting strategy.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "cv"
-            }
-          },
-          {
-            "name": "tolerance",
-            "kind_of_value": "float",
-            "optional": "True",
-            "description": "The tolerance to declare convergence: if the dual gap goes below this value, iterations are stopped.",
-            "scikit-learn": {
-              "default_value": "0.0001",
-              "path": "tol"
-            }
-          },
-          {
-            "name": "elastic_net_tol",
-            "kind_of_value": "positive float",
-            "optional": "True",
-            "description": "The tolerance for the elastic net solver used to calculate the descent direction. This parameter controls the accuracy of the search direction for a given column update, not of the overall parameter estimate.",
-            "scikit-learn": {
-              "default_value": "0.0001",
-              "path": "enet_tol"
-            }
-          },
-          {
-            "name": "mode",
-            "kind_of_value": " {'cd', 'lars'}",
-            "optional": "False",
-            "description": "The Lasso solver to use: coordinate descent or LARS. Use LARS for very sparse underlying graphs, where number of features is greater than number of samples. Elsewhere prefer cd which is more numerically stable.",
-            "scikit-learn": {
-              "default_value": "'cd'",
-              "path": "mode"
-            }
-          },
-          {
-            "name": "verbose",
-            "kind_of_value": "boolean",
-            "optional": "True",
-            "description": "If verbose is True, the objective function and duality gap are printed at each iteration.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "verbose"
-            }
-          },
-          {
-            "name": "assume_centered",
-            "kind_of_value": "boolean",
-            "optional": "False",
-            "description": "If True, data are not centered before computation. Useful when working with data whose mean is almost, but not exactly zero. If False, data are centered before computation.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "assume_centered"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-           {
-            "name": "max_iterations",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "Maximum number of iterations.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "max_iter"
-            }
-          },
-          {
-            "name": "jobs",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
             "scikit-learn": {
               "default_value": "1",
               "path": "n_jobs"
@@ -12032,809 +12279,6 @@
             }
           }
         ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "train test split",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.train_test_split"
-      },
-      "type": "Data Partitioning",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "*arrays",
-            "kind_of_value": "{list, numpy array, scipy-sparse matrice, or pandas dataframe}",
-            "optional": "False",
-            "description": "sequence of indexables with same length / shape[0]",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "*arrays"
-            }
-          },
-          {
-            "name": "test_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of test samples.",
-            "scikit-learn": {
-              "default_value": "0.25",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "train_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of train samples.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          },
-          {
-            "name": "shuffle",
-            "kind_of_value": "boolean",
-            "optional": "True",
-            "description": "Whether or not to shuffle the data before splitting.",
-            "scikit-learn": {
-              "default_value": "True",
-              "path": "shuffle"
-            }
-          },
-          {
-            "name": "stratify",
-            "kind_of_value": "{array, None}",
-            "optional": "False",
-            "description": "Whether to split the data in a stratified fashion, using this as the class labels.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "stratify"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "cross validation score",
-      "other_names": ["CV score"],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.cross_val_score"
-      },
-      "type": "Model Evaluation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "estimator",
-            "kind_of_value": "estimator object implementing fit and predict",
-            "optional": "False",
-            "description": "The object to use to fit the data.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "estimator"
-            }
-          },
-          {
-            "name": "feature_matrix",
-            "kind_of_value": "{list, array}",
-            "optional": "False",
-            "description": "The data to fit.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "targets",
-            "kind_of_value": "{array, None}",
-            "optional": "True",
-            "description": "The target variable to try to predict in the case of supervised learning.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "Y"
-            }
-          },
-          {
-            "name": "groups",
-            "kind_of_value": "array of shape  (n_samples,)",
-            "optional": "True",
-            "description": "Group labels for the samples used while splitting the dataset into train/test set.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "groups"
-            }
-          },
-          {
-            "name": "scoring",
-            "kind_of_value": "{callable, None, 'accuracy', 'average_precision', 'f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'f1_samples', 'neg_log_loss', 'precision', 'recall', 'roc_auc', 'adjusted_mutual_info_score', 'adjusted_rand_score', 'completeness_score', 'fowlkes_mallows_score', 'homogeneity_score', 'mutual_info_score', 'normalized_mutual_info_score', 'v_measure_score', 'explained_variance', 'neg_mean_absolute_error', '‘neg_mean_squared_error', 'neg_mean_squared_log_error', 'neg_median_absolute_error', 'r2'}",
-            "optional": "True",
-            "description": "Scoring parameter that is applied.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "scoring"
-            }
-          },
-          {
-            "name": "cross-validation",
-            "kind_of_value": "{integer, object (cross-validation generator),  iterable yielding train and test splits, None",
-            "optional": "True",
-            "description": "Determines the cross-validation splitting strategy.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "cv"
-            }
-          },
-          {
-            "name": "verbose",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Controls verbosity of output.",
-            "scikit-learn": {
-              "default_value": "0",
-              "path": "verbose"
-            }
-          },
-          {
-            "name": "fit_params",
-            "kind_of_value": "dictionary",
-            "optional": "True",
-            "description": "Parameters to pass to the fit method of the estimator.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "fit_params"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "jobs",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
-            "scikit-learn": {
-              "default_value": "1",
-              "path": "n_jobs"
-            }
-          },
-          {
-            "name": "pre_dispatch",
-            "kind_of_value": "{integer, None, string (giving an expression as a function of n_jobs, as in ‘2*n_jobs’)}",
-            "optional": "True",
-            "description": "Controls the number of jobs that get dispatched during parallel execution. Reducing this number can be useful to avoid an explosion of memory consumption when more jobs get dispatched than CPUs can process.",
-            "scikit-learn": {
-              "default_value": "'2*n_jobs'",
-              "path": "pre_dispatch"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "cross validation prediction",
-      "other_names": ["CV prediction"],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.cross_val_predict"
-      },
-      "type": "Model Evaluation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "estimator",
-            "kind_of_value": "estimator object implementing fit and predict",
-            "optional": "False",
-            "description": "The object to use to fit the data.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "estimator"
-            }
-          },
-          {
-            "name": "feature_matrix",
-            "kind_of_value": "{list, array}",
-            "optional": "False",
-            "description": "The data to fit.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "X"
-            }
-          },
-          {
-            "name": "targets",
-            "kind_of_value": "{array, None}",
-            "optional": "True",
-            "description": "The target variable to try to predict in the case of supervised learning.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "Y"
-            }
-          },
-          {
-            "name": "groups",
-            "kind_of_value": "array of shape  (n_samples,)",
-            "optional": "True",
-            "description": "Group labels for the samples used while splitting the dataset into train/test set.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "groups"
-            }
-          },
-          {
-            "name": "cross-validation",
-            "kind_of_value": "{integer, object (cross-validation generator),  iterable yielding train and test splits, None",
-            "optional": "True",
-            "description": "Determines the cross-validation splitting strategy.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "cv"
-            }
-          },
-          {
-            "name": "verbose",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Controls verbosity of output.",
-            "scikit-learn": {
-              "default_value": "0",
-              "path": "verbose"
-            }
-          },
-          {
-            "name": "fit_params",
-            "kind_of_value": "dictionary",
-            "optional": "True",
-            "description": "Parameters to pass to the fit method of the estimator.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "fit_params"
-            }
-          },
-          {
-            "name": "method",
-            "kind_of_value": "string",
-            "optional": "True",
-            "description": "Invokes the passed method name of the passed estimator.",
-            "scikit-learn": {
-              "default_value": "'predict'",
-              "path": "method"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "jobs",
-            "kind_of_value": "integer",
-            "optional": "True",
-            "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
-            "scikit-learn": {
-              "default_value": "1",
-              "path": "n_jobs"
-            }
-          },
-          {
-            "name": "pre_dispatch",
-            "kind_of_value": "{integer, None, string (giving an expression as a function of n_jobs, as in ‘2*n_jobs’)}",
-            "optional": "True",
-            "description": "Controls the number of jobs that get dispatched during parallel execution. Reducing this number can be useful to avoid an explosion of memory consumption when more jobs get dispatched than CPUs can process.",
-            "scikit-learn": {
-              "default_value": "'2*n_jobs'",
-              "path": "pre_dispatch"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "k-folds cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.KFold"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "n_splits",
-            "kind_of_value": "integer >= 2",
-            "optional": "False",
-            "description": "Number of folds.",
-            "scikit-learn": {
-              "default_value": "3",
-              "path": "n_splits"
-            }
-          },
-          {
-            "name": "shuffle",
-            "kind_of_value": "boolean",
-            "optional": "True",
-            "description": "Whether or not to shuffle the data before splitting.",
-            "scikit-learn": {
-              "default_value": "True",
-              "path": "shuffle"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "repeated k-folds cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.RepeatedKFold"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "n_splits",
-            "kind_of_value": "integer >= 2",
-            "optional": "False",
-            "description": "Number of folds.",
-            "scikit-learn": {
-              "default_value": "5",
-              "path": "n_splits"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "n_repeats",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Number of times cross-validator needs to be repeated.",
-            "scikit-learn": {
-              "default_value": "10",
-              "path": "n_repeats"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "stratified k-folds cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.StratifiedKFold"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "n_splits",
-            "kind_of_value": "integer >= 2",
-            "optional": "False",
-            "description": "Number of folds.",
-            "scikit-learn": {
-              "default_value": "3",
-              "path": "n_splits"
-            }
-          },
-          {
-            "name": "shuffle",
-            "kind_of_value": "boolean",
-            "optional": "True",
-            "description": "Whether or not to shuffle the data before splitting.",
-            "scikit-learn": {
-              "default_value": "False",
-              "path": "shuffle"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "repeated stratified k-folds cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.RepeatedStratifiedKFold"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "n_splits",
-            "kind_of_value": "integer >= 2",
-            "optional": "False",
-            "description": "Number of folds.",
-            "scikit-learn": {
-              "default_value": "5",
-              "path": "n_splits"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "n_repeats",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Number of times cross-validator needs to be repeated.",
-            "scikit-learn": {
-              "default_value": "10",
-              "path": "n_repeats"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "group k-folds cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.GroupKFold"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "n_splits",
-            "kind_of_value": "integer >= 2",
-            "optional": "False",
-            "description": "Number of folds.",
-            "scikit-learn": {
-              "default_value": "3",
-              "path": "n_splits"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "leave-one-out cross-validaton",
-      "other_names": ["LOO CV"],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.LeaveOneOut"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "leave-p-out cross-validaton",
-      "other_names": ["LPO CV"],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.LeavePOut"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "p",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Size of the test sets.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "p"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "leave-one-group-out cross-validaton",
-      "other_names": ["LOO CV"],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.LeaveOneGroupOut"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "leave-p-groups-out cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.LeavePGroupsOut"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "num_groups",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Number of groups (p) to leave out in the test split.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "n_groups"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "shuffle split cross-validation",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.ShuffleSplit"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "test_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of test samples.",
-            "scikit-learn": {
-              "default_value": "0.1",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "train_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of train samples.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "num_splits",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Number of re-shuffling & splitting iterations.",
-            "scikit-learn": {
-              "default_value": "10",
-              "path": "n_splits"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "stratified shuffle split cross-validation",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.StratifiedShuffleSplit"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "test_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of test samples.",
-            "scikit-learn": {
-              "default_value": "0.1",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "train_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of train samples.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "num_splits",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Number of re-shuffling & splitting iterations.",
-            "scikit-learn": {
-              "default_value": "10",
-              "path": "n_splits"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "group shuffle split cross-validation",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.GroupShuffleSplit"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "test_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of test samples.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "train_size",
-            "kind_of_value": "{float between 0.0 and 1.0, integer, None}",
-            "optional": "True",
-            "description": "Proportion (float) or absolute number (integer) of train samples.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "test_size"
-            }
-          },
-          {
-            "name": "random_state",
-            "kind_of_value": "{integer, RandomState instance, None}",
-            "optional": "True",
-            "description": "The seed of the pseudo random number generator to use when shuffling the data. If int, random_state is the seed used by the random number generator; If RandomState instance, random_state is the random number generator; If None, the random number generator is the RandomState instance used by np.random.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "random_state"
-            }
-          }
-        ],
-        "optimisation_parameters": [
-          {
-            "name": "num_splits",
-            "kind_of_value": "integer",
-            "optional": "False",
-            "description": "Number of re-shuffling & splitting iterations.",
-            "scikit-learn": {
-              "default_value": "5",
-              "path": "n_splits"
-            }
-          }
-        ],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "predefined split cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.PredefinedSplit"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "test_fold",
-            "kind_of_value": "array of shape (n_samples,)",
-            "optional": "False",
-            "description": "The entry test_fold[i] represents the index of the test set that sample i belongs to. It is possible to exclude sample i from any test set (i.e. include sample i in every training set) by setting test_fold[i] equal to -1.",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "test_fold"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
-        "execution_parameters": []
-      }
-    },
-    {
-      "name": "time series split cross-validaton",
-      "other_names": [],
-      "implementation": {
-        "scikit-learn": "sklearn.model_selection.TimeSeriesSplit"
-      },
-      "type": "Model Estimation",
-      "hyper_parameters": {
-        "model_parameters": [
-          {
-            "name": "n_splits",
-            "kind_of_value": "integer >= 1",
-            "optional": "False",
-            "description": "Number of splits.",
-            "scikit-learn": {
-              "default_value": "3",
-              "path": "n_splits"
-            }
-          },
-          {
-            "name": "max_train_size",
-            "kind_of_value": "{integer, None}",
-            "optional": "True",
-            "description": "Maximum size for a single training set.",
-            "scikit-learn": {
-              "default_value": "None",
-              "path": "max_train_size"
-            }
-          }
-        ],
-        "optimisation_parameters": [],
         "execution_parameters": []
       }
     },
