@@ -43,15 +43,17 @@ class TestSciKitExperimentVisitor(unittest.TestCase):
         d = SciKitVisitor(pipe)
 
         self.assertIn("steps", d[0])
-
-        print(d)
+        for s in d[0]["steps"]:
+            for k,v in s.items():
+                print(k,v)
 
     def test_extract_linear_regression(self):
         lreg = LinearRegression()
 
         d = SciKitVisitor(lreg)
-
-        print(d)
+        for s in d[0]["steps"]:
+            for k,v in s.items():
+                print(k,v)
 
     def test_extract_ridge_regression(self):
         r = Ridge()
