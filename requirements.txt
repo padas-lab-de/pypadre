@@ -1,0 +1,7 @@
+msgpack_numpy==0.4.1
+pyarrow==0.8.0
+numpy==1.13.3
+pandas==0.21.0
+requests==2.13.0
+msgpack_python==0.5.5
+scikit_learn==0.19.1

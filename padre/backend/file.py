@@ -1,16 +1,17 @@
 """
-  Module handling different repositories. Currently we distinguish between a FileRepository and a HTTPRepository.
+  Module handling different repositories. A repository manages datasets and allows to load / store datasets.
 
+  Currently we distinguish between a FileRepository and a HTTPRepository.
   In addition, the module defines serialiser for the individual binary data sets
 """
 
 import os
 import re
-import pickle
-import json
 import shutil
-import msgpack_numpy as mn
-from .datasets import new_dataset
+
+from padre.backend.serialiser import JSonSerializer, PickleSerializer
+from padre.datasets import Dataset, Attribute
+
 
 def _get_path(root_dir, name):
     # internal get or create path function
@@ -19,49 +20,11 @@ def _get_path(root_dir, name):
         os.mkdir(_dir)
     return _dir
 
-# TODO : we should support faster / more sophisticated / cross-plattform serialisation. for example using pyarrow
-# TODO: write PickleSerialiser Test
-class PickleSerializer(object):
-    """
-    Serialiser using pythons pickle.
-    """
-    def serialise(obj):
-        """
-        serializes the object and returns a byte object
-        :param obj: object to serialise
-        :return: byte object (TODO: Specify more precise)
-        """
-        return pickle.dumps(obj)
-
-    def deserialize(buffer):
-        """
-        Deserialize a object
-        :param buffer:
-        :return:
-        """
-        return pickle.loads(buffer)
-
-
-class JSonSerializer:
-
-    def serialise(obj):
-        return json.dumps(obj)
-
-    def deserialize(buffer):
-        return json.loads(buffer)
-
-class MsgPack:
-
-    def serialise(obj):
-        return mn.dumps(obj)
-
-    def deserialize(buffer):
-        return mn.loads(buffer)
-
-
+# TODO this repository is outdated and needs to be adapted to the changes in the dataset class (e.g. difference in targets and data)
 class PadreFileRepository(object):
     """
     repository as File Directory with the following format
+
     ```
     root_dir
        |-<dataset name>
@@ -78,24 +41,24 @@ class PadreFileRepository(object):
         self._metadata_serializer = JSonSerializer
         self._data_serializer = PickleSerializer
 
-    def list(self, search_title=None, search_metadata=None):
+    def list(self, search_id=None, search_metadata=None):
         """
         List all data sets in the repository
-        :param search_title: regular expression based search string for the title. Default None
+        :param search_name: regular expression based search string for the title. Default None
         :param search_metadata: dict with regular expressions per metadata key. Default None
         """
         datasets = os.listdir(self.root_dir)
-        if search_title is not None:
-            rtitle = re.compile(search_title)
-            datasets = [data for data in datasets if rtitle.match(data)]
+        if search_id is not None:
+            rid = re.compile(search_id)
+            datasets = [data for data in datasets if rid.match(data)]
 
         if search_metadata is not None:
             raise ValueError("metadata search not supported in file repository yet")
 
         return datasets
 
-    def put(self, name,  dataset):
-        _dir = _get_path(self.root_dir, name)
+    def put(self, id,  dataset):
+        _dir = _get_path(self.root_dir, id)
         try:
             with open(os.path.join(_dir, "data.bin"), 'wb') as f:
                 f.write(self._data_serializer.serialise(dataset.data))
@@ -112,14 +75,14 @@ class PadreFileRepository(object):
             raise e
 
 
-    def get(self, name, metadata_only=False):
+    def get(self, id, metadata_only=False):
         """
         Fetches a data set with `name` and returns it (plus some metadata)
 
-        :param name:
+        :param id:
         :return: returns the dataset or the metadata if metadata_only is True
         """
-        _dir = _get_path(self.root_dir, name)
+        _dir = _get_path(self.root_dir, id)
 
         with open(os.path.join(_dir, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
@@ -137,11 +100,7 @@ class PadreFileRepository(object):
                     target = self._data_serializer.deserialize(f.read())
 
 
-            # TODO: let every class register a type (i.e. via a static variable) and check the corresponding class dynamically
-            return new_dataset(name, metadata, data, target)
+            # todo currently, the target is lost.
+            dataset = Dataset(id, **metadata)
+            dataset.set_data(data)
 
-
-class PadreHttpRepositoryClient(object):
-
-    def __init__(self):
-        pass

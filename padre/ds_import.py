@@ -2,7 +2,9 @@
 Modul containing import methods from different packages / repositories.
 """
 import sklearn.datasets as ds
-from .datasets import NumpyBaseDataset
+import numpy as np
+from .datasets import Dataset, Attribute
+
 
 # TODO: import standard sklearn data sets
 # TODO: import data sets from mldata and openml
@@ -10,13 +12,41 @@ from .datasets import NumpyBaseDataset
 # TODO: check consistency of datasets from different repositories
 # TODO: replace dataset instantiation with factory pattern
 
+def _split_DESCR(s):
+    s = s.strip()
+    k = s.find("\n")
+    return s[0:k], s[k + 1:]
+
+def _create_dataset_data(bunch):
+    n_feat = bunch.data.shape[1]
+    if len(bunch.target.shape) == 1:
+        data = np.concatenate([bunch.data[:, :], bunch.target[:, None]], axis=1)
+    else:
+        data = np.concatenate([bunch.data[:, :], bunch.target[:, :]], axis=1)
+    fn = bunch.get("feature_names")
+    atts = []
+    for ix in range(data.shape[1]):
+        if fn is not None and len(fn) > ix:
+            atts.append(Attribute(fn[ix], "ratio", None, None, n_feat <= ix))
+        else:
+            atts.append(Attribute(str(ix), "ratio", None, None, n_feat <= ix))
+
+    return data, atts
+
+def _create_dataset(bunch, type):
+    meta = dict()
+    meta["name"], meta["description"] = _split_DESCR(bunch["DESCR"])
+    meta["type"] = type
+    dataset =  Dataset(None, **meta)
+    dataset.set_data(*_create_dataset_data(bunch))
+    return dataset
+
+
 def load_sklearn_toys():
     """
     returns an iterator loading different sklearn datasets
     """
-    def _title(s):
-        s = s.strip()
-        return s[0:s.find("\n")]
+
         
     loaders = [(ds.load_boston, ("regression", "multivariate")),
                (ds.load_breast_cancer, ("classification", "multivariate")),
@@ -28,18 +58,7 @@ def load_sklearn_toys():
                (ds.load_linnerud, ("mregression", "multivariate"))]
 
     for loader in loaders:
-        bunch = loader[0]()
-        if "DESCR" not in bunch:
-            # TODO: extract only the function name (not also its address)
-            bunch["DESCR"] = str(loader[0]) + "\n" + str("SK Learn Import. No Description available")
-        fn = bunch.get("feature_names")
-        if fn is not None:
-            fn = [i for i in fn]
-        yield NumpyBaseDataset(_title(bunch["DESCR"]), bunch.data, bunch.target,
-                               attributes=fn,
-                               description=bunch.get("DESCR"),
-                               task=loader[1][0],
-                               type=loader[1][1])
+        yield _create_dataset(loader[0](), loader[1][1])
 
 
 
