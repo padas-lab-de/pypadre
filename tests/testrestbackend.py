@@ -34,9 +34,7 @@ class TestHTTPBackend(unittest.TestCase):
 
 class TestRestRepository(unittest.TestCase):
 
-    def test_file_create(self):
-        rest_repository = parep.PadreRestClient()
-        print(rest_repository.list())
+
 
     def test_import_sklearn(self):
         if True:
@@ -66,6 +64,4 @@ class TestRestRepository(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    rest_repository = parep.PadreRestClient()
-    pu.print_table([d.metadata for d in rest_repository.list()])
-    #unittest.main()
+    pass

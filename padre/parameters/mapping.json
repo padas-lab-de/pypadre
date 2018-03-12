@@ -2758,7 +2758,7 @@
         "SVC"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.svm.SVC"
+        "scikit-learn": "sklearn.svm.classes.SVC"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -10371,7 +10371,7 @@
       "name": "principal component analysis",
       "other_names": ["PCA"],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.PCA"
+        "scikit-learn": "sklearn.decomposition.pca.PCA"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
