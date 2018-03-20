@@ -12,7 +12,7 @@ from scipy.stats.stats import DescribeResult
 
 from padre.datasets import formats
 
-from padre.backend.file import PadreFileRepository
+from padre.backend.file import DatasetFileRepository
 from padre.backend.http import PadreHTTPClient
 from padre.ds_import import load_sklearn_toys
 
@@ -38,7 +38,7 @@ def padre_http_from_config(config):
 
 
 def padre_filecache_from_config(config):
-    return PadreFileRepository(**config["FILE_CACHE"])
+    return DatasetFileRepository(**config["FILE_CACHE"])
 
 def load_padre_config(config_file = _PADRE_CFG_FILE):
     """
@@ -77,7 +77,7 @@ def save_padre_config(config, config_file = _PADRE_CFG_FILE):
 
 default_config = load_padre_config()
 http_client = PadreHTTPClient(**default_config["HTTP"])
-file_cache = PadreFileRepository(**default_config["FILE_CACHE"])
+file_cache = DatasetFileRepository(**default_config["FILE_CACHE"])
 
 def _wheel_char(n_max):
     chars = ["/", "-", "\\", "|", "/", "-", "\\", "|"]

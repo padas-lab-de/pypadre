@@ -41,7 +41,7 @@ class TestRestRepository(unittest.TestCase):
             return
         # create repository
         _dir = tempfile.mkdtemp()
-        repo = parep.PadreFileRepository(_dir)
+        repo = parep.DatasetFileRepository(_dir)
         try:
             datasets = []
             for i in dsimp.load_sklearn_toys():

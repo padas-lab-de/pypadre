@@ -36,7 +36,9 @@ class NumpyContainer:
             self._data = data
             self._attributes = attributes
             self._targets_idx = np.array([idx for idx, a in enumerate(attributes) if a.is_target])
-            self._features_idx = ~self._targets_idx
+            self._features_idx = np.array([idx for idx, a in enumerate(attributes) if not a.is_target])
+            assert set(self._features_idx).isdisjoint(set(self._targets_idx)) and \
+                   set(self._features_idx).union(set(self._targets_idx)) == set([idx for idx in range(len(attributes))])
 
     @property
     def attributes(self):
@@ -47,14 +49,14 @@ class NumpyContainer:
         if self._features_idx is None:
             return self._data
         else:
-            return self._data[self._features_idx]
+            return self._data[:, self._features_idx]
 
     @property
     def targets(self):
         if self._targets_idx is None:
             return None
         else:
-            return self._data[self._targets_idx]
+            return self._data[:, self._targets_idx]
 
     @property
     def data(self):
@@ -224,14 +226,14 @@ class Dataset(MetadataEntity):
             return self._binary.shape
 
     def features(self):
-        if  self.has_data():
-            return self._binary.features()
+        if self.has_data():
+            return self._binary.features
         else:
             return None
 
     def targets(self):
-        if  self.has_data():
-            return self._binary.targets()
+        if self.has_data():
+            return self._binary.targets
         else:
             return None
 

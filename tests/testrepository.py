@@ -51,18 +51,18 @@ class TestFileRepository(unittest.TestCase):
         joint_dir = os.path.join(tmp_dir, file_name)
         if os.path.exists(joint_dir):
             os.rmdir(joint_dir)
-        parep.PadreFileRepository(joint_dir)  # directory should be created here
+        parep.DatasetFileRepository(joint_dir)  # directory should be created here
         assert os.path.exists(joint_dir)
         os.rmdir(joint_dir)
 
         joint_dir = tempfile.mkdtemp()
-        parep.PadreFileRepository(joint_dir)
+        parep.DatasetFileRepository(joint_dir)
         os.rmdir(joint_dir)
 
     def test_import_sklearn(self):
         # create repository
         _dir = tempfile.mkdtemp()
-        repo = parep.PadreFileRepository(_dir)
+        repo = parep.DatasetFileRepository(_dir)
         try:
             datasets = []
             for i in dsimp.load_sklearn_toys():
