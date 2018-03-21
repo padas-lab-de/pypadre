@@ -1,19 +1,18 @@
 """
-General visitors, that can be combined recursively to extract arbitraty data from any experiment class object.
+General visitors, that can be combined recursively to extract arbitraty data from any python object.
 """
 
 import abc
 from abc import abstractmethod
 
-from padre.mappings import type_mappings
+from .schema import SchemaMismatch
+from .mappings import type_mappings
+from .parameter import Parameter
 
-from padre.parameter import Parameter
-
-from padre.schema import SchemaMismatch
 
 class Visitor(abc.ABC):
     """
-    A Visitor to inspect library-specific experiment setups and extract the setup information.
+    The base class of any Visitor to inspect python objects and extract the setup information.
     For every value there will also be the access string of the item in the original object stored.
     """
 
@@ -146,15 +145,15 @@ class ListVisitor(Visitor):
     """
 
 
-    def __init__(self, prefix, template, schema=None):
+    def __init__(self, prefix, visitor, schema=None):
         """
         :param prefix: name, that is used to store the list of extracted values
-        :param template: template dictionary describing the experiment hierarchy for the elements of the list
+        :param visitor: template visitor describing the hierarchy for the elements of the list
         :param schema: (optional) the expected schema of the extracted paramters
         """
         super().__init__(schema)
         self.prefix = prefix
-        self.template = template
+        self.visitor = visitor
 
     def extract(self, object, result, path=""):
         """
@@ -169,7 +168,7 @@ class ListVisitor(Visitor):
             print("Warning: List '" + path + "." + self.prefix + "' extended by multiple runs.")
         else:
             result[self.prefix] = []
-        result[self.prefix].extend([self.applyVisitor(object[i], {}, self.template, path + "[" + str(i) + "]") for i in range(len(object))])
+        result[self.prefix].extend([self.applyVisitor(object[i], {}, self.visitor, path + "[" + str(i) + "]") for i in range(len(object))])
         return result
 
 
@@ -179,13 +178,13 @@ class TupleVisitor(Visitor):
     The template is represented by a tuple, where a value can be of any of the types supported by ExperimentVisitor.applyVisitor.
     """
 
-    def __init__(self, template, schema=None):
+    def __init__(self, visitors, schema=None):
         """
-        :param template: template tuple describing the visitors for the elements in the input-tuple
+        :param visitors: template tuple describing the visitors for the elements in the input-tuple
         :param schema: (optional) the expected schema of the extracted paramters
         """
         super().__init__(schema)
-        self.template = template
+        self.visitors = visitors
 
     def extract(self, object, result, path=""):
         """
@@ -195,29 +194,29 @@ class TupleVisitor(Visitor):
         :param path: used to keep the path-information of the original item
         :return: a dictionary containing all extracted padre-information
         """
-        if len(object) != len(self.template):
+        if len(object) != len(self.visitors):
             print("Warning: Tuple size doesn't match!")
-        for i in range(min(len(object), len(self.template))):
-            self.applyVisitor(object[i], result, self.template[i], path + "[" + str(i) + "]")
+        for i in range(min(len(object), len(self.visitors))):
+            self.applyVisitor(object[i], result, self.visitors[i], path + "[" + str(i) + "]")
         return result
 
 class SelectVisitor(Visitor):
     """
     A Visitor-implementation to inspect library-specific experiment setups and select the correct visitor using a decision-dict.
+    The Dictionary contains pairs of classes and visitors. A visitor is selected if the object is an instance of the class.
     """
 
-    def __init__(self, visitors, otherwise=None, schema=None):
+    def __init__(self, visitors, schema=None):
         """
         :param visitors: a dict, that maps base-classes to visitor-objects
         :param schema: (optional) the expected schema of the extracted paramters
         """
         super().__init__(schema)
         self.visitors = visitors
-        self.otherwise = otherwise
 
     def extract(self, object, result, path=""):
         """
-        Implementation of the ExperimentVisitor-interface. Applies the visitor returned by the decision-function to object.
+        Implementation of the ExperimentVisitor-interface. Selects a visitor according to the base class of object. If no class matches the visitor to the key None is used, if available.
         :param object: the input-tuple of which information are to be extracted
         :param result: a dictionary containing all extracted information
         :param path: used to keep the path-information of the original item
@@ -225,11 +224,12 @@ class SelectVisitor(Visitor):
         """
         visitor = None
         for k in self.visitors.keys():
-            if isinstance(object, k):
+            if k and isinstance(object, k):
                 visitor = self.visitors[k]
                 break
         if visitor is None:
-            visitor = self.otherwise
+            if None in self.visitors:
+                visitor = self.visitors[None]
         if visitor is None:
             raise TypeError("Unsupported object encountered: " + str(type(object)))
         return self.applyVisitor(object, result, visitor, path)
@@ -286,22 +286,22 @@ class ConstantVisitor(Visitor):
 
 class SubpathVisitor(Visitor):
     """
-    A Visitor that creates and steps into a subpath of the result dict without changing object and applies its template on the object in the new path.
+    A Visitor that creates and steps into a subpath of the result dict without changing object and applies its visitor on the object in the new path.
     """
 
-    def __init__(self, subpath, template, schema=None):
+    def __init__(self, subpath, visitor, schema=None):
         """
         :param subpath: the subpath to create
-        :param template: the template
+        :param visitor: the visitor
         :param schema: (optional) the expected schema of the extracted paramters
         """
         super().__init__(schema)
         self.subpath = subpath.split(".")
-        self.template = template
+        self.visitor = visitor
 
     def extract(self, object, result, path=""):
         """
-        Implementation of the ExperimentVisitor-interface. Creates its subpath in result and calls applyVisitor with its given template on object.
+        Implementation of the ExperimentVisitor-interface. Creates its subpath in result and calls applyVisitor with its given visitor on object.
         If any element of the path ends with '[]', a list, which will be created if not existent in the subobject with the given key, will be appended a new dicitionary.
         otherwise the dicitonary will be inserted directly into the subobject, if not existing.
         :param object: the input-object to be passed directly to applyVisitor
@@ -322,7 +322,7 @@ class SubpathVisitor(Visitor):
                     subresult[s] = {}
                 subresult = subresult[s]
 
-        return self.applyVisitor(object, subresult, self.template, path)
+        return self.applyVisitor(object, subresult, self.visitor, path)
 
 
 class AlgorithmVisitor(Visitor):
