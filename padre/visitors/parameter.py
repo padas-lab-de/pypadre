@@ -6,14 +6,14 @@ class Parameter(object):
     It contains the extracted value and the path in the original object to that parameter.
     """
 
-    def __init__(self, value, path):
+    def __init__(self, value, attributes):
         """
         Constructs a new Parameter.
         :param value: the value of the parameter
-        :param path: the path to the parameter from the original object
+        :param attributes: A dictionary containing additional information to that Parameter
         """
         self.value = value
-        self.path = path
+        self.attributes = attributes
 
     def type(self):
         """
@@ -32,7 +32,7 @@ class Parameter(object):
         return hash(self.value)
 
     def __repr__(self):
-        return "{ value: " + repr(self.value) + ", path: " + repr(self.path) + " }"
+        return "{ value: " + repr(self.value) + ", " + ", ".join(k + ": " + str(v) for k, v in self.attributes.items()) + " }"
 
     def __str__(self):
         return str(self.value)

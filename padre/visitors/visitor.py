@@ -74,7 +74,7 @@ class Visitor(abc.ABC):
 
             if last_element in target_dict:
                 print("Warning: Parameter '" + template + "' extracted multiple times! Last value will be used.")
-            target_dict[last_element] = Parameter(object, path)
+            target_dict[last_element] = Parameter(object, {"path": path})
         elif type(template) is dict:
             DictVisitor(template).extract(object, result, path)
         elif type(template) is tuple:
@@ -330,8 +330,21 @@ class AlgorithmVisitor(Visitor):
     A Visitor that uses the information given in mapping.json to extract the information of an object.
     """
 
-    def __init__(self, schema=None):
+    def __init__(self, schema=None, param_additionalInformation=[]):
+        """
+        Creates a new AlgorithmVisitor.
+        :param schema: (optional) the expected schema of the extracted paramters
+        :param param_additionalInformation: (optional) set of keys to parameters, for which the respective values from mappings.py should be added to the results
+        """
         super().__init__(schema)
+        self.param_info = param_additionalInformation
+
+    def setParamAdditionalInfo(self, param_additionalInformation):
+        """
+        Modifies the set of keys to parameters, for which the respective values from mappings.py should be added to the results.
+        :param param_additionalInformation: the new set
+        """
+        self.param_info = param_additionalInformation
 
     def extract(self, object, result, path=""):
         """
@@ -349,7 +362,7 @@ class AlgorithmVisitor(Visitor):
         else:
             raise ValueError("The algorithm described by class '" + fullName + "' is not registered!")
 
-        result['algorithm'] = Parameter(description['name'], path)
+        result['algorithm'] = Parameter(description['name'], {"path": path})
 
         params = description['hyper_parameters']
         result['hyper_parameters'] = {}
@@ -361,7 +374,7 @@ class AlgorithmVisitor(Visitor):
                 for k in param[lib]['path'].split('.'):
                     value = value[k]
                 #resolve
-                param_list[param['name']] = Parameter(value, path + "." + param[lib]['path'])
+                param_list[param['name']] = Parameter(value, {"path": path + "." + param[lib]['path'], **{k : param[k] for k in self.param_info}})
 
 
         return result
