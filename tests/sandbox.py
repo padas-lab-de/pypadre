@@ -46,11 +46,11 @@ if __name__ == '__mainx__':
 
 if __name__ == '__mainx__':
     rest_repository = parep.PadreRestClient()
-    pu.print_dicts_as_table([d.metadata for d in rest_repository.list()],
+    pu.print_dicts_as_table([d.metadata for d in rest_repository.list_datasets()],
                             heads=["name", "type", "description", "attributes"])
     getted = []
-    for d in rest_repository.list():
-        ds = rest_repository.get(d.id)
+    for d in rest_repository.list_datasets():
+        ds = rest_repository.get_dataset(d.id)
         getted.append(ds)
 
     pu.print_dicts_as_table([d.metadata for d in getted],

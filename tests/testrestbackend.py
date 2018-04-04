@@ -46,16 +46,16 @@ class TestRestRepository(unittest.TestCase):
             datasets = []
             for i in dsimp.load_sklearn_toys():
                 datasets.append(i.name)
-                repo.put(i.name, i)
+                repo.put_dataset(i.name, i)
                 print(i)
             # Read list of datasets
-            datasets_restored = repo.list()
+            datasets_restored = repo.list_datasets()
             assert set(datasets) == set(datasets_restored), "Names not equal. "
             # Load datasets
             for n in datasets_restored:
-                metadata = repo.get(n, True)
+                metadata = repo.get_dataset(n, True)
                 assert metadata["description"] is not None
-                dataset = repo.get(n)
+                dataset = repo.get_dataset(n)
                 assert dataset.data is not None
                 assert type(dataset.data) == np.ndarray
                 assert dataset.name == n

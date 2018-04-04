@@ -9,6 +9,8 @@ Welcome to PyPaDRE Documentation's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   intro
+   design_principles
 
 
 

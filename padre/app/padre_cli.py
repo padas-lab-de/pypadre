@@ -31,8 +31,8 @@ def pypadre_cli(ctx, config_file, base_url):
     if base_url is not None:
         config["HTTP"]["base_url"] = base_url
     # create app objects
-    _http = app.padre_http_from_config(config)
-    _file = app.padre_filecache_from_config(config)
+    _http = app.padre_httprepo_from_config(config)
+    _file = app.padre_filerepo_from_config(config)
     # create context object
     ctx.obj = {
         'config-file': config_file,
@@ -55,7 +55,7 @@ def pypadre_cli(ctx, config_file, base_url):
 @click.pass_context
 def datasets(ctx, start, count, search):
     """list all available datasets"""
-    ctx.obj["pypadre"].datasets.list(start, count, search)
+    ctx.obj["pypadre"].datasets.list_datasets(start, count, search)
 
 
 @pypadre_cli.command(name="import")
@@ -73,7 +73,7 @@ def do_import(ctx, sklearn):
 @click.pass_context
 def dataset(ctx, dataset_id, binary, format):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    ctx.obj["pypadre"].datasets.get(dataset_id, binary, format)
+    ctx.obj["pypadre"].datasets.get_dataset(dataset_id, binary, format)
 
 
 if __name__ == '__main__':

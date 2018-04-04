@@ -144,39 +144,11 @@ class Dataset(MetadataEntity):
     3. Metadata describing the dataset
     """
 
-    def __init__(self, id=None, **metadata):
-        super().__init__(**metadata)
-        self._id = id
+    def __init__(self, id_=None, **metadata):
+        super().__init__(id_, **metadata)
         self._binary = None
         self._binary_format = None
 
-    @property
-    def id(self):
-        """
-        returns the unique id of the data set. Data sets will be managed on the basis of this id
-        :return: string
-        """
-        return self._id
-
-    def update_id(self, _id):
-        """
-        used for updating the id after the undlerying repository has assigned one
-        :param _id: id, ideally an url
-        :return:
-        """
-        self._id = _id
-
-    @property
-    def name(self):
-        """
-        returns the name of the dataset, which is expected in field "name" of the metadata. If this field does not
-        exist, the id is returned
-        :return:
-        """
-        if self._metadata and "name" in self._metadata:
-            return self._metadata["name"]
-        else:
-            return self._id
 
     @property
     def type(self):

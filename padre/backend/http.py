@@ -162,7 +162,7 @@ class PadreHTTPClient:
                 res = self.do_put(dataset.id, data=json.dumps(payload))
             else:
                 res = self.do_put(PadreHTTPClient.paths["dataset"](dataset.id), data=json.dumps(payload))
-        dataset.update_id(self.parse_hal(res)[1]["self"]["href"])
+        dataset.id(self.parse_hal(res)[1]["self"]["href"])
         if dataset.has_data():
             content, links = self.parse_hal(res)
             # todo check format, compare it with the returned binary links possible, then submit.
