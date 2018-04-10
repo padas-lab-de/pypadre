@@ -31,8 +31,8 @@ def pypadre_cli(ctx, config_file, base_url):
     if base_url is not None:
         config["HTTP"]["base_url"] = base_url
     # create app objects
-    _http = app.padre_httprepo_from_config(config)
-    _file = app.padre_filerepo_from_config(config)
+    _http = app.http_client
+    _file = app.file_cache
     # create context object
     ctx.obj = {
         'config-file': config_file,
