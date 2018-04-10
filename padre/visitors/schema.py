@@ -1,6 +1,6 @@
-from padre.parameter import Parameter
+from .mappings import name_mappings
+from .parameter import Parameter
 
-from padre.mappings import name_mappings
 
 class SchemaMismatch(Exception):
     """Exception for schema-mismatch

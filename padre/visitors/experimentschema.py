@@ -1,4 +1,4 @@
-from padre.schema import Attribute, Schema, ListAttribute, SelectSchema, AlgorithmSchema
+from .schema import Attribute, Schema, ListAttribute, AlgorithmSchema
 
 
 PipelineSchema = Schema(

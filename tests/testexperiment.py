@@ -2,12 +2,10 @@
 import unittest
 
 from sklearn.linear_model import Ridge, LinearRegression
-
-from padre.visitor import DictVisitor
-
 from sklearn.pipeline import Pipeline
 
-from padre.visitors.scikit.scikitpipeline import SciKitVisitor
+from padre.visitors import DictVisitor
+from padre.visitors.scikit import SciKitVisitor
 
 
 class TestExperimentVisitor(unittest.TestCase):

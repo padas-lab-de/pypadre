@@ -2,6 +2,7 @@
   "algorithms": [
     {
       "name": "linear regression",
+      "wikidata_id": "Q10861030",
       "other_names": [],
       "implementation": {
         "scikit-learn": "sklearn.linear_model.base.LinearRegression"
@@ -12,8 +13,10 @@
           {
             "name": "fit_intercept",
             "kind_of_value": "boolean",
+            "range": "{True, False}",
             "optional": "True",
             "description": "Whether to calculate the intercept for this model.",
+            "measurement_scale": "nominal",
             "scikit-learn": {
               "default_value": "True",
               "path": "fit_intercept"
@@ -22,8 +25,10 @@
           {
             "name": "normalize",
             "kind_of_value": "boolean",
+            "range": "{True, False}",
             "optional": "True",
             "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the l2-norm.",
+            "measurement_scale": "nominal",
             "scikit-learn": {
               "default_value": "False",
               "path": "normalize"
@@ -32,8 +37,10 @@
           {
             "name": "copy_X",
             "kind_of_value": "boolean",
+            "range": "{True, False}",
             "optional": "True",
             "description": "If True, X will be copied; else, it may be overwritten.",
+            "measurement_scale": "nominal",
             "scikit-learn": {
               "default_value": "True",
               "path": "copy_X"
@@ -44,8 +51,10 @@
           {
             "name": "jobs",
             "kind_of_value": "integer",
+            "range": "Z >= -1",
             "optional": "True",
             "description": "The number of jobs to use for the computation. If -1 all CPUs are used.",
+            "measurement_scale": "ratio",
             "scikit-learn": {
               "default_value": "1",
               "path": "n_jobs"
@@ -76,7 +85,7 @@
             "name": "regularisation_strength",
             "kind_of_value": "float, array-like in the shape of the targets",
             "optional": "False",
-            "description": "Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization.",
+            "description": "Regularization strength. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization.",
             "scikit-learn": {
               "default_value": "1.0",
               "path": "alpha"
@@ -124,9 +133,11 @@
           },
           {
             "name": "solver",
-            "kind_of_value": "{'auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'}",
+            "kind_of_value": "string",
+            "range": "{'auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'}",
             "optional": "False",
             "description": "Solver to use in the computational routines.",
+            "measurement_scale": "nominal",
             "scikit-learn": {
               "default_value": "'auto'",
               "path": "solver"
@@ -229,7 +240,7 @@
             }
           },
           {
-            "name": "positive",
+            "name": "positive_coef",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "When set to True, forces the coefficients to be positive.",
@@ -468,7 +479,7 @@
             }
           },
           {
-            "name": "positive",
+            "name": "positive_coef",
             "kind_of_value": "boolean",
             "optional": "True",
             "description": "When set to True, forces the coefficients to be positive.",
@@ -1206,7 +1217,7 @@
             "name": "threshold_lambda",
             "kind_of_value": "float",
             "optional": "True",
-            "description": "Threshold for removing (pruning) weights with high precision from the computation. ",
+            "description": "Threshold for removing (pruning) weights with high precision from the computation.",
             "scikit-learn": {
               "default_value": "10000.0",
               "path": "threshold_lambda"
@@ -1386,7 +1397,7 @@
             "name": "multi_class",
             "kind_of_value": "{'ovr', 'multinomial'}",
             "optional": "False",
-            "description": "Multiclass option can be either ‘ovr’ or ‘multinomial’. If the option chosen is ‘ovr’, then a binary problem is fit for each label. Else the loss minimised is the multinomial loss fit across the entire probability distribution. Does not work for liblinear solver.",
+            "description": "If the option chosen is ‘ovr’, then a binary problem is fit for each label. Else the loss minimised is the multinomial loss fit across the entire probability distribution.",
             "scikit-learn": {
               "default_value": "'ovr'",
               "path": "multi_class"
@@ -12285,6 +12296,7 @@
     {
       "name": "",
       "other_names": [],
+      "wikidata_id": "",
       "implementation": {
         "scikit-learn": ""
       },
@@ -12294,8 +12306,10 @@
           {
             "name": "",
             "kind_of_value": "",
+            "range": "",
             "optional": "",
             "description": "",
+            "measurement_scale": "",
             "scikit-learn": {
               "default_value": "",
               "path": ""
@@ -12306,15 +12320,30 @@
           {
             "name": "",
             "kind_of_value": "",
+            "range": "",
             "optional": "",
             "description": "",
+            "measurement_scale": "",
             "scikit-learn": {
               "default_value": "",
               "path": ""
             }
           }
         ],
-        "execution_parameters": []
+        "execution_parameters": [
+          {
+            "name": "",
+            "kind_of_value": "",
+            "range": "",
+            "optional": "",
+            "description": "",
+            "measurement_scale": "",
+            "scikit-learn": {
+              "default_value": "",
+              "path": ""
+            }
+          }
+        ]
       }
     }
   ]
