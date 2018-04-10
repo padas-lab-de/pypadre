@@ -17,6 +17,33 @@ Client System for the [PaDRE Servant Server](https://gitlab.dimis.fim.uni-passau
 
 From the clients perspective, PaDREV could be also understood as package manager for data sets and experiments.
 
+## Example Usages 
+
+### Examples are under `tests`
+
+- `example.py` shows how to use pypadre with an example sklearn tool
+- `testexperiment.py` shows how to extract parameters from pypadre
+
+### Examples using the command line client
+
+The command line client can be found under `padre/app/padre_cli`. 
+Note that a start from the command line requires the python path set 
+to the local directory, i.e. `PYTHONPATH="./"`.
+
+Show usage and help:
+```
+PYTHONPATH="./" python3 padre/app/padre_cli.py
+```
+
+List datasets (requires running padre server)
+```
+PYTHONPATH="./" python3 padre/app/padre_cli.py datasets
+```
+
+Show single datatset properties
+```
+PYTHONPATH="./" python3 padre/app/padre_cli.py dataset 3
+```
 
 ## Wiki 
 
