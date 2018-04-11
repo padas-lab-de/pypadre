@@ -174,7 +174,7 @@
       "name": "lasso",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.Lasso"
+        "scikit-learn": "sklearn.linear_model.coordinate_descent.Lasso"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -299,41 +299,42 @@
       "name": "multi-task lasso",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.MultiTaskLasso"
+        "scikit-learn": "sklearn.linear_model.coordinate_descent.MultiTaskLasso"
       },
       "type": "Regression",
-      "hyper_parameters": [
-        {
-          "name": "l1_l2_multiplier",
-          "kind_of_value": "float",
-          "optional": "True",
-          "description": "Constant that multiplies the L1/L2 term.",
-          "scikit-learn": {
-            "default_value": "1.0",
-            "path": "alpha"
-          }
-        },
-        {
-          "name": "fit_intercept",
-          "kind_of_value": "boolean",
-          "optional": "False",
-          "description": "Whether to calculate the intercept for this model.",
-          "scikit-learn": {
-            "default_value": "True",
-            "path": "fit_intercept"
-          }
-        },
-        {
-          "name": "normalize",
-          "kind_of_value": "boolean",
-          "optional": "True",
-          "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
-          "scikit-learn": {
-            "default_value": "False",
-            "path": "normalize"
-          }
-        },
-        {
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "l1_l2_multiplier",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "Constant that multiplies the L1/L2 term.",
+            "scikit-learn": {
+              "default_value": "1.0",
+              "path": "alpha"
+            }
+          },
+          {
+            "name": "fit_intercept",
+            "kind_of_value": "boolean",
+            "optional": "False",
+            "description": "Whether to calculate the intercept for this model.",
+            "scikit-learn": {
+              "default_value": "True",
+              "path": "fit_intercept"
+            }
+          },
+          {
+            "name": "normalize",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "Normalizes the regressors before regression by subtracting the mean and dividing by the I2-norm.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "normalize"
+            }
+          },
+          {
             "name": "copy_X",
             "kind_of_value": "boolean",
             "optional": "True",
@@ -342,27 +343,27 @@
               "default_value": "True",
               "path": "copy_X"
             }
-        },
-        {
-          "name": "tolerance",
-          "kind_of_value": "float",
-          "optional": "True",
-          "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
-          "scikit-learn": {
-            "default_value": "0.0001",
-            "path": "tol"
-          }
-        },
-        {
-          "name": "reuse_previous",
-          "kind_of_value": "boolean",
-          "optional": "True",
-          "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
-          "scikit-learn": {
-            "default_value": "False",
-            "path": "warm_start"
-          }
-        },
+          },
+          {
+            "name": "tolerance",
+            "kind_of_value": "float",
+            "optional": "True",
+            "description": "The tolerance for the optimization: if the updates are smaller than tol, the optimization code checks the dual gap for optimality and continues until it is smaller than tol.",
+            "scikit-learn": {
+              "default_value": "0.0001",
+              "path": "tol"
+            }
+          },
+          {
+            "name": "reuse_previous",
+            "kind_of_value": "boolean",
+            "optional": "True",
+            "description": "When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.",
+            "scikit-learn": {
+              "default_value": "False",
+              "path": "warm_start"
+            }
+          },
           {
             "name": "random_state",
             "kind_of_value": "{integer, RandomState instance, None}",
@@ -373,37 +374,38 @@
               "path": "random_state"
             }
           },
-        {
-          "name": "selection",
-          "kind_of_value": "{'random', 'cyclic'}",
-          "optional": "False",
-          "description": "If set to 'random', a random coefficient is updated every iteration rather than looping over features sequentially by default.",
-          "scikit-learn": {
-            "default_value": "'cyclic'",
-            "path": "selection"
+          {
+            "name": "selection",
+            "kind_of_value": "{'random', 'cyclic'}",
+            "optional": "False",
+            "description": "If set to 'random', a random coefficient is updated every iteration rather than looping over features sequentially by default.",
+            "scikit-learn": {
+              "default_value": "'cyclic'",
+              "path": "selection"
+            }
           }
-        }
-      ],
-      "optimisation_parameters": [
-        {
-          "name": "max_iterations",
-          "kind_of_value": "integer",
-          "optional": "True",
-          "description": "Maximum number of iterations.",
-          "scikit-learn": {
-            "default_value": "None",
-            "path": "max_iter"
+        ],
+        "optimisation_parameters": [
+          {
+            "name": "max_iterations",
+            "kind_of_value": "integer",
+            "optional": "True",
+            "description": "Maximum number of iterations.",
+            "scikit-learn": {
+              "default_value": "None",
+              "path": "max_iter"
+            }
           }
-        }
-      ],
-      "execution_parameters": [
-      ]
+        ],
+        "execution_parameters": [
+        ]
+      }
     },
     {
       "name": "elastic net",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.ElasticNet"
+        "scikit-learn": "sklearn.linear_model.coordinate_descent.ElasticNet"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -539,7 +541,7 @@
       "name": "multi-task elastic net",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.MultiTaskElasticNet"
+        "scikit-learn": "sklearn.linear_model.coordinate_descent.MultiTaskElasticNet"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -657,7 +659,7 @@
         "LARS"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.Lars"
+        "scikit-learn": "sklearn.linear_model.least_angle.Lars"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -754,7 +756,7 @@
         "LassoLars"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.LassoLars"
+        "scikit-learn": "sklearn.linear_model.least_angle.LassoLars"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -871,7 +873,7 @@
         "OMP"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.OrthogonalMatchingPursuit"
+        "scikit-learn": "sklearn.linear_model.omp.OrthogonalMatchingPursuit"
       },
       "type": "Model Fit Aproximator",
       "hyper_parameters": {
@@ -1031,7 +1033,7 @@
       "name": "bayesian ridge regression",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.BayesianRidge"
+        "scikit-learn": "sklearn.linear_model.bayes.BayesianRidge"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -1158,7 +1160,7 @@
         "ARD regrssion"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.ARDRegression"
+        "scikit-learn": "sklearn.linear_model.bayes.ARDRegression"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -1298,7 +1300,7 @@
         "log-linear classifier"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.LogisticRegression"
+        "scikit-learn": "sklearn.linear_model.logistic.LogisticRegression"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -1455,7 +1457,7 @@
         "SGD classifier"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.SGDClassifier"
+        "scikit-learn": "sklearn.linear_model.stochastic_gradient.SGDClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -1587,7 +1589,7 @@
             "description": "The exponent for inverse scaling learning rate.",
             "scikit-learn": {
               "default_value": "0.5",
-              "path": " power_t"
+              "path": "power_t"
             }
           },
           {
@@ -1672,7 +1674,7 @@
         "SGD regressor"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.SGDRegressor"
+        "scikit-learn": "sklearn.linear_model.stochastic_gradient.SGDRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -1804,7 +1806,7 @@
             "description": "The exponent for inverse scaling learning rate.",
             "scikit-learn": {
               "default_value": "0.25",
-              "path": " power_t"
+              "path": "power_t"
             }
           },
           {
@@ -1847,7 +1849,7 @@
       "name": "perceptron",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.Perceptron"
+        "scikit-learn": "sklearn.linear_model.perceptron.Perceptron"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -1982,7 +1984,7 @@
       "name": "passive aggressive classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.PassiveAggressiveClassifier"
+        "scikit-learn": "sklearn.linear_model.passive_aggressive.PassiveAggressiveClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -2117,7 +2119,7 @@
       "name": "passive aggressive regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.PassiveAggressiveRegressor"
+        "scikit-learn": "sklearn.linear_model.passive_aggressive.PassiveAggressiveRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -2244,7 +2246,7 @@
         "RANSAC"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.RANSACRegressor"
+        "scikit-learn": "sklearn.linear_model.ransac.RANSACRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -2379,7 +2381,7 @@
       "name": "theil-sen estimator",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.TheilSenRegressor"
+        "scikit-learn": "sklearn.linear_model.theil_sen.TheilSenRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -2484,7 +2486,7 @@
       "name": "huber regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.linear_model.HuberRegressor"
+        "scikit-learn": "sklearn.linear_model.huber.HuberRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -2764,7 +2766,7 @@
       }
     },
     {
-      "name": "c-support vector classification.",
+      "name": "c-oja pas vector classification.",
       "other_names": [
         "SVC"
       ],
@@ -2926,7 +2928,7 @@
         "nuSVC"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.svm.NuSVC"
+        "scikit-learn": "sklearn.svm.classes.NuSVC"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -3083,7 +3085,7 @@
         "linear SVC"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.svm.LinearSVC"
+        "scikit-learn": "sklearn.svm.classes.LinearSVC"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -3220,7 +3222,7 @@
         "SVR"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.svm.SVR"
+        "scikit-learn": "sklearn.svm.classes.SVR"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -3347,7 +3349,7 @@
         "nuSVR"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.svm.NuSVR"
+        "scikit-learn": "sklearn.svm.classes.NuSVR"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -3474,7 +3476,7 @@
         "linearSVR"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.svm.LinearSVR"
+        "scikit-learn": "sklearn.svm.classes.LinearSVR"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -3591,7 +3593,7 @@
         "one-calss SVM"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.svm.OneClassSVM"
+        "scikit-learn": "sklearn.svm.classes.OneClassSVM"
       },
       "type": "Outlier Detection",
       "hyper_parameters": {
@@ -3716,7 +3718,7 @@
       "name": "nearest neighbours",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.NearestNeighbors"
+        "scikit-learn": "sklearn.neighbors.unsupervised.NearestNeighbors"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -3838,16 +3840,6 @@
               "default_value": "'minkowski'",
               "path": "metric"
             }
-          },
-          {
-            "name": "**kwargs",
-            "kind_of_value": "parameter",
-            "optional": "False",
-            "description": "additional parameters",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "**kwargs"
-            }
           }
         ],
         "optimisation_parameters": [
@@ -3893,16 +3885,6 @@
               "default_value": "'minkowski'",
               "path": "metric"
             }
-          },
-          {
-            "name": "**kwargs",
-            "kind_of_value": "parameter",
-            "optional": "False",
-            "description": "additional parameters",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "**kwargs"
-            }
           }
         ],
         "optimisation_parameters": [
@@ -3924,7 +3906,7 @@
       "name": "radius neighbors classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.RadiusNeighborsClassifier"
+        "scikit-learn": "sklearn.neighbors.classification.RadiusNeighborsClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -4008,16 +3990,6 @@
               "default_value": "None",
               "path": "metric_params"
             }
-          },
-          {
-            "name": "**kwargs",
-            "kind_of_value": "parameter",
-            "optional": "False",
-            "description": "additional parameters",
-            "scikit-learn": {
-              "default_value": "",
-              "path": "**kwargs"
-            }
           }
         ],
         "optimisation_parameters": [],
@@ -4030,7 +4002,7 @@
         " k-nearest neighbors calssifier"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.KNeighborsClassifier"
+        "scikit-learn": "sklearn.neighbors.classification.KNeighborsClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -4127,7 +4099,7 @@
         " k-nearest neighbors regressor"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.KNeighborsRegressor"
+        "scikit-learn": "sklearn.neighbors.regression.KNeighborsRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -4222,7 +4194,7 @@
       "name": "radius neighbors regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.RadiusNeighborsRegressor"
+        "scikit-learn": "sklearn.neighbors.regression.RadiusNeighborsRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -4306,7 +4278,7 @@
       "name": "nearest centroid classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.NearestCentroid"
+        "scikit-learn": "sklearn.neighbors.nearest_centroid.NearestCentroid"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -4342,7 +4314,7 @@
         "GPR"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.gaussian_process.GaussianProcessRegressor"
+        "scikit-learn": "sklearn.gaussian_process.gpr.GaussianProcessRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -4428,7 +4400,7 @@
         "GPC"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.gaussian_process.GaussianProcessClassifier"
+        "scikit-learn": "sklearn.gaussian_process.gpc.GaussianProcessClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -4535,7 +4507,7 @@
         "PLS Regession"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.cross_decomposition.PLSRegression"
+        "scikit-learn": "sklearn.cross_decomposition.pls_.PLSRegression"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -4602,7 +4574,7 @@
         "PLS Canonical"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.cross_decomposition.PLSCanonical"
+        "scikit-learn": "sklearn.cross_decomposition.pls_.PLSCanonical"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -4679,7 +4651,7 @@
         "PLSSVD"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.cross_decomposition.PLSSVD"
+        "scikit-learn": "sklearn.cross_decomposition.pls_.PLSSVD"
       },
       "type": "Matrix Decomposition",
       "hyper_parameters": {
@@ -4725,7 +4697,7 @@
         "CCA"
       ],
       "implementation": {
-        "scikit-learn": "sklearn.cross_decomposition.CCA"
+        "scikit-learn": "sklearn.cross_decomposition.cca_.CCA"
       },
       "type": "Matrix Decomposition",
       "hyper_parameters": {
@@ -4905,16 +4877,6 @@
           }
         ],
         "optimisation_parameters": [
-          {
-            "name": "",
-            "kind_of_value": "",
-            "optional": "",
-            "description": "",
-            "scikit-learn": {
-              "default_value": "",
-              "path": ""
-            }
-          }
         ],
         "execution_parameters": []
       }
@@ -4923,7 +4885,7 @@
       "name": "decision tree classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.tree.DecisionTreeClassifier"
+        "scikit-learn": "sklearn.tree.tree.DecisionTreeClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -5058,7 +5020,7 @@
       "name": "decision tree regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.tree.DecisionTreeRegressor"
+        "scikit-learn": "sklearn.tree.tree.DecisionTreeRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -5174,7 +5136,8 @@
               "default_value": "False",
               "path": "presort"
             }
-          }],
+          }
+        ],
         "execution_parameters": []
       }
     },
@@ -5182,7 +5145,7 @@
       "name": "extra-trees regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.ExtraTreesRegressor"
+        "scikit-learn": "sklearn.ensemble.forest.ExtraTreesRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -5347,7 +5310,7 @@
       "name": "extra-trees classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.ExtraTreesClassifier"
+        "scikit-learn": "sklearn.ensemble.forest.ExtraTreesClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -5522,7 +5485,7 @@
       "name": "random forest regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.RandomForestRegressor"
+        "scikit-learn": "sklearn.ensemble.forest.RandomForestRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -5687,7 +5650,7 @@
       "name": "random forest classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.RandomForestClassifier"
+        "scikit-learn": "sklearn.ensemble.forest.RandomForestClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -5862,7 +5825,7 @@
       "name": "bagging classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.BaggingClassifier"
+        "scikit-learn": "sklearn.ensemble.bagging.BaggingClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -5987,7 +5950,7 @@
       "name": "bagging regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.BaggingRegressor"
+        "scikit-learn": "sklearn.ensemble.bagging.BaggingRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -6177,7 +6140,7 @@
       "name": "gradient boosting for regression",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.GradientBoostingRegressor"
+        "scikit-learn": "sklearn.ensemble.gradient_boosting.GradientBoostingRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -6372,7 +6335,7 @@
       "name": "gradient boosting for classification",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.GradientBoostingClassifier"
+        "scikit-learn": "sklearn.ensemble.gradient_boosting.GradientBoostingClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -6557,7 +6520,7 @@
       "name": "AdaBoost regressor",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.AdaBoostRegressor"
+        "scikit-learn": "sklearn.ensemble.weight_boosting.AdaBoostRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -6622,7 +6585,7 @@
       "name": "AdaBoost classifier",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.AdaBoostClassifier"
+        "scikit-learn": "sklearn.ensemble.weight_boosting.AdaBoostClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -6687,7 +6650,7 @@
       "name": "random trees ensemble",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.RandomTreesEmbedding"
+        "scikit-learn": "sklearn.ensemble.forest.RandomTreesEmbedding"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -6993,7 +6956,7 @@
           }
         ],
         "optimisation_parameters": [
-         {
+          {
             "name": "jobs",
             "kind_of_value": "integer",
             "optional": "True",
@@ -7009,7 +6972,9 @@
     },
     {
       "name": "one vs rest classifier",
-      "other_names": ["one vs all classifier"],
+      "other_names": [
+        "one vs all classifier"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.multiclass.OneVsRestClassifier"
       },
@@ -7028,7 +6993,7 @@
           }
         ],
         "optimisation_parameters": [
-         {
+          {
             "name": "jobs",
             "kind_of_value": "integer",
             "optional": "True",
@@ -7098,7 +7063,9 @@
     },
     {
       "name": "recursive feature elimination with cross-validation",
-      "other_names": ["RFECV"],
+      "other_names": [
+        "RFECV"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.feature_selection.RFECV"
       },
@@ -7173,7 +7140,9 @@
     },
     {
       "name": "recursive feature elimination",
-      "other_names": ["RFE"],
+      "other_names": [
+        "RFE"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.feature_selection.RFE"
       },
@@ -7229,7 +7198,7 @@
       "name": "univariate feature selector",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.feature_selection.GenericUnivariateSelect"
+        "scikit-learn": "sklearn.feature_selection.univariate_selection.GenericUnivariateSelect"
       },
       "type": "Feature Selection",
       "hyper_parameters": {
@@ -7271,9 +7240,11 @@
     },
     {
       "name": "select familiy-wise error rate",
-      "other_names": ["select Fwe"],
+      "other_names": [
+        "select Fwe"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.feature_selection.SelectFwe"
+        "scikit-learn": "sklearn.feature_selection.univariate_selection.SelectFwe"
       },
       "type": "Feature Selection",
       "hyper_parameters": {
@@ -7305,9 +7276,11 @@
     },
     {
       "name": "select estimated false discovery rate",
-      "other_names": ["select Fdr"],
+      "other_names": [
+        "select Fdr"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.feature_selection.SelectFdr"
+        "scikit-learn": "sklearn.feature_selection.univariate_selection.SelectFdr"
       },
       "type": "Feature Selection",
       "hyper_parameters": {
@@ -7339,9 +7312,11 @@
     },
     {
       "name": "select below false positive rate",
-      "other_names": ["select Fpr"],
+      "other_names": [
+        "select Fpr"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.feature_selection.SelectFpr"
+        "scikit-learn": "sklearn.feature_selection.univariate_selection.SelectFpr"
       },
       "type": "Feature Selection",
       "hyper_parameters": {
@@ -7375,7 +7350,7 @@
       "name": "select percentile",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.feature_selection.SelectPercentile"
+        "scikit-learn": "sklearn.feature_selection.univariate_selection.SelectPercentile"
       },
       "type": "Feature Selection",
       "hyper_parameters": {
@@ -7409,7 +7384,7 @@
       "name": "select k best",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.feature_selection.SelectKBest"
+        "scikit-learn": "sklearn.feature_selection.univariate_selection.SelectKBest"
       },
       "type": "Feature Selection",
       "hyper_parameters": {
@@ -7443,7 +7418,7 @@
       "name": "variance threshold",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.feature_selection.VarianceThreshold"
+        "scikit-learn": "sklearn.feature_selection.variance_threshold.VarianceThreshold"
       },
       "type": "Feature Selection",
       "hyper_parameters": {
@@ -7467,7 +7442,7 @@
       "name": "label probagation",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.semi_supervised.LabelPropagation"
+        "scikit-learn": "sklearn.semi_supervised.label_propagation.LabelPropagation"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -7542,7 +7517,7 @@
       "name": "label spreading",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.semi_supervised.LabelSpreading"
+        "scikit-learn": "sklearn.semi_supervised.label_propagation.LabelSpreading"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -7723,9 +7698,11 @@
     },
     {
       "name": "multi-layer perceptron regressor",
-      "other_names": ["MLP regressor"],
+      "other_names": [
+        "MLP regressor"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.neural_network.MLPRegressor"
+        "scikit-learn": "sklearn.neural_network.multilayer_perceptron.MLPRegressor"
       },
       "type": "Regression",
       "hyper_parameters": {
@@ -7948,9 +7925,11 @@
     },
     {
       "name": "multi-layer perceptron classifier",
-      "other_names": ["MLP classifier"],
+      "other_names": [
+        "MLP classifier"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.neural_network.MLPClassifier"
+        "scikit-learn": "sklearn.neural_network.multilayer_perceptron.MLPClassifier"
       },
       "type": "Classification",
       "hyper_parameters": {
@@ -8175,7 +8154,7 @@
       "name": "Gaussian mixture",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.mixture.GaussianMixture"
+        "scikit-learn": "sklearn.mixture.gaussian_mixture.GaussianMixture"
       },
       "type": "Density Estimation",
       "hyper_parameters": {
@@ -8330,7 +8309,7 @@
       "name": "Bayesian Gaussian mixture",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.mixture.BayesianGaussianMixture"
+        "scikit-learn": "sklearn.mixture.bayesian_mixture.BayesianGaussianMixture"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -8515,7 +8494,7 @@
       "name": "isomap embedding",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.manifold.Isomap"
+        "scikit-learn": "sklearn.manifold.isomap.Isomap"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -8615,7 +8594,6 @@
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
         "model_parameters": [
-
           {
             "name": "sample_data",
             "kind_of_value": "{array-like shape (n_samples, n_features), sparse matrix, BallTree, KDTree, NearestNeighbors}",
@@ -8746,7 +8724,7 @@
       "name": "object oriented locally linear embedding analysis",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.manifold.LocallyLinearEmbedding"
+        "scikit-learn": "sklearn.manifold.locally_linear.LocallyLinearEmbedding"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -8879,9 +8857,11 @@
     },
     {
       "name": "multidimensional scaling",
-      "other_names": ["MDS"],
+      "other_names": [
+        "MDS"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.manifold.MDS"
+        "scikit-learn": "sklearn.manifold.mds.MDS"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -9060,7 +9040,7 @@
       "name": "object oriented spectral embedding",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.manifold.SpectralEmbedding"
+        "scikit-learn": "sklearn.manifold.spectral_embedding_.SpectralEmbedding"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -9133,9 +9113,12 @@
     },
     {
       "name": "t-distributed stochastic neighbor embedding",
-      "other_names": ["TSNE", "t-SNE"],
+      "other_names": [
+        "TSNE",
+        "t-SNE"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.manifold.TSNE"
+        "scikit-learn": "sklearn.manifold.t_sne.TSNE"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -9278,9 +9261,11 @@
     },
     {
       "name": "k-means clustering",
-      "other_names": ["Lloyd’s algorithm"],
+      "other_names": [
+        "Lloyd’s algorithm"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.KMeans"
+        "scikit-learn": "sklearn.cluster.k_means_.KMeans"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -9342,7 +9327,7 @@
             "description": "When pre-computing distances it is more numerically accurate to center the data first. If copy_x is True, then the original data is not modified. If False, the original data is modified, and put back before the function returns, but small numerical differences may be introduced by subtracting and then adding the data mean.",
             "scikit-learn": {
               "default_value": "True",
-              "path": "copy_X"
+              "path": "copy_x"
             }
           },
           {
@@ -9405,7 +9390,7 @@
       "name": "mini batch k-means clustering",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.MiniBatchKMeans"
+        "scikit-learn": "sklearn.cluster.k_means_.MiniBatchKMeans"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -9540,7 +9525,7 @@
       "name": "affinity propagation clustering",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.AffinityPropagation"
+        "scikit-learn": "sklearn.cluster.affinity_propagation_.AffinityPropagation"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -9625,7 +9610,7 @@
       "name": "mean shift clustering with flat kernel",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.MeanShift"
+        "scikit-learn": "sklearn.cluster.mean_shift_.MeanShift"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -9700,7 +9685,7 @@
       "name": "spectral clustering",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.SpectralClustering"
+        "scikit-learn": "sklearn.cluster.spectral.SpectralClustering"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -9835,7 +9820,7 @@
       "name": "agglomerative clustering",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.AgglomerativeClustering"
+        "scikit-learn": "sklearn.cluster.hierarchical.AgglomerativeClustering"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -9919,7 +9904,7 @@
       "name": "feature agglomerative clustering",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.FeatureAgglomeration"
+        "scikit-learn": "sklearn.cluster.hierarchical.FeatureAgglomeration"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -10003,7 +9988,7 @@
       "name": "DBSCAN",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.DBSCAN"
+        "scikit-learn": "sklearn.cluster.dbscan_.DBSCAN"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -10098,7 +10083,7 @@
       "name": "birch clustering",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.cluster.Birch"
+        "scikit-learn": "sklearn.cluster.birch.Birch"
       },
       "type": "Clustering",
       "hyper_parameters": {
@@ -10380,7 +10365,9 @@
     },
     {
       "name": "principal component analysis",
-      "other_names": ["PCA"],
+      "other_names": [
+        "PCA"
+      ],
       "implementation": {
         "scikit-learn": "sklearn.decomposition.pca.PCA"
       },
@@ -10464,9 +10451,11 @@
     },
     {
       "name": "incremental principal component analysis",
-      "other_names": ["incremental PCA"],
+      "other_names": [
+        "incremental PCA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.IncrementalPCA"
+        "scikit-learn": "sklearn.decomposition.incremental_pca.IncrementalPCA"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -10518,9 +10507,11 @@
     },
     {
       "name": "kernel principal component analysis",
-      "other_names": ["kernel PCA"],
+      "other_names": [
+        "kernel PCA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.KernelPCA"
+        "scikit-learn": "sklearn.decomposition.kernel_pca.KernelPCA"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -10683,9 +10674,11 @@
     },
     {
       "name": "sparse principal component analysis",
-      "other_names": ["sparse PCA"],
+      "other_names": [
+        "sparse PCA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.SparsePCA"
+        "scikit-learn": "sklearn.decomposition.sparse_pca.SparsePCA"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -10808,9 +10801,11 @@
     },
     {
       "name": "mini batch sparse principal component analysis",
-      "other_names": ["mini batch sparse PCA"],
+      "other_names": [
+        "mini batch sparse PCA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.MiniBatchSparsePCA"
+        "scikit-learn": "sklearn.decomposition.sparse_pca.MiniBatchSparsePCA"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -10824,7 +10819,8 @@
               "default_value": "None",
               "path": "n_components"
             }
-          },{
+          },
+          {
             "name": "sparsity_parmeter",
             "kind_of_value": "float",
             "optional": "False",
@@ -10932,9 +10928,12 @@
     },
     {
       "name": "truncated single value decomposition",
-      "other_names": ["truncated SVD", "LSA"],
+      "other_names": [
+        "truncated SVD",
+        "LSA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.TruncatedSVD"
+        "scikit-learn": "sklearn.decomposition.truncated_svd.TruncatedSVD"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -11074,7 +11073,7 @@
       "name": "dictionary learning",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.DictionaryLearning"
+        "scikit-learn": "sklearn.decomposition.dict_learning.DictionaryLearning"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -11229,7 +11228,7 @@
       "name": "mini batch dictionary learning",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.MiniBatchDictionaryLearning"
+        "scikit-learn": "sklearn.decomposition.dict_learning.MiniBatchDictionaryLearning"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -11382,9 +11381,11 @@
     },
     {
       "name": "factor analysis",
-      "other_names": ["FA"],
+      "other_names": [
+        "FA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.FactorAnalysis"
+        "scikit-learn": "sklearn.decomposition.factor_analysis.FactorAnalysis"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -11467,9 +11468,11 @@
     },
     {
       "name": "fast independent component analysis",
-      "other_names": ["fast ICA"],
+      "other_names": [
+        "fast ICA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.FastICA"
+        "scikit-learn": "sklearn.decomposition.fastica_.FastICA"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -11572,9 +11575,11 @@
     },
     {
       "name": "non-negative matrix factorization",
-      "other_names": ["NFM"],
+      "other_names": [
+        "NFM"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.NMF"
+        "scikit-learn": "sklearn.decomposition.nmf.NMF"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -11687,9 +11692,11 @@
     },
     {
       "name": "latent Dirichlet allocation",
-      "other_names": ["LDA"],
+      "other_names": [
+        "LDA"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.decomposition.LatentDirichletAllocation"
+        "scikit-learn": "sklearn.decomposition.online_lda.LatentDirichletAllocation"
       },
       "type": "Dimensionality Reduction",
       "hyper_parameters": {
@@ -11801,7 +11808,7 @@
             "description": "Stopping tolerance for updating document topic distribution in E-step.",
             "scikit-learn": {
               "default_value": "0.001",
-              "path": "mean_change_tolerance"
+              "path": "mean_change_tol"
             }
           },
           {
@@ -11864,7 +11871,7 @@
       "name": "elliptice envelope",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.covariance.EllipticEnvelope"
+        "scikit-learn": "sklearn.covariance.outlier_detection.EllipticEnvelope"
       },
       "type": "Outlier Detection",
       "hyper_parameters": {
@@ -11928,7 +11935,7 @@
       "name": "isolation forest",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.ensemble.IsolationForest"
+        "scikit-learn": "sklearn.ensemble.iforest.IsolationForest"
       },
       "type": "Outlier Detection",
       "hyper_parameters": {
@@ -12021,9 +12028,11 @@
     },
     {
       "name": "local outlier factor",
-      "other_names": ["LOF"],
+      "other_names": [
+        "LOF"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.LocalOutlierFactor"
+        "scikit-learn": "sklearn.neighbors.lof.LocalOutlierFactor"
       },
       "type": "Outlier Detection",
       "hyper_parameters": {
@@ -12118,7 +12127,7 @@
       "name": "kernel density",
       "other_names": [],
       "implementation": {
-        "scikit-learn": "sklearn.neighbors.KernelDensity"
+        "scikit-learn": "sklearn.neighbors.kde.KernelDensity"
       },
       "type": "Density Estimation",
       "hyper_parameters": {
@@ -12220,9 +12229,11 @@
     },
     {
       "name": "Bernoulli restricted Boltzmann machines",
-      "other_names": ["Bernoulli RBM"],
+      "other_names": [
+        "Bernoulli RBM"
+      ],
       "implementation": {
-        "scikit-learn": "sklearn.neural_network.BernoulliRBM"
+        "scikit-learn": "sklearn.neural_network.rbm.BernoulliRBM"
       },
       "type": "Unsupervised Neural Network Model",
       "hyper_parameters": {
