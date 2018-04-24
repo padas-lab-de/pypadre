@@ -56,8 +56,8 @@ class Visitor(abc.ABC):
     def applyVisitor(object, result, template, path):
         """
         Applies the Visitor to the object depending on the type of template and stores the result in the result variable:
-        - dict: the DictExperimentVisitor will be applied to the object using that dict as template
-        - tuple: the TupleExperimentVisitor will be applied to the object using that tuple as template
+        - dict: the DictVisitor will be applied to the object using that dict as template
+        - tuple: the TupleVisitor will be applied to the object using that tuple as template
         - str: the value of the object will be stored in the result dict using the value of the string as path in the result dict
         - callable: the template will get called with the object and a reference to the result-dictionary as arguments
         - None: no information will be extracted
