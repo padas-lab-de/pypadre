@@ -34,7 +34,7 @@ from time import time
 
 from padre.base import MetadataEntity, default_logger
 from padre.utils import _const
-from padre.visitors.scikit.scikitpipeline import SciKitVisitor
+from padre.visitors.scikit import SciKitVisitor
 import numpy as np
 ####################################################################################################################
 #  Module Private Functions and Classes

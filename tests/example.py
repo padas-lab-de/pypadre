@@ -1,6 +1,7 @@
 """
 This file shows an example on how to use the pypadre app.
 """
+from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment, Splitter
 import pprint
 
@@ -16,8 +17,15 @@ def create_test_pipeline():
 if __name__ == '__main__':
     from padre.app import pypadre
     pypadre.set_printer(print)
-    pypadre.datasets.list_datasets()
-    ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
+    # NOTE: Server MUST BE RUNNING!!! See Padre Server!
+    # Start PADRE Server and run
+    ds = None
+    try:
+        pypadre.datasets.list_datasets()
+        ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
+    except:
+        ds = [i for i in load_sklearn_toys()][2]
+
     print(ds)
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
