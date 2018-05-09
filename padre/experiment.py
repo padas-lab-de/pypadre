@@ -641,6 +641,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         sys_info["platform_version"] = platform.version()
         sys_info["node_name"] = platform.node()
         sys_info["python_version"] = platform.python_version()
+        self._metadata["sys_info"] = sys_info
 
     def _set_workflow(self, w):
         if _is_sklearn_pipeline(w):
