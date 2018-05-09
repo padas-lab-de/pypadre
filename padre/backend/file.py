@@ -136,8 +136,14 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
         with open(os.path.join(dir, "hyperparameter.json"), 'w') as f:
-            # todo experiment.hyperparameters() should deliver a json serialisable object.
-            f.write(self._metadata_serializer.serialise({"not_implemented_yet": "serialisation not realised yet"}))
+            params = experiment.hyperparameters()
+            for key in params:
+                # This writes all data present within the params to the JSON file
+                f.write(self._metadata_serializer.serialise((params[key])))
+
+                # This is to write only the hyper parameters of each run to the JSON file
+                #f.write(self._metadata_serializer.serialise((params[key]['hyper_parameters'])))
+
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment._workflow))
 

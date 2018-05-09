@@ -1,5 +1,6 @@
 from timer import TimeKeeper
 
+
 class TimeTester:
     def __init__(self, timer_priority):
         self._timekeeper = TimeKeeper(timer_priority)

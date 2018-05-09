@@ -8,6 +8,7 @@ DEFAULT_TIMER_DESCRIPTION = "default_timer"
 DEFAULT_TIMER_NAME = "default_timer"
 DEFAULT_TIMER_VALUE = 0
 
+
 class TimeKeeper:
     # This class creates a dictionary of timers.
     # It has a log timer function that would log each timer passed to it.

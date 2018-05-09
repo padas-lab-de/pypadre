@@ -36,6 +36,8 @@ from padre.base import MetadataEntity, default_logger
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
 import numpy as np
+import platform
+import types
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -233,6 +235,11 @@ class SKLearnWorkflow:
                 ctx.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
                                probabilities=None, scores=None,
                                transforms=None, clustering=None)
+                # log the probabilities of the result too
+                y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
+                ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
+                               truth=y, probabilities=y_predicted_probabilities,
+                               scores=None, transforms=None, clustering=None)
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y,)
                     ctx.log_score(ctx, keys=["test score"], values=[score])
@@ -623,8 +630,17 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._fill_sys_info()
 
     def _fill_sys_info(self):
-        # Todo implement gathering of system info and stroing it as metadata
-        self._metadata["sys_info"] = "Not implemented yet"
+        # TODO: Implement the gathering of system information as dynamic code
+        # TODO: Remove hard coded strings.
+        # This function collects all system related info in a dictionary
+        sys_info = dict()
+        sys_info["processor"] = platform.processor()
+        sys_info["machine"] = platform.machine()
+        sys_info["system"] = platform.system()
+        sys_info["platform"] = platform.platform()
+        sys_info["platform_version"] = platform.version()
+        sys_info["node_name"] = platform.node()
+        sys_info["python_version"] = platform.python_version()
 
     def _set_workflow(self, w):
         if _is_sklearn_pipeline(w):
@@ -669,8 +685,12 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # make it as close to the http implementation as possible
         params = dict()
         steps = self.configuration()[0]["steps"]
-        for step in steps:
-            params = dict(step)
+        # Params is a dictionary of hyper parameters where the key is the zero-indexed step number
+        # The traverse_dict function traverses the dictionary in a recursive fashion and replaces
+        # any instance of <class 'padre.visitors.parameter.Parameter'> type to a sub-dictionary of
+        # value and attribute. This allows the dictionary to be JSON serializable
+        for idx,step in enumerate(steps):
+            params["".join(["Step_",str(idx)])] = self.traverse_dict(dict(step))
         return params
 
     def set_hyperparameters(self, hyperparameters):
@@ -729,4 +749,28 @@ class Experiment(MetadataEntity, _LoggerMixin):
             return str(super())
         else:
             return "Experiment<"+";".join(s)+">"
+
+    def traverse_dict(self, dictionary=None):
+        # This function traverses a Nested dictionary structure such as the
+        # parameter dictionary obtained from hyperparameters()
+        # The aim of this function is to convert the param objects to
+        # JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
+        # is used to store the base values. This function changes the type to basic JSON
+        # serializable data types.
+        # TODO: Change the type checking into a more elegant way
+
+        target_type = str("<class 'padre.visitors.parameter.Parameter'>")
+        recursion_type = str("<class 'dict'>")
+        if dictionary is None:
+            return
+
+        for key in dictionary:
+            if str(type(dictionary[key])) == target_type:
+                dictionary[key] = {"value": dictionary[key].value,
+                                   "attributes": dictionary[key].attributes}
+
+            elif str(type(dictionary[key])) == recursion_type:
+                self.traverse_dict(dictionary[key])
+
+        return dictionary
 

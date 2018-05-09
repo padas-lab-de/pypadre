@@ -1,10 +1,12 @@
 from timer import TimeKeeper
 from TimeTester import TimeTester
+
+
 def main():
     # Using the argument Timekeeper.LOW_PRIORITY will log all the messages
     # that have a LOW_PRIORITY and above
-    # TimeKeeper.MED_PRIORITY will log only messages that have a medium priority
-    # or above.
+    # Similarly TimeKeeper.MED_PRIORITY will log only messages that have
+    # a medium priority or above.
     # Logging can be turned off by using TimeKeeper.NO_LOGGING
     timer_obj = TimeKeeper(TimeKeeper.LOW_PRIORITY)
     timer_obj.log_timer("test1",TimeKeeper.HIGH_PRIORITY,"Test 1 timer")
