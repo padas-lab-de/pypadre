@@ -212,23 +212,24 @@ class _LoggerMixin:
             # TODO: Pass description of time too if needed
             timer_name = str(self._id)
             timer_description = ''
-            if parameters['phase'] is not None:
-                timer_name = timer_name + str(parameters['phase'])
+            phase = parameters.get('phase',None)
+            if phase is not None:
+                timer_name = timer_name + str(phase)
 
-            if parameters['description'] is not None:
-                timer_description = parameters['description']
-            default_timer.start_timer(timer_name, timer_priorities.HIGH_PRIORITY)
+            timer_description = parameters.get('description',None)
+            default_timer.start_timer(timer_name, timer_priorities.HIGH_PRIORITY, timer_description)
         elif kind == exp_events.stop and source is not None:
-            if source in self._events:
-                #parameters["duration"] = time() - self._events[source]
-                # Creation of unique identifier to get back the time duration
-                timer_name = str(self._id)
-                if parameters['phase'] is not None:
-                    timer_name = timer_name + parameters['phase']
-                description, duration = default_timer.stop_timer(timer_name)
-                if description is not None:
-                    parameters['description'] = description
-                parameters['duration'] = duration
+            #if source in self._events:
+            #parameters["duration"] = time() - self._events[source]
+            # Creation of unique identifier to get back the time duration
+            timer_name = str(self._id)
+            phase = parameters.get('phase',None)
+            if phase is not None:
+                timer_name = timer_name + str(phase)
+            description, duration = default_timer.stop_timer(timer_name)
+            if description is not None:
+                parameters['description'] = description
+            parameters['duration'] = duration
 
         if self._stdout:
             default_logger.log(source, "%s: %s" % (str(kind),
