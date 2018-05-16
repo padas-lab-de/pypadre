@@ -35,7 +35,10 @@ from time import time
 from padre.base import MetadataEntity, default_logger
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
+import padre.visitors.parameter
 import numpy as np
+import platform
+import types
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -752,8 +755,18 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._fill_sys_info()
 
     def _fill_sys_info(self):
-        # Todo implement gathering of system info and stroing it as metadata
-        self._metadata["sys_info"] = "Not implemented yet"
+        # TODO: Implement the gathering of system information as dynamic code
+        # TODO: Remove hard coded strings.
+        # This function collects all system related info in a dictionary
+        sys_info = dict()
+        sys_info["processor"] = platform.processor()
+        sys_info["machine"] = platform.machine()
+        sys_info["system"] = platform.system()
+        sys_info["platform"] = platform.platform()
+        sys_info["platform_version"] = platform.version()
+        sys_info["node_name"] = platform.node()
+        sys_info["python_version"] = platform.python_version()
+        self._metadata["sys_info"] = sys_info
 
     def _set_workflow(self, w):
         if _is_sklearn_pipeline(w):
