@@ -811,8 +811,12 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # make it as close to the http implementation as possible
         params = dict()
         steps = self.configuration()[0]["steps"]
-        for step in steps:
-            params = dict(step)
+        # Params is a dictionary of hyper parameters where the key is the zero-indexed step number
+        # The traverse_dict function traverses the dictionary in a recursive fashion and replaces
+        # any instance of <class 'padre.visitors.parameter.Parameter'> type to a sub-dictionary of
+        # value and attribute. This allows the dictionary to be JSON serializable
+        for idx,step in enumerate(steps):
+            params["".join(["Step_",str(idx)])] = self.traverse_dict(dict(step))
         return params
 
     def set_hyperparameters(self, hyperparameters):
@@ -871,4 +875,27 @@ class Experiment(MetadataEntity, _LoggerMixin):
             return str(super())
         else:
             return "Experiment<"+";".join(s)+">"
+
+    def traverse_dict(self, dictionary=None):
+        # This function traverses a Nested dictionary structure such as the
+        # parameter dictionary obtained from hyperparameters()
+        # The aim of this function is to convert the param objects to
+        # JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
+        # is used to store the base values. This function changes the type to basic JSON
+        # serializable data types.
+
+        target_type = str("<class 'padre.visitors.parameter.Parameter'>")
+        recursion_type = str("<class 'dict'>")
+        if dictionary is None:
+            return
+
+        for key in dictionary:
+            if isinstance(dictionary[key], padre.visitors.parameter.Parameter):
+                dictionary[key] = {'value': dictionary[key].value,
+                                   'attributes': dictionary[key].attributes}
+
+            elif isinstance(dictionary[key], dict):
+                self.traverse_dict(dictionary[key])
+
+        return dictionary
 
