@@ -36,8 +36,6 @@ from padre.base import MetadataEntity, default_logger
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
 import numpy as np
-import platform
-import types
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -55,6 +53,109 @@ def _is_sklearn_pipeline(pipeline):
     """
     # we do checks via strings, not isinstance in order to avoid a dependency on sklearn
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
+
+
+class _timer_priorities(_const):
+    NO_LOGGING = 0
+    HIGH_PRIORITY = 1
+    MED_PRIORITY = 2
+    LOW_PRIORITY = 3
+
+
+class _timer_defaults(_const):
+    DEFAULT_PRIORITY = 3
+    DEFAULT_TIMER_DESCRIPTION = None
+    DEFAULT_TIMER_NAME = 'default_timer'
+    DEFAULT_TIME = 0
+
+
+timer_priorities = _timer_priorities
+timer_defaults = _timer_defaults
+
+class TimeKeeper:
+    # This class creates a dictionary of timers.
+    # It has a log timer function that would log each timer passed to it.
+    # If the timer name is already present in the dictionary, the timer is
+    # popped out and the execution time is calculated.
+
+    # Priorities of the timers are defined
+
+    def __init__(self, priority):
+        self._timers = dict()
+        self._priority = priority
+
+    def __del__(self):
+        if len(self._timers) > 0:
+            print("Error: The following Timers still present in the list")
+            for key in self._timers:
+                print(key)
+
+    def log_timer(self, timer_name=timer_defaults.DEFAULT_TIMER_NAME,
+                  priority=timer_defaults.DEFAULT_PRIORITY,
+                  description=timer_defaults.DEFAULT_TIMER_DESCRIPTION):
+        # If there is no timer by the name, add the timer to the dictionary
+        # Else pop out the timer, and check whether the priority of the timer is
+        # equal to or higher than the priority of the program.
+        # If it is, then print the description and timer
+        if self._timers.get(timer_name) is None:
+            new_timer = TimerContents(priority=priority,
+                                        description=description,
+                                        time=time())
+            self._timers[timer_name]=new_timer
+
+        else:
+            old_timer = self._timers.pop(timer_name,None)
+            if(old_timer.get_timer_priority() <= self._priority):
+                print(old_timer.get_description(),time()-old_timer.get_time(), sep=": ")
+
+    def start_timer(self, timer_name=timer_defaults.DEFAULT_TIMER_NAME,
+                  priority=timer_defaults.DEFAULT_PRIORITY,
+                  description=timer_defaults.DEFAULT_TIMER_DESCRIPTION):
+        if self._timers.get(timer_name) is None:
+            new_timer = TimerContents(priority=priority,
+                                  description=description,
+                                  time=time())
+            self._timers[timer_name] = new_timer
+
+        #else:
+            #print('Error')
+
+    def stop_timer(self, timer_name):
+        if timer_name is None:
+            #print('Error no timer name given')
+            return None
+
+        old_timer = self._timers.pop(timer_name, None)
+        if (old_timer.get_timer_priority() <= self._priority):
+            #print(old_timer.get_description(), time() - old_timer.get_time(), sep=": ")
+            return old_timer.get_description(), time() - old_timer.get_time()
+
+
+class TimerContents:
+    # This class contains the contents to be displayed and calculated,
+    # using the TimeKeeper Class.
+    # The class stores three values and there are three get attributes
+    # corresponding to each value. There is no set attribute and the values are
+    # initialized during object creation itself.
+
+    def __init__(self, priority=timer_defaults.DEFAULT_PRIORITY,
+                 description=timer_defaults.DEFAULT_TIMER_DESCRIPTION,
+                 time = timer_defaults.DEFAULT_TIME):
+        self._timer_desc = description
+        self._timer_priority = priority
+        self._time = time
+
+    def get_description(self):
+        return self._timer_desc
+
+    def get_time(self):
+        return self._time
+
+    def get_timer_priority(self):
+        return self._timer_priority
+# TODO: A better way of using the default timer
+# A static object shared throughout the instances of _LoggerMixin
+default_timer = TimeKeeper(timer_defaults.DEFAULT_PRIORITY)
 
 
 class _LoggerMixin:
@@ -104,10 +205,30 @@ class _LoggerMixin:
     def log_event(self, source, kind=None, **parameters):
         # todo signature not yet fixed. might change. unclear as of now
         if kind == exp_events.start and source is not None:
-            self._events[source] = time()
+            # self._events[source] = time()
+            # Create a unique id for the timer.
+            # Currently creating it by self._id + phase parameter
+            # TODO: A better way for creating identifiers for each phase
+            # TODO: Pass description of time too if needed
+            timer_name = str(self._id)
+            timer_description = ''
+            if parameters['phase'] is not None:
+                timer_name = timer_name + str(parameters['phase'])
+
+            if parameters['description'] is not None:
+                timer_description = parameters['description']
+            default_timer.start_timer(timer_name, timer_priorities.HIGH_PRIORITY)
         elif kind == exp_events.stop and source is not None:
             if source in self._events:
-                parameters["duration"] = time() - self._events[source]
+                #parameters["duration"] = time() - self._events[source]
+                # Creation of unique identifier to get back the time duration
+                timer_name = str(self._id)
+                if parameters['phase'] is not None:
+                    timer_name = timer_name + parameters['phase']
+                description, duration = default_timer.stop_timer(timer_name)
+                if description is not None:
+                    parameters['description'] = description
+                parameters['duration'] = duration
 
         if self._stdout:
             default_logger.log(source, "%s: %s" % (str(kind),
@@ -630,18 +751,8 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._fill_sys_info()
 
     def _fill_sys_info(self):
-        # TODO: Implement the gathering of system information as dynamic code
-        # TODO: Remove hard coded strings.
-        # This function collects all system related info in a dictionary
-        sys_info = dict()
-        sys_info["processor"] = platform.processor()
-        sys_info["machine"] = platform.machine()
-        sys_info["system"] = platform.system()
-        sys_info["platform"] = platform.platform()
-        sys_info["platform_version"] = platform.version()
-        sys_info["node_name"] = platform.node()
-        sys_info["python_version"] = platform.python_version()
-        self._metadata["sys_info"] = sys_info
+        # Todo implement gathering of system info and stroing it as metadata
+        self._metadata["sys_info"] = "Not implemented yet"
 
     def _set_workflow(self, w):
         if _is_sklearn_pipeline(w):
@@ -686,12 +797,8 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # make it as close to the http implementation as possible
         params = dict()
         steps = self.configuration()[0]["steps"]
-        # Params is a dictionary of hyper parameters where the key is the zero-indexed step number
-        # The traverse_dict function traverses the dictionary in a recursive fashion and replaces
-        # any instance of <class 'padre.visitors.parameter.Parameter'> type to a sub-dictionary of
-        # value and attribute. This allows the dictionary to be JSON serializable
-        for idx,step in enumerate(steps):
-            params["".join(["Step_",str(idx)])] = self.traverse_dict(dict(step))
+        for step in steps:
+            params = dict(step)
         return params
 
     def set_hyperparameters(self, hyperparameters):
@@ -750,28 +857,4 @@ class Experiment(MetadataEntity, _LoggerMixin):
             return str(super())
         else:
             return "Experiment<"+";".join(s)+">"
-
-    def traverse_dict(self, dictionary=None):
-        # This function traverses a Nested dictionary structure such as the
-        # parameter dictionary obtained from hyperparameters()
-        # The aim of this function is to convert the param objects to
-        # JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
-        # is used to store the base values. This function changes the type to basic JSON
-        # serializable data types.
-        # TODO: Change the type checking into a more elegant way
-
-        target_type = str("<class 'padre.visitors.parameter.Parameter'>")
-        recursion_type = str("<class 'dict'>")
-        if dictionary is None:
-            return
-
-        for key in dictionary:
-            if str(type(dictionary[key])) == target_type:
-                dictionary[key] = {"value": dictionary[key].value,
-                                   "attributes": dictionary[key].attributes}
-
-            elif str(type(dictionary[key])) == recursion_type:
-                self.traverse_dict(dictionary[key])
-
-        return dictionary
 
