@@ -23,6 +23,7 @@ class PadreLogger:
 default_logger = PadreLogger()
 ""
 
+
 class MetadataEntity:
     """
     Base object for entities that manage metadata. A MetadataEntity manages and id and a dict of metadata.
