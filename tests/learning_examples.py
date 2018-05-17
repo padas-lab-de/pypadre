@@ -1,15 +1,140 @@
 """
 This file tests the different learning methods and its parameters
 """
+import copy
 import pprint
 
-from sklearn import linear_model, decomposition
+import numpy as np
+from sklearn import linear_model, decomposition, manifold
 from sklearn.svm import SVC
 
 from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment
 
+# TODO: Method to log errors from outside the experiment class too
 
+# TODO: This should mapped dynamically
+# Default values of parameters are set here
+# Use method set_parameters to set parameter values after initialization
+workflow_dict = {'pca': decomposition.PCA(),
+                 'logistic': linear_model.LogisticRegression(),
+                 'SVC': SVC(probability=True),
+                 'LSA': decomposition.TruncatedSVD(n_components=2),
+                 'isomap':manifold.Isomap(n_neighbors=10, n_components=5)}
+
+# This contains the all the classifiers.
+classifier_list=(['SVC'])
+
+# All parameters of estimators are to be listed here
+# as a list under the key of the estimator name
+# The parameters will be entered as a list to the key
+# based on the estimator name
+parameters = {'SVC': ['probability'],
+              'LSA': ['n_components'],
+              'isomap':['n_neighbors','n_components']}
+
+
+# This function sets the parameters of the estimators and classifiers created
+# in the pipeline. The param_val_dict contains the name of the parameter and
+# the value to be set for that parameter
+# The parameters are looked up from the parameters dictionary
+# Parameters:
+# estimator: The estimator whose parameters have to be modified
+# estimator_name: The name of the estimator to look up whether,
+#                 the parameters are present in that estimator
+# param_val_dict: The dictionary containing the parameter names
+#                 and their values
+# Return Value: If successful, the modified estimator
+#               Else, None
+def set_parameters(estimator, estimator_name, param_val_dict):
+    if estimator is None:
+        print(estimator_name + ' does not exist in the workflow')
+        return None
+    available_params = parameters.get(estimator_name)
+    for param in param_val_dict:
+        if param not in available_params:
+            print(param + ' is not present for estimator ' + estimator_name)
+        else:
+            estimator.set_params(**{param: param_val_dict.get(param)})
+
+    return estimator
+
+
+# This function creates the pipeline for the experiment
+# The function looks up the name of the estimator passed and then
+# deep copies the estimator to the pipeline
+# Arguments:
+# estimator_list: A list of strings containing all estimators to be used
+#                 in the pipeline in exactly the order to be used
+# param_value_dict: This contains the parameters for each of the estimators used
+#                   The dict is a nested dictionary with the
+#                   outer-most key being the estimator name
+#                   The inner key is the parameter name
+# Return Value: If successful, the Pipeline
+#               Else None
+def create_test_pipeline(estimator_list, param_value_dict=None):
+    from sklearn.pipeline import Pipeline
+    estimators = []
+    for estimator_name in estimator_list:
+        if workflow_dict.get(estimator_name) is None:
+            print(estimator_name + ' not present in list')
+            return None
+
+        # Deep copy of the estimator because the estimator object is mutable
+        estimator = copy.deepcopy(workflow_dict.get(estimator_name))
+        estimators.append((estimator_name, estimator))
+        if param_value_dict is not None and \
+                param_value_dict.get(estimator_name) is not None:
+            set_parameters(estimator, estimator_name, param_value_dict.get(estimator_name))
+
+    return Pipeline(estimators)
+
+# Initialization of the experiments dict
+experiments_dict = dict()
+
+# This function adds an experiment to the dictionary
+# Parameters:
+# name: Name of the experiment. It should be unique for this set of experiments
+# description: The description of the experiment
+# dataset: The dataset to be used for the experiment
+# workflow: The scikit pipeline to be used for the experiment.
+# backend: The backend of the experiment
+def create_experiment(name, description,
+                      dataset, workflow,
+                      backend):
+    if name is None or description is None or \
+        dataset is None or workflow is None or backend is None:
+        print('Missing values in experiment')
+        return None
+
+    # Classifiers cannot work on continous data and rejected as experiments
+    if not np.all(np.mod(dataset.targets(),1) == 0):
+        for estimator in workflow.named_steps:
+            if estimator in classifier_list:
+                print('Estimator ' + estimator + ' cannot work on continous data')
+                return None
+
+    # Experiment name should be unique
+    if experiments_dict.get(name, None) is None:
+        data_dict = dict()
+        data_dict['description'] = description
+        data_dict['dataset'] = dataset
+        data_dict['workflow'] = workflow
+        data_dict['backend'] = backend
+        experiments_dict[name] = data_dict
+
+    else:
+        print('Error creating experiment')
+        if experiments_dict.get(name, None) is not None:
+            print('Experiment name: ', name, ' already present. Experiment name should be unique')
+
+
+# This function returns the dataset from pypadre
+# This done by using the pre-defined names of the datasets
+# Parameters:
+# name: The name of the dataset
+# Return_value: If successful, the dataset
+#               Else, None
 def get_local_dataset(name=None):
     local_dataset = ['Boston_House_Prices',
                      'Breast_Cancer',
@@ -25,75 +150,6 @@ def get_local_dataset(name=None):
     else:
         print(name + ' Local Dataset not found')
         return None
-
-
-# TODO: This should mapped dynamically
-# TODO: Parameters should be accepted to the workflow
-workflow_dict = {'pca': decomposition.PCA(),
-                 'logistic': linear_model.LogisticRegression(),
-                 'SVC': SVC(probability=True),
-                 'LSA': decomposition.TruncatedSVD(n_components=2)}
-
-parameters = {'SVC': ['probability'],
-              'LSA': ['n_components']}
-
-
-# This function sets the parameters of the estimators and classifiers created
-# in the pipeline. The param_val_dict contains the name of the parameter and
-# the value to be set for that parameter
-# The parameters are looked up from the parameters dictionary
-def set_parameters(estimator, estimator_name, param_val_dict):
-    if estimator is None:
-        print(estimator_name + ' does not exist in the workflow')
-        return None
-    available_params = parameters.get(estimator_name)
-    for param in param_val_dict:
-        if param not in available_params:
-            print(param + ' is not present for estimator ' + estimator_name)
-        else:
-            estimator.set_params(**{param: param_val_dict.get(param)})
-
-    return estimator
-
-
-def create_test_pipeline(estimator_list, param_value_dict=None):
-    from sklearn.pipeline import Pipeline
-    estimators = []
-    # estimators=[('pca', decomposition.PCA()), ('logistic', linear_model.LogisticRegression())]
-    for estimator_name in estimator_list:
-        if workflow_dict.get(estimator_name) is None:
-            print(estimator_name + ' not present in list')
-            return None
-        estimator = workflow_dict.get(estimator_name)
-        estimators.append((estimator_name, estimator))
-        if param_value_dict is not None and \
-                param_value_dict.get(estimator_name) is not None:
-            set_parameters(estimator, estimator_name, param_value_dict.get(estimator_name))
-
-    return Pipeline(estimators)
-
-
-experiments_dict = dict()
-
-
-def create_experiment(name, description,
-                      dataset, workflow,
-                      backend):
-    # Experiment name should be unique
-    if experiments_dict.get(name, None) is None and \
-        not(name is None or description is None or dataset is None
-            or workflow is None or backend is None):
-        data_dict = dict()
-        data_dict['description'] = description
-        data_dict['dataset'] = dataset
-        data_dict['workflow'] = workflow
-        data_dict['backend'] = backend
-        experiments_dict[name] = data_dict
-
-    else:
-        print('Error creating experiment')
-        if experiments_dict.get(name, None) is not None:
-            print('Experiment name: ', name, ' already present. Experiment name should be unique')
 
 
 def main():
@@ -134,8 +190,17 @@ def main():
                       dataset=get_local_dataset('Diabetes'), workflow=workflow,
                       backend=pypadre.file_repository.experiments)
 
-    # Testing missing parameters when initializing the Experiment class
+    workflow = create_test_pipeline((['isomap']))
+    create_experiment(name='Experiment4', description='This is the fourth test experiment',
+                      dataset=get_local_dataset('Diabetes'), workflow=workflow,
+                      backend=pypadre.file_repository.experiments)
+    params = {'n_neighbors':10, 'n_components':5}
+    param_value_dict = {'isomap': params}
+    create_experiment(name='Experiment5', description='This is the fifth test experiment',
+                      dataset=get_local_dataset('Boston_house_price'), workflow=workflow,
+                      backend=pypadre.file_repository.experiments)
 
+    # Testing missing parameters when initializing the Experiment class
     # Missing name
     workflow = create_test_pipeline(['LSA'])
     create_experiment(name=None, description='This is the third test experiment',
@@ -151,20 +216,25 @@ def main():
     # Missing dataset
     workflow = create_test_pipeline(['LSA'])
     create_experiment(name='Error3', description='This experiment is missing the dataset',
-                      dataset=get_local_dataset('MISSING'), workflow=workflow,
+                      dataset=get_local_dataset('Missing_dataset'), workflow=workflow,
                       backend=pypadre.file_repository.experiments)
 
     # Missing workflow
-    workflow = create_test_pipeline(['ERROR'])
+    workflow = create_test_pipeline(['Wrong_classifier'])
     create_experiment(name='Error4 ', description='This experiment is missing a workflow',
                       dataset=get_local_dataset('Diabetes'), workflow=workflow,
                       backend=pypadre.file_repository.experiments)
 
     # Missing backend
     workflow = create_test_pipeline(['LSA'])
-    create_experiment(name='Error1 ', description='This experiment is missing a workflow',
+    create_experiment(name='Error5 ', description='This experiment is missing a workflow',
                       dataset=get_local_dataset('Diabetes'), workflow=workflow,
                       backend=None)
+
+    workflow = create_test_pipeline((['SVC']))
+    create_experiment(name='Error6', description='This experiment has a classifier/dataset mismatch',
+                      dataset=get_local_dataset('Boston_House_Prices'), workflow=workflow,
+                      backend=pypadre.file_repository.experiments)
 
     # Run all the experiments in the list
     for experiment in experiments_dict:
