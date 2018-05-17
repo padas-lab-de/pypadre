@@ -27,18 +27,20 @@ Ideally, the following piece of code realises a workflow
 
 todo: we can put a user specific context in the `my_config_dict` which can be then accessed through `_context`
 """
+import platform
 # todo overthink the logger architecture. Maybe the storage should be handled with the exxperiment, and not within
 # a particular logger class. so the Experiment could be used to access splits later on and to reproduce
 # individual steps.
 from time import time
 
+import numpy as np
+
+import padre.visitors.parameter
 from padre.base import MetadataEntity, default_logger
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
-import padre.visitors.parameter
-import numpy as np
-import platform
-import types
+
+
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -360,11 +362,12 @@ class SKLearnWorkflow:
                 ctx.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
                                probabilities=None, scores=None,
                                transforms=None, clustering=None)
-                # log the probabilities of the result too
-                y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
-                ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
-                               truth=y, probabilities=y_predicted_probabilities,
-                               scores=None, transforms=None, clustering=None)
+                # log the probabilities of the result too if the method is present
+                if 'predict_proba' in dir(self._pipeline.steps[-1][1]):
+                    y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
+                    ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
+                                   truth=y, probabilities=y_predicted_probabilities,
+                                   scores=None, transforms=None, clustering=None)
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y,)
                     ctx.log_score(ctx, keys=["test score"], values=[score])
