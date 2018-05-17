@@ -1,7 +1,9 @@
-'''
+"""
 This file runs a digits classification based on the dataset
 present in scikit-learn datasets.
-'''
+This tests the PCA data transformation and LogisticRegression functions
+The example is taken from <http://scikit-learn.org/stable/auto_examples/plot_digits_pipe.html#sphx-glr-auto-examples-plot-digits-pipe-py>
+"""
 import pprint
 
 from padre.ds_import import load_sklearn_toys
@@ -10,8 +12,9 @@ from padre.experiment import Experiment
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
-    from sklearn import svm
-    estimators = [('clf', svm.SVC(probability=True, gamma=0.001))]
+    from sklearn import linear_model, decomposition
+    #estimators = [('clf', svm.SVC(probability=True, gamma=0.001))]
+    estimators=[('pca', decomposition.PCA()), ('logistic', linear_model.LogisticRegression())]
     return Pipeline(estimators)
 
 def main():
@@ -27,7 +30,7 @@ def main():
         pypadre.datasets.list_datasets()
         ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
-        ds = [i for i in load_sklearn_toys()][3]
+        ds = [i for i in load_sklearn_toys()][2]
 
     print(ds)
     ex = Experiment(name="Digits Recognition",
