@@ -6,7 +6,7 @@ import pprint
 
 import numpy as np
 from sklearn import linear_model, decomposition, manifold
-from sklearn.svm import SVC
+from sklearn.svm import SVC, SVR
 
 from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment
@@ -20,8 +20,11 @@ workflow_dict = {'pca': decomposition.PCA(),
                  'logistic': linear_model.LogisticRegression(),
                  'SVC': SVC(probability=True),
                  'LSA': decomposition.TruncatedSVD(n_components=2),
-                 'isomap':manifold.Isomap(n_neighbors=10, n_components=5)}
-
+                 'isomap':manifold.Isomap(n_neighbors=10, n_components=5),
+                 'lle':manifold.LocallyLinearEmbedding(n_neighbors=10, n_components=5,
+                                                       method='standard'),
+                 'SVR': SVR(kernel='rbf', degree=4,
+                            gamma='auto',C=1.0)}
 # This contains the all the classifiers.
 classifier_list=(['SVC'])
 
@@ -31,7 +34,9 @@ classifier_list=(['SVC'])
 # based on the estimator name
 parameters = {'SVC': ['probability'],
               'LSA': ['n_components'],
-              'isomap':['n_neighbors','n_components']}
+              'isomap': ['n_neighbors', 'n_components'],
+              'lle': ['n_neighbors', 'n_components', 'method'],
+              'SVR': ['kernel', 'degree', 'gamma', 'C']}
 
 
 # This function sets the parameters of the estimators and classifiers created
@@ -89,8 +94,10 @@ def create_test_pipeline(estimator_list, param_value_dict=None):
 
     return Pipeline(estimators)
 
+
 # Initialization of the experiments dict
 experiments_dict = dict()
+
 
 # This function adds an experiment to the dictionary
 # Parameters:
@@ -103,12 +110,12 @@ def create_experiment(name, description,
                       dataset, workflow,
                       backend):
     if name is None or description is None or \
-        dataset is None or workflow is None or backend is None:
+       dataset is None or workflow is None or backend is None:
         print('Missing values in experiment')
         return None
 
     # Classifiers cannot work on continous data and rejected as experiments
-    if not np.all(np.mod(dataset.targets(),1) == 0):
+    if not np.all(np.mod(dataset.targets(), 1) == 0):
         for estimator in workflow.named_steps:
             if estimator in classifier_list:
                 print('Estimator ' + estimator + ' cannot work on continous data')
@@ -168,7 +175,7 @@ def main():
 
     # ex.report_results() # last step, but we can also look that up on the server
 
-    # Create a sample experiment
+    # Testing Support Vector Classification using default values
     workflow = create_test_pipeline(['SVC'])
     create_experiment(name='Experiment1', description='This is the first test experiment',
                       dataset=get_local_dataset('Breast_Cancer'), workflow=workflow,
@@ -181,26 +188,41 @@ def main():
                       backend=pypadre.file_repository.experiments)
 
     # Experiment using SVD in the pipeline
-    # setting parameters for estimator 'LSA'
+    # Setting parameters for estimator 'LSA'/Truncated SVD
     params = {'n_components': 5}
     param_value_dict = {'LSA': params}
     workflow = create_test_pipeline(['LSA'], param_value_dict)
-    #set_parameters(workflow,['LSA'],{'n_components':5})
     create_experiment(name='Experiment3', description='This is the third test experiment',
                       dataset=get_local_dataset('Diabetes'), workflow=workflow,
                       backend=pypadre.file_repository.experiments)
 
+    # Testing isometric mapping with default values
     workflow = create_test_pipeline((['isomap']))
     create_experiment(name='Experiment4', description='This is the fourth test experiment',
                       dataset=get_local_dataset('Diabetes'), workflow=workflow,
                       backend=pypadre.file_repository.experiments)
-    params = {'n_neighbors':10, 'n_components':5}
+
+    # Testing setting parameters to isometric mapping
+    params = {'n_neighbors': 10, 'n_components': 5}
     param_value_dict = {'isomap': params}
     create_experiment(name='Experiment5', description='This is the fifth test experiment',
                       dataset=get_local_dataset('Boston_house_price'), workflow=workflow,
                       backend=pypadre.file_repository.experiments)
 
-    # Testing missing parameters when initializing the Experiment class
+    # Testing the combination of PCA and Local Linear Embedding
+    workflow = create_test_pipeline(['pca','lle'])
+    create_experiment(name='Experiment6', description='This is the sixth test experiment',
+                      dataset=get_local_dataset('Diabetes'), workflow=workflow,
+                      backend=pypadre.file_repository.experiments)
+
+    # Testing Support Vector Regression on the Diabetes dataset
+    workflow = create_test_pipeline(['SVR'])
+    create_experiment(name='Experiment7', description='This is the seventh test experiment',
+                      dataset=get_local_dataset('Diabetes'), workflow=workflow,
+                      backend=pypadre.file_repository.experiments)
+
+    # Testing missing parameters/error cases when initializing the Experiment class
+    # The aim of this is that, while running the experiment it should never crash
     # Missing name
     workflow = create_test_pipeline(['LSA'])
     create_experiment(name=None, description='This is the third test experiment',
@@ -231,11 +253,17 @@ def main():
                       dataset=get_local_dataset('Diabetes'), workflow=workflow,
                       backend=None)
 
-    workflow = create_test_pipeline((['SVC']))
+    # Applying a classifer on a continous dataset
+    workflow = create_test_pipeline(['SVC'])
     create_experiment(name='Error6', description='This experiment has a classifier/dataset mismatch',
                       dataset=get_local_dataset('Boston_House_Prices'), workflow=workflow,
                       backend=pypadre.file_repository.experiments)
 
+    # Applying a linear regressor and classifier
+    workflow = create_test_pipeline(['linear', 'SVC'])
+    create_experiment(name='Error7', description='This experiment has a regressor and classifier',
+                      dataset=get_local_dataset('iris'), workflow=workflow,
+                      backend=pypadre.file_repository.experiments)
     # Run all the experiments in the list
     for experiment in experiments_dict:
         ex = Experiment(name=experiment,
