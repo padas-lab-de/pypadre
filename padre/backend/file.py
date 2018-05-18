@@ -97,7 +97,7 @@ class ExperimentFileRepository:
         self._data_repository = data_repository
 
     def _dir(self, ex_id, run_id=None, split_num=None):
-        r = [ex_id+".ex"]
+        r = [str(ex_id)+".ex"]
         if run_id is not None:
             r.append(str(run_id)+".run")
             if split_num is not None:
