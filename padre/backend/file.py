@@ -199,6 +199,9 @@ class ExperimentFileRepository:
                 # This writes all data present within the params to the JSON file
                 f.write(self._metadata_serializer.serialise((params[key])))
 
+        with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
+            f.write(self._binary_serializer.serialise(experiment._workflow))
+
     def get_run(self, ex_id, run_id):
         """
         get the run with the particular id from the experiment.
