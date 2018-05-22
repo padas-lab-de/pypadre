@@ -588,10 +588,10 @@ class Split(MetadataEntity, _LoggerMixin):
     def run(self):
         return self._run
 
-    def execute(self):
+    def execute(self, workflow):
         self.log_start_split(self)
         # log run start here.
-        workflow = self._run.experiment.workflow
+        #workflow = self._run.experiment.workflow
         self.log_event(self, exp_events.start, phase=phases.fitting)
         workflow.fit(self)
         self.log_event(self, exp_events.stop, phase=phases.fitting)
@@ -700,8 +700,9 @@ class Run(MetadataEntity, _LoggerMixin):
     A run is a single instantiation of an experiment with a definitive set of parameters.
     According to the experiment setup the pipeline/workflow will be executed
     """
-    def __init__(self, experiment, **options):
+    def __init__(self, experiment, workflow, **options):
         self._experiment = experiment
+        self._workflow = workflow
         self._backend = experiment.backend
         self._stdout = experiment.stdout
         self._keep_splits = options.pop("keep_splits", False)
@@ -715,7 +716,7 @@ class Run(MetadataEntity, _LoggerMixin):
         splitting = Splitter(self._experiment.dataset, **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
             sp = Split(self, split, train_idx,  val_idx, test_idx, **self._metadata)
-            sp.execute()
+            sp.execute(self._workflow)
             if self._keep_splits:
                 self._splits.append(sp)
         self.log_stop_run(self)
@@ -903,7 +904,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # register experiment through logger
         self.log_start_experiment(self)
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
-        r = Run(self, **dict(self._metadata))
+        r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
         if self._keep_runs:
             self._runs.append(r)
