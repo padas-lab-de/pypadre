@@ -27,6 +27,7 @@ Ideally, the following piece of code realises a workflow
 
 todo: we can put a user specific context in the `my_config_dict` which can be then accessed through `_context`
 """
+import itertools
 import platform
 # todo overthink the logger architecture. Maybe the storage should be handled with the exxperiment, and not within
 # a particular logger class. so the Experiment could be used to access splits later on and to reproduce
@@ -591,7 +592,7 @@ class Split(MetadataEntity, _LoggerMixin):
     def execute(self, workflow):
         self.log_start_split(self)
         # log run start here.
-        #workflow = self._run.experiment.workflow
+        # workflow = self._run.experiment.workflow
         self.log_event(self, exp_events.start, phase=phases.fitting)
         workflow.fit(self)
         self.log_event(self, exp_events.stop, phase=phases.fitting)
@@ -874,7 +875,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # any instance of <class 'padre.visitors.parameter.Parameter'> type to a sub-dictionary of
         # value and attribute. This allows the dictionary to be JSON serializable
         for idx,step in enumerate(steps):
-            params["".join(["Step_",str(idx)])] = self.traverse_dict(dict(step))
+            params["".join(["Step_", str(idx)])] = self.traverse_dict(dict(step))
         return params
 
     def set_hyperparameters(self, hyperparameters):
@@ -910,6 +911,36 @@ class Experiment(MetadataEntity, _LoggerMixin):
             self._runs.append(r)
         self._last_run = r
         self.log_stop_experiment(self)
+
+    def grid_search(self, parameters):
+
+        # Generate every possible combination of the provided hyper parameters.
+        workflow = self._workflow
+        master_list = []
+        params_list = []
+        self.log_start_experiment(self)
+        for estimator in parameters:
+            param_dict = parameters.get(estimator)
+            for params in param_dict:
+                master_list.append(param_dict.get(params))
+                params_list.append(''.join([estimator,'.',params]))
+        grid = itertools.product(*master_list)
+
+        # For each tuple in the combination create a run
+        for element in grid:
+            # Get all the parameters to be used on set_param
+            for param, idx in zip(params_list,range(0,len(params_list))):
+                split_params = param.split(sep='.')
+                estimator = workflow._pipeline.named_steps.get(split_params[0])
+                estimator.set_params(**{split_params[1]:element[idx]})
+
+            r = Run(self, workflow, **dict(self._metadata))
+            r.do_splits()
+            if self._keep_runs:
+                self._runs.append(r)
+            self._last_run = r
+        self.log_stop_experiment(self)
+
 
     @property
     def runs(self):
