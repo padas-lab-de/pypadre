@@ -913,6 +913,12 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self.log_stop_experiment(self)
 
     def grid_search(self, parameters):
+        '''
+        This function searches a grid of the parameter combinations given into the function
+        :param parameters: A nested dictionary, where the outermost key is the estimator name and
+        the second level key is the parameter name, and the value is a list of possible parameters
+        :return: None
+        '''
 
         # Generate every possible combination of the provided hyper parameters.
         workflow = self._workflow

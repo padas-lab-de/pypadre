@@ -193,6 +193,12 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
+        with open(os.path.join(dir, "hyperparameter.json"), 'w') as f:
+            params = experiment.hyperparameters()
+            for key in params:
+                # This writes all data present within the params to the JSON file
+                f.write(self._metadata_serializer.serialise((params[key])))
+
     def get_run(self, ex_id, run_id):
         """
         get the run with the particular id from the experiment.
