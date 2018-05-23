@@ -54,7 +54,7 @@ class experimentHelper:
 
         self._classifiers = (['SVC'])
 
-        self._parameters = {'SVC': ['probability'],
+        self._parameters = {'SVC': ['probability','C', 'degree'],
                             'LSA': ['n_components'],
                             'isomap': ['n_neighbors', 'n_components'],
                             'lle': ['n_neighbors', 'n_components', 'method'],
@@ -221,7 +221,7 @@ class experimentHelper:
 def main():
     from padre.app import pypadre
     pypadre.set_printer(print)
-
+    experiment_param_dict = dict()
     # Experiment using SVD in the pipeline
     # Setting parameters for estimator 'LSA'/Truncated SVD
     experiment_helper = experimentHelper()
@@ -234,6 +234,30 @@ def main():
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
 
+    experiment_param_dict['Grid_search_experiment_1'] = copy.deepcopy(param_value_dict)
+
+    params_isomap = {'n_neighbors': [2, 8, 10], 'n_components': [3, 7]}
+    params_pca= {'n_components': [4, 5]}
+    param_value_dict['isomap'] = params_isomap
+    param_value_dict['pca'] = params_pca
+    experiment_param_dict['Grid_search_experiment_2'] = copy.deepcopy(param_value_dict)
+    workflow = experiment_helper.create_test_pipeline(['pca', 'isomap'])
+    experiment_helper.create_experiment(name='Grid_search_experiment_2',
+                                        description='This is the second grid search test experiment',
+                                        dataset=experiment_helper.get_local_dataset('Boston_House_Prices'),
+                                        workflow=workflow,
+                                        backend=pypadre.file_repository.experiments)
+    params_svc = {'C':[0.5, 1.0, 1.5],
+                  'degree':[1,2,3,4]}
+    params_ = {'SVC':params_svc}
+    workflow = experiment_helper.create_test_pipeline(['SVC'])
+    experiment_param_dict['Grid_search_experiment_3'] = copy.deepcopy(params_)
+    experiment_helper.create_experiment(name='Grid_search_experiment_3',
+                                        description='Grid search experiment with SVC',
+                                        dataset=experiment_helper.get_local_dataset('Iris'),
+                                        workflow=workflow,
+                                        backend=pypadre.file_repository.experiments
+                                        )
     experiments_dict = experiment_helper.experiments
     # Run all the experiments in the list
     for experiment in experiments_dict:
@@ -244,7 +268,7 @@ def main():
                         backend=experiments_dict.get(experiment).get('backend', None))
         conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
         pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-        ex.grid_search(parameters=param_value_dict)  # run the experiment and report
+        ex.grid_search(parameters=experiment_param_dict.get(experiment))  # run the experiment and report
 
 
 if __name__ == '__main__':

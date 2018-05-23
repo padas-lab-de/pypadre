@@ -11,6 +11,7 @@ import shutil
 import uuid
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
+from padre.base import result_logger
 from padre.datasets import Dataset, Attribute
 from padre.experiment import Experiment
 
@@ -190,6 +191,10 @@ class ExperimentFileRepository:
         if os.path.exists(dir):
             shutil.rmtree(dir)
         os.mkdir(dir)
+
+        # Set the directory for logging
+        result_logger.set_log_directory(os.path.join(self.root_dir, *self._dir(experiment.id, run.id)))
+
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
