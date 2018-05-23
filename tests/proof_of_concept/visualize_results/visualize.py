@@ -2,86 +2,126 @@ import copy
 import json
 import os
 
-import matplotlib.pyplot
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import metrics
 
 
-class VisualizeResults():
+class VisualizeResults:
     """
     This class visualizes the results of experiments or between different runs of the same experiment
     """
 
-    def __init__(self, path_to_run1, path_to_run2):
+    def __init__(self, path_list=None):
         """
         This class initializes a single visualization instance between two runs
-        :param path_to_run1: The os path to the results file of the first run
-        :param path_to_run2: The os path to the results file of the second run
+        :param path_list: The os path of the various files that are to be visualized as a list of strings
         """
-        self._path1 = path_to_run1
-        self._path2 = path_to_run2
+        self._mean_squared_error = []
+        self._data = []
+        self._path_list = copy.deepcopy(path_list)
+        self._read_paths = []
+
+    def read_directory(self, dir_path=None):
+        """
+        This function reads all predefined results.json files across multiple runs in an experiment
+        :param dir_path: The directory path of the experiment
+        :return:
+        """
+        if not os.path.exists(dir_path):
+            return None
+
+        dir_list = self.get_immediate_subdirectories(dir_path)
+
+        for sub_directory in dir_list:
+            if os.path.exists(os.path.join(sub_directory, 'results.json')):
+                self._path_list.append(os.path.join(sub_directory,'results.json'))
+
+    def get_immediate_subdirectories(self, dir_path):
+        return [os.path.join(dir_path, name) for name in os.listdir(dir_path)
+                if os.path.isdir(os.path.join(dir_path, name))]
 
     def read_data(self):
         """
         This file loads the JSON serialized data into memory
         :return: None
         """
-        if os.path.exists(self._path1) and \
-           os.path.exists(self._path1):
+        for path in self._path_list:
+            if os.path.exists(path):
+                self._read_paths.append(path.split(sep='/')[-2][0:8])
+                with open(path, "r") as read_file:
+                    data_1 = json.load(read_file)
+                    self._data.append(data_1)
 
-            with open(self._path1, "r") as read_file:
-                self._data_1 = json.load(read_file)
-
-            with open(self._path2, "r") as read_file:
-                self._data_2 = json.load(read_file)
-
-        else:
-            print('File does not exist, check the input paths')
+            else:
+                print('File ', path, ' does not exist, check the input paths')
 
     def get_confusion_matrix(self):
         """
         This function finds the confusion matrix from the predicted and truth values
         :return: None
         """
-        #self._confusion_matrix = metrics.confusion_matrix(y_true=a,
-        #                                                  y_pred=b)
+        colors = iter(cm.rainbow(np.linspace(0, 1, len(self._data))))
+        for json_data in self._data:
+            y_true = copy.deepcopy(json_data.get('truth', None))
+            y_pred = copy.deepcopy(json_data.get('predicted', None))
+            self._confusion_matrix = metrics.confusion_matrix(y_true=y_true,
+                                                              y_pred=y_pred)
+            print(self._confusion_matrix)
 
     def get_regression_metrics(self):
         """
         This function calculates the different regression metrics
         :return:
         """
-        y_true = copy.deepcopy(self._data_1.get('truth', None))
-        y_pred = copy.deepcopy(self._data_1.get('predicted', None))
+        colors = iter(cm.rainbow(np.linspace(0, 1, len(self._data))))
+        idx = 0
+        for json_data in self._data:
+            y_true = copy.deepcopy(json_data.get('truth', None))
+            y_pred = copy.deepcopy(json_data.get('predicted', None))
 
-        if y_true is not None and y_pred is not None:
-            self._mean_squared_error_data_1 = metrics.mean_squared_error(y_true=y_true,
-                                                                        y_pred=y_pred)
-            matplotlib.pyplot.scatter(y_true, np.asarray(np.subtract(y_true, y_pred)),
-                                      c="b")
-            print(self._mean_squared_error_data_1)
+            if y_true is not None and y_pred is not None:
+                self._mean_squared_error.append( metrics.mean_squared_error(y_true=y_true,
+                                                                            y_pred=y_pred))
+                color = next(colors)
+                _plt = plt.scatter(y_true, np.asarray(np.absolute(np.subtract(y_true, y_pred))),
+                                   color=color, label=self._read_paths[idx])
 
-        y_true = copy.deepcopy(self._data_2.get('truth', None))
-        y_pred = copy.deepcopy(self._data_2.get('predicted', None))
-        if y_true is not None and y_pred is not None:
-            self._mean_squared_error_data_2 = metrics.mean_squared_error(y_true=y_true,
-                                                                        y_pred=y_pred)
-            matplotlib.pyplot.scatter(y_true, np.asarray(np.subtract(y_true, y_pred)),
-                                      c="r")
-            print(self._mean_squared_error_data_2)
-        matplotlib.pyplot.show()
+            idx = idx + 1
+
+        plt.title('Absolute Error')
+        plt.ylabel('Absolute error in prediction')
+        plt.xlabel('Actual Value')
+        plt.legend(loc=1)
+        plt.show()
 
 
 
 
 
 def main():
+
+    # Hard coded paths for comparing between two runs
     path1 = '/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex/db1adfd0-5e70-11e8-b985-080027031794.run/results.json'
     path2 = '/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex/db1adfc4-5e70-11e8-b985-080027031794.run/results.json'
 
-    visualize = VisualizeResults(path1, path2)
-    visualize.read_data()
-    visualize.get_regression_metrics()
+    dir_path = '/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex'
+    path_list = []
+
+    # If path_list is not empty all files within the path_list is taken for visualization
+    visualize_regression = VisualizeResults(path_list)
+    visualize_regression.read_directory(dir_path=dir_path)
+    visualize_regression.read_data()
+    visualize_regression.get_regression_metrics()
+
+    path_classification = \
+        "/home/chris/.pypadre/experiments/Grid_search_experiment_3.ex/53bd15c0-5e86-11e8-b985-080027031794.run" \
+        "/results.json"
+    path_list.append(path_classification)
+    visualize_classification = VisualizeResults(path_list)
+    visualize_classification.read_data()
+    visualize_classification.get_confusion_matrix()
 
 
 

@@ -414,7 +414,9 @@ class SKLearnWorkflow:
                 # if possible, we will always write the "best" result type, i.e. which retains most information (
                 # if
                 y_predicted = self._pipeline.predict(ctx.test_features)
-                result_logger.log_result(dict(predicted=y_predicted.tolist(), truth=y.tolist()))
+                results = {'predicted': y_predicted.tolist(),
+                           'truth': y.tolist()}
+
                 ctx.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
                                probabilities=None, scores=None,
                                transforms=None, clustering=None)
@@ -424,11 +426,13 @@ class SKLearnWorkflow:
                     ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
                                    truth=y, probabilities=y_predicted_probabilities,
                                    scores=None, transforms=None, clustering=None)
-                    result_logger.log_result(dict(predicted_probabilities=y_predicted_probabilities.tolist(),
-                                                  truth=y.tolist()))
+                    results['probabilities'] = y_predicted_probabilities.tolist()
+
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y,)
                     ctx.log_score(ctx, keys=["test score"], values=[score])
+
+                result_logger.log_result(results)
 
     def is_inferencer(self):
         return getattr(self._pipeline, "predict", None)
