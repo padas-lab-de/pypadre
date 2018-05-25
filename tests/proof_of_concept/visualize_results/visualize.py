@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import string
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
@@ -62,8 +63,11 @@ class VisualizeResults:
         This function finds the confusion matrix from the predicted and truth values
         :return: None
         """
+        from math import floor
         total_error_matrix = np.empty(shape=[len(set(self._data[0]['truth'])), len(self._data)])
 
+        # Calculate the recall by going through the diagonal elements of the confusion matrix
+        # for each run in the self._data
         for json_data, row_idx in zip(self._data, range(0, len(self._data))):
             y_true = copy.deepcopy(json_data.get('truth', None))
             y_pred = copy.deepcopy(json_data.get('predicted', None))
@@ -73,19 +77,21 @@ class VisualizeResults:
             # total test vectors for each class
             total = np.asarray(np.sum(confusion_matrix, axis=0))
             err_val = []
+
+            # Calculate the recall TP/(TP + FN)
             for idx in range(len(np.asarray(confusion_matrix))):
                 err_val.append(np.asarray(confusion_matrix)[idx][idx]/total[idx])
                 total_error_matrix[idx][row_idx] = confusion_matrix[idx][idx]/total[idx]
 
         # Create a bar chart for each label in it.
-        idx = 0
+        idx = floor(len(total_error_matrix)/2) * -1
         width = 0.25
 
-        # Display a plot with precision grouped by classifier
+        # Display a plot with recall grouped by classifier
         ind = np.arange(len(total_error_matrix[0]))
         print(ind)
         rects = []
-        label_names = ('A', 'B', 'C')
+        label_names = list(string.ascii_uppercase)[0:total_error_matrix.shape[0]]
         fig = plt.figure()
         ax = fig.add_subplot(111)
         for row in total_error_matrix:
@@ -93,25 +99,42 @@ class VisualizeResults:
             rects.append(ax.bar(ind + width * idx, row, width))
             idx = idx + 1
 
-        ax.set_ylabel('Precision')
-        ax.set_title('Precision Scores grouped by Label')
+        ax.set_ylabel('Recall')
+        ax.set_title('Recall grouped by Label')
         ax.legend(rects, label_names)
+        ax.set_xlabel('Classifiers')
+        plt.tick_params(
+            axis='x',  # changes apply to the x-axis
+            which='both',  # both major and minor ticks are affected
+            bottom=False,  # ticks along the bottom edge are off
+            top=False,  # ticks along the top edge are off
+            labelbottom=False)  # labels along the bottom edge are off
         plt.show()
 
-        # Display a bar chart with precision grouped by labels
+        # Display a bar chart with recall grouped by labels
         fig_labels = plt.figure()
         ax_labels = fig_labels.add_subplot(111)
         rects_transposed = []
-        idx = 0
         total_error_matrix_transposed = np.transpose(total_error_matrix)
+        idx = floor(len(total_error_matrix_transposed)/2) * -1
         width = 0.075
         ind = np.arange(len(total_error_matrix_transposed[0]))
+        label_names = list(string.ascii_uppercase)[0:total_error_matrix_transposed.shape[0]]
+        print(label_names)
         for row in total_error_matrix_transposed:
             rects_transposed.append(ax_labels.bar(ind + width * idx, row, width))
             idx = idx + 1
-        ax_labels.set_ylabel('Precision')
-        ax_labels.set_title('Precision Scores grouped by classifier')
-        # ax_labels.legend(rects_transposed, label_names)
+        ax_labels.set_ylabel('Recall')
+        ax_labels.legend(rects, label_names)
+        ax_labels.set_title('Recall grouped by classifier')
+        ax_labels.set_xlabel('Labels')
+
+        plt.tick_params(
+            axis='x',  # changes apply to the x-axis
+            which='both',  # both major and minor ticks are affected
+            bottom=False,  # ticks along the bottom edge are off
+            top=False,  # ticks along the top edge are off
+            labelbottom=False)  # labels along the bottom edge are off
         plt.show()
 
     def get_regression_metrics(self):
@@ -121,6 +144,8 @@ class VisualizeResults:
         """
         colors = iter(cm.rainbow(np.linspace(0, 1, len(self._data))))
         idx = 0
+
+        # Calculate the mean squared error for each run in self._data
         for json_data in self._data:
             y_true = copy.deepcopy(json_data.get('truth', None))
             y_pred = copy.deepcopy(json_data.get('predicted', None))
@@ -161,7 +186,8 @@ def main():
         "/results.json"
     dir_path = '/home/chris/.pypadre/experiments/Grid_search_experiment_3.ex'
     path_list.append(path_classification)
-    visualize_classification = VisualizeResults(path_list)
+    # Empty path given to constructor because read_directory is called later on.
+    visualize_classification = VisualizeResults([])
     visualize_classification.read_directory(dir_path=dir_path)
     visualize_classification.read_data()
     visualize_classification.get_confusion_matrix()
