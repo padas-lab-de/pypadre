@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import string
+from tkinter import filedialog
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
@@ -21,7 +22,10 @@ class VisualizeResults:
         """
         self._mean_squared_error = []
         self._data = []
-        self._path_list = copy.deepcopy(path_list)
+        if path_list is not None:
+            self._path_list = copy.deepcopy(path_list)
+        else:
+            self._path_list = []
         self._read_paths = []
 
     def read_directory(self, dir_path=None):
@@ -100,7 +104,7 @@ class VisualizeResults:
             idx = idx + 1
 
         ax.set_ylabel('Recall')
-        ax.set_title('Recall grouped by Label')
+        ax.set_title('Recall grouped by Classifier')
         ax.legend(rects, label_names)
         ax.set_xlabel('Classifiers')
         plt.tick_params(
@@ -125,8 +129,8 @@ class VisualizeResults:
             rects_transposed.append(ax_labels.bar(ind + width * idx, row, width))
             idx = idx + 1
         ax_labels.set_ylabel('Recall')
-        ax_labels.legend(rects, label_names)
-        ax_labels.set_title('Recall grouped by classifier')
+        ax_labels.legend(rects_transposed, label_names)
+        ax_labels.set_title('Recall grouped by Label')
         ax_labels.set_xlabel('Labels')
 
         plt.tick_params(
@@ -168,26 +172,42 @@ class VisualizeResults:
 
 def main():
 
-    # Hard coded paths for comparing between two runs
-    path1 = '/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex/db1adfd0-5e70-11e8-b985-080027031794.run/results.json'
-    path2 = '/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex/db1adfc4-5e70-11e8-b985-080027031794.run/results.json'
+    # Hard coded paths for comparing between two runs.
+    # If this is to be used, these paths are to be passed to the constructor of
+    # the class VisualizeResults
+    path1 = "/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex/" \
+            "db1adfd0-5e70-11e8-b985-080027031794.run/results.json"
+    path2 = "/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex/" \
+            "db1adfc4-5e70-11e8-b985-080027031794.run/results.json"
 
     dir_path = '/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex'
-    path_list = []
+    dir_path = filedialog.askdirectory()
+    if not dir_path:
+        print('Directory of Regression Experiment not chosen.')
+        return
+    print (dir_path)
 
-    # If path_list is not empty all files within the path_list is taken for visualization
-    visualize_regression = VisualizeResults(path_list)
+    # If path_list is not empty all result files within the
+    # immediate sub directories path_list is taken for visualization
+    visualize_regression = VisualizeResults()
     visualize_regression.read_directory(dir_path=dir_path)
     visualize_regression.read_data()
     visualize_regression.get_regression_metrics()
 
+
+    # Hard coded strings for experiments defined in tests/grid_search.py
     path_classification = \
-        "/home/chris/.pypadre/experiments/Grid_search_experiment_3.ex/53bd15c0-5e86-11e8-b985-080027031794.run" \
+        "/home/chris/.pypadre/experiments/Grid_search_experiment_3.ex/" \
+        "53bd15c0-5e86-11e8-b985-080027031794.run" \
         "/results.json"
-    dir_path = '/home/chris/.pypadre/experiments/Grid_search_experiment_3.ex'
-    path_list.append(path_classification)
+    #dir_path = '/home/chris/.pypadre/experiments/Grid_search_experiment_3.ex'
+    dir_path = filedialog.askdirectory()
+    if not dir_path:
+        print('Directory for classification experiment not chosen.')
+        return
+
     # Empty path given to constructor because read_directory is called later on.
-    visualize_classification = VisualizeResults([])
+    visualize_classification = VisualizeResults()
     visualize_classification.read_directory(dir_path=dir_path)
     visualize_classification.read_data()
     visualize_classification.get_confusion_matrix()
