@@ -111,10 +111,8 @@ class VisualizeResults:
             idx = idx + 1
         ax_labels.set_ylabel('Precision')
         ax_labels.set_title('Precision Scores grouped by classifier')
-        #ax_labels.legend(rects_transposed, label_names)
+        # ax_labels.legend(rects_transposed, label_names)
         plt.show()
-
-
 
     def get_regression_metrics(self):
         """
@@ -129,7 +127,7 @@ class VisualizeResults:
 
             if y_true is not None and y_pred is not None:
                 self._mean_squared_error.append(metrics.mean_squared_error(y_true=y_true,
-                                                                            y_pred=y_pred))
+                                                                           y_pred=y_pred))
                 color = next(colors)
                 _plt = plt.scatter(y_true, np.asarray(np.absolute(np.subtract(y_true, y_pred))),
                                    color=color, label=self._read_paths[idx])
