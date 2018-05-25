@@ -78,7 +78,7 @@ class _timer_defaults(_const):
     DEFAULT_PRIORITY = 3
     DEFAULT_TIMER_DESCRIPTION = None
     DEFAULT_TIMER_NAME = 'default_timer'
-    DEFAULT_TIME = 0
+    DEFAULT_TIME = 0.0
 
 
 timer_priorities = _timer_priorities
@@ -138,18 +138,18 @@ class TimeKeeper:
         # If it is, then print the description and timer
         if self._timers.get(timer_name) is None:
             new_timer = TimerContents(priority=priority,
-                                        description=description,
-                                        time=time())
-            self._timers[timer_name]=new_timer
+                                      description=description,
+                                      curr_time=time())
+            self._timers[timer_name] = new_timer
 
         else:
-            old_timer = self._timers.pop(timer_name,None)
-            if(old_timer.get_timer_priority() <= self._priority):
-                return (old_timer.get_description(),time()-old_timer.get_time())
+            old_timer = self._timers.pop(timer_name, None)
+            if old_timer.get_timer_priority() <= self._priority:
+                return old_timer.get_description(), time()-old_timer.get_time()
 
     def start_timer(self, timer_name=timer_defaults.DEFAULT_TIMER_NAME,
-                  priority=timer_defaults.DEFAULT_PRIORITY,
-                  description=timer_defaults.DEFAULT_TIMER_DESCRIPTION):
+                    priority=timer_defaults.DEFAULT_PRIORITY,
+                    description=timer_defaults.DEFAULT_TIMER_DESCRIPTION):
         """
         Starts a unique timer with the key as timer_name
         :param timer_name: Unique name of the timer
@@ -159,8 +159,8 @@ class TimeKeeper:
         """
         if self._timers.get(timer_name) is None:
             new_timer = TimerContents(priority=priority,
-                                  description=description,
-                                  time=time())
+                                      description=description,
+                                      curr_time=time())
             self._timers[timer_name] = new_timer
 
     def stop_timer(self, timer_name):
@@ -189,17 +189,17 @@ class TimerContents:
 
     def __init__(self, priority=timer_defaults.DEFAULT_PRIORITY,
                  description=timer_defaults.DEFAULT_TIMER_DESCRIPTION,
-                 time = timer_defaults.DEFAULT_TIME):
+                 curr_time=timer_defaults.DEFAULT_TIME):
         """
         The initialization of the Timer class. All the arguments are given default values
         which are present in timer_defaults.
         :param priority: The priority of the timer.
         :param description: The description of the timer.
-        :param time: The time to start logging.
+        :param curr_time: The time to start logging.
         """
         self._timer_desc = description
         self._timer_priority = priority
-        self._time = time
+        self._time = curr_time
 
     @property
     def description(self):
@@ -212,6 +212,7 @@ class TimerContents:
     @property
     def priority(self):
         return self._timer_priority
+
 
 # TODO: A better way of using the default timer
 # A static object shared throughout the instances of _LoggerMixin
@@ -242,7 +243,6 @@ class _LoggerMixin:
             self._backend.put_experiment(experiment, allow_overwrite=self._overwrite)
         self.log_event(experiment, exp_events.start,  phase=phases.experiment)
 
-
     def log_stop_experiment(self, experiment):
         self.log_event(experiment, exp_events.stop,  phase=phases.experiment)
 
@@ -272,18 +272,18 @@ class _LoggerMixin:
             # TODO: Pass description of time too if needed
             timer_name = str(self._id)
             timer_description = ''
-            phase = parameters.get('phase',None)
+            phase = parameters.get('phase', None)
             if phase is not None:
                 timer_name = timer_name + str(phase)
 
-            timer_description = parameters.get('description',None)
+            timer_description = parameters.get('description', None)
             default_timer.start_timer(timer_name, timer_priorities.HIGH_PRIORITY, timer_description)
         elif kind == exp_events.stop and source is not None:
-            #if source in self._events:
-            #parameters["duration"] = time() - self._events[source]
+            # if source in self._events:
+            # parameters["duration"] = time() - self._events[source]
             # Creation of unique identifier to get back the time duration
             timer_name = str(self._id)
-            phase = parameters.get('phase',None)
+            phase = parameters.get('phase', None)
             if phase is not None:
                 timer_name = timer_name + str(phase)
             description, duration = default_timer.stop_timer(timer_name)
@@ -305,8 +305,8 @@ class _LoggerMixin:
     def log_stats(self, source, **parameters):
         # todo signature not yet fixed. might change. unclear as of now
         if self._stdout:
-            default_logger.log(source, "%s" % ("\t".join([str(k) + "=" + str(v) for k, v in parameters.items()]))
-                               ,self._padding(source))
+            default_logger.log(source, "%s" % ("\t".join([str(k) + "=" + str(v) for k, v in parameters.items()])),
+                               self._padding(source))
 
     def log_result(self, source, **parameters):
         # todo signature not yet fixed. might change. unclear as of now
@@ -346,10 +346,12 @@ class _Phases(_const):
     validating = "validating"
     inferencing = "inferencing/testing"
 
+
 """
 Enum for the different phases of an experiment
 """
 phases = _Phases()
+
 
 class _ExperimentEvents(_const):
 
@@ -361,6 +363,7 @@ class _ExperimentEvents(_const):
 Enum for the different phases of an experiment
 """
 exp_events = _ExperimentEvents()
+
 
 class SKLearnWorkflow:
     """
@@ -479,13 +482,16 @@ class Splitter:
     def __init__(self, ds, **options):
         self._dataset = ds
         self._num_examples = ds.size[0]
-        self._strategy = options.pop("strategy", "random")
+        self._strategy = options.pop("st"
+                                     ""
+                                     ""
+                                     "rategy", "random")
         default_logger.error(self._strategy == "random" or self._strategy == "cv", self,
                              f"Unknown splitting strategy {self._strategy}. Only 'cv' or 'random' allowed")
         self._test_ratio = options.pop("test_ratio", 0.25)
         default_logger.warn(self._test_ratio is None or (0.0 <= self._test_ratio <= 1.0), self,
                             f"Wrong ratio of test set provided {self._test_ratio}. Continuing with default=0")
-        self._val_ratio = options.pop("val_ratio",0)
+        self._val_ratio = options.pop("val_ratio", 0)
         default_logger.warn(self._val_ratio is None or (0.0 <= self._val_ratio <= 1.0), self,
                             f"Wrong ratio of evaluation set provided {self._val_ratio}. Continuing with default=0")
 
@@ -881,7 +887,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # The traverse_dict function traverses the dictionary in a recursive fashion and replaces
         # any instance of <class 'padre.visitors.parameter.Parameter'> type to a sub-dictionary of
         # value and attribute. This allows the dictionary to be JSON serializable
-        for idx,step in enumerate(steps):
+        for idx, step in enumerate(steps):
             params["".join(["Step_", str(idx)])] = self.traverse_dict(dict(step))
         return params
 
@@ -890,14 +896,6 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # Howver, in sklearn, the hyperparameters are defined via the pipeline. As long as
         # we do not integrate a second framework, we do not need the mechanism
         pass
-
-    @property
-    def workflow(self):
-        return self._workflow
-
-    @property
-    def dataset(self):
-        return self._dataset
 
     def run(self, append_runs: bool =False):
         """
@@ -919,13 +917,16 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._last_run = r
         self.log_stop_experiment(self)
 
-    def grid_search(self, parameters):
-        '''
+    def grid_search(self, parameters=None):
+        """
         This function searches a grid of the parameter combinations given into the function
         :param parameters: A nested dictionary, where the outermost key is the estimator name and
         the second level key is the parameter name, and the value is a list of possible parameters
         :return: None
-        '''
+        """
+        if parameters is None:
+            self.run()
+            return
 
         # Generate every possible combination of the provided hyper parameters.
         workflow = self._workflow
@@ -936,16 +937,16 @@ class Experiment(MetadataEntity, _LoggerMixin):
             param_dict = parameters.get(estimator)
             for params in param_dict:
                 master_list.append(param_dict.get(params))
-                params_list.append(''.join([estimator,'.',params]))
+                params_list.append(''.join([estimator, '.', params]))
         grid = itertools.product(*master_list)
 
         # For each tuple in the combination create a run
         for element in grid:
             # Get all the parameters to be used on set_param
-            for param, idx in zip(params_list,range(0,len(params_list))):
+            for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
-                estimator.set_params(**{split_params[1]:element[idx]})
+                estimator.set_params(**{split_params[1]: element[idx]})
 
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
@@ -953,7 +954,6 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 self._runs.append(r)
             self._last_run = r
         self.log_stop_experiment(self)
-
 
     @property
     def runs(self):
@@ -986,8 +986,6 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # is used to store the base values. This function changes the type to basic JSON
         # serializable data types.
 
-        target_type = str("<class 'padre.visitors.parameter.Parameter'>")
-        recursion_type = str("<class 'dict'>")
         if dictionary is None:
             return
 
