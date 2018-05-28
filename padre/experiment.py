@@ -949,6 +949,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         grid = itertools.product(*master_list)
 
         # For each tuple in the combination create a run
+        prev_estimator = ''
         for element in grid:
             run_name = ''
             # Get all the parameters to be used on set_param
@@ -956,8 +957,14 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 split_params = param.split(sep='.')
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
                 estimator.set_params(**{split_params[1]: element[idx]})
-                run_name = ''.join([run_name, split_params[0],'_', split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
 
+                if prev_estimator == split_params[0]:
+                    run_name = ''.join([run_name, split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
+                else:
+                    run_name = ''.join([run_name, '];', split_params[0],'[', split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
+                    prev_estimator = split_params[0]
+
+            run_name = run_name[2:] + ']'
             print (run_name)
             self._metadata['run_id'] = run_name
             r = Run(self, workflow, **dict(self._metadata))
