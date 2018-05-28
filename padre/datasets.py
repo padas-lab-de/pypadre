@@ -122,12 +122,16 @@ class AttributeOnlyContainer:
 
 class Attribute(object):
 
-    def __init__(self, name, measurement_level, unit=None, description=None, is_target=False):
+    def __init__(self, name, measurement_level, unit=None,
+                 description=None, is_target=False,data_type=None,number_missing_values=None):
         self.name = name
         self.measurement_level = measurement_level
         self.unit = unit
         self.description = description
         self.is_target = is_target
+
+        self.data_type=data_type
+        self.number_missing_values=number_missing_values
 
     def __str__(self):
         return self.name + "(" + self.measurement_level + ")"
