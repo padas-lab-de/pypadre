@@ -602,10 +602,10 @@ class Split(MetadataEntity, _LoggerMixin):
     def run(self):
         return self._run
 
-    def execute(self, workflow):
+    def execute(self):
         self.log_start_split(self)
         # log run start here.
-        # workflow = self._run.experiment.workflow
+        workflow = self._run.experiment.workflow
         self.log_event(self, exp_events.start, phase=phases.fitting)
         workflow.fit(self)
         self.log_event(self, exp_events.stop, phase=phases.fitting)
@@ -730,7 +730,7 @@ class Run(MetadataEntity, _LoggerMixin):
         splitting = Splitter(self._experiment.dataset, **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
             sp = Split(self, split, train_idx,  val_idx, test_idx, **self._metadata)
-            sp.execute(self._workflow)
+            sp.execute()
             if self._keep_splits:
                 self._splits.append(sp)
         self.log_stop_run(self)
@@ -896,6 +896,14 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # Howver, in sklearn, the hyperparameters are defined via the pipeline. As long as
         # we do not integrate a second framework, we do not need the mechanism
         pass
+
+    @property
+    def workflow(self):
+        return self._workflow
+
+    @property
+    def dataset(self):
+        return self._dataset
 
     def run(self, append_runs: bool =False):
         """

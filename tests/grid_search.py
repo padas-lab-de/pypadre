@@ -258,11 +258,11 @@ def main():
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments
                                         )
-
-    params_svr = {'C': [0.1, 0.2, 0.3, 0.5, 1.0, 1.5],
-                  'degree': [1, 2, 3, 4]}
-    params_dict_svr = {'SVR': params_svr}
-    workflow = experiment_helper.create_test_pipeline(['SVR'])
+    params_pca = {'n_components': [1, 2, 3, 4, 5, 6]}
+    params_svr = {'C': [0.5, 1.0, 1.5],
+                  'degree': [1, 2, 3]}
+    params_dict_svr = {'SVR': params_svr, 'pca': params_pca}
+    workflow = experiment_helper.create_test_pipeline(['pca', 'SVR'])
     experiment_param_dict['Grid_search_experiment_4'] = copy.deepcopy(params_dict_svr)
     experiment_helper.create_experiment(name='Grid_search_experiment_4',
                                         description='Grid search experiment with SVR',
@@ -270,6 +270,16 @@ def main():
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments
                                         )
+
+    workflow = experiment_helper.create_test_pipeline(['pca', 'logistic'])
+    params_logistic_pca = {'n_components': [4, 5, 6, 7, 10]}
+    params_dict_logistic = {'pca': params_logistic_pca}
+    experiment_param_dict['Grid_search_experiment_5'] = copy.deepcopy(params_dict_logistic)
+    experiment_helper.create_experiment(name='Grid_search_experiment_5',
+                                        description='Grid search experiment with logistic regression',
+                                        dataset=experiment_helper.get_local_dataset('Diabetes'),
+                                        workflow=workflow,
+                                        backend=pypadre.file_repository.experiments)
 
     experiments_dict = experiment_helper.experiments
     # Run all the experiments in the list
