@@ -958,12 +958,15 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
                 estimator.set_params(**{split_params[1]: element[idx]})
 
+                # If a new estimator is found,close the parameters of the previous estimator
+                # by adding '];' and add the new estimator name and '['
                 if prev_estimator == split_params[0]:
                     run_name = ''.join([run_name, split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
                 else:
                     run_name = ''.join([run_name, '];', split_params[0],'[', split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
                     prev_estimator = split_params[0]
 
+            # Remove the initial closing '];' and add the final closing ']'
             run_name = run_name[2:] + ']'
             print (run_name)
             self._metadata['run_id'] = run_name
