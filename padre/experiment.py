@@ -950,12 +950,16 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
         # For each tuple in the combination create a run
         for element in grid:
+            run_name = ''
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
                 estimator.set_params(**{split_params[1]: element[idx]})
+                run_name = ''.join([run_name, split_params[0],'_', split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
 
+            print (run_name)
+            self._metadata['run_id'] = run_name
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
             if self._keep_runs:
