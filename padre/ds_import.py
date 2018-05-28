@@ -64,7 +64,7 @@ def load_sklearn_toys():
         yield _create_dataset(loader[0](), loader[1][1])
 
 
-
+LEGAL_DATA_TYPES = ['nominal', 'numeric', 'string', 'date']
 
 def load_openML_dataset(url,datapath='~/.openml/cache',apikey="1f8766e1615225a727bdea12ad4c72fa"):
     #apikey is from useraccount markush.473@gmail.com
@@ -107,18 +107,23 @@ def load_openML_dataset(url,datapath='~/.openml/cache',apikey="1f8766e1615225a72
     dataset = Dataset(None, **meta)
 
 
-    data=load.get_data()
-
+    data = load.get_data()
     if(type(data) is not np.ndarray):
         try:
             data=data.toarray()
         except AttributeError as err:
             print("Invalid datatype of dataset! \nErrormessage: " + str(err))
             return None
+
     atts = []
-    for ix in range(0, data.shape[1]):
-        atts.append(Attribute(load.features[ix].name, None, None, None, load.features[ix].name is load.default_target_attribute,
-                              load.features[ix].data_type,load.features[ix].number_missing_values))
+
+    for ix in range(0, data.shape[1]+1):
+        if (load.features[ix].name == load.row_id_attribute):
+            continue
+
+        atts.append(Attribute(load.features[ix].name, None, None, None, load.features[ix].name == load.default_target_attribute,
+                              load.features[ix].data_type if (load.features[ix].data_type in LEGAL_DATA_TYPES) else None,
+                              load.features[ix].number_missing_values))
     dataset.set_data(data, atts)
     return dataset
 
