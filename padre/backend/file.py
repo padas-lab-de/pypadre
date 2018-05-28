@@ -192,9 +192,6 @@ class ExperimentFileRepository:
             shutil.rmtree(dir)
         os.mkdir(dir)
 
-        # Set the directory for logging
-        result_logger.set_log_directory(os.path.join(self.root_dir, *self._dir(experiment.id, run.id)))
-
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
@@ -248,6 +245,9 @@ class ExperimentFileRepository:
         os.mkdir(dir)
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
+
+        # Set the directory for logging
+        result_logger.set_log_directory(os.path.join(self.root_dir, *self._dir(experiment.id, run.id)))
 
     def get_split(self, ex_id, run_id, split_id):
         """
