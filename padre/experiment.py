@@ -404,7 +404,7 @@ class SKLearnWorkflow:
                     ctx.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.valset")
                     ctx.log_score(ctx, keys=["validation score"], values=[score])
 
-    def infer(self, ctx):
+    def infer(self, ctx, train_idx, test_idx):
         if self._step_wise:
             # step wise means going through every component individually and log their results / timing
             raise NotImplemented()
@@ -434,6 +434,9 @@ class SKLearnWorkflow:
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y,)
                     ctx.log_score(ctx, keys=["test score"], values=[score])
+
+                results['train_idx'] = train_idx
+                results['test_idx'] = test_idx
 
                 result_logger.log_result(results)
 
@@ -611,7 +614,7 @@ class Split(MetadataEntity, _LoggerMixin):
         self.log_event(self, exp_events.stop, phase=phases.fitting)
         if workflow.is_inferencer() and self.has_testset():
             self.log_event(self, exp_events.start, phase=phases.inferencing)
-            workflow.infer(self)
+            workflow.infer(self, self.train_idx.tolist(), self.test_idx.tolist())
             self.log_event(self, exp_events.stop, phase=phases.inferencing)
         self.log_stop_split(self)
 
@@ -949,9 +952,9 @@ class Experiment(MetadataEntity, _LoggerMixin):
         grid = itertools.product(*master_list)
 
         # For each tuple in the combination create a run
-        prev_estimator = ''
         for element in grid:
             run_name = ''
+            prev_estimator = ''
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')

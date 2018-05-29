@@ -247,7 +247,7 @@ class ExperimentFileRepository:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
         # Set the directory for logging
-        result_logger.set_log_directory(os.path.join(self.root_dir, *self._dir(experiment.id, run.id)))
+        result_logger.set_log_directory(dir)
 
     def get_split(self, ex_id, run_id, split_id):
         """
