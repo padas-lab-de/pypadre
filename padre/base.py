@@ -50,6 +50,17 @@ class ResultLogger:
         if dir is not None:
             self._log_dir = dir
 
+    def log_metrics(self,  metrics):
+        """
+        This function logs the classification metrics like
+        precision, recall, accuracy etc
+        :param metrics: The JSON serializable object containing the different metrics of that split
+        :return: None
+        """
+        import os
+        with open(os.path.join(self._log_dir, "metrics.json"), 'a') as f:
+            f.write(json.dumps(metrics))
+
 
 result_logger = ResultLogger()
 

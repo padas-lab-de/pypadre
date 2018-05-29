@@ -101,6 +101,7 @@ class TimeKeeper:
     MED_PRIORITY: Only timers with medium or higher priority are logged.
     LOW_PRIORITY: All timers are logged.
     """
+
     def __init__(self, priority):
         """
         This initializes the TimeKeeper class.
@@ -145,7 +146,7 @@ class TimeKeeper:
         else:
             old_timer = self._timers.pop(timer_name, None)
             if old_timer.get_timer_priority() <= self._priority:
-                return old_timer.get_description(), time()-old_timer.get_time()
+                return old_timer.get_description(), time() - old_timer.get_time()
 
     def start_timer(self, timer_name=timer_defaults.DEFAULT_TIMER_NAME,
                     priority=timer_defaults.DEFAULT_PRIORITY,
@@ -241,10 +242,10 @@ class _LoggerMixin:
         if self.has_backend():
             # todo overwrite solution not good. we need a mechanism to add runs
             self._backend.put_experiment(experiment, allow_overwrite=self._overwrite)
-        self.log_event(experiment, exp_events.start,  phase=phases.experiment)
+        self.log_event(experiment, exp_events.start, phase=phases.experiment)
 
     def log_stop_experiment(self, experiment):
-        self.log_event(experiment, exp_events.stop,  phase=phases.experiment)
+        self.log_event(experiment, exp_events.stop, phase=phases.experiment)
 
     def log_start_run(self, run):
         if self.has_backend():
@@ -252,15 +253,15 @@ class _LoggerMixin:
         self.log_event(run, exp_events.start, phase=phases.run)
 
     def log_stop_run(self, run):
-        self.log_event(run, exp_events.stop,  phase=phases.run)
+        self.log_event(run, exp_events.stop, phase=phases.run)
 
     def log_start_split(self, split):
         if self.has_backend():
             self._backend.put_split(split.run.experiment, split.run, split)
-        self.log_event(split, exp_events.start,  phase=phases.split)
+        self.log_event(split, exp_events.start, phase=phases.split)
 
     def log_stop_split(self, split):
-        self.log_event(split, exp_events.stop,  phase=phases.split)
+        self.log_event(split, exp_events.stop, phase=phases.split)
 
     def log_event(self, source, kind=None, **parameters):
         # todo signature not yet fixed. might change. unclear as of now
@@ -329,6 +330,7 @@ class _LoggerMixin:
     def backend(self, backend):
         self._backend = backend
 
+
 ####################################################################################################################
 #  API Functions
 ####################################################################################################################
@@ -338,7 +340,6 @@ class _LoggerMixin:
 #  API Classes
 ####################################################################################################################
 class _Phases(_const):
-
     experiment = "experiment"
     run = "run"
     split = "split"
@@ -354,7 +355,6 @@ phases = _Phases()
 
 
 class _ExperimentEvents(_const):
-
     start = "start"
     stop = "stop"
 
@@ -430,9 +430,15 @@ class SKLearnWorkflow:
                                    truth=y, probabilities=y_predicted_probabilities,
                                    scores=None, transforms=None, clustering=None)
                     results['probabilities'] = y_predicted_probabilities.tolist()
+                    metrics = dict()
+                    # Calculate the confusion matrix
+                    confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted.tolist(),
+                                                                     Truth=y.tolist())
+                    metrics['confusion_matrix'] = confusion_matrix
+                    result_logger.log_metrics(metrics=metrics)
 
                 if self.is_scorer():
-                    score = self._pipeline.score(ctx.test_features, y,)
+                    score = self._pipeline.score(ctx.test_features, y, )
                     ctx.log_score(ctx, keys=["test score"], values=[score])
 
                 results['train_idx'] = train_idx
@@ -451,6 +457,41 @@ class SKLearnWorkflow:
 
     def configuration(self):
         return SciKitVisitor(self._pipeline)
+
+    def compute_confusion_matrix(self, Predicted=None,
+                                 Truth=None):
+        """
+        This function computes the confusionmatrix of a classification result.
+        This was done as a general purpose implementation of the confusion_matrix
+        :param Predicted: The predicted values of the confusion matrix
+        :param Truth: The truth values of the confusion matrix
+        :return: The confusion matrix
+        """
+        import copy
+        if Predicted is None or Truth is None or \
+                len(Predicted) != len(Truth):
+            return None
+
+        # Get the number of labels from the predicted and truth set
+        label_count = len(set(Predicted).union(set(Truth)))
+        confusion_matrix = np.zeros(shape=(label_count, label_count), dtype=int)
+        # If the labels given do not start from 0 and go up to the label_count - 1,
+        # a mapping function has to be created to map the label to the corresponding indices
+        if (min(Predicted) != 0 and min(Truth) != 0) or \
+                (max(Truth) != label_count - 1 and max(Predicted) != label_count - 1):
+            labels = list(set(Predicted).union(set(Truth)))
+            for idx in range(0, len(Truth)):
+                row_idx = int(labels.index(Predicted[idx]))
+                col_idx = int(labels.index(Truth[idx]))
+                confusion_matrix[row_idx][col_idx] += 1
+
+        else:
+
+            # Iterate through the array and update the confusion matrix
+            for idx in range(0, len(Truth)):
+                confusion_matrix[int(Predicted[idx])][int(Truth[idx])] += 1
+
+        return copy.deepcopy(confusion_matrix.tolist())
 
 
 class Splitter:
@@ -482,6 +523,7 @@ class Splitter:
      - fn                      function of the form fn(dataset, **options) that returns a iterator over
                                (train, validation, test) tuples (the form is similar to the indices parameter) as split
     """
+
     def __init__(self, ds, **options):
         self._dataset = ds
         self._num_examples = ds.size[0]
@@ -551,7 +593,7 @@ class Splitter:
                 # for i in range(self._n_folds):
                 if not self._no_shuffle:  # Reshuffle every "fold"
                     r.shuffle(idx)
-                n_tr = int(n * (1.0-self._test_ratio))
+                n_tr = int(n * (1.0 - self._test_ratio))
                 train, test = idx[:n_tr], idx[n_tr:]
                 if self._val_ratio > 0:  # create a validation set out of the test set
                     n_v = int(len(train) * self._val_ratio)
@@ -560,14 +602,14 @@ class Splitter:
                     yield train, test, None
             elif self._strategy == "cv":
                 for i in range(self._n_folds):
-                    n_te = i*int(n / self._n_folds)
+                    n_te = i * int(n / self._n_folds)
                     if i == self._n_folds - 1:
                         upper = []
-                        test = range(i*n_te, n)
+                        test = range(i * n_te, n)
                     else:
-                        upper = list(range(-n+(i+1)*n_te, 0, 1))
+                        upper = list(range(-n + (i + 1) * n_te, 0, 1))
                         test = range(i * n_te, (i + 1) * n_te)
-                    train, test = idx[list(range(i*n_te))+upper], idx[test]
+                    train, test = idx[list(range(i * n_te)) + upper], idx[test]
                     if self._val_ratio > 0:  # create a validation set out of the test set
                         n_v = int(len(train) * self._val_ratio)
                         yield train[:n_v], test, train[n_v:]
@@ -584,6 +626,7 @@ class Split(MetadataEntity, _LoggerMixin):
     A split is a single part of a run and the actual excution over parts of the dataset.
     According to the experiment setup the pipeline/workflow will be executed
     """
+
     def __init__(self, run, num, train_idx, val_idx, test_idx, **options):
         self._run = run
         self._num = num
@@ -709,7 +752,7 @@ class Split(MetadataEntity, _LoggerMixin):
         if len(s) == 0:
             return str(super())
         else:
-            return "Split<"+";".join(s)+">"
+            return "Split<" + ";".join(s) + ">"
 
 
 class Run(MetadataEntity, _LoggerMixin):
@@ -717,6 +760,7 @@ class Run(MetadataEntity, _LoggerMixin):
     A run is a single instantiation of an experiment with a definitive set of parameters.
     According to the experiment setup the pipeline/workflow will be executed
     """
+
     def __init__(self, experiment, workflow, **options):
         self._experiment = experiment
         self._workflow = workflow
@@ -732,7 +776,7 @@ class Run(MetadataEntity, _LoggerMixin):
         # instantiate the splitter here based on the splitting configuration in options
         splitting = Splitter(self._experiment.dataset, **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
-            sp = Split(self, split, train_idx,  val_idx, test_idx, **self._metadata)
+            sp = Split(self, split, train_idx, val_idx, test_idx, **self._metadata)
             sp.execute()
             if self._keep_splits:
                 self._splits.append(sp)
@@ -751,7 +795,7 @@ class Run(MetadataEntity, _LoggerMixin):
         if len(s) == 0:
             return str(super())
         else:
-            return "Run<"+";".join(s)+">"
+            return "Run<" + ";".join(s) + ">"
 
 
 class Experiment(MetadataEntity, _LoggerMixin):
@@ -811,6 +855,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
     - Searching Hyperparameter Space
 
     """
+
     def __init__(self,
                  **options):
         self._dataset = options.pop("dataset", None)
@@ -908,7 +953,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
     def dataset(self):
         return self._dataset
 
-    def run(self, append_runs: bool =False):
+    def run(self, append_runs: bool = False):
         """
         runs the experiment
         :param append_runs: If true, the runs will be appended if the experiment exists already.
@@ -966,12 +1011,13 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 if prev_estimator == split_params[0]:
                     run_name = ''.join([run_name, split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
                 else:
-                    run_name = ''.join([run_name, '];', split_params[0],'[', split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
+                    run_name = ''.join(
+                        [run_name, '];', split_params[0], '[', split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
                     prev_estimator = split_params[0]
 
             # Remove the initial closing '];' and add the final closing ']'
             run_name = run_name[2:] + ']'
-            print (run_name)
+            print(run_name)
             self._metadata['run_id'] = run_name
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
@@ -1001,7 +1047,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         if len(s) == 0:
             return str(super())
         else:
-            return "Experiment<"+";".join(s)+">"
+            return "Experiment<" + ";".join(s) + ">"
 
     def traverse_dict(self, dictionary=None):
         # This function traverses a Nested dictionary structure such as the
@@ -1023,4 +1069,3 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 self.traverse_dict(dictionary[key])
 
         return dictionary
-
