@@ -435,6 +435,9 @@ class SKLearnWorkflow:
                     confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted.tolist(),
                                                                      Truth=y.tolist())
                     metrics['confusion_matrix'] = confusion_matrix
+
+                    classification_metrics = self.compute_classification_metrics(confusion_matrix)
+                    metrics.update(classification_metrics)
                     result_logger.log_metrics(metrics=metrics)
 
                 if self.is_scorer():
@@ -492,6 +495,44 @@ class SKLearnWorkflow:
                 confusion_matrix[int(Predicted[idx])][int(Truth[idx])] += 1
 
         return copy.deepcopy(confusion_matrix.tolist())
+
+    def compute_classification_metrics(self, confusion_matrix=None):
+        """
+        This function calculates the classification metrics like precision,
+        recall, f-measure, accuracy etc
+        :param confusion_matrix: The confusion matrix of the classification
+        :return: Classification metrics as a dictionary
+        """
+        import copy
+        if confusion_matrix is None:
+            return None
+
+        classification_metrics = dict()
+        precision = np.zeros(shape=(len(confusion_matrix)))
+        recall = np.zeros(shape=(len(confusion_matrix)))
+        f1_measure = np.zeros(shape=(len(confusion_matrix)))
+        tp = 0
+        for idx in range(0,len(confusion_matrix)):
+            tp = tp + confusion_matrix[idx][idx]
+            curr_sum = sum(confusion_matrix[:][idx])
+            # Removes the 0/0 error
+            recall[idx] = np.divide(confusion_matrix[idx][idx], curr_sum + int(curr_sum == 0))
+            curr_sum = sum(confusion_matrix[idx][:])
+            precision[idx] = np.divide(confusion_matrix[idx][idx], curr_sum + int(curr_sum == 0))
+            if recall[idx] == 0 or precision[idx] == 0:
+                f1_measure[idx] = 0
+            else:
+                f1_measure[idx] = 2 / (1.0/ recall[idx] + 1.0 / precision[idx])
+
+        accuracy = tp / np.sum(confusion_matrix)
+        classification_metrics['recall'] = recall.tolist()
+        classification_metrics['precision'] = precision.tolist()
+        classification_metrics['accuracy'] = accuracy
+        classification_metrics['f1_score'] = f1_measure.tolist()
+
+        return copy.deepcopy(classification_metrics)
+
+
 
 
 class Splitter:
