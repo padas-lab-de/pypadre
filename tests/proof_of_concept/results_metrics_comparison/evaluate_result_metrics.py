@@ -216,8 +216,14 @@ class CompareMetrics:
         for item in self._metrics:
             data_dict = dict()
             data = self._metrics.get(item)
-            params = self._param_values.get('$'.join(item.split('$')[0:-1]))
-            data_dict['params'] = params
+            estimators_params = self._param_values.get('$'.join(item.split('$')[0:-1]))
+            #data_dict['params'] = estimators_params
+            for estimator in estimators_params:
+                params_list = estimators_params.get(estimator)
+                for param in params_list:
+                   data_dict['.'.join([estimator,param])] = params_list.get(param)
+                print(estimator)
+
             data_dict['accuracy'] = data.get('accuracy')
             display_dict[item] = copy.deepcopy(data_dict)
         data_frame = pd.DataFrame.from_dict(display_dict, orient='index')
@@ -230,7 +236,7 @@ def main():
     # Load the results folder
     dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
     # It could either be experiments in a directory or multiple experiments
-    dir_list = list
+    dir_list = list()
     dir_list.append(dir_path)
 
     metrics = CompareMetrics(dir_path=dir_list)
