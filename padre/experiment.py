@@ -423,6 +423,7 @@ class SKLearnWorkflow:
                 ctx.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
                                probabilities=None, scores=None,
                                transforms=None, clustering=None)
+                metrics = dict()
                 # log the probabilities of the result too if the method is present
                 if 'predict_proba' in dir(self._pipeline.steps[-1][1]):
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
@@ -430,7 +431,6 @@ class SKLearnWorkflow:
                                    truth=y, probabilities=y_predicted_probabilities,
                                    scores=None, transforms=None, clustering=None)
                     results['probabilities'] = y_predicted_probabilities.tolist()
-                    metrics = dict()
                     # Calculate the confusion matrix
                     confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted.tolist(),
                                                                      Truth=y.tolist())
@@ -438,8 +438,11 @@ class SKLearnWorkflow:
 
                     classification_metrics = self.compute_classification_metrics(confusion_matrix)
                     metrics.update(classification_metrics)
-                    result_logger.log_metrics(metrics=metrics)
 
+                else:
+                    metrics.update(self.computer_regression_metrics(predicted=y_predicted, truth=y))
+
+                result_logger.log_metrics(metrics=metrics)
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y, )
                     ctx.log_score(ctx, keys=["test score"], values=[score])
@@ -532,6 +535,16 @@ class SKLearnWorkflow:
 
         return copy.deepcopy(classification_metrics)
 
+    def computer_regression_metrics(self, predicted=None,
+                                    truth=None):
+        metrics_dict = dict()
+        error = truth - predicted
+        metrics_dict['mean_error'] = np.mean(error)
+        metrics_dict['mean_absolute_error'] = np.mean(abs(error))
+        metrics_dict['standard_deviation'] = np.std(error)
+        metrics_dict['max_absolute_error'] = np.max(abs(error))
+        metrics_dict['min_absolute_error'] = np.min(abs(error))
+        return metrics_dict
 
 
 

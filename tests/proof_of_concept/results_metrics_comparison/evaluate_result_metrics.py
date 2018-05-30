@@ -212,7 +212,6 @@ class CompareMetrics:
         """
         # The dictionary needs only the accuracy for now
         display_dict = dict()
-        print(self._unique_estimators)
         for item in self._metrics:
             data_dict = dict()
             data = self._metrics.get(item)
@@ -222,9 +221,13 @@ class CompareMetrics:
                 params_list = estimators_params.get(estimator)
                 for param in params_list:
                    data_dict['.'.join([estimator,param])] = params_list.get(param)
-                print(estimator)
 
-            data_dict['accuracy'] = data.get('accuracy')
+            if data.get('accuracy', None) is not None:
+                data_dict['accuracy'] = data.get('accuracy')
+            else:
+                for reg_metrics in data:
+                    data_dict[reg_metrics] = data.get(reg_metrics)
+
             display_dict[item] = copy.deepcopy(data_dict)
         data_frame = pd.DataFrame.from_dict(display_dict, orient='index')
         print(data_frame)
@@ -237,6 +240,8 @@ def main():
     dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
     # It could either be experiments in a directory or multiple experiments
     dir_list = list()
+    if len(dir_path) == 0:
+        return
     dir_list.append(dir_path)
 
     metrics = CompareMetrics(dir_path=dir_list)
