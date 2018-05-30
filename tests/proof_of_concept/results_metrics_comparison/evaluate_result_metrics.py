@@ -1,8 +1,12 @@
 import copy
+import json
 import os
 from tkinter import filedialog
 
-class CompareMetrics():
+import pandas as pd
+
+
+class CompareMetrics:
 
     def __init__(self, dir_path=None, file_path=None):
         """
@@ -18,6 +22,8 @@ class CompareMetrics():
 
         self._run_dir = []
         self._param_values = dict()
+        self._metrics = dict()
+        self._unique_estimators = dict()
 
     def get_immediate_subdirectories(self, dir_path):
         """
@@ -34,7 +40,8 @@ class CompareMetrics():
         :param run_dir: The path of the run directory
         :return: True: If it is valid, False otherwise
         """
-        # run_dir format: '/home/user_name/.pypadre/experiments/Grid_search_experiment_3.ex/SVC[C(0.5)degr(2)].run'
+        # run_dir format: '/home/user_name/.pypadre/experiments/Grid_search_experiment_3.ex/
+        # SVC[C(0.5)degr(2)].run'
         import re
         if not run_dir[-4:] == '.run':
             return False
@@ -49,6 +56,7 @@ class CompareMetrics():
 
     def read_run_directories(self):
         """
+        unique_estimators = dict()
         This function reads all the run directories and stores the names,
         for obtaining the parameters that changed
         :return: None
@@ -75,12 +83,11 @@ class CompareMetrics():
         Gets all the unique estimators and their parameters from the saved run directories
         :return: None
         """
-        estimators = dict()
         for curr_run in self._run_dir:
             # Get the param values for every run.
             # Every split within a run has the same params,
             # differing only by the testing and training rows
-            key = ':'.join(curr_run.split(sep='/')[-2:])
+            key = '$'.join(curr_run.split(sep='/')[-2:])
             value_dict = self.get_param_values(curr_run.split(sep='/')[-1][:-4])
             self._param_values[key] = value_dict
 
@@ -106,7 +113,6 @@ class CompareMetrics():
             estimator_dict[estimator_name] = copy.deepcopy(param_dict)
 
         return estimator_dict
-
 
     def get_params(self, estimator_params=None):
         """
@@ -145,9 +151,6 @@ class CompareMetrics():
         Gets all the unique estimators and their parameter names from the saved run directories
         :return: None
         """
-        # estimators = dict()
-        unique_estimators = dict()
-
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
         for curr_experiment in self._dir_path:
@@ -156,36 +159,78 @@ class CompareMetrics():
 
             run_dir_list = self.get_immediate_subdirectories(curr_experiment)
 
-            curr_params = dict()
+            curr_estimators = list
             # Check whether each path contains a .run
             # And then get the estimators and corresponding parameters of that experiment
             for run_dir in run_dir_list:
-                # run_dir format: '/home/user_name/.pypadre/experiments/Grid_search_experiment_3.ex/SVC[C(0.5)degr(2)].run'
+                # run_dir format: '/home/user_name/.pypadre/experiments/Grid_search_experiment_3.ex/
+                # SVC[C(0.5)degr(2)].run'
                 curr_estimators = self.get_params(run_dir[:-4].split('/')[-1])
                 break
 
             for estimator in curr_estimators:
                 # If the curr param is not present in the unique estimators then,
                 # add it to the unique_estimators dictionary
-                if unique_estimators.get(estimator, None) is None:
-                    unique_estimators[estimator] = copy.deepcopy(curr_estimators.get(estimator))
+                if self._unique_estimators.get(estimator, None) is None:
+                    self._unique_estimators[estimator] = copy.deepcopy(curr_estimators.get(estimator))
                 # Check whether all the parameters for that estimator are present
                 # If a new parameter is found, add it to the current known list
                 else:
-                    known_params = unique_estimators.get(estimator)
+                    known_params = self._unique_estimators.get(estimator)
                     curr_params = curr_estimators.get(estimator)
                     new_params = list(set(curr_params) - set(known_params))
                     if len(new_params) > 0:
                         known_params.append(new_params)
-                        unique_estimators[estimator] = copy.deepcopy(known_params)
-    
+                        self._unique_estimators[estimator] = copy.deepcopy(known_params)
+
+    def read_split_metrics(self):
+        """
+        Reads the metrics.json file from each of the runs
+        :return: None
+        """
+
+        for curr_run_dir in self._run_dir:
+            sub_directory_list = self.get_immediate_subdirectories(curr_run_dir)
+            for sub_directory in sub_directory_list:
+                if sub_directory[-6:] != '.split':
+                    continue
+                # Check if a metrics file and a results file is located within the split directory
+                if not os.path.exists(os.path.join(sub_directory, 'metrics.json')):
+                    continue
+
+                # read the json file into memory
+                with open(os.path.join(sub_directory, 'metrics.json'), "r") as read_file:
+                    data = json.load(read_file)
+                key = '$'.join(sub_directory[:-6].split(sep='/')[-3:])
+                print(key)
+                self._metrics[key] = data
+
+    def display_results(self):
+        """
+        Displays the collected data as a Pandas data frame
+        :return: None
+        """
+        # The dictionary needs only the accuracy for now
+        display_dict = dict()
+        print(self._unique_estimators)
+        for item in self._metrics:
+            data_dict = dict()
+            data = self._metrics.get(item)
+            params = self._param_values.get('$'.join(item.split('$')[0:-1]))
+            data_dict['params'] = params
+            data_dict['accuracy'] = data.get('accuracy')
+            display_dict[item] = copy.deepcopy(data_dict)
+        data_frame = pd.DataFrame.from_dict(display_dict, orient='index')
+        print(data_frame)
+        # train = pd.DataFrame.from_dict(self._metrics, orient='index')
+
 
 def main():
 
     # Load the results folder
-    dir_path = filedialog.askdirectory(initialdir = "~/.pypadre/experiments",title = "Select Experiment Directory")
+    dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
     # It could either be experiments in a directory or multiple experiments
-    dir_list = []
+    dir_list = list
     dir_list.append(dir_path)
 
     metrics = CompareMetrics(dir_path=dir_list)
@@ -194,8 +239,9 @@ def main():
     metrics.get_unique_estimators_parameter_names()
     metrics.get_estimators_parameter_values()
     # Read the JSON file objects from the .split folders
-
+    metrics.read_split_metrics()
     # Display the results using Pandas data frame
+    metrics.display_results()
 
 
 if __name__ == '__main__':
