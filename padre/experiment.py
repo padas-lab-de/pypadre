@@ -424,6 +424,7 @@ class SKLearnWorkflow:
                                probabilities=None, scores=None,
                                transforms=None, clustering=None)
                 metrics = dict()
+                metrics['dataset'] = ctx.dataset.name
                 # log the probabilities of the result too if the method is present
                 if 'predict_proba' in dir(self._pipeline.steps[-1][1]):
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
@@ -435,11 +436,13 @@ class SKLearnWorkflow:
                     confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted.tolist(),
                                                                      Truth=y.tolist())
                     metrics['confusion_matrix'] = confusion_matrix
+                    metrics['type'] = 'prediction'
 
                     classification_metrics = self.compute_classification_metrics(confusion_matrix)
                     metrics.update(classification_metrics)
 
                 else:
+                    metrics['type'] = 'regression'
                     metrics.update(self.computer_regression_metrics(predicted=y_predicted, truth=y))
 
                 result_logger.log_metrics(metrics=metrics)
@@ -447,6 +450,7 @@ class SKLearnWorkflow:
                     score = self._pipeline.score(ctx.test_features, y, )
                     ctx.log_score(ctx, keys=["test score"], values=[score])
 
+                results['dataset'] = ctx.dataset.name
                 results['train_idx'] = train_idx
                 results['test_idx'] = test_idx
 
@@ -581,10 +585,8 @@ class Splitter:
     def __init__(self, ds, **options):
         self._dataset = ds
         self._num_examples = ds.size[0]
-        self._strategy = options.pop("st"
-                                     ""
-                                     ""
-                                     "rategy", "random")
+        self._strategy = options.pop("strategy", "random")
+
         default_logger.error(self._strategy == "random" or self._strategy == "cv", self,
                              f"Unknown splitting strategy {self._strategy}. Only 'cv' or 'random' allowed")
         self._test_ratio = options.pop("test_ratio", 0.25)
@@ -1052,27 +1054,12 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
         # For each tuple in the combination create a run
         for element in grid:
-            run_name = ''
-            prev_estimator = ''
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
                 estimator.set_params(**{split_params[1]: element[idx]})
 
-                # If a new estimator is found,close the parameters of the previous estimator
-                # by adding '];' and add the new estimator name and '['
-                if prev_estimator == split_params[0]:
-                    run_name = ''.join([run_name, split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
-                else:
-                    run_name = ''.join(
-                        [run_name, '];', split_params[0], '[', split_params[1][0:4], '(', str(element[idx])[0:4], ')'])
-                    prev_estimator = split_params[0]
-
-            # Remove the initial closing '];' and add the final closing ']'
-            run_name = run_name[2:] + ']'
-            print(run_name)
-            self._metadata['run_id'] = run_name
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
             if self._keep_runs:

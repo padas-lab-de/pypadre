@@ -288,7 +288,8 @@ def main():
                         description=experiments_dict.get(experiment).get('description'),
                         dataset=experiments_dict.get(experiment).get('dataset', None),
                         workflow=experiments_dict.get(experiment).get('workflow', None),
-                        backend=experiments_dict.get(experiment).get('backend', None))
+                        backend=experiments_dict.get(experiment).get('backend', None),
+                        strategy=experiments_dict.get(experiment).get('strategy', 'random'))
         conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
         pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
         ex.grid_search(parameters=experiment_param_dict.get(experiment))  # run the experiment and report
