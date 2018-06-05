@@ -491,19 +491,19 @@ class SKLearnWorkflow:
                 (max(Truth) != label_count - 1 and max(Predicted) != label_count - 1):
             labels = list(set(Predicted).union(set(Truth)))
             for idx in range(0, len(Truth)):
-                row_idx = int(labels.index(Predicted[idx]))
-                col_idx = int(labels.index(Truth[idx]))
+                row_idx = int(labels.index(Truth[idx]))
+                col_idx = int(labels.index(Predicted[idx]))
                 confusion_matrix[row_idx][col_idx] += 1
 
         else:
 
             # Iterate through the array and update the confusion matrix
             for idx in range(0, len(Truth)):
-                confusion_matrix[int(Predicted[idx])][int(Truth[idx])] += 1
+                confusion_matrix[int(Truth[idx])][int(Predicted[idx])] += 1
 
         return copy.deepcopy(confusion_matrix.tolist())
 
-    def compute_classification_metrics(self, confusion_matrix=None):
+    def compute_classification_metrics(self, confusion_matrix=None, option='macro'):
         """
         This function calculates the classification metrics like precision,
         recall, f-measure, accuracy etc
@@ -519,23 +519,30 @@ class SKLearnWorkflow:
         recall = np.zeros(shape=(len(confusion_matrix)))
         f1_measure = np.zeros(shape=(len(confusion_matrix)))
         tp = 0
+        column_sum = np.sum(confusion_matrix, axis=0)
+        row_sum = np.sum(confusion_matrix, axis=1)
         for idx in range(0,len(confusion_matrix)):
             tp = tp + confusion_matrix[idx][idx]
-            curr_sum = sum(confusion_matrix[:][idx])
             # Removes the 0/0 error
-            recall[idx] = np.divide(confusion_matrix[idx][idx], curr_sum + int(curr_sum == 0))
-            curr_sum = sum(confusion_matrix[idx][:])
-            precision[idx] = np.divide(confusion_matrix[idx][idx], curr_sum + int(curr_sum == 0))
+            precision[idx] = np.divide(confusion_matrix[idx][idx], column_sum[idx] + int(column_sum[idx] == 0))
+            recall[idx] = np.divide(confusion_matrix[idx][idx], row_sum[idx] + int(row_sum[idx] == 0))
             if recall[idx] == 0 or precision[idx] == 0:
                 f1_measure[idx] = 0
             else:
                 f1_measure[idx] = 2 / (1.0/ recall[idx] + 1.0 / precision[idx])
 
         accuracy = tp / np.sum(confusion_matrix)
-        classification_metrics['recall'] = recall.tolist()
-        classification_metrics['precision'] = precision.tolist()
-        classification_metrics['accuracy'] = accuracy
-        classification_metrics['f1_score'] = f1_measure.tolist()
+        if option == 'macro':
+            classification_metrics['recall'] = float(np.mean(recall))
+            classification_metrics['precision'] = float(np.mean(precision))
+            classification_metrics['accuracy'] = accuracy
+            classification_metrics['f1_score'] = float(np.mean(f1_measure))
+
+        else:
+            classification_metrics['recall'] = recall.tolist()
+            classification_metrics['precision'] = precision.tolist()
+            classification_metrics['accuracy'] = accuracy
+            classification_metrics['f1_score'] = f1_measure.tolist()
 
         return copy.deepcopy(classification_metrics)
 
