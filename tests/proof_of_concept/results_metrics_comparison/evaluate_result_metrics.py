@@ -185,7 +185,6 @@ class CompareMetrics:
             for run_dir in run_dir_list:
                 params = self.get_params(run_dir)
                 run_id = run_dir[:-4].split(sep='/')[-1]
-                print(run_id)
                 self._curr_listed_estimators[run_id] = params
 
             for run_id in self._curr_listed_estimators:
@@ -271,7 +270,6 @@ class CompareMetrics:
                 with open(os.path.join(sub_directory, 'metrics.json'), "r") as read_file:
                     data = json.load(read_file)
                 key = sub_directory[:-6].split(sep='/')[-1]
-                print(key)
                 self._metrics[key] = data
                 run_id = sub_directory[:-6].split(sep='/')[-2][:-4]
                 splits = self._run_split_dict.get(run_id, None)
@@ -293,8 +291,9 @@ class CompareMetrics:
         keys = list(self._unique_estimators.keys())
         for key in keys:
             params = self._unique_param_names.get(key)
-            for param in params:
-                display_columns.append('.'.join([key, param]))
+            if params is not None:
+                for param in params:
+                    display_columns.append('.'.join([key, param]))
 
         if self._metrics.get(list(self._metrics.keys())[0]).get('type') == 'regression':
             display_columns = display_columns + regression_metrics
@@ -320,9 +319,10 @@ class CompareMetrics:
                 for key in keys:
                     if run in self._run_estimators.get(key, None) is not None:
                         params = self._unique_param_names.get(key, None)
-                        for param in params:
-                            val = self._curr_listed_estimators.get(run)
-                            data_row['.'.join([key, param])] = val.get(key).get(param, '-')
+                        if params is not None:
+                            for param in params:
+                                val = self._curr_listed_estimators.get(run)
+                                data_row['.'.join([key, param])] = val.get(key).get(param, '-')
 
                 if metrics.get('type', None) == 'regression':
                     for metric in regression_metrics:
@@ -332,11 +332,11 @@ class CompareMetrics:
                     for metric in classification_metrics:
                         data_row[metric] = metrics.get(metric, '-')
 
-            curr_tuple = tuple()
-            for col in display_columns:
-                curr_tuple = curr_tuple + tuple([str(data_row.get(col, '-'))])
+                curr_tuple = tuple()
+                for col in display_columns:
+                    curr_tuple = curr_tuple + tuple([str(data_row.get(col, '-'))])
 
-            data_report.append(copy.deepcopy(curr_tuple))
+                data_report.append(copy.deepcopy(curr_tuple))
 
 
         df = pd.DataFrame(data=data_report)
