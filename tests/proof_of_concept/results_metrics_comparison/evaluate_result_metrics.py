@@ -287,7 +287,7 @@ class CompareMetrics:
         display_columns = ['run', 'split', 'dataset']
         regression_metrics = ['mean_error', 'mean_absolute_error', 'standard_deviation',
                               'max_absolute_error', 'min_absolute_error']
-        classification_metrics = ['accuracy']
+        classification_metrics = ['accuracy', 'f1_score', 'recall', 'precision']
         keys = list(self._unique_estimators.keys())
         for key in keys:
             params = self._unique_param_names.get(key)
