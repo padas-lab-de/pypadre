@@ -432,18 +432,20 @@ class SKLearnWorkflow:
                                    truth=y, probabilities=y_predicted_probabilities,
                                    scores=None, transforms=None, clustering=None)
                     results['probabilities'] = y_predicted_probabilities.tolist()
+                    results['type'] = 'classification'
                     # Calculate the confusion matrix
                     confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted.tolist(),
                                                                      Truth=y.tolist())
                     metrics['confusion_matrix'] = confusion_matrix
-                    metrics['type'] = 'prediction'
+                    metrics['type'] = 'classification'
 
                     classification_metrics = self.compute_classification_metrics(confusion_matrix)
                     metrics.update(classification_metrics)
 
                 else:
                     metrics['type'] = 'regression'
-                    metrics.update(self.computer_regression_metrics(predicted=y_predicted, truth=y))
+                    metrics.update(self.compute_regression_metrics(predicted=y_predicted, truth=y))
+                    results['type'] = 'regression'
 
                 result_logger.log_metrics(metrics=metrics)
                 if self.is_scorer():
@@ -546,7 +548,7 @@ class SKLearnWorkflow:
 
         return copy.deepcopy(classification_metrics)
 
-    def computer_regression_metrics(self, predicted=None,
+    def compute_regression_metrics(self, predicted=None,
                                     truth=None):
         metrics_dict = dict()
         error = truth - predicted
