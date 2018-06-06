@@ -186,8 +186,12 @@ class CompareMetrics:
             self._file_path = copy.deepcopy(file_path)
 
         self._run_dir = []
-        self._param_values = dict()
+        # This dictionary contains the metrics read from all the metrics.json file
+        # The key is the split id
         self._metrics = dict()
+
+        # This dictionary contains all the values for each param for every estimator
+        # The key is the estimator name
         self._unique_estimators = dict()
 
         # This dictionary contains the run_ids that have each estimator
@@ -212,7 +216,10 @@ class CompareMetrics:
         self._display_run = dict()
 
         # The mandatory fields while displaying results
-        self._display_columns = ['run', 'split', 'dataset']
+        self._mandatory_display_columns = ['run', 'split', 'dataset']
+
+        # The metrics to displayed
+        self._metrics_display = []
 
     def get_immediate_subdirectories(self, dir_path):
         """
@@ -271,19 +278,6 @@ class CompareMetrics:
                     continue
 
                 self._run_dir.append(copy.deepcopy(run_dir))
-
-    def get_estimators_parameter_values(self):
-        """
-        Gets all the unique estimators and their parameters from the saved run directories
-        :return: None
-        """
-        for curr_run in self._run_dir:
-            # Get the param values for every run.
-            # Every split within a run has the same params,
-            # differing only by the testing and training rows
-            key = '$'.join(curr_run.split(sep='/')[-2:])
-            value_dict = self.get_param_values(curr_run.split(sep='/')[-1][:-4])
-            self._param_values[key] = value_dict
 
     def get_param_values(self, run_name=None):
         if run_name is None:
@@ -456,7 +450,7 @@ class CompareMetrics:
         Displays the collected data as a Pandas data frame
         :return: None
         """
-        display_columns = ['run', 'split', 'dataset']
+        display_columns = copy.deepcopy(self._mandatory_display_columns)
         regression_metrics = ['mean_error', 'mean_absolute_error', 'standard_deviation',
                               'max_absolute_error', 'min_absolute_error']
         classification_metrics = ['accuracy', 'f1_score', 'recall', 'precision']
@@ -465,12 +459,16 @@ class CompareMetrics:
             params = self._unique_param_names.get(key)
             if params is not None:
                 for param in params:
-                    display_columns.append('.'.join([key, param]))
+                    display_columns.insert(3, '.'.join([key, param]))
 
-        if self._metrics.get(list(self._metrics.keys())[0]).get('type') == 'regression':
-            display_columns = display_columns + regression_metrics
+        if len(self._metrics_display) == 0:
+            if self._metrics.get(list(self._metrics.keys())[0]).get('type') == 'regression':
+                display_columns = display_columns + regression_metrics
+            else:
+                display_columns = display_columns + classification_metrics
+
         else:
-            display_columns = display_columns + classification_metrics
+            display_columns = display_columns + self._metrics_display
 
         data_report = []
         # For all runs that need to be displayed
@@ -513,7 +511,8 @@ class CompareMetrics:
 
                 data_report.append(copy.deepcopy(curr_tuple))
 
-
+        pd.options.display.max_rows = 999
+        pd.options.display.max_columns = 15
         df = pd.DataFrame(data=data_report)
         df.columns = display_columns
         print(df)
@@ -550,8 +549,11 @@ class CompareMetrics:
 
         self._display_run = copy.deepcopy(list(row_id_set))
 
-    def reset_display_columns(self):
-        self._display_columns = ['run', 'split', 'dataset']
+        self._metrics_display = []
+        if metrics is not None:
+            for metric in metrics:
+                self._metrics_display.append(metric)
+
 
 
 def main():
@@ -568,7 +570,6 @@ def main():
     metrics.read_run_directories()
     # From the run directory names, obtain the estimators and the parameters
     metrics.get_unique_estimators_parameter_names()
-    metrics.get_estimators_parameter_values()
     # Read the JSON file objects from the .split folders
     metrics.read_split_metrics()
     # Display the results using Pandas data frame
@@ -583,6 +584,10 @@ def main():
     metrics.display_results()
     metrics.analyze_runs(['principal component analysis.num_components.4', 'principal component analysis.num_components.5'])
     metrics.display_results()
+
+    metrics.analyze_runs(['principal component analysis.num_components.4'],['mean_error'])
+    metrics.display_results()
+
 
 if __name__ == '__main__':
     main()
