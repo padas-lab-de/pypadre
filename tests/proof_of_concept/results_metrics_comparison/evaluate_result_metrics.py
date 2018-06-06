@@ -208,6 +208,12 @@ class CompareMetrics:
         # This dictionary contains the parameters of all the runs
         self._curr_listed_estimators = dict()
 
+        # This dictionary keeps track of the runs to be displayed
+        self._display_run = dict()
+
+        # The mandatory fields while displaying results
+        self._display_columns = ['run', 'split', 'dataset']
+
     def get_immediate_subdirectories(self, dir_path):
         """
         Gets the immediate subdirectories present in the dir_path
@@ -443,6 +449,7 @@ class CompareMetrics:
                 else:
                     self._run_split_dict[run_id] = splits.union({key})
 
+        self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
 
     def display_results(self):
         """
@@ -466,8 +473,11 @@ class CompareMetrics:
             display_columns = display_columns + classification_metrics
 
         data_report = []
-        # For all runs
-        for run in self._run_split_dict:
+        # For all runs that need to be displayed
+        if self._display_run is None:
+            return
+
+        for run in self._display_run:
 
             # For all splits in a run
             for split in self._run_split_dict.get(run):
@@ -508,6 +518,41 @@ class CompareMetrics:
         df.columns = display_columns
         print(df)
 
+    def analyze_runs(self, query=None, metrics=None, options=None):
+        """
+        This function would return a pandas data frame based on the query
+        and the metrics required
+        :param query: Initially, this would be a list of directories to be evaluated upon
+        :param metrics: The metrics to be displayed
+        :param options: Any other option possible, like micro averaged, macro averaged etc
+        :return: A pandas data frame containing the results of the query
+        """
+        if query is None:
+            return
+
+        row_id_set = set()
+
+        for element in query:
+
+            if str(element).lower() == 'all':
+                self._display_run = copy.deepcopy(self._run_split_dict)
+                return
+
+            if self._run_estimators.get(element, None) is not None:
+                row_id_set = row_id_set.union(set(self._run_estimators.get(element, None)))
+
+            elif self._param_values_run_id.get(element, None) is not None:
+                row_id_set = row_id_set.union(set(self._param_values_run_id.get(element, None)))
+
+            else:
+                # Query not present within lists
+                print(element)
+
+        self._display_run = copy.deepcopy(list(row_id_set))
+
+    def reset_display_columns(self):
+        self._display_columns = ['run', 'split', 'dataset']
+
 
 def main():
 
@@ -533,6 +578,11 @@ def main():
     recompute_metrics.get_split_directories()
     recompute_metrics.recompute_metrics()
 
+    #pd_frame = ex.analyse_runs(run_query, [performance_measures], options)
+    metrics.analyze_runs(['principal component analysis'])
+    metrics.display_results()
+    metrics.analyze_runs(['principal component analysis.num_components.4', 'principal component analysis.num_components.5'])
+    metrics.display_results()
 
 if __name__ == '__main__':
     main()
