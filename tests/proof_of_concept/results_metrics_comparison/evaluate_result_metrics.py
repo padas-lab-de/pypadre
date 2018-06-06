@@ -3,8 +3,173 @@ import json
 import os
 from tkinter import filedialog
 
+import numpy as np
 import pandas as pd
 
+
+class ReevaluationMetrics:
+    def __init__(self, dir_path=None, file_path=None):
+        if dir_path is not None:
+            self._dir_path = dir_path
+
+        if file_path is not None:
+            self._file_path = file_path
+
+        self._split_dir = []
+
+    def get_immediate_subdirectories(self, dir_path):
+        """
+        Gets the immediate subdirectories present in the dir_path
+        :param dir_path: The current experiment directory to be checked
+        :return: A list of run directories present in the experiment directory
+        """
+        return [os.path.join(dir_path, name) for name in os.listdir(dir_path)
+                if os.path.isdir(os.path.join(dir_path, name))]
+
+    def get_split_directories(self):
+
+        for experiment_path in self._dir_path:
+            run_dir_list = self.get_immediate_subdirectories(experiment_path)
+
+            for run_path in run_dir_list:
+                split_dir_list = self.get_immediate_subdirectories(run_path)
+
+                for split_dir in split_dir_list:
+                    if os.path.exists(os.path.join(split_dir, 'results.json')):
+                        self._split_dir.append(split_dir)
+
+    def recompute_metrics(self):
+
+        for split_path in self._split_dir:
+            # Load the hyperparameters.json file from the run directory
+            with open(os.path.join(split_path, "results.json"), 'r') as f:
+                results = json.loads(f.read())
+
+            prediction_type = results.get('type', None)
+            dataset = results.get('dataset', '-')
+            metrics = None
+            if prediction_type is None:
+                continue
+
+            elif prediction_type == 'regression':
+                metrics = self.compute_regression_metrics(results)
+
+            elif prediction_type == 'classification':
+                metrics = self.compute_classification_metrics(results)
+
+            if metrics is not None:
+                metrics['type'] = prediction_type
+                metrics['dataset'] = dataset
+                with open(os.path.join(split_path, "metrics_recomputed.json"), 'w') as f:
+                    f.write(json.dumps(metrics))
+
+    def compute_regression_metrics(self, results=None):
+
+        if results is None:
+            return
+
+        y_true = results.get('truth', None)
+        y_predicted = results.get('predicted', None)
+
+        if y_true is None or y_predicted is None:
+            return None
+
+        metrics_dict = dict()
+        y_true = np.array(y_true)
+        y_predicted = np.array(y_predicted)
+        error = y_true - y_predicted
+        metrics_dict['mean_error'] = np.mean(error)
+        metrics_dict['mean_absolute_error'] = np.mean(abs(error))
+        metrics_dict['standard_deviation'] = np.std(error)
+        metrics_dict['max_absolute_error'] = np.max(abs(error))
+        metrics_dict['min_absolute_error'] = np.min(abs(error))
+        return copy.deepcopy(metrics_dict)
+
+    def compute_classification_metrics(self, results=None):
+
+        if results is None:
+            return None
+
+        y_true = results.get('truth', None)
+        y_predicted = results.get('predicted', None)
+        option = results.get('average', 'macro')
+
+        if y_true is None or y_predicted is None:
+            return None
+
+        confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted,
+                                                         Truth=y_true)
+
+        if confusion_matrix is None:
+            return None
+
+        classification_metrics = dict()
+        classification_metrics['confusion_matrix'] = confusion_matrix
+        precision = np.zeros(shape=(len(confusion_matrix)))
+        recall = np.zeros(shape=(len(confusion_matrix)))
+        f1_measure = np.zeros(shape=(len(confusion_matrix)))
+        tp = 0
+        column_sum = np.sum(confusion_matrix, axis=0)
+        row_sum = np.sum(confusion_matrix, axis=1)
+        for idx in range(0, len(confusion_matrix)):
+            tp = tp + confusion_matrix[idx][idx]
+            # Removes the 0/0 error
+            precision[idx] = np.divide(confusion_matrix[idx][idx], column_sum[idx] + int(column_sum[idx] == 0))
+            recall[idx] = np.divide(confusion_matrix[idx][idx], row_sum[idx] + int(row_sum[idx] == 0))
+            if recall[idx] == 0 or precision[idx] == 0:
+                f1_measure[idx] = 0
+            else:
+                f1_measure[idx] = 2 / (1.0 / recall[idx] + 1.0 / precision[idx])
+
+        accuracy = tp / np.sum(confusion_matrix)
+        if option == 'macro':
+            classification_metrics['recall'] = float(np.mean(recall))
+            classification_metrics['precision'] = float(np.mean(precision))
+            classification_metrics['accuracy'] = accuracy
+            classification_metrics['f1_score'] = float(np.mean(f1_measure))
+
+        else:
+            classification_metrics['recall'] = recall.tolist()
+            classification_metrics['precision'] = precision.tolist()
+            classification_metrics['accuracy'] = accuracy
+            classification_metrics['f1_score'] = f1_measure.tolist()
+
+        return copy.deepcopy(classification_metrics)
+
+    def compute_confusion_matrix(self, Predicted=None,
+                                 Truth=None):
+        """
+        This function computes the confusionmatrix of a classification result.
+        This was done as a general purpose implementation of the confusion_matrix
+        :param Predicted: The predicted values of the confusion matrix
+        :param Truth: The truth values of the confusion matrix
+        :return: The confusion matrix
+        """
+        import copy
+        if Predicted is None or Truth is None or \
+                len(Predicted) != len(Truth):
+            return None
+
+        # Get the number of labels from the predicted and truth set
+        label_count = len(set(Predicted).union(set(Truth)))
+        confusion_matrix = np.zeros(shape=(label_count, label_count), dtype=int)
+        # If the labels given do not start from 0 and go up to the label_count - 1,
+        # a mapping function has to be created to map the label to the corresponding indices
+        if (min(Predicted) != 0 and min(Truth) != 0) or \
+                (max(Truth) != label_count - 1 and max(Predicted) != label_count - 1):
+            labels = list(set(Predicted).union(set(Truth)))
+            for idx in range(0, len(Truth)):
+                row_idx = int(labels.index(Truth[idx]))
+                col_idx = int(labels.index(Predicted[idx]))
+                confusion_matrix[row_idx][col_idx] += 1
+
+        else:
+
+            # Iterate through the array and update the confusion matrix
+            for idx in range(0, len(Truth)):
+                confusion_matrix[int(Truth[idx])][int(Predicted[idx])] += 1
+
+        return copy.deepcopy(confusion_matrix.tolist())
 
 class CompareMetrics:
 
@@ -363,6 +528,10 @@ def main():
     metrics.read_split_metrics()
     # Display the results using Pandas data frame
     metrics.display_results()
+
+    recompute_metrics = ReevaluationMetrics(dir_list)
+    recompute_metrics.get_split_directories()
+    recompute_metrics.recompute_metrics()
 
 
 if __name__ == '__main__':
