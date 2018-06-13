@@ -509,6 +509,7 @@ class SKLearnWorkflow:
         """
         This function calculates the classification metrics like precision,
         recall, f-measure, accuracy etc
+        TODO: Implement weighted sum of averaging metrics
         :param confusion_matrix: The confusion matrix of the classification
         :return: Classification metrics as a dictionary
         """
@@ -539,6 +540,12 @@ class SKLearnWorkflow:
             classification_metrics['precision'] = float(np.mean(precision))
             classification_metrics['accuracy'] = accuracy
             classification_metrics['f1_score'] = float(np.mean(f1_measure))
+
+        elif option == 'micro':
+            classification_metrics['recall'] = accuracy
+            classification_metrics['precision'] = accuracy
+            classification_metrics['accuracy'] = accuracy
+            classification_metrics['f1_score'] = accuracy
 
         else:
             classification_metrics['recall'] = recall.tolist()
