@@ -9,7 +9,6 @@ import json
 import numpy as np
 import os
 import pandas as pd
-from tkinter import filedialog
 
 
 class ReevaluationMetrics:
@@ -51,6 +50,7 @@ class ReevaluationMetrics:
     def recompute_metrics(self):
 
         for split_path in self._split_dir:
+
             # Load the hyperparameters.json file from the run directory
             with open(os.path.join(split_path, "results.json"), 'r') as f:
                 results = json.loads(f.read())
@@ -70,7 +70,7 @@ class ReevaluationMetrics:
             if metrics is not None:
                 metrics['type'] = prediction_type
                 metrics['dataset'] = dataset
-                with open(os.path.join(split_path, "metrics_recomputed.json"), 'w') as f:
+                with open(os.path.join(split_path, "metrics.json"), 'w') as f:
                     f.write(json.dumps(metrics))
 
     def compute_regression_metrics(self, results=None):
@@ -115,13 +115,14 @@ class ReevaluationMetrics:
 
         classification_metrics = dict()
         classification_metrics['confusion_matrix'] = confusion_matrix
-        precision = np.zeros(shape=(len(confusion_matrix)))
-        recall = np.zeros(shape=(len(confusion_matrix)))
-        f1_measure = np.zeros(shape=(len(confusion_matrix)))
+        length = len(confusion_matrix)
+        precision = np.zeros(shape=length)
+        recall = np.zeros(shape=length)
+        f1_measure = np.zeros(shape=length)
         tp = 0
         column_sum = np.sum(confusion_matrix, axis=0)
         row_sum = np.sum(confusion_matrix, axis=1)
-        for idx in range(0, len(confusion_matrix)):
+        for idx in range(0, length):
             tp = tp + confusion_matrix[idx][idx]
             # Removes the 0/0 error
             precision[idx] = np.divide(confusion_matrix[idx][idx], column_sum[idx] + int(column_sum[idx] == 0))
@@ -138,6 +139,13 @@ class ReevaluationMetrics:
             classification_metrics['accuracy'] = accuracy
             classification_metrics['f1_score'] = float(np.mean(f1_measure))
 
+        elif option == 'micro':
+            # Micro average is computed as the total number of true positives to the total number of instances
+            classification_metrics['recall'] = float(tp/len(y_true))
+            classification_metrics['precision'] = float(tp/len(y_true))
+            classification_metrics['accuracy'] = accuracy
+            classification_metrics['f1_score'] = float(tp/len(y_true))
+
         else:
             classification_metrics['recall'] = recall.tolist()
             classification_metrics['precision'] = precision.tolist()
@@ -146,38 +154,38 @@ class ReevaluationMetrics:
 
         return copy.deepcopy(classification_metrics)
 
-    def compute_confusion_matrix(self, Predicted=None,
-                                 Truth=None):
+    def compute_confusion_matrix(self, predicted=None,
+                                 truth=None):
         """
         This function computes the confusion matrix of a classification result.
         This was done as a general purpose implementation of the confusion_matrix
-        :param Predicted: The predicted values of the confusion matrix
-        :param Truth: The truth values of the confusion matrix
+        :param predicted: The predicted values of the confusion matrix
+        :param truth: The truth values of the confusion matrix
         :return: The confusion matrix
         """
         import copy
-        if Predicted is None or Truth is None or \
-                len(Predicted) != len(Truth):
+        if predicted is None or truth is None or \
+                len(predicted) != len(truth):
             return None
 
         # Get the number of labels from the predicted and truth set
-        label_count = len(set(Predicted).union(set(Truth)))
+        label_count = len(set(predicted).union(set(truth)))
         confusion_matrix = np.zeros(shape=(label_count, label_count), dtype=int)
         # If the labels given do not start from 0 and go up to the label_count - 1,
         # a mapping function has to be created to map the label to the corresponding indices
-        if (min(Predicted) != 0 and min(Truth) != 0) or \
-                (max(Truth) != label_count - 1 and max(Predicted) != label_count - 1):
-            labels = list(set(Predicted).union(set(Truth)))
-            for idx in range(0, len(Truth)):
-                row_idx = int(labels.index(Truth[idx]))
-                col_idx = int(labels.index(Predicted[idx]))
+        if (min(predicted) != 0 and min(truth) != 0) or \
+                (max(truth) != label_count - 1 and max(predicted) != label_count - 1):
+            labels = list(set(predicted).union(set(truth)))
+            for idx in range(0, len(truth)):
+                row_idx = int(labels.index(truth[idx]))
+                col_idx = int(labels.index(predicted[idx]))
                 confusion_matrix[row_idx][col_idx] += 1
 
         else:
 
             # Iterate through the array and update the confusion matrix
-            for idx in range(0, len(Truth)):
-                confusion_matrix[int(Truth[idx])][int(Predicted[idx])] += 1
+            for idx in range(0, len(truth)):
+                confusion_matrix[int(truth[idx])][int(predicted[idx])] += 1
 
         return copy.deepcopy(confusion_matrix.tolist())
 
@@ -523,10 +531,9 @@ class ReevaluationMetrics:
 
                     data_report.append(copy.deepcopy(curr_tuple))
 
-            pd.options.display.max_rows = 999
-            pd.options.display.max_columns = 15
             df = pd.DataFrame(data=data_report)
-            df.columns = display_columns
+            if len(data_report) > 0 and len(data_report[0]) == len(display_columns):
+                df.columns = display_columns
             return df
 
         def analyze_runs(self, query=None, metrics=None, options=None):
@@ -565,4 +572,42 @@ class ReevaluationMetrics:
             if metrics is not None:
                 for metric in metrics:
                     self._metrics_display.append(metric)
+
+        def get_unique_estimator_names(self):
+            """
+            This function returns the unique estimators among the runs
+            :return: A list of the names of unique estimators
+            """
+            return copy.deepcopy(list(self._unique_estimators.keys()))
+
+        def get_estimator_param_values(self, estimator_name, selected_params=None, return_all_values=False):
+            """
+            This function returns all the parameter values present among the runs for a particular estimator
+            :param estimator_name: he name of the estimator whose differing parameters are to be fetched
+            :param selected_params: Displays the parameter values of the specified parameters only
+            :param return_all_values: whether a list of the default values are also to be returned
+            :return: List of param values, None if the estimator is not present
+            """
+            params_list = dict()
+            params = self._unique_estimators.get(estimator_name, None)
+            if params is None:
+                return None
+
+            # If all the parameters are selected, then return the whole param dictionary
+            if return_all_values:
+                return copy.deepcopy(params)
+
+            # If only selected params are given, then search for those params and return them
+            if selected_params is None:
+                selected_params = self._unique_param_names.get(estimator_name, None)
+
+            # selected_params will contain the parameters & values of a single estimator to be shown to the user
+            # if a selected estimator does not have any unique parameters, it will be none
+            if selected_params is not None:
+                for param in selected_params:
+                    values = params.get(param, None)
+                    if values is not None:
+                        params_list[param] = values
+
+            return copy.deepcopy(params_list)
 
