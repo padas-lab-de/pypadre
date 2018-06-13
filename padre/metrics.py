@@ -9,6 +9,7 @@ import json
 import numpy as np
 import os
 import pandas as pd
+from padre.base import default_logger
 
 
 class ReevaluationMetrics:
@@ -59,6 +60,7 @@ class ReevaluationMetrics:
             dataset = results.get('dataset', '-')
             metrics = None
             if prediction_type is None:
+                default_logger.error('No prediction type present in ' + split_path)
                 continue
 
             elif prediction_type == 'regression':
@@ -73,15 +75,20 @@ class ReevaluationMetrics:
                 with open(os.path.join(split_path, "metrics.json"), 'w') as f:
                     f.write(json.dumps(metrics))
 
+            else:
+                default_logger.error('Error reading the results.json file in ' + split_path)
+
     def compute_regression_metrics(self, results=None):
 
         if results is None:
+            default_logger.error('Results is None')
             return
 
         y_true = results.get('truth', None)
         y_predicted = results.get('predicted', None)
 
         if y_true is None or y_predicted is None:
+            default_logger.error('Truth or Predicted values missing in results.json')
             return None
 
         metrics_dict = dict()
@@ -98,6 +105,7 @@ class ReevaluationMetrics:
     def compute_classification_metrics(self, results=None):
 
         if results is None:
+            default_logger.error('Results is empty')
             return None
 
         y_true = results.get('truth', None)
@@ -105,12 +113,14 @@ class ReevaluationMetrics:
         option = results.get('average', 'macro')
 
         if y_true is None or y_predicted is None:
+            default_logger.error('Truth or Predicted values missing in results.json')
             return None
 
-        confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted,
-                                                         Truth=y_true)
+        confusion_matrix = self.compute_confusion_matrix(predicted=y_predicted,
+                                                         truth=y_true)
 
         if confusion_matrix is None:
+            default_logger.error('Could not compute confusion matrix')
             return None
 
         classification_metrics = dict()
@@ -327,6 +337,7 @@ class ReevaluationMetrics:
             :return: dictionary containing estimator name and list of params
             """
             if run_dir is None:
+                default_logger.error('Empty run directory')
                 return None
 
             # Load the hyperparameters.json file from the run directory
@@ -493,6 +504,7 @@ class ReevaluationMetrics:
             data_report = []
             # For all runs that need to be displayed
             if self._display_run is None:
+                default_logger.error('No runs to be displayed')
                 return
 
             for run in self._display_run:
@@ -546,6 +558,7 @@ class ReevaluationMetrics:
             :return: A pandas data frame containing the results of the query
             """
             if query is None:
+                default_logger.error('Function called with empty query')
                 return
 
             row_id_set = set()
@@ -564,7 +577,7 @@ class ReevaluationMetrics:
 
                 else:
                     # Query not present within lists
-                    print(element)
+                    default_logger.error(element + 'not present')
 
             self._display_run = copy.deepcopy(list(row_id_set))
 
@@ -591,6 +604,7 @@ class ReevaluationMetrics:
             params_list = dict()
             params = self._unique_estimators.get(estimator_name, None)
             if params is None:
+                default_logger.error('No parameters obtained for estimator :' + estimator_name)
                 return None
 
             # If all the parameters are selected, then return the whole param dictionary
