@@ -12,6 +12,7 @@ class ReevaluationMetrics:
     This class reevaluates the metrics from the results.json file present in the split folder.
     The user should be able to specify the required metrics and those additional metrics will be computed
     """
+
     def __init__(self, dir_path=None, file_path=None):
         if dir_path is not None:
             self._dir_path = dir_path
@@ -132,6 +133,13 @@ class ReevaluationMetrics:
             classification_metrics['accuracy'] = accuracy
             classification_metrics['f1_score'] = float(np.mean(f1_measure))
 
+        elif option == 'micro':
+            # Micro average is computed as the total number of true positives to the total number of instances
+            classification_metrics['recall'] = float(tp / len(y_true))
+            classification_metrics['precision'] = float(tp / len(y_true))
+            classification_metrics['accuracy'] = accuracy
+            classification_metrics['f1_score'] = float(tp / len(y_true))
+
         else:
             classification_metrics['recall'] = recall.tolist()
             classification_metrics['precision'] = precision.tolist()
@@ -174,6 +182,7 @@ class ReevaluationMetrics:
                 confusion_matrix[int(Truth[idx])][int(Predicted[idx])] += 1
 
         return copy.deepcopy(confusion_matrix.tolist())
+
 
 class CompareMetrics:
 
@@ -242,9 +251,9 @@ class CompareMetrics:
         """
         # Check for hyperparameters.json, results.json, metadata.json and metrics.json in the folder
 
-        if not(os.path.exists(os.path.join(run_dir, 'hyperparameters.json'))
-                or(os.path.exists(os.path.join(run_dir, 'metadata.json')))):
-            return  False
+        if not (os.path.exists(os.path.join(run_dir, 'hyperparameters.json'))
+                or (os.path.exists(os.path.join(run_dir, 'metadata.json')))):
+            return False
 
         # If there are no split directories return false
         sub_dir = self.get_immediate_subdirectories(run_dir)
@@ -253,8 +262,8 @@ class CompareMetrics:
 
         # If the split directories do not contain metrics.json or results.json return false
         for curr_sub_dir in sub_dir:
-            if not(os.path.exists(os.path.join(curr_sub_dir, 'metrics.json'))
-                    or(os.path.exists(os.path.join(curr_sub_dir, 'results.json')))):
+            if not (os.path.exists(os.path.join(curr_sub_dir, 'metrics.json'))
+                    or (os.path.exists(os.path.join(curr_sub_dir, 'results.json')))):
                 return False
 
         return True
@@ -338,12 +347,6 @@ class CompareMetrics:
         Gets all the unique estimators and their parameter names from the saved run directories
         :return: None
         """
-
-        # This dictionary contains the default values for each estimator,
-        # so that only those parameters that are different across estimators
-        # need to be displayed
-        estimator_default_values = dict()
-
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
         for curr_experiment in self._dir_path:
@@ -352,6 +355,10 @@ class CompareMetrics:
 
             run_dir_list = self.get_immediate_subdirectories(curr_experiment)
 
+            # This dictionary contains the default values for each estimator,
+            # so that only those parameters that are different across estimators
+            # need to be displayed
+            estimator_default_values = dict()
             # Aggregate all the hyper parameters in all the run files
             for run_dir in run_dir_list:
                 params = self.get_params(run_dir)
@@ -398,7 +405,7 @@ class CompareMetrics:
         for estimator in self._unique_estimators:
             for param in self._unique_estimators.get(estimator):
                 # If len > 1, multiple parameters present, so add it to the list
-                if len(self._unique_estimators.get(estimator).get(param))>1:
+                if len(self._unique_estimators.get(estimator).get(param)) > 1:
                     params = self._unique_param_names.get(estimator, None)
                     if params is None:
                         self._unique_param_names[estimator] = frozenset({param})
@@ -522,7 +529,9 @@ class CompareMetrics:
         pd.options.display.max_rows = 999
         pd.options.display.max_columns = 15
         df = pd.DataFrame(data=data_report)
-        df.columns = display_columns
+
+        if len(data_report) > 0 and len(data_report[0]) == len(display_columns):
+            df.columns = display_columns
         return df
 
     def analyze_runs(self, query=None, metrics=None, options=None):
@@ -563,9 +572,7 @@ class CompareMetrics:
                 self._metrics_display.append(metric)
 
 
-
 def main():
-
     # Load the results folder
     dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
     # It could either be experiments in a directory or multiple experiments
@@ -573,7 +580,8 @@ def main():
     if len(dir_path) == 0:
         return
     dir_list.append(dir_path)
-
+    dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
+    dir_list.append(dir_path)
     metrics = CompareMetrics(dir_path=dir_list)
     metrics.read_run_directories()
     # From the run directory names, obtain the estimators and the parameters
@@ -587,17 +595,17 @@ def main():
     recompute_metrics.get_split_directories()
     recompute_metrics.recompute_metrics()
 
-    #pd_frame = ex.analyse_runs(run_query, [performance_measures], options)
-    metrics.analyze_runs(['principal component analysis'])
-    df = metrics.display_results()
-    print(df)
-    metrics.analyze_runs(['principal component analysis.num_components.4', 'principal component analysis.num_components.5'])
-    df = metrics.display_results()
-    print(df)
+    # pd_frame = ex.analyse_runs(run_query, [performance_measures], options)
 
-    metrics.analyze_runs(['principal component analysis.num_components.4'],['mean_error'])
+    metrics.analyze_runs(['all'])
     df = metrics.display_results()
     print(df)
+    metrics.analyze_runs(
+        ['principal component analysis.num_components.4', 'principal component analysis.num_components.5'])
+    metrics.display_results()
+
+    metrics.analyze_runs(['principal component analysis.num_components.4'], ['mean_error'])
+    metrics.display_results()
 
 
 if __name__ == '__main__':
