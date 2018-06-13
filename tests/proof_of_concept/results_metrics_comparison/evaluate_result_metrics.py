@@ -338,6 +338,12 @@ class CompareMetrics:
         Gets all the unique estimators and their parameter names from the saved run directories
         :return: None
         """
+
+        # This dictionary contains the default values for each estimator,
+        # so that only those parameters that are different across estimators
+        # need to be displayed
+        estimator_default_values = dict()
+
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
         for curr_experiment in self._dir_path:
@@ -346,10 +352,6 @@ class CompareMetrics:
 
             run_dir_list = self.get_immediate_subdirectories(curr_experiment)
 
-            # This dictionary contains the default values for each estimator,
-            # so that only those parameters that are different across estimators
-            # need to be displayed
-            estimator_default_values = dict()
             # Aggregate all the hyper parameters in all the run files
             for run_dir in run_dir_list:
                 params = self.get_params(run_dir)
@@ -521,7 +523,7 @@ class CompareMetrics:
         pd.options.display.max_columns = 15
         df = pd.DataFrame(data=data_report)
         df.columns = display_columns
-        print(df)
+        return df
 
     def analyze_runs(self, query=None, metrics=None, options=None):
         """
@@ -587,12 +589,15 @@ def main():
 
     #pd_frame = ex.analyse_runs(run_query, [performance_measures], options)
     metrics.analyze_runs(['principal component analysis'])
-    metrics.display_results()
+    df = metrics.display_results()
+    print(df)
     metrics.analyze_runs(['principal component analysis.num_components.4', 'principal component analysis.num_components.5'])
-    metrics.display_results()
+    df = metrics.display_results()
+    print(df)
 
     metrics.analyze_runs(['principal component analysis.num_components.4'],['mean_error'])
-    metrics.display_results()
+    df = metrics.display_results()
+    print(df)
 
 
 if __name__ == '__main__':
