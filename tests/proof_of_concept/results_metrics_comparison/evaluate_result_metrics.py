@@ -380,6 +380,7 @@ class CompareMetrics:
                                 param_set = self._unique_estimators.get(estimator).get(param)
                                 param_set = param_set.union({params.get(param)})
                                 self._unique_estimators[estimator][param] = param_set
+                                # Add the run id to the dictionary having estimator.param_name.param_value
                                 key = '.'.join([estimator, param, str(params.get(param))])
                                 if self._param_values_run_id.get(key, None) is None:
                                     self._param_values_run_id[key] = frozenset({run_id})
@@ -401,6 +402,7 @@ class CompareMetrics:
                     # the self._unique_param_values_run_id, so that has to be added to the frozen set
                     # Get the default value of the parameter
                     val = estimator_default_values.get(estimator).get(param)
+
                     # Check whether if a run_id has the default value and
                     # if it has add it to self._param_values_run_id
                     for run in self._run_estimators.get(estimator):
