@@ -8,6 +8,10 @@ import pandas as pd
 
 
 class ReevaluationMetrics:
+    """
+    This class reevaluates the metrics from the results.json file present in the split folder.
+    The user should be able to specify the required metrics and those additional metrics will be computed
+    """
     def __init__(self, dir_path=None, file_path=None):
         if dir_path is not None:
             self._dir_path = dir_path
