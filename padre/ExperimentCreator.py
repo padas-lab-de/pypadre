@@ -49,8 +49,6 @@ class ExperimentCreator:
 
         self._workflow_components = self.initialize_workflow_components()
 
-        self._classifiers = self.intialize_classifiers()
-
         self._parameters = self.initialize_estimator_parameters()
 
         self._local_dataset = self.initialize_dataset_names()
@@ -271,15 +269,6 @@ class ExperimentCreator:
             components[estimator] = name_mappings.get(estimator).get('implementation').get('scikit-learn')
 
         return components
-
-    def intialize_classifiers(self):
-        """
-        This function returns a list of estimators that are classifiers.
-        This is required because classifiers cannot work on continuous data
-        TODO: Dynamically populate the list
-        :return: List containing the names of all the classifiers
-        """
-        return ['SVC']
 
     def initialize_estimator_parameters(self):
         """
