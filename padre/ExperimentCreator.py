@@ -5,8 +5,10 @@ This class also provides interfaces to find the available datasets, available es
 and the estimator parameters
 """
 import copy
+import importlib
 from padre.base import default_logger
 from padre.ds_import import load_sklearn_toys
+from padre.visitors.mappings import type_mappings, name_mappings
 from padre.experiment import Experiment
 
 
@@ -32,6 +34,8 @@ class ExperimentCreator:
     # TODO: This should mapped dynamically
     _parameters = dict()
 
+    _param_value_dict = dict()
+
     # All the locally available datasets are mapped to this list.
     _local_dataset = []
 
@@ -51,6 +55,18 @@ class ExperimentCreator:
 
         self._local_dataset = self.initialize_dataset_names()
 
+    def set_param_values(self, experiment_name=None, param_dict=None):
+
+        if experiment_name is None:
+            default_logger.error('Experiment_creator.set_param_values',
+                                 'Missing experiment name when setting param values')
+
+        if param_dict is None:
+            default_logger.error('Experiment_creator.set_param_values','Missing dictionary argument')
+
+        self._param_value_dict[experiment_name] = copy.deepcopy(param_dict)
+
+
     def set_parameters(self, estimator, estimator_name, param_val_dict):
         """
         This function sets the parameters of the estimators and classifiers created
@@ -66,12 +82,14 @@ class ExperimentCreator:
                 Else, None.
         """
         if estimator is None:
-            default_logger.error(estimator_name + ' does not exist in the workflow')
+            default_logger.error(False, 'Experiment_creator.set_parameters',
+                                 ''.join([estimator_name + ' does not exist in the workflow']))
             return None
         available_params = self._parameters.get(estimator_name)
         for param in param_val_dict:
             if param not in available_params:
-                default_logger.error(param + ' is not present for estimator ' + estimator_name)
+                default_logger.error(False, 'Experiment_creator.set_parameters',
+                                     ''.join([param + ' is not present for estimator ' + estimator_name]))
             else:
                 estimator.set_params(**{param: param_val_dict.get(param)})
 
@@ -92,12 +110,14 @@ class ExperimentCreator:
         for transformer in transformers:
             if (not (hasattr(transformer[1], "fit") or hasattr(transformer[1], "fit_transform")) or not
                hasattr(transformer[1], "transform")):
-                default_logger.error("All intermediate steps should implement fit "
+                default_logger.error(False, 'Experiment_creator.validate_pipeline',
+                                     "All intermediate steps should implement fit "
                                      "and fit_transform or the transform function")
                 return False
 
         if estimator is not None and not (hasattr(estimator[1], "fit")):
-            default_logger.error("Estimator:" + estimator[0] + " does not have attribute fit")
+            default_logger.error(False, 'Experiment_creator.validate_pipeline',
+                                 ''.join(["Estimator:" + estimator[0] + " does not have attribute fit"]))
             return False
         return True
 
@@ -119,11 +139,12 @@ class ExperimentCreator:
         estimators = []
         for estimator_name in estimator_list:
             if self._workflow_components.get(estimator_name) is None:
-                default_logger.error(estimator_name + ' not present in list')
+                default_logger.error(False, 'Experiment_creator.create_test_pipleline',
+                                     ''.join([estimator_name + ' not present in list']))
                 return None
 
             # Deep copy of the estimator because the estimator object is mutable
-            estimator = copy.deepcopy(self._workflow_components.get(estimator_name))
+            estimator = self.get_estimator_object(estimator_name)
             estimators.append((estimator_name, estimator))
             if param_value_dict is not None and \
                     param_value_dict.get(estimator_name) is not None:
@@ -135,9 +156,24 @@ class ExperimentCreator:
 
         return Pipeline(estimators)
 
+    def get_estimator_object(self, estimator):
+
+        if estimator is None:
+            return None
+
+        path = self._workflow_components.get(estimator)
+        split_idx = path.rfind('.')
+        import_path = path[:split_idx]
+        class_name = path[split_idx+1:]
+        module = importlib.import_module(import_path)
+        class_ = getattr(module, class_name)
+        obj = class_()
+        return copy.deepcopy(obj)
+
+
     def create_experiment(self, name, description,
                           dataset, workflow,
-                          backend):
+                          backend, params=None):
         """
         This function adds an experiment to the dictionary.
         :param name: Name of the experiment. It should be unique for this set of experiments
@@ -145,6 +181,7 @@ class ExperimentCreator:
         :param dataset: The dataset to be used for the experiment
         :param workflow: The scikit pipeline to be used for the experiment.
         :param backend: The backend of the experiment
+        :param params: Parameters for the estimator, optional.
         :return: None
         """
         import numpy as np
@@ -154,18 +191,22 @@ class ExperimentCreator:
         if description is None or \
                 dataset is None or workflow is None or backend is None or workflow is False:
             if description is None:
-                default_logger.error('Description is missing for experiment:' + name)
+                default_logger.error(False, 'Experiment_creator.create_experiment',
+                                     ''.join(['Description is missing for experiment:', name]))
             if dataset is None:
-                default_logger.error('Dataset is missing for experiment:' + name)
+                default_logger.error(False, 'Experiment_creator.create_experiment',
+                                     ''.join(['Dataset is missing for experiment:', name]))
             if backend is None:
-                default_logger.error('Backend is missing for experiment:' + name)
+                default_logger.error(False, 'Experiment_creator.get_local_dataset',
+                                     ''.join(['Backend is missing for experiment:', name]))
             return None
 
         # Classifiers cannot work on continuous data and rejected as experiments.
         if not np.all(np.mod(dataset.targets(), 1) == 0):
             for estimator in workflow.named_steps:
-                if estimator in self._classifiers:
-                    default_logger.error('Estimator ' + estimator + ' cannot work on continuous data')
+                if name_mappings.get(estimator).get('type', None) != 'Classification':
+                    default_logger.error(False, 'Experiment_creator.create_experiment',
+                                         ''.join(['Estimator ', estimator, ' cannot work on continuous data']))
                     return None
 
         # Experiment name should be unique
@@ -176,12 +217,17 @@ class ExperimentCreator:
             data_dict['workflow'] = workflow
             data_dict['backend'] = backend
             self._experiments[name] = data_dict
-            default_logger.log('Experiment:' + name + ' created successfully')
+            if params is not None:
+                self._param_value_dict[name] = copy.deepcopy(params)
+            default_logger.log('Experiment_creator.get_local_dataset',
+                               ''.join(['Experiment Creator', 'Experiment:', name, ' created successfully']))
 
         else:
-            default_logger.error('Error creating experiment')
+            default_logger.error(False, 'Error creating experiment')
             if self._experiments.get(name, None) is not None:
-                default_logger.error('Experiment name: ', name, ' already present. Experiment name should be unique')
+                default_logger.error(False, 'Experiment_creator.create_experiment',
+                                     ''.join(['Experiment name: ', name,
+                                              ' already present. Experiment name should be unique']))
 
     def get_local_dataset(self, name=None):
         """
@@ -193,32 +239,36 @@ class ExperimentCreator:
                  Else, None
         """
         if name is None:
-            default_logger.error('Dataset name is empty')
+            default_logger.error(False, 'Experiment_creator.get_local_dataset', 'Dataset name is empty')
             return None
         if name in self._local_dataset:
             return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
         else:
-            default_logger.error(name + ' Local Dataset not found')
+            default_logger.error(False, 'Experiment_creator.get_local_dataset', name + ' Local Dataset not found')
             return None
+
+    def get_dataset_names(self):
+        """
+        This function returns all the names of available datasets
+        :return: A list of dataset names
+        """
+        return list(self._local_dataset)
+
+    def get_estimators(self):
+        """
+        Gets all the available estimators
+        :return: List of names of the estimators
+        """
+        return list(self._workflow_components.keys())
 
     def initialize_workflow_components(self):
         """
         This function returns all the workflow components along with their object initialized with default parameters
-        TODO: This would later be changed to a JSON file reading method which could help dynamically initialize the
-        TODO:        estimators as per the requirement of the user
         :return: A dictionary containing all the available estimators
         """
-        from sklearn.svm import SVC, SVR
-        from sklearn import linear_model, decomposition, manifold
-        components = {'pca': decomposition.PCA(),
-                      'logistic': linear_model.LogisticRegression(),
-                      'SVC': SVC(probability=True),
-                      'LSA': decomposition.TruncatedSVD(n_components=2),
-                      'isomap': manifold.Isomap(n_neighbors=10, n_components=5),
-                      'lle': manifold.LocallyLinearEmbedding(n_neighbors=10, n_components=5,
-                                                             method='standard'),
-                      'SVR': SVR(kernel='rbf', degree=4,
-                                 gamma='auto', C=1.0)}
+        components = dict()
+        for estimator in name_mappings:
+            components[estimator] = name_mappings.get(estimator).get('implementation').get('scikit-learn')
 
         return components
 
@@ -249,6 +299,7 @@ class ExperimentCreator:
         """
         The function returns all the datasets currently available to the user. It can be from the server and also the
         local datasets availabe
+        TODO: Dynamically populate the list of datasets
         :return: List of names of available datasets
         """
         dataset_names = ['Boston_House_Prices',
@@ -279,7 +330,7 @@ class ExperimentCreator:
 
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-            ex.grid_search(parameters=self._experiment_param_dict.get(experiment))
+            ex.grid_search(parameters=self._param_value_dict.get(experiment))
 
 
     @property
