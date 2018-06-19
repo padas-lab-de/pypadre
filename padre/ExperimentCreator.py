@@ -91,7 +91,8 @@ class ExperimentCreator:
                 default_logger.error(False, 'Experiment_creator.set_parameters',
                                      ''.join([param + ' is not present for estimator ' + estimator_name]))
             else:
-                estimator.set_params(**{param: param_val_dict.get(param)})
+                actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
+                estimator.set_params(**{actual_param_name: param_val_dict.get(param)})
 
         return estimator
 
@@ -197,6 +198,11 @@ class ExperimentCreator:
         return Pipeline(estimators)
 
     def get_estimator_object(self, estimator):
+        """
+        This function instantiates a estimator from the estimator name
+        :param estimator: Name of the estimator
+        :return: An object of the estimator
+        """
 
         if estimator is None:
             return None
@@ -300,6 +306,14 @@ class ExperimentCreator:
         :return: List of names of the estimators
         """
         return list(self._workflow_components.keys())
+
+    def get_estimator_params(self, estimator_name):
+        """
+        Gets the parameters corresponding to an estimator
+        :param estimator_name:
+        :return: List of parameters available to that estimator
+        """
+        return self._parameters.get(estimator_name, None)
 
     def initialize_workflow_components(self):
         """
