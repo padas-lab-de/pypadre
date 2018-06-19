@@ -8,7 +8,7 @@ import copy
 import importlib
 from padre.base import default_logger
 from padre.ds_import import load_sklearn_toys
-from padre.visitors.mappings import type_mappings, name_mappings
+from padre.visitors.mappings import name_mappings
 from padre.experiment import Experiment
 
 
@@ -63,7 +63,7 @@ class ExperimentCreator:
                                  'Missing experiment name when setting param values')
 
         if param_dict is None:
-            default_logger.error('Experiment_creator.set_param_values','Missing dictionary argument')
+            default_logger.error('Experiment_creator.set_param_values', 'Missing dictionary argument')
 
         self._param_value_dict[experiment_name] = self.validate_parameters(param_dict)
 
@@ -100,7 +100,7 @@ class ExperimentCreator:
         """
         The function validates the parameters for each estimator and returns the validated parameters.
         The parameter names are changed to the actual parameter variable names to be used within the experiment class
-        :param estimator_list: The estimators in the workflow pipeline
+        :param param_value_dict: The parameters and their corresponding values
         :return: A dictionary of the validated parameters
         """
         validated_param_dict = dict()
@@ -110,16 +110,14 @@ class ExperimentCreator:
 
                 # Check whether the params are available for the estimator
                 parameters = param_value_dict.get(estimator_name)
-                complete_param_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
                 estimator_params = dict()
-                param_names = self._parameters.get(estimator_name)
                 for param in parameters:
                     if param in self._parameters.get(estimator_name):
                         actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
                         estimator_params[actual_param_name] = parameters.get(param)
                     else:
                         default_logger.warn(False, 'Experiment_creator.validate_parameters',
-                                    ''.join([param, ' not present in list for estimator:', estimator_name]))
+                                            ''.join([param, ' not present in list for estimator:', estimator_name]))
 
                 if len(estimator_params) > 0:
                     validated_param_dict[estimator_name] = copy.deepcopy(estimator_params)
@@ -133,8 +131,6 @@ class ExperimentCreator:
 
         else:
             return None
-
-
 
     def validate_pipeline(self, pipeline):
         """
@@ -215,7 +211,6 @@ class ExperimentCreator:
         class_ = getattr(module, class_name)
         obj = class_()
         return copy.deepcopy(obj)
-
 
     def create_experiment(self, name, description,
                           dataset, workflow,
@@ -381,7 +376,6 @@ class ExperimentCreator:
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
             ex.grid_search(parameters=self._param_value_dict.get(experiment))
-
 
     @property
     def experiments(self):
