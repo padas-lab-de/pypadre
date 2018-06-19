@@ -347,6 +347,10 @@ class CompareMetrics:
         Gets all the unique estimators and their parameter names from the saved run directories
         :return: None
         """
+        # This dictionary contains the default values for each estimator,
+        # so that only those parameters that are different across estimators
+        # need to be displayed
+        estimator_default_values = dict()
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
         for curr_experiment in self._dir_path:
@@ -355,10 +359,6 @@ class CompareMetrics:
 
             run_dir_list = self.get_immediate_subdirectories(curr_experiment)
 
-            # This dictionary contains the default values for each estimator,
-            # so that only those parameters that are different across estimators
-            # need to be displayed
-            estimator_default_values = dict()
             # Aggregate all the hyper parameters in all the run files
             for run_dir in run_dir_list:
                 params = self.get_params(run_dir)
@@ -389,7 +389,7 @@ class CompareMetrics:
                         params = estimator_group.get(estimator)
                         default_params = estimator_default_values.get(estimator)
                         for param in params:
-                            if default_params.get(param) != params.get(param):
+                            if default_params.get(param, None) != params.get(param, None):
                                 param_set = self._unique_estimators.get(estimator).get(param)
                                 param_set = param_set.union({params.get(param)})
                                 self._unique_estimators[estimator][param] = param_set
