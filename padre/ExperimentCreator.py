@@ -36,6 +36,9 @@ class ExperimentCreator:
 
     _param_value_dict = dict()
 
+    # Mapping of the parameter names to the actual variable names
+    _param_implementation = dict()
+
     # All the locally available datasets are mapped to this list.
     _local_dataset = []
 
@@ -49,7 +52,7 @@ class ExperimentCreator:
 
         self._workflow_components = self.initialize_workflow_components()
 
-        self._parameters = self.initialize_estimator_parameters()
+        self._parameters, self._param_implementation = self.initialize_estimator_parameters()
 
         self._local_dataset = self.initialize_dataset_names()
 
@@ -62,8 +65,7 @@ class ExperimentCreator:
         if param_dict is None:
             default_logger.error('Experiment_creator.set_param_values','Missing dictionary argument')
 
-        self._param_value_dict[experiment_name] = copy.deepcopy(param_dict)
-
+        self._param_value_dict[experiment_name] = self.validate_parameters(param_dict)
 
     def set_parameters(self, estimator, estimator_name, param_val_dict):
         """
@@ -92,6 +94,46 @@ class ExperimentCreator:
                 estimator.set_params(**{param: param_val_dict.get(param)})
 
         return estimator
+
+    def validate_parameters(self, param_value_dict):
+        """
+        The function validates the parameters for each estimator and returns the validated parameters.
+        The parameter names are changed to the actual parameter variable names to be used within the experiment class
+        :param estimator_list: The estimators in the workflow pipeline
+        :return: A dictionary of the validated parameters
+        """
+        validated_param_dict = dict()
+        for estimator_name in param_value_dict:
+            # Check whether the estimator is available
+            if self._workflow_components.get(estimator_name) is not None:
+
+                # Check whether the params are available for the estimator
+                parameters = param_value_dict.get(estimator_name)
+                complete_param_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
+                estimator_params = dict()
+                param_names = self._parameters.get(estimator_name)
+                for param in parameters:
+                    if param in self._parameters.get(estimator_name):
+                        actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
+                        estimator_params[actual_param_name] = parameters.get(param)
+                    else:
+                        default_logger.warn(False, 'Experiment_creator.validate_parameters',
+                                    ''.join([param, ' not present in list for estimator:', estimator_name]))
+
+                if len(estimator_params) > 0:
+                    validated_param_dict[estimator_name] = copy.deepcopy(estimator_params)
+
+            else:
+                default_logger.warn(False, 'Experiment_creator.validate_parameters',
+                                    ''.join([estimator_name, ' not present in list']))
+
+        if len(validated_param_dict) > 0:
+            return validated_param_dict
+
+        else:
+            return None
+
+
 
     def validate_pipeline(self, pipeline):
         """
@@ -273,16 +315,21 @@ class ExperimentCreator:
     def initialize_estimator_parameters(self):
         """
         The function returns the parameters corresponding to each estimator in use
-        TODO: Dynamically populate the list
-        :return: Dictionary containing estimator and parameters
+        :return: Dictionary containing estimator and the corresponding parameters with its implementation
         """
-        estimator_params = {'SVC': ['probability', 'C', 'degree'],
-                            'LSA': ['n_components'],
-                            'isomap': ['n_neighbors', 'n_components'],
-                            'lle': ['n_neighbors', 'n_components', 'method'],
-                            'SVR': ['kernel', 'degree', 'gamma', 'C']}
 
-        return estimator_params
+        estimator_params = dict()
+        param_implementation_dict = dict()
+        for estimator in name_mappings:
+            param_list = []
+            param_list_dict = name_mappings.get(estimator).get('hyper_parameters').get('model_parameters')
+            for param in param_list_dict:
+                param_list.append(param.get('name'))
+                param_implementation_dict['.'.join([estimator, param.get('name')])] = \
+                    param.get('scikit-learn').get('path')
+            estimator_params[estimator] = copy.deepcopy(param_list)
+
+        return estimator_params, copy.deepcopy(param_implementation_dict)
 
     def initialize_dataset_names(self):
         """
