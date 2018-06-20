@@ -602,10 +602,12 @@ def main():
     print(df)
     metrics.analyze_runs(
         ['principal component analysis.num_components.4', 'principal component analysis.num_components.5'])
-    metrics.display_results()
+    df = metrics.display_results()
+    print(df)
 
     metrics.analyze_runs(['principal component analysis.num_components.4'], ['mean_error'])
-    metrics.display_results()
+    df = metrics.display_results()
+    print(df)
 
 
 if __name__ == '__main__':
