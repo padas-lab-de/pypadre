@@ -240,6 +240,10 @@ class ExperimentCreator:
                                      ''.join(['Backend is missing for experiment:', name]))
             return None
 
+        # If the name of the dataset is passed, the get the local dataset and replace it
+        if isinstance(dataset, str):
+            dataset = self.get_local_dataset(dataset)
+
         # Classifiers cannot work on continuous data and rejected as experiments.
         if not np.all(np.mod(dataset.targets(), 1) == 0):
             for estimator in workflow.named_steps:
@@ -375,6 +379,35 @@ class ExperimentCreator:
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
             ex.grid_search(parameters=self._param_value_dict.get(experiment))
 
+    def do_experiments(self, experiment_datasets, experiments = None):
+
+        import pprint
+
+        if experiments is None:
+            experiments = self.experiment_names
+
+        for experiment in experiments:
+            datasets = experiment_datasets.get(experiment, None)
+            if datasets is None:
+                continue
+
+            for dataset in datasets:
+                desc = ''.join([self._experiments.get(experiment).get('description'), 'with dataset ', dataset])
+                ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
+                                description=desc,
+                                dataset=self.get_local_dataset(dataset),
+                                workflow=self._experiments.get(experiment).get('workflow', None),
+                                backend=self._experiments.get(experiment).get('backend', None),
+                                strategy=self._experiments.get(experiment).get('strategy', 'random'))
+                conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
+
+                pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
+                ex.grid_search(parameters=self._param_value_dict.get(experiment))
+
     @property
     def experiments(self):
         return self._experiments
+
+    @property
+    def experiment_names(self):
+        return list(self._experiments.keys())
