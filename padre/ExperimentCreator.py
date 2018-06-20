@@ -55,13 +55,21 @@ class ExperimentCreator:
         self._local_dataset = self.initialize_dataset_names()
 
     def set_param_values(self, experiment_name=None, param_dict=None):
+        """
+        This function sets the parameters for estimators in a single experiment
+        :param experiment_name: The name of the experiment where the parameters need to be set
+        :param param_dict: The estimator,parameter dictionary which specifies the parameters for the estimator
+        :return: None
+        """
 
         if experiment_name is None:
-            default_logger.error('Experiment_creator.set_param_values',
+            default_logger.warn('ExperimentCreator.set_param_values',
                                  'Missing experiment name when setting param values')
+            return None
 
         if param_dict is None:
-            default_logger.error('Experiment_creator.set_param_values', 'Missing dictionary argument')
+            default_logger.warn('ExperimentCreator.set_param_values', 'Missing dictionary argument')
+            return None
 
         self._param_value_dict[experiment_name] = self.validate_parameters(param_dict)
 
@@ -80,13 +88,13 @@ class ExperimentCreator:
                 Else, None.
         """
         if estimator is None:
-            default_logger.error(False, 'Experiment_creator.set_parameters',
+            default_logger.error(False, 'ExperimentCreator.set_parameters',
                                  ''.join([estimator_name + ' does not exist in the workflow']))
             return None
         available_params = self._parameters.get(estimator_name)
         for param in param_val_dict:
             if param not in available_params:
-                default_logger.error(False, 'Experiment_creator.set_parameters',
+                default_logger.error(False, 'ExperimentCreator.set_parameters',
                                      ''.join([param + ' is not present for estimator ' + estimator_name]))
             else:
                 actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
@@ -114,14 +122,14 @@ class ExperimentCreator:
                         actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
                         estimator_params[actual_param_name] = parameters.get(param)
                     else:
-                        default_logger.warn(False, 'Experiment_creator.validate_parameters',
+                        default_logger.warn(False, 'ExperimentCreator.validate_parameters',
                                             ''.join([param, ' not present in list for estimator:', estimator_name]))
 
                 if len(estimator_params) > 0:
                     validated_param_dict[estimator_name] = copy.deepcopy(estimator_params)
 
             else:
-                default_logger.warn(False, 'Experiment_creator.validate_parameters',
+                default_logger.warn(False, 'ExperimentCreator.validate_parameters',
                                     ''.join([estimator_name, ' not present in list']))
 
         if len(validated_param_dict) > 0:
@@ -145,13 +153,13 @@ class ExperimentCreator:
         for transformer in transformers:
             if (not (hasattr(transformer[1], "fit") or hasattr(transformer[1], "fit_transform")) or not
                hasattr(transformer[1], "transform")):
-                default_logger.error(False, 'Experiment_creator.validate_pipeline',
+                default_logger.error(False, 'ExperimentCreator.validate_pipeline',
                                      "All intermediate steps should implement fit "
                                      "and fit_transform or the transform function")
                 return False
 
         if estimator is not None and not (hasattr(estimator[1], "fit")):
-            default_logger.error(False, 'Experiment_creator.validate_pipeline',
+            default_logger.error(False, 'ExperimentCreator.validate_pipeline',
                                  ''.join(["Estimator:" + estimator[0] + " does not have attribute fit"]))
             return False
         return True
@@ -174,7 +182,7 @@ class ExperimentCreator:
         estimators = []
         for estimator_name in estimator_list:
             if self._workflow_components.get(estimator_name) is None:
-                default_logger.error(False, 'Experiment_creator.create_test_pipleline',
+                default_logger.error(False, 'ExperimentCreator.create_test_pipleline',
                                      ''.join([estimator_name + ' not present in list']))
                 return None
 
@@ -225,16 +233,16 @@ class ExperimentCreator:
         """
         import numpy as np
         if name is None:
-            default_logger.warn(False, 'Experiment_creator.create_experiment',
+            default_logger.warn(False, 'ExperimentCreator.create_experiment',
                                 'Experiment name is missing, a name will be generated by the system')
 
         if description is None or \
                 workflow is None or backend is None or workflow is False:
             if description is None:
-                default_logger.error(False, 'Experiment_creator.create_experiment',
+                default_logger.error(False, 'ExperimentCreator.create_experiment',
                                      ''.join(['Description is missing for experiment:', name]))
             if backend is None:
-                default_logger.error(False, 'Experiment_creator.get_local_dataset',
+                default_logger.error(False, 'ExperimentCreator.get_local_dataset',
                                      ''.join(['Backend is missing for experiment:', name]))
             return None
 
@@ -245,9 +253,10 @@ class ExperimentCreator:
         # Classifiers cannot work on continuous data and rejected as experiments.
         if dataset is not None and not np.all(np.mod(dataset.targets(), 1) == 0):
             for estimator in workflow.named_steps:
-                if name_mappings.get(estimator).get('type', None) != 'Classification':
-                    default_logger.error(False, 'ExperimentCreator.create_experiment',
-                                         ''.join(['Estimator ', estimator, ' cannot work on continuous data']))
+                if name_mappings.get(estimator).get('type', None) == 'Classification':
+                    default_logger.warn(False, 'ExperimentCreator.create_experiment',
+                                         ''.join(['Estimator ', estimator, ' cannot work on continuous data. '
+                                                                           'Experiment will be discarded']))
                     return None
 
         # Experiment name should be unique
@@ -260,13 +269,13 @@ class ExperimentCreator:
             self._experiments[name] = data_dict
             if params is not None:
                 self._param_value_dict[name] = copy.deepcopy(params)
-            default_logger.log('Experiment_creator.create_experiment',
+            default_logger.log('ExperimentCreator.create_experiment',
                                ''.join([name, ' created successfully!']))
 
         else:
             default_logger.error(False, 'ExperimentCreator.create_experiment', 'Error creating experiment')
             if self._experiments.get(name, None) is not None:
-                default_logger.error(False, 'Experiment_creator.create_experiment',
+                default_logger.error(False, 'ExperimentCreator.create_experiment',
                                      ''.join(['Experiment name: ', name,
                                               ' already present. Experiment name should be unique']))
 
@@ -280,12 +289,12 @@ class ExperimentCreator:
                  Else, None
         """
         if name is None:
-            default_logger.error(False, 'Experiment_creator.get_local_dataset', 'Dataset name is empty')
+            default_logger.error(False, 'ExperimentCreator.get_local_dataset', 'Dataset name is empty')
             return None
         if name in self._local_dataset:
             return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
         else:
-            default_logger.error(False, 'Experiment_creator.get_local_dataset', name + ' Local Dataset not found')
+            default_logger.error(False, 'ExperimentCreator.get_local_dataset', name + ' Local Dataset not found')
             return None
 
     def get_dataset_names(self):
@@ -393,20 +402,47 @@ class ExperimentCreator:
         """
 
         import pprint
+        import numpy as np
 
         if experiment_datasets is None:
             return None
 
         for experiment in experiment_datasets:
+
+            # If such an experiment does not exist, discard
+            if self._experiments.get(experiment, None) is None:
+                continue
+
             datasets = experiment_datasets.get(experiment, None)
+            # If the dataset does not exist, discard
             if datasets is None:
                 continue
 
             for dataset in datasets:
+                flag = True
                 desc = ''.join([self._experiments.get(experiment).get('description'), 'with dataset ', dataset])
+                data = self.get_local_dataset(dataset)
+
+                if data is None:
+                    continue
+
+                # Classifiers cannot work on continuous data and rejected as experiments.
+                if not np.all(np.mod(data.targets(), 1) == 0):
+                    workflow = self._experiments.get(experiment).get('workflow', None)
+                    for estimator in workflow.named_steps:
+                        if name_mappings.get(estimator).get('type', None) == 'Classification':
+                            flag = False
+                            default_logger.warn(False, 'ExperimentCreator.do_experiments',
+                                                 ''.join(['Estimator ', estimator, ' cannot work on continuous data.'
+                                                                                   'This dataset will be disregarded']))
+
+                # If a classification estimator tries to work on continous data disregard it
+                if not flag:
+                    continue
+
                 ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
                                 description=desc,
-                                dataset=self.get_local_dataset(dataset),
+                                dataset=data,
                                 workflow=self._experiments.get(experiment).get('workflow', None),
                                 backend=self._experiments.get(experiment).get('backend', None),
                                 strategy=self._experiments.get(experiment).get('strategy', 'random'))

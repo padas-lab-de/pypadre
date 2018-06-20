@@ -27,14 +27,14 @@ def main():
     experiment_helper.set_param_values('Test Experiment PCA Logistic', params_dict_logistic)
     experiment_helper.create_experiment(name='Test Experiment PCA Logistic',
                                         description='Test Experiment with pca and logistic regression',
-                                        dataset=None,
+                                        dataset='Boston_House_Prices',
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
     experiment_helper.execute_experiments()
 
     experiment = ['Test Experiment PCA Linear', 'Test Experiment PCA Logistic']
     datasets = ['Diabetes', 'Boston_House_Prices']
-    datasets_logistic = ['Iris', 'Digits', 'Breast_Cancer']
+    datasets_logistic = ['Iris', 'Digits', 'Breast_Cancer', 'Boston_House_Prices']
     experiment_datasets = {experiment[0]:datasets,
                            experiment[1]:datasets_logistic}
     experiment_helper.do_experiments(experiment_datasets)
