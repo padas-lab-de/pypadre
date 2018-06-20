@@ -31,7 +31,6 @@ class ExperimentCreator:
     # as a list under the key of the estimator name
     # The parameters will be entered as a list to the key
     # based on the estimator name
-    # TODO: This should mapped dynamically
     _parameters = dict()
 
     _param_value_dict = dict()
@@ -47,7 +46,6 @@ class ExperimentCreator:
         Initialization function of the helper class.
         This function currently manually initializes all values but it could be changed to
         reading the data from files at run time.
-        TODO: Make this function read all values dynamically from a file
         """
 
         self._workflow_components = self.initialize_workflow_components()
