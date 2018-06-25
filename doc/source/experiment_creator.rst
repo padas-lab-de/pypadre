@@ -56,3 +56,12 @@ Properties
 * experiment_names: Returns the names of all the experiments that have been created
 * components: Returns all the names of estimators available to the user
 
+Experiment Creation from the Command Line Interface
+-------------------------
+
+#. Display all the available estimators using "**components**" command
+#. Display all the available datasets using "**dataset**" command
+#. Create an experiment using the "**create_experiment**" command with parameters a unique experiment_name, a description of the experiment, the name of the dataset to be used(names obtained in the above step) and the list of estimators to beused for the workflow(estimators are separated by a comma)
+#. Execute the experiment using the commmand "**run**"
+#. Multiple experiments can be created in this fashion. To view the list of created experiments use the command "**experiment**"
+
