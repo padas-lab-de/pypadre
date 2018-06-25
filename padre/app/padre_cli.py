@@ -123,6 +123,10 @@ def execute(ctx):
     ctx.obj["pypadre"].experiment_creator.execute_experiments()
 
 
+#################################
+####### METRICS FUNCTIONS ##########
+#################################
+
 @pypadre_cli.command(name="compare_metrics")
 @click.option('--path', default=None, help='Path of the experiment whose runs are to be compared')
 @click.option('--query', default="all", help="Results to be displayed based on the runs")
@@ -139,6 +143,14 @@ def compare_runs(ctx, path, query, metrics):
     ctx.obj["pypadre"].metrics_evaluator.read_split_metrics()
     ctx.obj["pypadre"].metrics_evaluator.analyze_runs(estimators_list, metrics_list)
     print(ctx.obj["pypadre"].metrics_evaluator.display_results())
+
+@pypadre_cli.command(name="reevaluate_metrics")
+@click.option('--path', default=None, help='Path of experiments whose metrics are to be reevaluated')
+@click.pass_context
+def reevaluate_runs(ctx, path):
+    path_list = (path.replace(", ", ",")).split(sep=",")
+    ctx.obj["pypadre"].metrics_reevaluator.get_split_directories(dir_path=path_list)
+    ctx.obj["pypadre"].metrics_reevaluator.recompute_metrics()
 
 
 if __name__ == '__main__':

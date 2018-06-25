@@ -188,6 +188,7 @@ class PadreApp:
         self._experiment_app = ExperimentApp(self)
         self._experiment_creator = ExperimentCreator()
         self._metrics_evaluator = CompareMetrics()
+        self._metrics_reevaluator = ReevaluationMetrics()
 
 
     @property
@@ -205,6 +206,10 @@ class PadreApp:
     @property
     def metrics_evaluator(self):
         return self._metrics_evaluator
+
+    @property
+    def metrics_reevaluator(self):
+        return self._metrics_reevaluator
 
     def set_printer(self, printer):
         """

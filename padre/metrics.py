@@ -18,6 +18,7 @@ class ReevaluationMetrics:
     The user should be able to specify the required metrics and those additional metrics will be computed, if
     the functions for those metrics are available
     """
+    _dir_path = []
     def __init__(self, dir_path=None, file_path=None):
         if dir_path is not None:
             self._dir_path = dir_path
@@ -36,7 +37,15 @@ class ReevaluationMetrics:
         return [os.path.join(dir_path, name) for name in os.listdir(dir_path)
                 if os.path.isdir(os.path.join(dir_path, name))]
 
-    def get_split_directories(self):
+    def get_split_directories(self, dir_path):
+        """
+        Finds all the split directories within the path
+        :param dir_path:
+        :return: None
+        """
+
+        if dir_path is not None:
+            self._dir_path = copy.deepcopy(self._dir_path + dir_path)
 
         for experiment_path in self._dir_path:
             run_dir_list = self.get_immediate_subdirectories(experiment_path)
@@ -295,7 +304,7 @@ class CompareMetrics:
         """
 
         if run_dir is not None:
-            self._dir_path += run_dir
+            self._dir_path = copy.deepcopy(self._dir_path + run_dir)
 
         if self._dir_path is None:
             return
