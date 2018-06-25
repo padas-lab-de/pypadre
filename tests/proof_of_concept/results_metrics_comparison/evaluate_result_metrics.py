@@ -268,13 +268,17 @@ class CompareMetrics:
 
         return True
 
-    def read_run_directories(self):
+    def read_run_directories(self, run_dir=None):
         """
         unique_estimators = dict()
         This function reads all the run directories and stores the names,
         for obtaining the parameters that changed
+        :param: run_dir: The directory of the experiments to be compared
         :return: None
         """
+
+        if run_dir is not None:
+            self._dir_path = run_dir
 
         if self._dir_path is None:
             return

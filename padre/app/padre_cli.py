@@ -116,10 +116,29 @@ def create_experiment(ctx, name, description, dataset, workflow, backend):
         backend = pypadre.file_repository.experiments
     ctx.obj["pypadre"].experiment_creator.create_experiment(name, description, dataset, workflow_obj, backend)
 
-@pypadre_cli.command(name='run')
+
+@pypadre_cli.command(name="run")
 @click.pass_context
 def execute(ctx):
     ctx.obj["pypadre"].experiment_creator.execute_experiments()
+
+
+@pypadre_cli.command(name="compare_metrics")
+@click.option('--path', default=None, help='Path of the experiment whose runs are to be compared')
+@click.option('--query', default="all", help="Results to be displayed based on the runs")
+@click.option('--metrics', default=None, help='Metrics to be displayed')
+@click.pass_context
+def compare_runs(ctx, path, query, metrics):
+    metrics_list = None
+    dir_path_list = (path.replace(", ","")).split(sep=",")
+    estimators_list = (query.replace(", ","")).split(sep=",")
+    if metrics is not None:
+        metrics_list = (metrics.replace(", ","")).split(sep=",")
+    ctx.obj["pypadre"].metrics_evaluator.read_run_directories(dir_path_list)
+    ctx.obj["pypadre"].metrics_evaluator.get_unique_estimators_parameter_names()
+    ctx.obj["pypadre"].metrics_evaluator.read_split_metrics()
+    ctx.obj["pypadre"].metrics_evaluator.analyze_runs(estimators_list, metrics_list)
+    print(ctx.obj["pypadre"].metrics_evaluator.display_results())
 
 
 if __name__ == '__main__':

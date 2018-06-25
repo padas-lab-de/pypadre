@@ -16,6 +16,8 @@ from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.ds_import import load_sklearn_toys
 from padre.ExperimentCreator import ExperimentCreator
+from padre.metrics import ReevaluationMetrics
+from padre.metrics import CompareMetrics
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -185,6 +187,7 @@ class PadreApp:
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
         self._experiment_creator = ExperimentCreator()
+        self._metrics_evaluator = CompareMetrics()
 
 
     @property
@@ -198,6 +201,10 @@ class PadreApp:
     @property
     def experiment_creator(self):
         return self._experiment_creator
+
+    @property
+    def metrics_evaluator(self):
+        return self._metrics_evaluator
 
     def set_printer(self, printer):
         """
