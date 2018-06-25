@@ -49,7 +49,7 @@ class ExperimentCreator:
         """
         self._workflow_components = self.initialize_workflow_components()
 
-        self._parameters, self._param_implementation = self.initialize_estimator_parameters()
+        self._parameters, self._param_implementation = self.initialize_estimator_parameters_implementation()
 
         self._local_dataset = self.initialize_dataset_names()
 
@@ -329,7 +329,7 @@ class ExperimentCreator:
 
         return components
 
-    def initialize_estimator_parameters(self):
+    def initialize_estimator_parameters_implementation(self):
         """
         The function returns the parameters corresponding to each estimator in use
         :return: Dictionary containing estimator and the corresponding parameters with its implementation
