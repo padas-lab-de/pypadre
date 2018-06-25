@@ -47,7 +47,6 @@ class ExperimentCreator:
         This function currently manually initializes all values but it could be changed to
         reading the data from files at run time.
         """
-
         self._workflow_components = self.initialize_workflow_components()
 
         self._parameters, self._param_implementation = self.initialize_estimator_parameters()
@@ -458,3 +457,7 @@ class ExperimentCreator:
     @property
     def experiment_names(self):
         return list(self._experiments.keys())
+
+    @property
+    def components(self):
+        return list(self._workflow_components.keys())

@@ -5,6 +5,7 @@ Command Line Interface for PADRE.
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
 import click
 import padre.app.padre_app as app
+from padre.app import pypadre
 
 
 #################################
@@ -74,6 +75,51 @@ def do_import(ctx, sklearn):
 def dataset(ctx, dataset_id, binary, format):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
     ctx.obj["pypadre"].datasets.get_dataset(dataset_id, binary, format)
+
+#################################
+####### EXPERIMENT FUNCTIONS ##########
+#################################
+
+@pypadre_cli.command(name="experiment")
+@click.pass_context
+def show_experiments(ctx):
+    # List all the experiments that are currently saved
+    ctx.obj["pypadre"].experiment_creator.experiment_names
+
+
+@pypadre_cli.command(name="components")
+@click.pass_context
+def show_components(ctx):
+    # List all the components of the workflow
+    print(ctx.obj["pypadre"].experiment_creator.components)
+
+
+@pypadre_cli.command(name="parameters")
+@click.argument('estimator')
+#@click.option(default="linear regression", help='Shows all parameters of an estimator')
+@click.pass_context
+def components(ctx, estimator):
+    print(ctx.obj["pypadre"].experiment_creator.get_estimator_params(estimator))
+
+
+@pypadre_cli.command(name="create_experiment")
+@click.option('--name', default=None, help='Name of the experiment. If none UUID will be given')
+@click.option('--description', default=None, help='Description of the experiment')
+@click.option('--dataset', default=None, help='Name of the dataset to be used in the experiment')
+@click.option('--workflow', default=None, help='Estimators to be used in the workflow')
+@click.option('--backend', default=None, help='Backend of the experiment')
+@click.pass_context
+def create_experiment(ctx, name, description, dataset, workflow, backend):
+    estimator_list = (workflow.replace(", ",",")).split(sep=",")
+    workflow_obj = ctx.obj["pypadre"].experiment_creator.create_test_pipeline(estimator_list)
+    if backend is None:
+        backend = pypadre.file_repository.experiments
+    ctx.obj["pypadre"].experiment_creator.create_experiment(name, description, dataset, workflow_obj, backend)
+
+@pypadre_cli.command(name='run')
+@click.pass_context
+def execute(ctx):
+    ctx.obj["pypadre"].experiment_creator.execute_experiments()
 
 
 if __name__ == '__main__':

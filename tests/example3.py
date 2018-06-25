@@ -21,7 +21,6 @@ def main():
                                         backend=pypadre.file_repository.experiments)
 
     workflow = experiment_helper.create_test_pipeline(['logistic regression'])
-
     params_logistic_pca = {'penalty_norm': ['l1', 'l2']}
     params_dict_logistic = {'logistic regression': params_logistic_pca}
     experiment_helper.set_param_values('Test Experiment PCA Logistic', params_dict_logistic)
@@ -38,7 +37,6 @@ def main():
     experiment_datasets = {experiment[0]:datasets,
                            experiment[1]:datasets_logistic}
     experiment_helper.do_experiments(experiment_datasets)
-
 
 
 if __name__ == '__main__':
