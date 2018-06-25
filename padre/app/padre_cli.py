@@ -96,10 +96,15 @@ def show_components(ctx):
 
 @pypadre_cli.command(name="parameters")
 @click.argument('estimator')
-#@click.option(default="linear regression", help='Shows all parameters of an estimator')
 @click.pass_context
 def components(ctx, estimator):
     print(ctx.obj["pypadre"].experiment_creator.get_estimator_params(estimator))
+
+
+@pypadre_cli.command(name="datasets")
+@click.pass_context
+def datasets(ctx):
+    print(ctx.obj["pypadre"].experiment_creator.get_dataset_names())
 
 
 @pypadre_cli.command(name="create_experiment")
