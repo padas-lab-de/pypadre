@@ -11,6 +11,7 @@ Welcome to PyPaDRE Documentation's documentation!
    :caption: Contents:
    intro
    design_principles
+   experiment_creator
 
 
 
