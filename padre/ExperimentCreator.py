@@ -53,16 +53,60 @@ class ExperimentCreator:
 
         self._local_dataset = self.initialize_dataset_names()
 
-    def set_param_values(self, experiment_name=None, param_dict=None):
+    def set_param_values(self, experiment_name=None, param=None):
         """
         This function sets the parameters for estimators in a single experiment
         :param experiment_name: The name of the experiment where the parameters need to be set
         :param param_dict: The estimator,parameter dictionary which specifies the parameters for the estimator
         :return: None
         """
+        param_dict = None
+
+        if isinstance(param, str):
+            # String Format: principal component analysis.n_components:[4, 5, 6, 7, 10]
+            param_dict = dict()
+            # Separate each estimator and corresponding parameters
+            estimator_params_list = (param.strip()).split(sep="|")
+            for estimator_params in estimator_params_list:
+                # Extract each estimator name and corresponding parameter list
+                sep_idx = estimator_params.find('.')
+                if sep_idx == -1:
+                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                 'Missing separators.')
+                    continue
+                estimator = estimator_params[:sep_idx]
+                params = (estimator_params[sep_idx+1:]).split(',')
+                sep_idx = params[0].find(':')
+                if sep_idx == -1:
+                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                 'Missing separators.')
+                    continue
+                param_name = params[0][:sep_idx].strip()
+                params[0] = params[0][sep_idx+1:].strip()
+                sep_idx = params[0].find('[')
+                if sep_idx == -1:
+                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                        'Missing separators.')
+                    continue
+
+                params[0] = params[0][sep_idx+1:].strip()
+                sep_idx = params[-1].find("]")
+                if sep_idx == -1:
+                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                        'Missing separators.')
+                    continue
+                params[-1] = params[-1][:sep_idx].strip()
+                for idx in range(0,len(params)):
+                    params[idx] = params[idx].strip()
+
+                param_dict[param_name] = list(params)
+
+        elif isinstance(param, dict):
+            param_dict = param
+
 
         if experiment_name is None:
-            default_logger.warn('ExperimentCreator.set_param_values',
+            default_logger.warn(False, 'ExperimentCreator.set_param_values',
                                  'Missing experiment name when setting param values')
             return None
 
@@ -71,6 +115,24 @@ class ExperimentCreator:
             return None
 
         self._param_value_dict[experiment_name] = self.validate_parameters(param_dict)
+
+    def get_param_values(self, experiment_name=None):
+
+        estimator_params = self._param_value_dict.get(experiment_name)
+        if estimator_params is None:
+            return 'Experiment does not have any parameters set yet.'
+
+        param_string = ''
+        for estimator in estimator_params:
+
+            param_dict = estimator_params.get(estimator)
+            for param_name in param_dict:
+                param_string += (estimator + '.')
+                param_string += (param_name + ':')
+                param_string += ''.join(str(param_dict.get(param_name)))
+            param_string += "|"
+
+        return param_string[:-1]
 
     def set_parameters(self, estimator, estimator_name, param_val_dict):
         """

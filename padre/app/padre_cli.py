@@ -107,6 +107,21 @@ def datasets(ctx):
     print(ctx.obj["pypadre"].experiment_creator.get_dataset_names())
 
 
+@pypadre_cli.command(name='set_params')
+@click.option("--experiment", default=None, help='Name of the experiment to which parameters are to be set.')
+@click.option("--parameters", default=None, help='Name of the parameter and the parameters.')
+@click.pass_context
+def set_parameters(ctx, experiment, parameters):
+    ctx.obj["pypadre"].experiment_creator.set_param_values(experiment, parameters)
+
+
+@pypadre_cli.command(name='get_params')
+@click.option("--experiment", default=None, help='Name of the experiment from which parameters are to be retrieved')
+@click.pass_context
+def get_parameters(ctx, experiment):
+    print(ctx.obj["pypadre"].experiment_creator.get_param_values(experiment))
+
+
 @pypadre_cli.command(name="create_experiment")
 @click.option('--name', default=None, help='Name of the experiment. If none UUID will be given')
 @click.option('--description', default=None, help='Description of the experiment')
