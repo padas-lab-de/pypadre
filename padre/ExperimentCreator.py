@@ -4,6 +4,7 @@ All the validation mechanisms on the parameters to the Experiment class are impl
 This class also provides interfaces to find the available datasets, available estimators,
 and the estimator parameters
 """
+import ast
 import copy
 import importlib
 from padre.base import default_logger
@@ -35,6 +36,14 @@ class ExperimentCreator:
 
     _param_value_dict = dict()
 
+    _param_types_dict = dict()
+
+    _param_type_mappings = {
+                            u'integer':int,
+                            u'float':float,
+                            u'boolean':ast.literal_eval,
+                           }
+
     # Mapping of the parameter names to the actual variable names
     _param_implementation = dict()
 
@@ -49,9 +58,101 @@ class ExperimentCreator:
         """
         self._workflow_components = self.initialize_workflow_components()
 
-        self._parameters, self._param_implementation = self.initialize_estimator_parameters_implementation()
+        self._parameters, self._param_implementation, self._param_types_dict = self.initialize_estimator_parameters_implementation()
 
         self._local_dataset = self.initialize_dataset_names()
+
+    def typecast_variable(self, param, allowed_types):
+        """
+        Dynamically typecasts the param variable based on the allowed types provided
+        :param param: parameter to be type cast
+        :param allowed_types: types that the parameter can be typecast into
+        :return: a value that has been typecast
+        """
+
+        if len(allowed_types) > 1:
+            allowed_types[0] = allowed_types[0][1:]
+            allowed_types[-1] = allowed_types[-1][:-1]
+
+        val = None
+        for curr_type in allowed_types:
+            try:
+                val = self._param_type_mappings.get(curr_type, None)(param)
+                break
+            except:
+                continue
+
+        return val
+
+
+    def convert_param_string_to_dictionary(self, param):
+        """
+        Converts a string to equivalent parameters by dynamic type casting
+        :param param: the string containing the parameter name and parameter values
+        :return: a dictionary with the parameter name as key and parameter values as values
+        TODO: Currently supports only integer, float, boolean. Need to expand and find a method for precedence of types
+        """
+        # String Format: principal component analysis.n_components:[4, 5, 6, 7, 10]
+        param_dict = dict()
+        estimator_param_dict = dict()
+        # Separate each estimator and corresponding parameters
+        estimator_params_list = (param.strip()).split(sep="|")
+        for estimator_params in estimator_params_list:
+            curr_params = dict()
+
+            # Extract each estimator name and corresponding parameter list
+            sep_idx = estimator_params.find('.')
+            if sep_idx == -1:
+                default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                    'Missing separators.')
+                continue
+
+            estimator = estimator_params[:sep_idx]
+            params = (estimator_params[sep_idx + 1:]).split(',')
+            sep_idx = params[0].find(':')
+            if sep_idx == -1:
+                default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                    'Missing separators.')
+                continue
+
+            param_name = params[0][:sep_idx].strip()
+            params[0] = params[0][sep_idx + 1:].strip()
+            sep_idx = params[0].find('[')
+            if sep_idx == -1:
+                default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                    'Missing separators.')
+                continue
+
+            params[0] = params[0][sep_idx + 1:].strip()
+            sep_idx = params[-1].find("]")
+            if sep_idx == -1:
+                default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                    'Missing separators.')
+                continue
+
+            params[-1] = params[-1][:sep_idx].strip()
+            # For each parameter convert to corresponding type
+            # Parameters that cannot be converted are discarded
+            converted_params = []
+            for idx in range(0, len(params)):
+                possible_types = \
+                    (self._param_types_dict.get('.'.join([estimator, param_name]))).replace(" ", "").split(sep=',')
+                val = self.typecast_variable(params[idx].strip(), possible_types)
+                if val is not None:
+                    converted_params.append(val)
+
+            curr_params[param_name] = copy.deepcopy(list(converted_params))
+
+            # if it is a new parameter for the estimator
+            if param_dict.get(estimator, None) is None:
+                param_dict[estimator] = copy.deepcopy(curr_params)
+
+            else:
+                params_dict = param_dict.get(estimator)
+                params_dict.update(copy.deepcopy(curr_params))
+                param_dict[estimator] = params_dict
+
+        return param_dict
 
     def set_param_values(self, experiment_name=None, param=None):
         """
@@ -61,45 +162,13 @@ class ExperimentCreator:
         :return: None
         """
         param_dict = None
+        if param is None:
+            default_logger.warn(False, 'ExperimentCreator.set_param_values',
+                                'Missing parameter value')
+            return None
 
         if isinstance(param, str):
-            # String Format: principal component analysis.n_components:[4, 5, 6, 7, 10]
-            param_dict = dict()
-            # Separate each estimator and corresponding parameters
-            estimator_params_list = (param.strip()).split(sep="|")
-            for estimator_params in estimator_params_list:
-                # Extract each estimator name and corresponding parameter list
-                sep_idx = estimator_params.find('.')
-                if sep_idx == -1:
-                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                 'Missing separators.')
-                    continue
-                estimator = estimator_params[:sep_idx]
-                params = (estimator_params[sep_idx+1:]).split(',')
-                sep_idx = params[0].find(':')
-                if sep_idx == -1:
-                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                 'Missing separators.')
-                    continue
-                param_name = params[0][:sep_idx].strip()
-                params[0] = params[0][sep_idx+1:].strip()
-                sep_idx = params[0].find('[')
-                if sep_idx == -1:
-                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                        'Missing separators.')
-                    continue
-
-                params[0] = params[0][sep_idx+1:].strip()
-                sep_idx = params[-1].find("]")
-                if sep_idx == -1:
-                    default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                        'Missing separators.')
-                    continue
-                params[-1] = params[-1][:sep_idx].strip()
-                for idx in range(0,len(params)):
-                    params[idx] = params[idx].strip()
-
-                param_dict[param_name] = list(params)
+            param_dict = self.convert_param_string_to_dictionary(param)
 
         elif isinstance(param, dict):
             param_dict = param
@@ -111,12 +180,17 @@ class ExperimentCreator:
             return None
 
         if param_dict is None:
-            default_logger.warn('ExperimentCreator.set_param_values', 'Missing dictionary argument')
+            default_logger.warn(False, 'ExperimentCreator.set_param_values', 'Missing dictionary argument')
             return None
 
         self._param_value_dict[experiment_name] = self.validate_parameters(param_dict)
 
     def get_param_values(self, experiment_name=None):
+        """
+        This function displays all the parameters stored for a single experiment
+        :param experiment_name: The name of the experiment whose parameters are to be examined
+        :return: A string containing the estimators.parameters:[values]
+        """
 
         estimator_params = self._param_value_dict.get(experiment_name)
         if estimator_params is None:
@@ -130,7 +204,7 @@ class ExperimentCreator:
                 param_string += (estimator + '.')
                 param_string += (param_name + ':')
                 param_string += ''.join(str(param_dict.get(param_name)))
-            param_string += "|"
+                param_string += "|"
 
         return param_string[:-1]
 
@@ -399,6 +473,7 @@ class ExperimentCreator:
 
         estimator_params = dict()
         param_implementation_dict = dict()
+        param_types_dict = dict()
         for estimator in name_mappings:
             param_list = []
             param_list_dict = name_mappings.get(estimator).get('hyper_parameters').get('model_parameters')
@@ -406,9 +481,11 @@ class ExperimentCreator:
                 param_list.append(param.get('name'))
                 param_implementation_dict['.'.join([estimator, param.get('name')])] = \
                     param.get('scikit-learn').get('path')
+                param_types_dict['.'.join([estimator, param.get('name')])] = \
+                    param.get('kind_of_value')
             estimator_params[estimator] = copy.deepcopy(param_list)
 
-        return estimator_params, copy.deepcopy(param_implementation_dict)
+        return estimator_params, copy.deepcopy(param_implementation_dict), copy.deepcopy(param_types_dict)
 
     def initialize_dataset_names(self):
         """
