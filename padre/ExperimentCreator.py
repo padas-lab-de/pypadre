@@ -135,9 +135,13 @@ class ExperimentCreator:
             # Parameters that cannot be converted are discarded
             converted_params = []
             for idx in range(0, len(params)):
-                possible_types = \
-                    (self._param_types_dict.get('.'.join([estimator, param_name]))).replace(" ", "").split(sep=',')
+                type_string = self._param_types_dict.get('.'.join([estimator, param_name]), None)
+                if type_string is None:
+                    continue
+
+                possible_types = type_string.replace(" ", "").split(sep=',')
                 val = self.typecast_variable(params[idx].strip(), possible_types)
+
                 if val is not None:
                     converted_params.append(val)
 
