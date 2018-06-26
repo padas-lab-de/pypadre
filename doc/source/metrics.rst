@@ -24,6 +24,16 @@ Use the command "**compare_metrics**" to compare runs with the parameters.
 #. metrics: The metrics that need to be displayed to the user. Example "mean_error"
 Sample execution: compare_metrics --path "~/pypadre/experiments/Test Experiment PCA Linear.ex" --query "principal component analysis" --metrics "mean_error"
 
+*****************
+ReevaluateMetrics
+*****************
+========
+Summary
+========
+This class allows the user to reevaluate metrics based on the results.
+
+To reevaluate the metrics, the user has to run the reevaluate metrics command with the path option set to the experiment directories that need to be reevaluated.
+
 
 
 
