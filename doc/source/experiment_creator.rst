@@ -29,14 +29,12 @@ Get Functions
 * get_estimator_params(estimator_name): This function returns all the parameters belonging to an estimator.
 * get_estimator_object(estimator_name): Returns an object of the estimator as specified in the mappings.json implementation
 * get_local_dataset(name): Returns the instance of the dataset
+* get_param_values(experiment_name): Returns all the non-default parameters set for that experiment in the same format that is used to set the parameters
 
 Set Functions
 -------------
-* set_param_values(experiment_name, param_dict): Used to set the parameters for a particular experiment.
-The param_dict contains the name of the estimator and the parameters to be set for that estimator. The parameters
-for the experiment are set after validation.
-* set_parameters(estimator_object, estimator_name, param_dict): This function sets the parameters for the estimator
-object after validating that the estimator has such an available parameter.
+* set_param_values(experiment_name, param): Used to set the parameters for a particular experiment. The param contains the name of the estimator and the parameters to be set for that estimator. The parameters for the experiment are set after validation. The param could be a string or a dictionary. The format is given by estimator_name.parameter_name:[parameter_value1, parameter_value2, ...., parameter_valueN]. Multiple parameters can be chained by the '|' operator. Any parameter or value that could not be inserted will be discarded.
+* set_parameters(estimator_object, estimator_name, param_dict): This function sets the parameters for the estimator object after validating that the estimator has such an available parameter.
 
 Validation Functions
 --------------------
@@ -62,6 +60,7 @@ Experiment Creation from the Command Line Interface
 #. Display all the available estimators using "**components**" command
 #. Display all the available datasets using "**dataset**" command
 #. Create an experiment using the "**create_experiment**" command with parameters a unique experiment_name, a description of the experiment, the name of the dataset to be used(names obtained in the above step) and the list of estimators to beused for the workflow(estimators are separated by a comma)
+#. Set experiment parameters using the **set_param_values** command
 #. Execute the experiment using the commmand "**run**"
 #. Multiple experiments can be created in this fashion. To view the list of created experiments use the command "**experiment**"
 
