@@ -13,7 +13,9 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['principal component analysis', 'linear regression'])
     params_linear_pca = {'num_components': [4, 5, 6, 7, 10]}
     params_dict_linear = {'principal component analysis': params_linear_pca}
-    experiment_helper.set_param_values('Test Experiment PCA Linear', params_dict_linear)
+    experiment_helper.set_param_values('Test Experiment PCA Linear',
+                                       'principal component analysis.num_components:[4, 5, 6, 7, 10]|principal component analysis.whiten:[False, True]')
+    print(experiment_helper.get_param_values('Test Experiment PCA Linear'))
     experiment_helper.create_experiment(name='Test Experiment PCA Linear',
                                         description='Test Experiment with pca and linear regression',
                                         dataset=None,
