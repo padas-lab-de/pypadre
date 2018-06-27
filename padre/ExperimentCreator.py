@@ -84,7 +84,6 @@ class ExperimentCreator:
 
         return val
 
-
     def convert_param_string_to_dictionary(self, param):
         """
         Converts a string to equivalent parameters by dynamic type casting

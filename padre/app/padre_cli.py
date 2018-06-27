@@ -143,6 +143,26 @@ def execute(ctx):
     ctx.obj["pypadre"].experiment_creator.execute_experiments()
 
 
+@pypadre_cli.command(name="do_experiments")
+@click.option('--experiments', default=None, help='Names of the experiments where the datasets should be applied')
+@click.option('--datasets', default=None, help="Names of datasets for each experiment separated by ;")
+@click.pass_context
+def do_experiment(ctx, experiments, datasets):
+    import copy
+    datasets_list = datasets.split(sep=";")
+    experiments_list = experiments.split(sep=",")
+    if len(datasets_list) == len(experiments_list):
+        experiment_datasets_dict = dict()
+        for idx in range(0, len(experiments_list)):
+            datasets_list[idx] = ((datasets_list[idx].strip()).replace(", ", ",")).replace(" ,",",")
+            curr_exp_datasets = datasets_list[idx].split(sep=",")
+            experiment_datasets_dict[experiments_list[idx]] = copy.deepcopy(curr_exp_datasets)
+
+        ctx.obj["pypadre"].experiment_creator.do_experiments(experiment_datasets_dict)
+
+
+
+
 #################################
 ####### METRICS FUNCTIONS ##########
 #################################
