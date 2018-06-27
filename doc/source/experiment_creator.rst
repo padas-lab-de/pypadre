@@ -19,7 +19,7 @@ Initialization Functions
 ------------------------
 
 * initialize_workflow_components: This function reads all the estimators available for the system. This is obtained from the mappings.json file.
-* intialize_estimator_parameter_implementation: This function reads all the parameters available to the function and also identifies the implementation of the function for dynamic loading
+* intialize_estimator_parameter_implementation: This function reads all the parameters available to the function and also identifies the implementation of the function for dynamic loading. This function also returns the possible datatypes for each parameter.
 * initialize_dataset_names: This function reads all the names of all the available datasets
 
 Get Functions
@@ -53,6 +53,16 @@ Properties
 * experiments: Returns all the experiments that have been created
 * experiment_names: Returns the names of all the experiments that have been created
 * components: Returns all the names of estimators available to the user
+
+Conversion Functions
+--------------------
+convert_param_string_to_dictionary(param): This function converts a string given as input into the appropriate parameter name and parameter values. The string is of the format estimator_name.parameter_name:[value1, value2, ..., valueN]
+typecast_variable(param, allowed_types): This function typecasts a string variable into one of the options in allowed_types.
+
+Create Functions
+---------------
+create_experiment(name, description, dataset, workflow, backend, params): creates an experiment with the experiment name(if experiment name is not given, a default one will be created by the system), its description, the name of the dataset or the dataset object itself, the workflow, backend and the parameters of the estimators that need to be changed, if any.
+create_test_pipeline(estimator_list, params): Creates a workflow from the given list of estimators. The params argument is optional and can be used to set the parameters of the estimators.
 
 Experiment Creation from the Command Line Interface
 -------------------------
