@@ -1,8 +1,9 @@
 """
-This class creates experiments that can be run by the Experiment class
-All the validation mechanisms on the parameters to the Experiment class are implemented here
-This class also provides interfaces to find the available datasets, available estimators,
-and the estimator parameters
+This Class helps is creating experiments that can be run by the Experiment class.
+The class also performs the necessary validations on the experiment parameters.
+The class abstracts the acquisition methods of the datasets too. The main aim of the class is to wrap the experiments
+and enable the execution of multiple experiment sequentially. It also enables the execution of a single experiment
+on multiple datasets.
 """
 import ast
 import copy
@@ -87,7 +88,9 @@ class ExperimentCreator:
     def convert_param_string_to_dictionary(self, param):
         """
         Converts a string to equivalent parameters by dynamic type casting
+
         :param param: the string containing the parameter name and parameter values
+
         :return: a dictionary with the parameter name as key and parameter values as values
         TODO: Currently supports only integer, float, boolean. Need to expand and find a method for precedence of types
         """
@@ -160,8 +163,10 @@ class ExperimentCreator:
     def set_param_values(self, experiment_name=None, param=None):
         """
         This function sets the parameters for estimators in a single experiment
+
         :param experiment_name: The name of the experiment where the parameters need to be set
         :param param_dict: The estimator,parameter dictionary which specifies the parameters for the estimator
+
         :return: None
         """
         param_dict = None
@@ -191,7 +196,9 @@ class ExperimentCreator:
     def get_param_values(self, experiment_name=None):
         """
         This function displays all the parameters stored for a single experiment
+
         :param experiment_name: The name of the experiment whose parameters are to be examined
+
         :return: A string containing the estimators.parameters:[values]
         """
 
@@ -217,11 +224,13 @@ class ExperimentCreator:
         in the pipeline. The param_val_dict contains the name of the parameter and
         the value to be set for that parameter.
         The parameters are looked up from the parameters dictionary.
+
         :parameter estimator: The estimator whose parameters have to be modified.
         :parameter estimator_name: The name of the estimator to look up whether,
                                    the parameters are present in that estimator.
         :parameter param_val_dict: The dictionary containing the parameter names
                                    and their values.
+
         :return If successful, the modified estimator
                 Else, None.
         """
@@ -244,7 +253,9 @@ class ExperimentCreator:
         """
         The function validates the parameters for each estimator and returns the validated parameters.
         The parameter names are changed to the actual parameter variable names to be used within the experiment class
+
         :param param_value_dict: The parameters and their corresponding values
+
         :return: A dictionary of the validated parameters
         """
         validated_param_dict = dict()
@@ -278,12 +289,12 @@ class ExperimentCreator:
 
     def validate_pipeline(self, pipeline):
         """
-        This function checks whether each component in the pipeline has a
-        fit and fit_transform attribute or transform attribute. The last estimator
-        can be none and if it is not none, has to implement a fit attribute.
-        :param pipeline: The pipeline of estimators to be created.
-        :return: If successful True
-                 Else False
+        This function checks whether each component in the pipeline has a fit and fit_transform attribute.
+        The last estimator can be none and if it is not none, has to implement a fit attribute.
+
+        :param pipeline: The pipeline of estimators to be creates
+
+        :return: If successful True,
         """
         transformers = pipeline[:-1]
         estimator = pipeline[-1]
@@ -291,13 +302,13 @@ class ExperimentCreator:
         for transformer in transformers:
             if (not (hasattr(transformer[1], "fit") or hasattr(transformer[1], "fit_transform")) or not
                hasattr(transformer[1], "transform")):
-                default_logger.error(False, 'ExperimentCreator.validate_pipeline',
+                default_logger.warn(False, 'ExperimentCreator.validate_pipeline',
                                      "All intermediate steps should implement fit "
                                      "and fit_transform or the transform function")
                 return False
 
         if estimator is not None and not (hasattr(estimator[1], "fit")):
-            default_logger.error(False, 'ExperimentCreator.validate_pipeline',
+            default_logger.warn(False, 'ExperimentCreator.validate_pipeline',
                                  ''.join(["Estimator:" + estimator[0] + " does not have attribute fit"]))
             return False
         return True
@@ -305,14 +316,15 @@ class ExperimentCreator:
     def create_test_pipeline(self, estimator_list, param_value_dict=None):
         """
         This function creates the pipeline for the experiment.
-        The function looks up the name of the estimator passed and then
-        deep copies the estimator to the pipeline.
+        The function looks up the name of the estimator passed and then, deep copies the estimator to the pipeline.
+
         :param estimator_list: A list of strings containing all estimators to be used
                                in the pipeline in exactly the order to be used
         :param param_value_dict: This contains the parameters for each of the estimators used
                                  The dict is a nested dictionary with the
                                  outer-most key being the estimator name
                                  The inner key is the parameter name
+
         :return: If successful, the Pipeline containing the estimators
                  Else, None
         """
@@ -340,7 +352,9 @@ class ExperimentCreator:
     def get_estimator_object(self, estimator):
         """
         This function instantiates a estimator from the estimator name
+
         :param estimator: Name of the estimator
+
         :return: An object of the estimator
         """
 
@@ -361,12 +375,14 @@ class ExperimentCreator:
                           backend=None, params=None):
         """
         This function adds an experiment to the dictionary.
+
         :param name: Name of the experiment. It should be unique for this set of experiments
         :param description: The description of the experiment
         :param dataset: The dataset to be used for the experiment
         :param workflow: The scikit pipeline to be used for the experiment.
         :param backend: The backend of the experiment
         :param params: Parameters for the estimator, optional.
+
         :return: None
         """
         import numpy as np
@@ -421,8 +437,11 @@ class ExperimentCreator:
         """
         This function returns the dataset from pypadre.
         This done by using the pre-defined names of the datasets defined in _local_dataset
+
         TODO: Datasets need to be loaded dynamically
+
         :param name: The name of the dataset
+
         :return: If successful, the dataset
                  Else, None
         """
@@ -438,6 +457,7 @@ class ExperimentCreator:
     def get_dataset_names(self):
         """
         This function returns all the names of available datasets
+
         :return: A list of dataset names
         """
         return list(self._local_dataset)
@@ -445,6 +465,7 @@ class ExperimentCreator:
     def get_estimators(self):
         """
         Gets all the available estimators
+
         :return: List of names of the estimators
         """
         return list(self._workflow_components.keys())
@@ -452,6 +473,7 @@ class ExperimentCreator:
     def get_estimator_params(self, estimator_name):
         """
         Gets the parameters corresponding to an estimator
+
         :param estimator_name:
         :return: List of parameters available to that estimator
         """
@@ -460,6 +482,7 @@ class ExperimentCreator:
     def initialize_workflow_components(self):
         """
         This function returns all the workflow components along with their object initialized with default parameters
+
         :return: A dictionary containing all the available estimators
         """
         components = dict()
@@ -471,6 +494,9 @@ class ExperimentCreator:
     def initialize_estimator_parameters_implementation(self):
         """
         The function returns the parameters corresponding to each estimator in use
+
+        TODO: Write checks for library implementations
+
         :return: Dictionary containing estimator and the corresponding parameters with its implementation
         """
 
@@ -494,7 +520,9 @@ class ExperimentCreator:
         """
         The function returns all the datasets currently available to the user. It can be from the server and also the
         local datasets availabe
+
         TODO: Dynamically populate the list of datasets
+
         :return: List of names of available datasets
         """
         dataset_names = ['Boston_House_Prices',
@@ -509,6 +537,7 @@ class ExperimentCreator:
     def execute_experiments(self):
         """
         This function runs all the created experiments from the experiment dictionary
+
         :return: None
         """
         import pprint
@@ -538,7 +567,9 @@ class ExperimentCreator:
     def do_experiments(self, experiment_datasets=None):
         """
         This function runs the same experiment over multiple datasets
+
         :param experiment_datasets: A dictionary containing the datasets to be run for each experiment
+        
         :return: None
         """
 
