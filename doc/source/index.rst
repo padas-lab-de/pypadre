@@ -14,6 +14,7 @@ Welcome to PyPaDRE Documentation's documentation!
    intro
    design_principles
    experiment_creator
+   metrics
 
 
 

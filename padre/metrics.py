@@ -16,10 +16,19 @@ class ReevaluationMetrics:
     """
     This class reevaluates the metrics from the results.json file present in the split folder.
     The user should be able to specify the required metrics and those additional metrics will be computed, if
-    the functions for those metrics are available
+    the functions for those metrics are available.
     """
     _dir_path = []
+
     def __init__(self, dir_path=None, file_path=None):
+        """
+        Initilization function with the paths of the run directories whose metrics are to be reevaluated.
+
+        :param dir_path: The directories of the run paths whose metrics have to be reevaluated.
+        :param file_path: The exact file path whose metrics have to be evaluated.
+
+        TODO: Implement the functionality where the exact files could be given and results are recomputed only for those.
+        """
         if dir_path is not None:
             self._dir_path = dir_path
 
@@ -30,22 +39,26 @@ class ReevaluationMetrics:
 
     def get_immediate_subdirectories(self, dir_path):
         """
-        Gets the immediate subdirectories present in the dir_path
-        :param dir_path: The current experiment directory to be checked
-        :return: A list of run directories present in the experiment directory
+        Gets the immediate subdirectories present in the dir_path.
+
+        :param dir_path: The current experiment directory to be checked.
+
+        :return: A list of run directories present in the experiment directory.
         """
         return [os.path.join(dir_path, name) for name in os.listdir(dir_path)
                 if os.path.isdir(os.path.join(dir_path, name))]
 
-    def get_split_directories(self, dir_path):
+    def get_split_directories(self, dir_path=None):
         """
-        Finds all the split directories within the path
-        :param dir_path:
+        Finds all the split directories within the path.
+
+        :param dir_path: An optional directory path list to be added for recomputing metrics.
+
         :return: None
         """
 
         if dir_path is not None:
-            self._dir_path = copy.deepcopy(self._dir_path + dir_path)
+            self._dir_path = copy.deepcopy(self._dir_path.append(dir_path))
 
         for experiment_path in self._dir_path:
             run_dir_list = self.get_immediate_subdirectories(experiment_path)
@@ -58,6 +71,11 @@ class ReevaluationMetrics:
                         self._split_dir.append(split_dir)
 
     def recompute_metrics(self):
+        """
+        The function recomputes the metrics based on the inputs from the user.
+
+        :return: None
+        """
 
         for split_path in self._split_dir:
 
@@ -88,6 +106,13 @@ class ReevaluationMetrics:
                 default_logger.error('Error reading the results.json file in ' + split_path)
 
     def compute_regression_metrics(self, results=None):
+        """
+        Function to compute the regression metrics of a split from the result.
+
+        :param results: The predicted value and the ground truth values in a dictionary.
+
+        :return: A dictionary containing the computed regression metrics.
+        """
 
         if results is None:
             default_logger.error('Results is None')
@@ -112,6 +137,13 @@ class ReevaluationMetrics:
         return copy.deepcopy(metrics_dict)
 
     def compute_classification_metrics(self, results=None):
+        """
+        Function to compute the classification metrics of a split from the results.
+
+        :param results: A dictionary containing the truth value and the predicted value.
+
+        :return: A dictionary containing the computed classification metrics
+        """
 
         if results is None:
             default_logger.error('Results is empty')
@@ -177,10 +209,13 @@ class ReevaluationMetrics:
                                  truth=None):
         """
         This function computes the confusion matrix of a classification result.
-        This was done as a general purpose implementation of the confusion_matrix
-        :param predicted: The predicted values of the confusion matrix
-        :param truth: The truth values of the confusion matrix
-        :return: The confusion matrix
+        This was done as a general purpose implementation of the confusion_matrix.
+
+        :param predicted: The predicted values of the confusion matrix.
+
+        :param truth: The truth values of the confusion matrix.
+
+        :return: The confusion matrix.
         """
         import copy
         if predicted is None or truth is None or \
@@ -208,15 +243,24 @@ class ReevaluationMetrics:
 
         return copy.deepcopy(confusion_matrix.tolist())
 
+
 class CompareMetrics:
+    """
+    This class is used to compare the results of different experiments. It could be based on a single experiment,
+    in which case the runs of only that experiment are considered or multiple experiments where the runs of all the
+    experiments input are considered.
+    """
 
     _dir_path = []
 
     def __init__(self, dir_path=None, file_path=None):
         """
-        The constructor that initializes the object with all the required paths
-        :param dir_path: The path of the experiment to be compared
-        :param file_path: The path of the JSON file to be compared
+        The constructor that initializes the object with all the required paths.
+
+        :param dir_path: The path of the experiment to be compared.
+        :param file_path: The path of the JSON file to be compared.
+
+        TODO: Implement the functionality to compare metrics based on a list of file paths.
         """
         if dir_path is not None:
             self._dir_path = dir_path
@@ -262,18 +306,22 @@ class CompareMetrics:
 
     def get_immediate_subdirectories(self, dir_path):
         """
-        Gets the immediate subdirectories present in the dir_path
-        :param dir_path: The current experiment directory to be checked
-        :return: A list of run directories present in the experiment directory
+        Gets the immediate subdirectories present in the dir_path.
+
+        :param dir_path: The current experiment directory to be checked.
+
+        :return: A list of run directories present in the experiment directory.
         """
         return [os.path.join(dir_path, name) for name in os.listdir(dir_path)
                 if os.path.isdir(os.path.join(dir_path, name))]
 
     def validate_run_dir(self, run_dir):
         """
-        Validates whether the given directory is a valid run directory of an experiment
-        :param run_dir: The path of the run directory
-        :return: True: If it is valid, False otherwise
+        Validates whether the given directory is a valid run directory of an experiment.
+
+        :param run_dir: The path of the run directory.
+
+        :return: True: If it is valid, False otherwise.
         """
         # Check for hyperparameters.json, results.json, metadata.json and metrics.json in the folder
 
@@ -296,10 +344,11 @@ class CompareMetrics:
 
     def read_run_directories(self, run_dir=None):
         """
-        unique_estimators = dict()
         This function reads all the run directories and stores the names,
-        for obtaining the parameters that changed
-        :param: run_dir: The path of the experiments as a list
+        for obtaining the parameters that changed.
+
+        :param: run_dir: The path of the experiments as a list.
+
         :return: None
         """
 
@@ -322,34 +371,13 @@ class CompareMetrics:
 
                 self._run_dir.append(copy.deepcopy(run_dir))
 
-    def get_param_values(self, run_name=None):
-        if run_name is None:
-            return
-        estimator_dict = dict()
-        # Strip the run name into multiple estimators separated by ;
-        estimator_param_list = run_name.split(sep=';')
-        for estimator_param in estimator_param_list:
-            # Identify the estimator and get the parameters corresponding to that estimator
-            estimator_name = estimator_param[0:estimator_param.find('[')]
-            param_values_list = estimator_param[estimator_param.find('[') + 1:-1].split(sep=')')
-            param_dict = dict()
-            # Add each parameter and its value to the dictionary
-            for param_value in param_values_list:
-                if param_value == '':
-                    continue
-                param_name = param_value[0:param_value.find('(')]
-                param_value = param_value[param_value.find('(') + 1:]
-                param_dict[param_name] = param_value
-
-            estimator_dict[estimator_name] = copy.deepcopy(param_dict)
-
-        return estimator_dict
-
     def get_params(self, run_dir=None):
         """
-        Separates the estimator and identifies the params for that estimator
-        :param run_dir: A string containing the run folder name
-        :return: dictionary containing estimator name and list of params
+        Separates the estimator and identifies the params for that estimator.
+
+        :param run_dir: A string containing the run folder name.
+
+        :return: dictionary containing estimator name and list of params.
         """
         if run_dir is None:
             default_logger.error('Empty run directory')
@@ -375,7 +403,8 @@ class CompareMetrics:
 
     def get_unique_estimators_parameter_names(self):
         """
-        Gets all the unique estimators and their parameter names from the saved run directories
+        Gets all the unique estimators and their parameter names from the saved run directories.
+
         :return: None
         """
 
@@ -464,7 +493,8 @@ class CompareMetrics:
         """
         Reads the metrics.json file from each of the runs
         Creates a dictionary with the key as the run_id,
-        and values as split_ids within a run
+        and values as split_ids within a run.
+
         :return: None
         """
 
@@ -493,7 +523,8 @@ class CompareMetrics:
 
     def compute_results(self):
         """
-        Computes the collected data as a Pandas data frame
+        Computes the collected data as a Pandas data frame.
+
         :return: The pandas dataframe that is to be displayed
         """
         display_columns = copy.deepcopy(self._mandatory_display_columns)
@@ -566,10 +597,12 @@ class CompareMetrics:
     def analyze_runs(self, query=None, metrics=None, options=None):
         """
         This function would return a pandas data frame based on the query
-        and the metrics required
+        and the metrics required.
+
         :param query: Initially, this would be a list of directories to be evaluated upon
         :param metrics: The metrics to be displayed
         :param options: Any other option possible, like micro averaged, macro averaged etc
+
         :return: A pandas data frame containing the results of the query
         TODO: The options functionality is not yet implemented
         """
@@ -604,17 +637,20 @@ class CompareMetrics:
 
     def get_unique_estimator_names(self):
         """
-        This function returns the unique estimators among the runs
+        This function returns the unique estimators among the runs.
+
         :return: A list of the names of unique estimators
         """
         return copy.deepcopy(list(self._unique_estimators.keys()))
 
     def get_estimator_param_values(self, estimator_name, selected_params=None, return_all_values=False):
         """
-        This function returns all the parameter values present among the runs for a particular estimator
-        :param estimator_name: he name of the estimator whose differing parameters are to be fetched
-        :param selected_params: Displays the parameter values of the specified parameters only
-        :param return_all_values: whether a list of the default values are also to be returned
+        This function returns all the parameter values present among the runs for a particular estimator.
+
+        :param estimator_name: he name of the estimator whose differing parameters are to be fetched.
+        :param selected_params: Displays the parameter values of the specified parameters only.
+        :param return_all_values: whether a list of the default values are also to be returned.
+
         :return: List of param values, None if the estimator is not present
         """
         params_list = dict()
@@ -643,7 +679,8 @@ class CompareMetrics:
 
     def display_results(self):
         """
-        Displays the collected data as a Pandas data frame
+        Displays the collected data as a Pandas data frame.
+
         :return: None
         """
         display_columns = copy.deepcopy(self._mandatory_display_columns)
