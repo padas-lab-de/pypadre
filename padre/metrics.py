@@ -752,4 +752,19 @@ class CompareMetrics:
             df.columns = display_columns
         return df
 
+    def get_experiment_directores(self):
+        """
+        Returns the list of the path of experiments currently available
+
+        :return: List of path of experiments currently available
+        """
+        from pathlib import Path
+        experiment_root_dir = os.path.join(str(Path.home()), '.pypadre/experiments')
+        if not os.path.exists(experiment_root_dir):
+            return None
+
+        experiments_list = self.get_immediate_subdirectories(experiment_root_dir)
+        return experiments_list
+
+
 

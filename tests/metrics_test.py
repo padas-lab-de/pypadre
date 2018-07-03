@@ -17,6 +17,7 @@ def main():
     #dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
     #dir_list.append(dir_path)
     metrics = CompareMetrics(dir_path=dir_list)
+    metrics.get_experiment_directores()
     metrics.read_run_directories()
     # From the run directory names, obtain the estimators and the parameters
     metrics.get_unique_estimators_parameter_names()

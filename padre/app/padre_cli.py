@@ -184,6 +184,7 @@ def compare_runs(ctx, path, query, metrics):
     ctx.obj["pypadre"].metrics_evaluator.analyze_runs(estimators_list, metrics_list)
     print(ctx.obj["pypadre"].metrics_evaluator.display_results())
 
+
 @pypadre_cli.command(name="reevaluate_metrics")
 @click.option('--path', default=None, help='Path of experiments whose metrics are to be reevaluated')
 @click.pass_context
@@ -191,6 +192,38 @@ def reevaluate_runs(ctx, path):
     path_list = (path.replace(", ", ",")).split(sep=",")
     ctx.obj["pypadre"].metrics_reevaluator.get_split_directories(dir_path=path_list)
     ctx.obj["pypadre"].metrics_reevaluator.recompute_metrics()
+
+
+@pypadre_cli.command(name="list_experiments")
+@click.pass_context
+def list_experiments(ctx):
+    print(ctx.obj["pypadre"].metrics_evaluator.get_experiment_directores())
+
+
+@pypadre_cli.command(name='get_available_estimators')
+@click.pass_context
+def get_available_estimators(ctx):
+    estimators = ctx.obj["pypadre"].metrics_evaluator.get_unique_estimator_names()
+    if estimators is None:
+        print('No estimators found for the runs compared')
+    else:
+        print(estimators)
+
+
+@pypadre_cli.command(name="list_estimator_params")
+@click.option('--estimator_name', default=None, help='Params of this estimator will be displayed')
+@click.option('--selected_params', default=None, help='List the values of only these parameters')
+@click.option('--return_all_values', default=None,
+              help='Returns all the parameter values for the estimator including the default values')
+def list_estimator_params(ctx, estimator_name, selected_params, return_all_values):
+    params_list = \
+        ctx.obj["pypadre"].metrics_evaluator.get_estimator_param_values\
+            (estimator_name, selected_params, return_all_values)
+    if params_list is None:
+        print('No parameters obtained')
+    else:
+        for param in params_list:
+            print(param, params_list.get(param, '-'))
 
 
 if __name__ == '__main__':
