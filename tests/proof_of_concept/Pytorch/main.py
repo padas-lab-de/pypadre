@@ -22,7 +22,7 @@ def main():
     y = iris.target
     workflow.fit(np.asarray(x), np.reshape(y, newshape=(150,1)))
     print('Fit completed')
-    y_pred = workflow.infer()
+    y_pred = workflow.infer(x)
     print('Infering completed')
 
 
