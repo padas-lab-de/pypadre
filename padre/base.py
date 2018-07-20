@@ -43,7 +43,7 @@ class PadreLogger:
             if self._file is not None:
                 self._file.close()
 
-            self._file = open(os.path.join(path, "log.txt"), "w")
+            self._file = open(os.path.join(path, "log.txt"), "a")
 
         else:
             if self._file is not None:

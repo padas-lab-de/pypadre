@@ -92,10 +92,12 @@ class ExperimentFileRepository:
     """
 
     def __init__(self, root_dir, data_repository):
+        from padre.base import default_logger
         self.root_dir = _get_path(root_dir, "")
         self._metadata_serializer = JSonSerializer
         self._binary_serializer = PickleSerializer
         self._data_repository = data_repository
+        default_logger.open_log_file(self.root_dir)
 
     def _dir(self, ex_id, run_id=None, split_num=None):
         r = [str(ex_id)+".ex"]
