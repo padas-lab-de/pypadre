@@ -246,6 +246,7 @@ class _LoggerMixin:
 
     def log_stop_experiment(self, experiment):
         self.log_event(experiment, exp_events.stop, phase=phases.experiment)
+        default_logger.close_log_file()
 
     def log_start_run(self, run):
         if self.has_backend():

@@ -122,6 +122,7 @@ class ExperimentFileRepository:
         :param allow_overwrite: True if an existing experiment can be overwritten
         :return:
         """
+        from padre.base import default_logger
         if experiment.id is None:  #  this is a new experiment
             if experiment.name is None or experiment.name == "":
                 experiment.id = uuid.uuid1()
@@ -139,6 +140,8 @@ class ExperimentFileRepository:
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment._workflow))
+
+        default_logger.open_log_file(dir)
 
     def get_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
