@@ -3,6 +3,7 @@ Modul containing basic padre datastructures
 """
 import json
 import sys
+from datetime import datetime
 
 
 class PadreLogger:
@@ -15,12 +16,13 @@ class PadreLogger:
         if not condition:
             sys.stderr.write(str(source) + ":\t" + message + "\n")
             if self._file is not None:
-                self._file.write("WARN:" + str(source) + ":\t" + message + "\n")
+
+                self._file.write("WARN:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
     def error(self, condition, source, message):
         if not condition:
             if self._file is not None:
-                self._file.write("ERROR:" + str(source) + ":\t" + message + "\n")
+                self._file.write("ERROR:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
                 self._file.close()
                 self._file = None
 
@@ -29,7 +31,7 @@ class PadreLogger:
     def log(self, source, message, padding=""):
 
         if self._file is not None:
-            self._file.write("INFO:" + padding+str(source) + ":\t" + message + "\n")
+            self._file.write("INFO:" + str(datetime.now())[:-3] + " " + padding+str(source) + ":\t" + message + "\n")
         sys.stdout.write(padding+str(source) + ":\t" + message + "\n")
 
     def open_log_file(self, path=None):
