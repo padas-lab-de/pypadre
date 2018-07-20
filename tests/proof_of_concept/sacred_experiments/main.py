@@ -2,7 +2,8 @@ from sacred import Experiment
 from padre.ExperimentCreator import ExperimentCreator
 from padre.app import pypadre
 
-ex = Experiment('hello_config')
+ex = Experiment('PyPaDRe')
+
 
 @ex.config
 def my_config():
@@ -19,6 +20,7 @@ def my_config():
     params['pipeline'] = pipeline
     params['dataset'] = dataset
     params['estimator_params'] = params_dict_linear
+    params['run_for_multiple_datasets'] = False
 
 
 @ex.automain
@@ -37,8 +39,13 @@ def main(params):
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
 
-    experiment_helper.execute_experiments()
-    
+    if params.get('run_for_multiple_datasets', False) is False:
+        experiment_helper.execute_experiments()
+
+    else:
+        if params.get('experiment_datasets', None) is not None:
+            experiment_helper.do_experiments(params.get('experiment_datasets'))
+
 
     '''
     experiment = ['Test Experiment PCA Linear', 'Test Experiment PCA Logistic']
