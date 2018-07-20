@@ -612,6 +612,9 @@ class ExperimentCreator:
                 if not flag:
                     continue
 
+                message = 'Executing experiment ' + experiment + ' for dataset' + dataset
+                default_logger.log('ExperimentCreator.do_experiments', message)
+
                 ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
                                 description=desc,
                                 dataset=data,
