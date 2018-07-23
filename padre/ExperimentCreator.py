@@ -670,7 +670,7 @@ class ExperimentCreator:
             workflow = self.create_test_pipeline(pipeline)
             if workflow is None:
                 default_logger.warn(False, 'ExperimentCreator.parse_config_file',
-                                    ''.join(['Workflow ', pipeline, ' based workflow was not created']))
+                                    'Workflow  based workflow was not created')
                 continue
 
             self.create_experiment(name=name, description=description,workflow=workflow, dataset=dataset,
