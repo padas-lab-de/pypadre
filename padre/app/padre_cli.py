@@ -161,6 +161,20 @@ def do_experiment(ctx, experiments, datasets):
         ctx.obj["pypadre"].experiment_creator.do_experiments(experiment_datasets_dict)
 
 
+@pypadre_cli.command(name="load_config_file")
+@click.option('--filename', default=None, help='Path of the JSON file that contains the experiment parameters')
+@click.pass_context
+def load_config_file(ctx, filename):
+
+    import os
+
+    if os.path.exists(filename):
+        ctx.obj["pypadre"].experiment_creator.parse_config_file(filename)
+        ctx.obj["pypadre"].experiment_creator.execute_experiments()
+
+    else:
+        print('File does not exist')
+
 
 
 #################################

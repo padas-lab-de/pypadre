@@ -330,6 +330,9 @@ class ExperimentCreator:
         """
         from sklearn.pipeline import Pipeline
         estimators = []
+        if estimator_list is None:
+            return None
+
         for estimator_name in estimator_list:
             if self._workflow_components.get(estimator_name) is None:
                 default_logger.error(False, 'ExperimentCreator.create_test_pipleline',
@@ -422,7 +425,7 @@ class ExperimentCreator:
             data_dict['backend'] = backend
             self._experiments[name] = data_dict
             if params is not None:
-                self._param_value_dict[name] = copy.deepcopy(params)
+                self._param_value_dict[name] = self.validate_parameters(params)
             default_logger.log('ExperimentCreator.create_experiment',
                                ''.join([name, ' created successfully!']))
 
@@ -625,6 +628,55 @@ class ExperimentCreator:
 
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
                 ex.grid_search(parameters=self._param_value_dict.get(experiment))
+
+
+    def parse_config_file(self, filename):
+        """
+        The function parses a JSON file which contains the necessary parameters for creating experiments
+
+        :param filename: Path of the JSON file
+
+        :return:
+        """
+
+        import os
+        import json
+        from padre.app import pypadre
+
+        if not (os.path.exists(filename)):
+            return False
+
+        # Load the experiments structure from the file
+        with open(filename, 'r') as f:
+            experiments = json.loads(f.read())
+
+        for experiment in experiments:
+            # Iterate and obtain the parameters of all the experiments
+            exp_params = experiments.get(experiment)
+            if exp_params is None:
+                continue
+
+            name = exp_params.get('name', None)
+            description = exp_params.get('description', None)
+            pipeline = exp_params.get('workflow', None)
+            dataset = exp_params.get('dataset', None)
+            backend = exp_params.get('backend', 'default')
+            params = exp_params.get('params', None)
+
+            if backend == 'default':
+                backend = pypadre.file_repository.experiments
+
+            # Create the pipeline and if it is not possible move to next experiment
+            workflow = self.create_test_pipeline(pipeline)
+            if workflow is None:
+                default_logger.warn(False, 'ExperimentCreator.parse_config_file',
+                                    ''.join(['Workflow ', pipeline, ' based workflow was not created']))
+                continue
+
+            self.create_experiment(name=name, description=description,workflow=workflow, dataset=dataset,
+                                   backend=backend, params=params)
+
+
 
     @property
     def experiments(self):
