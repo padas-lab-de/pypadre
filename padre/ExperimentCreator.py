@@ -413,7 +413,7 @@ class ExperimentCreator:
                 if name_mappings.get(estimator).get('type', None) == 'Classification':
                     default_logger.warn(False, 'ExperimentCreator.create_experiment',
                                          ''.join(['Estimator ', estimator, ' cannot work on continuous data. '
-                                                                           'Experiment will be discarded']))
+                                                                           'Experiment ' + name + ' will be discarded.']))
                     return None
 
         # Experiment name should be unique
@@ -552,7 +552,7 @@ class ExperimentCreator:
             dataset = self._experiments.get(experiment).get('dataset', None)
             if dataset is None:
                 default_logger.warn(False, 'Experiment_creator.execute_experiments',
-                                    'Dataset is not present for the experiment. Experiment is ignored')
+                                    'Dataset is not present for the experiment. Experiment ' + experiment + 'is ignored.')
                 continue
                 #default_logger.error(False, 'Experiment_creator.create_experiment',
                                      #''.join(['Dataset is missing for experiment:', experiment]))
