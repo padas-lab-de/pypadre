@@ -416,7 +416,7 @@ class SKLearnWorkflow:
                 # this also changes the result type to be written.
                 # if possible, we will always write the "best" result type, i.e. which retains most information (
                 # if
-                y_predicted = self._pipeline.predict(ctx.test_features)
+                y_predicted = np.asarray(self._pipeline.predict(ctx.test_features))
                 results = {'predicted': y_predicted.tolist(),
                            'truth': y.tolist()}
 
