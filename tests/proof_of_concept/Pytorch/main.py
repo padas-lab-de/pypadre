@@ -1,12 +1,15 @@
 from padre.wrappers.wrapper_pytorch import  WrapperPytorch
+from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import  Pipeline
 from sklearn import datasets
 import torch
 import numpy as np
+from padre.experiment import Experiment, Splitter
+from padre.app import pypadre
 
 def main():
     layers = []
-    layers.append(torch.nn.Linear(3, 20))
+    layers.append(torch.nn.Linear(4, 20))
     layers.append(torch.nn.ReLU())
     layers.append(torch.nn.Linear(20, 10))
     layers.append(torch.nn.Linear(10, 1))
@@ -20,10 +23,14 @@ def main():
     iris = datasets.load_iris()
     x = iris.data[:, :3]
     y = iris.target
-    workflow.fit(np.asarray(x), np.reshape(y, newshape=(150,1)))
-    print('Fit completed')
-    y_pred = workflow.infer(x)
-    print('Infering completed')
+    ds = [i for i in load_sklearn_toys()][4]
+    #workflow.fit(np.asarray(x), np.reshape(y, newshape=(150,1)))
+    ex = Experiment(name="Torch",
+                    description="Testing Torch via SKLearn Pipeline",
+                    dataset=ds,
+                    workflow=workflow,
+                    backend=pypadre.file_repository.experiments)
+    ex.run()
 
 
 
