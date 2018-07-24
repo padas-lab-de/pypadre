@@ -1,6 +1,13 @@
 from collections import OrderedDict
 import torch
 
+# TODO: Add LR scheduler policy to code
+# TODO: Implement Vision Layers
+# TODO: Implement Dataparallel layers
+# TODO: Implement utilities
+# TODO: Implement modules and containers
+# Types of layers Convolutional, Pooling, Padding, Non-Linear Activations,
+# Normalization, Recurrent, Linear, Dropout, Sparse
 
 class WrapperPytorch:
 
@@ -183,8 +190,122 @@ class WrapperPytorch:
 
         :return: Object of the loss function
         """
+        loss = None
 
-        return torch.nn.MSELoss(size_average=False)
+        name = str(name).upper()
+
+        if name == 'L1LOSS':
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.L1Loss(size_average=size_average, reduce=reduce)
+
+        elif name == 'MSELOSS':
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.MSELoss(size_average=size_average, reduce=reduce)
+
+        elif name == 'CROSSENTROPYLOSS':
+            weight = self.params.get('weight', None)
+            size_average = self.params.get('size_average', True)
+            ignore_index = self.params.get('ignore_index', -100)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.CrossEntropyLoss(weight=weight, size_average=size_average,
+                                             ignore_index=ignore_index, reduce=reduce)
+
+        elif name == 'NLLLoss':
+            weight = self.params.get('weight', None)
+            size_average = self.params.get('size_average', True)
+            ignore_index = self.params.get('ignore_index', -100)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.NLLLoss(weight=weight, size_average=size_average, ignore_index=ignore_index, reduce=reduce)
+
+        elif name == 'POISSONNLLLoss':
+            log_input = self.params.get('log_input', True)
+            full = self.params.get('full', False)
+            size_average = self.params.get('size_average', True)
+            eps = self.params.get('eps', 0.00000001)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.PoissonNLLLoss(log_input=log_input, full=full, size_average=size_average,
+                                           eps=eps, reduce=reduce)
+
+        elif name == 'KLDIVLOSS':
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.KLDivLoss(size_average=size_average, reduce=reduce)
+
+        elif name == 'BCELOSS':
+            weight = self.params.get('weight', None)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.BCELoss(weight=weight, size_average=size_average, reduce=reduce)
+
+        elif name == 'BCEWITHLOGITSLOSS':
+            weight = self.params.get('weight', None)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.BCEWithLogitsLoss(weight=weight, size_average=size_average, reduce=reduce)
+
+        elif name == 'MARGINRANKINGLOSS':
+            margin = self.params.get('margin', 0)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.MarginRankingLoss(margin=margin, size_average=size_average, reduce=reduce)
+
+        elif name == 'HINGEEMBEDDINGLOSS':
+            margin = self.params.get('margin', 1.0)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.HingeEmbeddingLoss(margin=margin, size_average=size_average, reduce=reduce)
+
+        elif name == 'MULTILABELMARGINLOSS':
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.MultiLabelMarginLoss(size_average=size_average, reduce=reduce)
+
+        elif name == 'SMOOTHL1LOSS':
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.SmoothL1Loss(size_average=size_average, reduce=reduce)
+
+        elif name == 'SOFTMARGINLOSS':
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.SoftMarginLoss(size_average=size_average, reduce=reduce)
+
+        elif name == 'MULTILABELSOFTMARGINLOSS':
+            weight = self.params.get('weight', None)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.MultiLabelSoftMarginLoss(weight=weight, size_average=size_average, reduce=reduce)
+
+        elif name == 'COSINEEMBEDDINGLOSS':
+            margin = self.params.get('margin', 1.0)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.CosineEmbeddingLoss(margin=margin, size_average=size_average, reduce=reduce)
+
+        elif name == 'MULTIMARGINLOSS':
+            p = self.params.get('p', 1)
+            margin = self.params.get('margin', 1.0)
+            weight = self.params.get('weight', None)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.MultiMarginLoss(p=p, margin=margin, weight=weight, size_average=size_average, reduce=reduce)
+
+        elif name == 'TRIPLETMARGINLOSS':
+            margin = self.params.get('margin', 1.0)
+            p = self.params.get('p', 2)
+            eps = self.params.get('eps', 0.000001)
+            swap = self.params.get('swap', False)
+            size_average = self.params.get('size_average', True)
+            reduce = self.params.get('reduce', True)
+            loss = torch.nn.TripletMarginLoss(margin=margin, p=p, eps=eps, swap=swap,
+                                              size_average=size_average, reduce=reduce)
+
+        else:
+            loss = torch.nn.MSELoss(size_average=False)
+
+        return loss
 
 
 
