@@ -477,7 +477,8 @@ class ExperimentCreator:
         """
         Gets the parameters corresponding to an estimator
 
-        :param estimator_name:
+        :param estimator_name: Name of the estimator whose params are to be retrieved
+
         :return: List of parameters available to that estimator
         """
         return self._parameters.get(estimator_name, None)
@@ -636,7 +637,8 @@ class ExperimentCreator:
 
         :param filename: Path of the JSON file
 
-        :return:
+        :return: True if successfully parsed
+                 False if file does not exist
         """
 
         import os
@@ -675,6 +677,8 @@ class ExperimentCreator:
 
             self.create_experiment(name=name, description=description,workflow=workflow, dataset=dataset,
                                    backend=backend, params=params)
+
+        return True
 
 
 
