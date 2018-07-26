@@ -9,6 +9,8 @@ import copy
 # TODO: Implement modules and containers
 # TODO: Implement parameter mapping file for layers to validate the parameter dictionary
 # TODO: The above mapping file should contain the compulsory as well as optional parameters
+# TODO: Batch processing to be implemented
+# TODO: Implement rest of layers
 # Types of layers Convolutional, Pooling, Padding, Non-Linear Activations,
 # Normalization, Recurrent, Linear, Dropout, Sparse
 
@@ -16,30 +18,37 @@ class WrapperPytorch:
 
     model = None
 
-    def __init__(self, shape=None, params=None):
+    def __init__(self, params=None):
         """
         The initialization function for the pyTorch wrapper
-        :param lr: The learning rate for the model
-        :param steps: The number of iterations that the training should continue
-        :param shape: An array containing the shape of the hidden layers
-        :param loss_function: The name of the loss function to be used
-        :param batch_size: The batch size used for training
-        :param optimizer: The optimizer to be used for training
+
+        :param params: The parameters for creating the whole network
+
         """
         print('Initialize')
-        if params is None or shape is None:
+        if params is None:
             return
 
-        self.params = params
-        self.lr = params.get('lr', 0.001)
+        self.params = copy.deepcopy(params)
+        #self.lr = params.get('lr', 0.001)
         self.steps = params.get('steps', 1000)
-        self.shape = shape
-        self.loss_function = params.get('loss_function', 'MSELoss')
         self.batch_size = params.get('batch_size', 1)
+
+        architecture = params.get('architecture', None)
+        layer_order = params.get('layer_order', None)
+        shape = self.create_network_shape(architecture=architecture, layer_order=layer_order)
         self.model = self.create_model(shape)
-        self.optimizer = self.create_optimizer()
-        self.params = params
-        self.loss = self.create_loss()
+
+        loss = params.get('loss', dict())
+        loss_name = loss.get('name', 'MSELoss')
+        loss_params = loss.get('params', None)
+        self.loss = self.create_loss(loss_name, loss_params)
+
+        optimizer = params.get('optimizer', dict())
+        optimizer_type = optimizer.get('type', None)
+        optimizer_params = optimizer.get('params', None)
+        self.optimizer = self.create_optimizer(optimizer_type=optimizer_type,
+                                               params=optimizer_params)
 
     def fit(self, x, y):
         """
@@ -90,18 +99,19 @@ class WrapperPytorch:
         model = torch.nn.Sequential(*shape)
         return model
 
-    def create_optimizer(self, params=None):
+    def create_optimizer(self, optimizer_type=None, params=dict()):
         """
         This function implements an optimizer for learning
         Reference: https://pytorch.org/docs/stable/optim.html
 
+        :param optimizer_type: The type of the optimizer
         :param params: Parameters of the optimizer
 
         :return: Optimizer object
         """
 
         lr = params.get('lr', 0.001)
-        optimizer_name = str(params.get('optimizer', 'Adam')).upper()
+        optimizer_type = str(optimizer_type).upper()
 
         optimizer = None
 
@@ -110,43 +120,43 @@ class WrapperPytorch:
         # Missing parameters are substituted with default values obtained from the pytorch documentation.
         # Default optimizer is the Adam optimizer and SGD is selected if no match is found.
 
-        if optimizer_name == 'ADADELTA':
+        if optimizer_type == 'ADADELTA':
             rho = params.get('rho', 0.9)
             eps = params.get('eps', 0.000001)
             weight_decay = params.get('weight_decay', 0)
             optimizer = torch.optim.Adadelta(self.model.parameters(), lr=lr, rho=rho, eps=eps, weight_decay=weight_decay)
 
-        elif optimizer_name == 'ADAGRAD':
+        elif optimizer_type == 'ADAGRAD':
             lr_decay = params.get('lr_decay', 0)
             weight_decay = params.get('weight_decay', 0)
             optimizer = torch.optim.Adagrad(self.model.parameters(), lr=lr, lr_decay=lr_decay, weight_decay=weight_decay)
 
-        elif optimizer_name == 'ADAM':
+        elif optimizer_type == 'ADAM':
             betas = params.get('betas', (0.9, 0.999))
             eps = params.get('eps', 0.00000001)
             weight_decay = params.get('weight_decay', 0)
             amsgrad = params.get('amsgrad', False)
             optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, betas=betas, eps=eps, weight_decay=weight_decay, amsgrad=amsgrad)
 
-        elif optimizer_name == 'SPARSEADAM':
+        elif optimizer_type == 'SPARSEADAM':
             betas = params.get('betas', (0.9, 0.999))
             eps = params.get('eps', 0.00000001)
             optimizer = torch.optim.SparseAdam(self.model.parameters(), lr=lr, betas=betas, eps=eps)
 
-        elif optimizer_name == 'ADAMAX':
+        elif optimizer_type == 'ADAMAX':
             betas = params.get('betas', (0.9, 0.999))
             eps = params.get('eps', 0.00000001)
             weight_decay = params.get('weight_decay', 0)
             optimizer = torch.optim.SparseAdam(self.model.parameters(), lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
 
-        elif optimizer_name == 'ASGD':
+        elif optimizer_type == 'ASGD':
             lambd = params.get('lambd', 0.0001)
             alpha = params.get('alpha', 0.75)
             t0 = params.get('t0', 1000000.0)
             weight_decay = params.get('weight_decay', 0)
             optimizer = torch.optim.ASGD(self.model.parameters(), lr=lr, lambd=lambd, alpha=alpha, t0=t0, weight_decay=weight_decay)
 
-        elif optimizer_name == 'LBFGS':
+        elif optimizer_type == 'LBFGS':
             max_iter = params.get('max_iter', 20)
             max_eval = params.get('max_eval', None)
             tolerance_grad = params.get('tolerance_grad', 0.00001)
@@ -158,7 +168,7 @@ class WrapperPytorch:
                                           tolerance_change=tolerance_change, history_size=history_size,
                                           line_search_fn=line_search_fn)
 
-        elif optimizer_name == 'RMSPROP':
+        elif optimizer_type == 'RMSPROP':
             alpha = params.get('alpha', 0.75)
             eps = params.get('eps', 0.00000001)
             weight_decay = params.get('weight_decay', 0)
@@ -168,17 +178,17 @@ class WrapperPytorch:
                                             eps=eps, weight_decay=weight_decay,
                                             momentum=momentum, centered=centered)
 
-        elif optimizer_name == 'RPROP':
+        elif optimizer_type == 'RPROP':
             etas = tuple(params.get('etas', (0.5, 1.2)))
             step_sizes = tuple(params.get('step_sizes', (0.000006, 50)))
             optimizer = torch.optim.Rprop(self.model.parameters(), lr=lr, etas=etas, step_sizes=step_sizes)
 
-        elif optimizer_name == 'SGD':
+        elif optimizer_type == 'SGD':
             momentum = params.get('momentum', 0.9)
             dampening = params.get('dampening', 0)
             weight_decay = params.get('weight_decay', 0)
             nesterov = params.get('Nesterov', False)
-            optimizer = torch.optim.SGD(self.model.parameters(), self.lr, momentum=momentum, dampening=dampening,
+            optimizer = torch.optim.SGD(self.model.parameters(), lr=lr, momentum=momentum, dampening=dampening,
                                         weight_decay=weight_decay, nesterov=nesterov)
 
         else:
@@ -341,11 +351,14 @@ class WrapperPytorch:
             type = layer.get('type')
             params = layer.get('params')
 
-            if type is None or params is None:
-                return None
-
             layer_obj = self.create_layer_object(type, params)
-            layers.append(layer_obj)
+
+            if layer_obj is not None:
+                layers.append(layer_obj)
+
+            else:
+                layers = None
+                break
 
         return layers
 
@@ -359,14 +372,20 @@ class WrapperPytorch:
         :return: A layer object
         """
 
-        if layer_type is None or layer_params is None:
+        if layer_type is None:
             return None
 
         layer_type = str(layer_type).upper()
 
+        if layer_params is None:
+            layer_params = dict()
+
         layer_obj = None
 
-        if layer_type == 'LINEAR':
+        if layer_type == 'RELU':
+            layer_obj = torch.nn.ReLU(**layer_params)
+
+        elif layer_type == 'LINEAR':
             layer_obj = torch.nn.Linear(**layer_params)
 
         else:

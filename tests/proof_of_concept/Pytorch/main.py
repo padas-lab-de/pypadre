@@ -17,7 +17,12 @@ def main():
     params = dict()
     params['lr'] = 0.01
 
-    obj = WrapperPytorch(layers, params)
+    import json
+    with open('config.json') as json_data:
+        params = json.load(json_data)
+        print(params)
+
+    obj = WrapperPytorch(params=params)
     estimators = [('clf', obj)]
     workflow = Pipeline(estimators)
     iris = datasets.load_iris()
