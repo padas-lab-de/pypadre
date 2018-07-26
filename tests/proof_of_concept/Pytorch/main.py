@@ -31,7 +31,75 @@ def main():
                     workflow=workflow,
                     backend=pypadre.file_repository.experiments)
     ex.run()
+    '''
+    Sample network dictionary creation
+    
+    layer1 = dict()
+    layer1['type'] = 'linear'
+    param = dict()
+    param['in_features'] = 4
+    param['out_features'] = 20
+    param['bias'] = True
+    layer1['params'] = copy.deepcopy(param)
 
+    layer2 = dict()
+    layer2['type'] = 'relu'
+
+    layer3 = dict()
+    layer3['type'] = 'linear'
+    param = dict()
+    param['in_features'] = 20
+    param['out_features'] = 10
+    param['bias'] = True
+    layer3['params'] = copy.deepcopy(param)
+
+    layer4 = dict()
+    param = dict()
+    layer4['type'] = 'linear'
+    param['in_features'] = 10
+    param['out_features'] = 1
+    param['bias'] = True
+    layer4['params'] = copy.deepcopy(param)
+
+    layers = dict()
+    layers['layer1'] = layer1
+    layers['layer2'] = layer2
+    layers['layer3'] = layer3
+    layers['layer4'] = layer4
+    
+    layer_order = ['layer1', 'layer2', 'layer3', 'layer4']
+    
+    optimizer = dict()
+    optimizer['type'] = 'SGD'
+    params = dict()
+    params['momentum'] = 0.9
+    params['dampening'] = 0
+    params['weight_decay'] = 0
+    params['Nesterov'] = False
+    params['lr'] = 0.01
+    optimizer['params'] = copy.deepcopy(params)
+    
+    loss = dict()
+    loss['type'] = 'MSELOSS'
+    params = dict()
+    params['size_average'] = True
+    params['reduce'] = True
+    loss['params'] = copy.deepcopy(params)
+
+    
+    network = dict()
+    network['layer_order'] = layer_order
+    network['architecture'] = layers
+    network['loss'] = loss
+    network['optimizer'] = optimizer
+    network['steps'] = 1000
+    network['batch_size'] = 1
+    
+    import json
+    with open('config.json', 'w') as fp:
+        json.dump(network, fp)
+    
+    '''
 
 
 
