@@ -71,8 +71,13 @@ class MetadataEntity:
     The metadata should contain all necessary non-binary data to describe an entity.
     """
     def __init__(self, id_=None, **metadata):
-        self._id = id_
         self._metadata = dict(metadata)
+
+        if id_==None:
+            self._id=metadata["openml_id"]
+        else:
+            self._id = id_
+
 
     @property
     def id(self):

@@ -4,3 +4,11 @@ numpy==1.13.3
 scipy==1.0.0
 click==6.7
 scikit_learn==0.19.1
+pandas==0.22.0
+
+tables==3.4.3
+
+protobuf==3.5.2
+
+
+openml==0.7.0

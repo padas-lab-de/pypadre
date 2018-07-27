@@ -5,6 +5,7 @@ Module containing python classes for managing data sets
 
 """
 import numpy as np
+import pandas as pd
 from scipy import stats
 
 from padre.base import MetadataEntity
@@ -25,7 +26,7 @@ class NumpyContainer:
         self._shape = data.shape
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
-            self._features = self._data
+            self._features = data
             self._targets_idx = None
             self._features_idx = np.arange(self._shape[1])
         else:
@@ -82,6 +83,90 @@ class NumpyContainer:
         return ret
 
 
+class PandasContainer:
+
+    def __init__(self, data, attributes=None):
+        # todo rework binary data into delegate pattern.
+        self._shape = data.shape
+        pd.DataFrame
+        if attributes is None:
+            self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
+            self._features = data
+            self._data = data
+            self._targets_idx = None
+            self._features_idx = np.arange(self._shape[1])
+        else:
+            if len(attributes) != data.shape[1]:
+                raise ValueError("Incorrect number of attributes."
+                                 " Data has %d columns, provided attributes %d."
+                                 % (data.shape[1], len(attributes)))
+            self._data = data
+            self._attributes = attributes
+            self._targets_idx = np.array([idx for idx, a in enumerate(attributes) if a.is_target])
+            self._features_idx = np.array([idx for idx, a in enumerate(attributes) if not a.is_target])
+            assert set(self._features_idx).isdisjoint(set(self._targets_idx)) and \
+                   set(self._features_idx).union(set(self._targets_idx)) == set([idx for idx in range(len(attributes))])
+            #TODO assert rework
+
+    @property
+    def attributes(self):
+        return self._attributes
+
+    @property
+    def features(self):
+        if self._attributes is None:
+            return self._data
+        else:
+            removekeys = []
+            for att in self._attributes:
+                if(att.is_target):
+                    removekeys.append(att.name)
+            return self._data.drop(removekeys,axis=1)
+
+    @property
+    def targets(self):
+        if self._targets_idx is None:
+            return None
+        else:
+            removekeys = []
+            for att in self._attributes:
+                if (not att.is_target):
+                    removekeys.append(att.name)
+            return self._data.drop(removekeys, axis=1)
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def shape(self):
+        return self._shape
+
+
+    @property
+    def num_attributes(self):
+        return self._data.shape[1]
+
+  #      ret = {"n_att" : len(self._attributes),
+  #             "n_target" : len([a for a in self._attributes if a.is_target])}
+  #      if self._data is not None:
+  #          ret["stats"] = stats.describe(self._data, axis=0)
+  #      return ret
+
+
+    def describe(self):
+        ret = {"n_att" : len(self._attributes),
+               "n_target" : len([a for a in self._attributes if a.is_target])}
+        if self._data is not None:
+            describe_data={}
+            for col in self._data.columns:
+                if isinstance(self._data[col][0],np.float64):
+                    describe_data[str(col)] = stats.describe(self._data[col].values, axis=0)
+            ret["status"]=describe_data
+
+        return ret
+
+
 class AttributeOnlyContainer:
 
     def __init__(self, attributes):
@@ -120,18 +205,28 @@ class AttributeOnlyContainer:
                 "stats": "no records available"}
 
 
-class Attribute(object):
+class Attribute(dict):
 
     def __init__(self, name, measurement_level, unit=None,
-                 description=None, is_target=False,data_type=None,number_missing_values=None):
+                 description=None, is_target=False,data_class=None,nominal_values=None,number_missing_values=None):
+        dict.__init__(self, name=name, measurement_level = measurement_level, unit = unit, description = description, is_target = is_target,
+                      data_class=data_class,nominal_values=nominal_values,number_missing_values=number_missing_values)
+
+
+
         self.name = name
         self.measurement_level = measurement_level
         self.unit = unit
         self.description = description
         self.is_target = is_target
 
-        self.data_type=data_type
+
+        #self.data_type=data_type
+        self.data_class=data_class
+        self.nominal_values=nominal_values
         self.number_missing_values=number_missing_values
+
+
 
     def __str__(self):
         return self.name + "(" + self.measurement_level + ")"
@@ -245,6 +340,9 @@ class Dataset(MetadataEntity):
         if data is None:
             self._binary_format = None
             self._binary = AttributeOnlyContainer(attributes)
+        elif isinstance(data, pd.DataFrame):
+            self._binary = PandasContainer(data, attributes)
+            self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):
             self._binary = NumpyContainer(data, attributes)
             self._binary_format = formats.numpy

@@ -7,6 +7,9 @@ from .datasets import Dataset, Attribute
 import openml as oml
 import os.path
 from requests.exceptions import ConnectionError
+import arff
+import pandas as pd
+
 
 # TODO: import standard sklearn data sets
 # TODO: import data sets from mldata and openml
@@ -64,9 +67,11 @@ def load_sklearn_toys():
         yield _create_dataset(loader[0](), loader[1][1])
 
 
-LEGAL_DATA_TYPES = ['nominal', 'numeric', 'string', 'date']
+LEGAL_DATA_TYPES = ['NOMINAL','INTEGER', 'NUMERIC', 'REAL', 'STRING']
 
-def load_openML_dataset(url,datapath='~/.openml/cache',apikey="1f8766e1615225a727bdea12ad4c72fa"):
+DATATYPE_MAP={'INTEGER': np.int64,'NUMERIC':np.float64, 'REAL':np.float64, 'STRING': str}
+
+def load_openML_dataset_old(url,datapath='~/.openml/cache',apikey="1f8766e1615225a727bdea12ad4c72fa"):
     #apikey is from useraccount markush.473@gmail.com
 
     dataset_id=url.split("/")[-1]
@@ -127,6 +132,116 @@ def load_openML_dataset(url,datapath='~/.openml/cache',apikey="1f8766e1615225a72
     dataset.set_data(data, atts)
     return dataset
 
+def getTop100():
+    file = open("../padre/top100datasetIDs.txt", "r")
+    id_list = file.read().split(",")
+
+    datasets = []
+    i=0
+    amount=len(id_list)
+    for id in id_list:
+        print("Progress: ("+str(i)+"/"+str(amount)+") id of next dataset:" + str(id))
+        datasets.append(load_openML_dataset_new("/" + id))
+        i=i+1
+    return datasets
+
+def load_openML_dataset_new(url,datapath='~/.openml/cache',apikey="1f8766e1615225a727bdea12ad4c72fa"):
+    print("start")
+    #apikey is from useraccount markush.473@gmail.com
+    #raw_data = arff.load(open(os.path.expanduser('~/.openml/cache')+'/org/openml/www/datasets/14/dataset.arff',encoding='utf-8'))
+    dataset_id=url.split("/")[-1]
+    dataset_id=dataset_id.strip(" ")
+    oml.config.apikey=apikey
+    oml.config.cache_directory=os.path.expanduser(datapath)
+    try:
+        load = oml.datasets.get_dataset(dataset_id)
+    except oml.exceptions.OpenMLServerException as err:
+        print("Dataset not found! \nErrormessage: "+ str(err))
+        return None
+    except ConnectionError as err:
+        print("openML unreachable! \nErrormessage: "+str(err))
+        return None
+    except OSError as err:
+        print("Invalid datapath! \nErrormessage: " + str(err))
+        return None
+
+    meta = dict()
+    meta["openml_id"]=dataset_id
+    meta["name"] = load.name
+    meta["version"]=load.version
+    meta["description"] = load.description
+    meta["creator"] = load.creator
+    meta["contributor"] = load.contributor
+    meta["collection_date"] = load.collection_date
+    meta["upload_to_openml_date"] = load.upload_date
+    meta["language"] = load.language
+    meta["licence"] = load.licence
+    meta["openml_url"] = load.url
+    meta["default_target_attribute"]=load.default_target_attribute
+    meta["version_label"] = load.version_label
+    meta["citation"] = load.citation
+    meta["paper_url"] = load.paper_url
+    meta["update_comment"] = load.update_comment
+    meta["qualities"] = load.qualities
+
+    print("meta done")
+    dataset = Dataset(None, **meta)
+
+    raw_data = arff.load(open(os.path.expanduser(datapath)+'/org/openml/www/datasets/'+dataset_id+'/dataset.arff',encoding='utf-8'))
+    print("arff loaded")
+    df_attributes = raw_data['attributes']
+    attribute_list = []
+
+    for att in df_attributes:
+        attribute_list.append(att[0])
+    print("dataframe")
+    df_data = pd.DataFrame(data=raw_data['data'])
+    print("gotDataframe")
+    #list(df_data)
+    #enumerate(df_data.itertuples())
+    raw_data = None
+
+
+    atts = []
+    for col in df_data.keys():
+
+
+        print(df_attributes[col][0]+" "+str((df_data[col]).dtype))
+        #data_type=None
+        data_class=None
+        current_attribute=df_attributes[col]
+        if(load.features[col].name!=current_attribute[0]):
+            print("failure")
+            #TODO Throw exception
+        if isinstance(current_attribute[1],list):
+            #data_type=str
+            data_class='NOMINAL'
+            df_data[col] = df_data[col].astype('category')
+            #print(df_data[col]._data.categrical)
+           # pd.Categorical
+           # pd.Series
+        elif current_attribute[1] in DATATYPE_MAP.keys() and isinstance(current_attribute[1],str):
+            #data_type=DATATYPE_MAP[current_attribute[1]]
+            data_class = current_attribute[1]
+        else:
+            print("failure")
+            #TODO Throw exception
+            df_data.keys()[0]
+        atts.append(Attribute(current_attribute[0], None, None, None, current_attribute[0] == load.default_target_attribute,
+                              data_class,current_attribute[1] if data_class is "NOMINAL" else None,
+                              load.features[col].number_missing_values))
+    #+atts.append(Attribute(current_attribute[0], None, None, None, current_attribute[0] == load.default_target_attribute,
+    #                      data_type,
+    #                      data_class, current_attribute[1] if data_class is "NOMINAL" else None,
+    #                      load.features[col].number_missing_values))
+
+    #for i in range(32):
+    #    df_data=pd.concat([df_data, df_data2])
+    #    print(i)
+    #df_data2=None
+    df_data.columns = attribute_list
+    dataset.set_data(df_data, atts)
+    return dataset
 
 
 
