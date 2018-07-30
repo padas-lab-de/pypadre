@@ -653,6 +653,7 @@ class WrapperPytorch:
             if layer_params.get('size', None) is not None:
                 layer_obj = torch.nn.LocalResponseNorm(**layer_params)
 
+        # Linear Layers
         elif layer_type == 'LINEAR':
             if self.verify_linear_params(layer_params):
                 layer_obj = torch.nn.Linear(**layer_params)
@@ -661,11 +662,33 @@ class WrapperPytorch:
             if self.verify_bilinear_params(layer_params):
                 layer_obj = torch.nn.Bilinear(**layer_params)
 
+        # Dropout Layers
+        elif layer_type == 'DROPOUT':
+            layer_obj = torch.nn.Dropout(**layer_params)
+
+        elif layer_type == 'DROPOUT2D':
+            layer_obj = torch.nn.Dropout2d(**layer_params)
+
+        elif layer_type == 'DROPOUT3D':
+            layer_obj = torch.nn.Dropout3d(**layer_params)
+
+        elif layer_type == 'ALPHADROPOUT':
+            layer_obj = torch.nn.AlphaDropout(**layer_params)
+
+        # Sparse Layers
+        elif layer_type == 'EMBEDDING':
+            if self.verify_embedding_params(layer_params):
+                layer_obj = torch.nn.Embedding(**layer_params)
+
+        elif layer_type == 'EMBEDDINGBAG':
+            if self.verify_embedding_params(layer_params):
+                layer_obj = torch.nn.EmbeddingBag(**layer_params)
+
         else:
             layer_obj = None
 
         '''
-        The following function isn't present in the library but is present in the documentation
+        The following function isn't present in the library but is present in the documentation of Torch
         elif layer_type == 'ADAPTIVELOGSOFTMAXWITHLOSS':
             if self.verify_adaptivesoftmaxwithloss_params(layer_params):
                 layer_obj = torch.nn.AdaptiveLogSoftmaxwithLoss(**layer_params)
@@ -844,6 +867,30 @@ class WrapperPytorch:
             flag = False
 
         return flag
+
+    def verify_embedding_params(self, params=None):
+        """
+        This function verifies the parameters for the Embedding Layer in torch
+
+        :param params: Parameters to be passed to the constructor of the embedding layer
+
+        :return: True if successful, False otherwise
+        """
+
+        if params is None:
+            params = dict()
+
+        flag = True
+
+        num_embeddings = params.get('num_embeddings', None)
+        embedding_dim = params.get('embedding_dim', None)
+
+        if num_embeddings is None or embedding_dim is None:
+            flag = False
+
+        return flag
+
+
 
 
 
