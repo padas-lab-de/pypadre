@@ -11,6 +11,7 @@ import copy
 # TODO: The above mapping file should contain the compulsory as well as optional parameters
 # TODO: Batch processing to be implemented
 # TODO: Implement rest of layers
+# TODO: Implement Recurrent Layers
 # Types of layers Convolutional, Pooling, Padding, Non-Linear Activations,
 # Normalization, Recurrent, Linear, Dropout, Sparse
 
@@ -653,7 +654,12 @@ class WrapperPytorch:
                 layer_obj = torch.nn.LocalResponseNorm(**layer_params)
 
         elif layer_type == 'LINEAR':
-            layer_obj = torch.nn.Linear(**layer_params)
+            if self.verify_linear_params(layer_params):
+                layer_obj = torch.nn.Linear(**layer_params)
+
+        elif layer_type == 'BILINEAR':
+            if self.verify_bilinear_params(layer_params):
+                layer_obj = torch.nn.Bilinear(**layer_params)
 
         else:
             layer_obj = None
@@ -790,6 +796,51 @@ class WrapperPytorch:
         num_features = params.get('num_features', None)
 
         if num_features is None:
+            flag = False
+
+        return flag
+
+    def verify_linear_params(self, params=None):
+        """
+        The functions verifies the input arguments for the Linear Layer
+
+        :param params: Params to be used as input for the Linear Layer
+
+        :return: True if successful, False otherwise
+        """
+
+        if params is None:
+            params = dict()
+
+        flag = True
+
+        in_features = params.get('in_features', None)
+        out_features = params.get('out_features')
+
+        if in_features is None or out_features is None:
+            flag = False
+
+        return flag
+
+    def verify_bilinear_params(self, params=None):
+        """
+        The function verifies the bilinear layer parameters
+
+        :param params: Parameters to be used to create a bilinear layers
+
+        :return: True if successful, False otherwise
+        """
+
+        if params is None:
+            params = dict()
+
+        flag = True
+
+        in1_features = params.get('in1_features', None)
+        in2_features = params.get('in2_features', None)
+        out_features = params.get('out_features', None)
+
+        if in1_features is None or in2_features is None or out_features is None:
             flag = False
 
         return flag
