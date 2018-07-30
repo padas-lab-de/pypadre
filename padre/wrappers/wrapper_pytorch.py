@@ -615,8 +615,42 @@ class WrapperPytorch:
         elif layer_type == 'SOFTMAX2D':
             layer_obj = torch.nn.Softmax2d()
 
-        elif layer_type == 'LOFSOFTMAX':
+        elif layer_type == 'LOGSOFTMAX':
             layer_obj = torch.nn.LogSoftmax(**layer_params)
+
+        # Batch Normalization Layers
+        elif layer_type == 'BATCHNORM1D':
+            if self.verify_batch_norm_params(layer_params):
+                layer_obj = torch.nn.BatchNorm1d(**layer_params)
+
+        elif layer_type == 'BATCHNORM2D':
+            if self.verify_batch_norm_params(layer_params):
+                layer_obj = torch.nn.BatchNorm2d(**layer_params)
+
+        elif layer_type == 'BATCHNORM3D':
+            if self.verify_batch_norm_params(layer_params):
+                layer_obj = torch.nn.BatchNorm3d(**layer_params)
+
+        elif layer_type == 'GROUPNORM':
+            if layer_params.get('num_groups', None) is not None and \
+                    layer_params.get('num_channels', None) is not None:
+                layer_obj = torch.nn.GroupNorm(**layer_params)
+
+        elif layer_type == 'INSTANCENORM1D':
+            if self.verify_instance_norm_params(layer_params):
+                layer_obj = torch.nn.InstanceNorm1d(**layer_params)
+
+        elif layer_type == 'INSTANCENORM2D':
+            if self.verify_instance_norm_params(layer_params):
+                layer_obj = torch.nn.InstanceNorm2d(**layer_params)
+
+        elif layer_type == 'INSTANCENORM3D':
+            if self.verify_instance_norm_params(layer_params):
+                layer_obj = torch.nn.InstanceNorm3d(**layer_params)
+
+        elif layer_type == 'LOCALRESPONSENORM':
+            if layer_params.get('size', None) is not None:
+                layer_obj = torch.nn.LocalResponseNorm(**layer_params)
 
         elif layer_type == 'LINEAR':
             layer_obj = torch.nn.Linear(**layer_params)
@@ -723,6 +757,43 @@ class WrapperPytorch:
             flag = False
 
         return flag
+
+    def verify_batch_norm_params(self, params=None):
+        """
+        The function verifies the parameters to be passed to the Batch Normalization layers
+
+        :param params: Parameters to be input to the Batch Normalization Layer
+
+        :return: True if successful, False otherwise
+        """
+
+        if params is None:
+            params = dict()
+
+        flag = True
+
+        num_features = params.get('num_features', None)
+
+        if num_features is None:
+            flag = False
+
+        return flag
+
+    def verify_instance_norm_params(self, params=None):
+
+
+        if params is None:
+            params = dict()
+
+        flag = True
+
+        num_features = params.get('num_features', None)
+
+        if num_features is None:
+            flag = False
+
+        return flag
+
 
 
 
