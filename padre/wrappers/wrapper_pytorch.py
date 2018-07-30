@@ -14,6 +14,7 @@ import copy
 # Types of layers Convolutional, Pooling, Padding, Non-Linear Activations,
 # Normalization, Recurrent, Linear, Dropout, Sparse
 
+
 class WrapperPytorch:
 
     model = None
@@ -30,7 +31,6 @@ class WrapperPytorch:
             return
 
         self.params = copy.deepcopy(params)
-        #self.lr = params.get('lr', 0.001)
         self.steps = params.get('steps', 1000)
         self.batch_size = params.get('batch_size', 1)
 
@@ -90,16 +90,16 @@ class WrapperPytorch:
         x = torch.autograd.Variable(torch.from_numpy(x), requires_grad=False)
         self.model.eval()
         with torch.no_grad():
-            output =  self.model(x)
+            output = self.model(x)
 
-        return  output
+        return output
 
     def create_model(self, shape):
 
         model = torch.nn.Sequential(*shape)
         return model
 
-    def create_optimizer(self, optimizer_type=None, params=dict()):
+    def create_optimizer(self, optimizer_type=None, params=None):
         """
         This function implements an optimizer for learning
         Reference: https://pytorch.org/docs/stable/optim.html
@@ -109,6 +109,9 @@ class WrapperPytorch:
 
         :return: Optimizer object
         """
+
+        if params is None:
+            params = dict()
 
         lr = params.get('lr', 0.001)
         optimizer_type = str(optimizer_type).upper()
@@ -124,19 +127,22 @@ class WrapperPytorch:
             rho = params.get('rho', 0.9)
             eps = params.get('eps', 0.000001)
             weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.Adadelta(self.model.parameters(), lr=lr, rho=rho, eps=eps, weight_decay=weight_decay)
+            optimizer = torch.optim.Adadelta(self.model.parameters(), lr=lr, rho=rho,
+                                             eps=eps, weight_decay=weight_decay)
 
         elif optimizer_type == 'ADAGRAD':
             lr_decay = params.get('lr_decay', 0)
             weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.Adagrad(self.model.parameters(), lr=lr, lr_decay=lr_decay, weight_decay=weight_decay)
+            optimizer = torch.optim.Adagrad(self.model.parameters(), lr=lr, lr_decay=lr_decay,
+                                            weight_decay=weight_decay)
 
         elif optimizer_type == 'ADAM':
             betas = params.get('betas', (0.9, 0.999))
             eps = params.get('eps', 0.00000001)
             weight_decay = params.get('weight_decay', 0)
             amsgrad = params.get('amsgrad', False)
-            optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, betas=betas, eps=eps, weight_decay=weight_decay, amsgrad=amsgrad)
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, betas=betas, eps=eps,
+                                         weight_decay=weight_decay, amsgrad=amsgrad)
 
         elif optimizer_type == 'SPARSEADAM':
             betas = params.get('betas', (0.9, 0.999))
@@ -147,14 +153,16 @@ class WrapperPytorch:
             betas = params.get('betas', (0.9, 0.999))
             eps = params.get('eps', 0.00000001)
             weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.SparseAdam(self.model.parameters(), lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
+            optimizer = torch.optim.Adamax(self.model.parameters(), lr=lr, betas=betas,
+                                           eps=eps, weight_decay=weight_decay)
 
         elif optimizer_type == 'ASGD':
             lambd = params.get('lambd', 0.0001)
             alpha = params.get('alpha', 0.75)
             t0 = params.get('t0', 1000000.0)
             weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.ASGD(self.model.parameters(), lr=lr, lambd=lambd, alpha=alpha, t0=t0, weight_decay=weight_decay)
+            optimizer = torch.optim.ASGD(self.model.parameters(), lr=lr, lambd=lambd, alpha=alpha,
+                                         t0=t0, weight_decay=weight_decay)
 
         elif optimizer_type == 'LBFGS':
             max_iter = params.get('max_iter', 20)
@@ -193,12 +201,15 @@ class WrapperPytorch:
 
         else:
             momentum = params.get('momentum', 0.9)
-            lr = params.get('lr', 0.1)
-            optimizer = torch.optim.SGD(self.model.parameters(), lr)
+            dampening = params.get('dampening', 0)
+            weight_decay = params.get('weight_decay', 0)
+            nesterov = params.get('Nesterov', False)
+            optimizer = torch.optim.SGD(self.model.parameters(), lr=lr, momentum=momentum, dampening=dampening,
+                                        weight_decay=weight_decay, nesterov=nesterov)
 
         return optimizer
 
-    def create_loss(self, name='MSELOSS', params=dict()):
+    def create_loss(self, name='MSELOSS', params=None):
         """
         The function returns an object of the required loss function
 
@@ -208,9 +219,10 @@ class WrapperPytorch:
         :return: Object of the loss function
         """
 
+        if params is None:
+            params = dict()
+
         loss = None
-
-
 
         name = str(name).upper()
 
@@ -348,10 +360,10 @@ class WrapperPytorch:
             if layer is None:
                 return None
 
-            type = layer.get('type')
+            layer_type = layer.get('type')
             params = layer.get('params')
 
-            layer_obj = self.create_layer_object(type, params)
+            layer_obj = self.create_layer_object(layer_type, params)
 
             if layer_obj is not None:
                 layers.append(layer_obj)
@@ -362,9 +374,10 @@ class WrapperPytorch:
 
         return layers
 
-    def create_layer_object(self, layer_type = None, layer_params = None):
+    def create_layer_object(self, layer_type=None, layer_params=None):
         """
         The function creates a layer object from the type and the params
+        Reference: https://pytorch.org/docs/stable/nn.html
 
         :param layer_type:
         :param layer_params:
@@ -382,8 +395,228 @@ class WrapperPytorch:
 
         layer_obj = None
 
-        if layer_type == 'RELU':
+        # Convolutional layers
+        if layer_type == 'CONV1D':
+            if self.verify_convolutional_params(layer_params):
+                layer_obj = torch.nn.Conv1d(**layer_params)
+
+        elif layer_type == 'CONV2D':
+            if self.verify_convolutional_params(layer_params):
+                layer_obj = torch.nn.Conv2d(**layer_params)
+
+        elif layer_type == 'CONV3D':
+            if self.verify_convolutional_params(layer_params):
+                layer_obj = torch.nn.Conv3d(**layer_params)
+
+        # Transpose Layers
+        elif layer_type == 'CONVTRANSPOSE1D':
+            if self.verify_convolutional_params(layer_params):
+                layer_obj = torch.nn.ConvTranspose1d(**layer_params)
+
+        elif layer_type == 'CONVTRANSPOSE2D':
+            if self.verify_convolutional_params(layer_params):
+                layer_obj = torch.nn.ConvTranspose2d(**layer_params)
+
+        elif layer_type == 'CONVTRANSPOSE3D':
+            if self.verify_convolutional_params(layer_params):
+                layer_obj = torch.nn.ConvTranspose3d(**layer_params)
+
+        elif layer_type == 'UNFOLD':
+            layer_obj = torch.nn.Unfold(**layer_params)
+
+        elif layer_type == 'FOLD':
+            layer_obj = torch.nn.Fold(**layer_params)
+
+        # Max Pooling Layers
+        elif layer_type == 'MAXPOOL1D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.MaxPool1d(**layer_params)
+
+        elif layer_type == 'MAXPOOL2D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.MaxPool2d(**layer_params)
+
+        elif layer_type == 'MAXPOOL3D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.MaxPool3d(**layer_params)
+
+        # Unpooling Layers
+        elif layer_type == 'MAXUNPOOL1D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.MaxUnpool1d(**layer_params)
+
+        elif layer_type == 'MAXUNPOOL2D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.MaxUnpool2d(**layer_params)
+
+        elif layer_type == 'MAXUNPOOL3D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.MaxUnpool3d(**layer_params)
+
+        # Average Pooling Layers
+        elif layer_type == 'AVGPOOL1D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.AvgPool1d(**layer_params)
+
+        elif layer_type == 'AVGPOOL2D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.AvgPool2d(**layer_params)
+
+        elif layer_type == 'AVGPOOL3D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.AvgPool3d(**layer_params)
+
+        # Fractional Pooling
+        elif layer_type == 'FRACTIONALMAXPOOL2D':
+            if self.verify_pooling_params(layer_params):
+                layer_obj = torch.nn.FractionalMaxPool2d(**layer_params)
+
+        # Power Average Pooling
+        elif layer_type == 'LPPOOL1D':
+            if self.verify_pooling_params(layer_params) and \
+                    layer_params.get('norm_type', None) is not None:
+                layer_obj = torch.nn.LPPool1d(**layer_params)
+
+        elif layer_type == 'LPPOOL2D':
+            if self.verify_pooling_params(layer_params) and \
+                    layer_params.get('norm_type', None) is not None:
+                layer_obj = torch.nn.LPPool2d(**layer_params)
+
+        # Adaptive Pooling Layers
+        elif layer_type == 'ADAPTIVEMAXPOOL1D':
+            if layer_params.get('output_size', None) is not None:
+                layer_obj = torch.nn.AdaptiveMaxPool1d(**layer_params)
+
+        elif layer_type == 'ADAPTIVEMAXPOOL2D':
+            if layer_params.get('output_size', None) is not None:
+                layer_obj = torch.nn.AdaptiveMaxPool2d(**layer_params)
+
+        elif layer_type == 'ADAPTIVEMAXPOOL3D':
+            if layer_params.get('output_size', None) is not None:
+                layer_obj = torch.nn.AdaptiveMaxPool3d(**layer_params)
+
+        elif layer_type == 'ADAPTIVEAVGPOOL1D':
+            if layer_params.get('output_size', None) is not None:
+                layer_obj = torch.nn.AdaptiveAvgPool1d(**layer_params)
+
+        elif layer_type == 'ADAPTIVEAVGPOOL2D':
+            if layer_params.get('output_size', None) is not None:
+                layer_obj = torch.nn.AdaptiveAvgPool2d(**layer_params)
+
+        elif layer_type == 'ADAPTIVEAVGPOOL3D':
+            if layer_params.get('output_size', None) is not None:
+                layer_obj = torch.nn.AdaptiveAvgPool3d(**layer_params)
+
+        # Reflection Padding Layers
+        elif layer_type == 'REFLECTIONPAD1D':
+            if self.verify_padding_params(layer_params):
+                layer_obj = torch.nn.ReflectionPad1d(**layer_params)
+
+        elif layer_type == 'REFLECTIONPAD2D':
+            if self.verify_padding_params(layer_params):
+                layer_obj = torch.nn.ReflectionPad2d(**layer_params)
+
+        # Replication Padding Layers
+        elif layer_type == 'REPLICATIONPAD1D':
+            if self.verify_padding_params(layer_params):
+                layer_obj = torch.nn.ReplicationPad1d(**layer_params)
+
+        elif layer_type == 'REPLICATIONPAD2D':
+            if self.verify_padding_params(layer_params):
+                layer_obj = torch.nn.ReplicationPad2d(**layer_params)
+
+        elif layer_type == 'REPLICATIONPAD3D':
+            if self.verify_padding_params(layer_params):
+                layer_obj = torch.nn.ReplicationPad3d(**layer_params)
+
+        # Zero Padding Layers
+        elif layer_type == 'ZEROPAD2D':
+            if self.verify_padding_params(layer_params):
+                layer_obj = torch.nn.ZeroPad2d(**layer_params)
+
+        # Constant Padding Layers
+        elif layer_type == 'CONSTANTPAD1D':
+            if self.verify_padding_params(layer_params) and \
+                    layer_params.get('value', None) is not None:
+                layer_obj = torch.nn.ConstantPad1d(**layer_params)
+
+        elif layer_type == 'CONSTANTPAD2D':
+            if self.verify_padding_params(layer_params) and \
+                    layer_params.get('value', None) is not None:
+                layer_obj = torch.nn.ConstantPad2d(**layer_params)
+
+        elif layer_type == 'CONSTANTPAD3D':
+            if self.verify_padding_params(layer_params) and \
+                    layer_params.get('value', None) is not None:
+                layer_obj = torch.nn.ConstantPad3d(**layer_params)
+
+        # Non Linear Activation Layers
+        elif layer_type == 'ELU':
+            layer_obj = torch.nn.ELU(**layer_params)
+
+        elif layer_type == 'HARDSHRINK':
+            layer_obj = torch.nn.Hardshrink(**layer_params)
+
+        elif layer_type == 'HARDTANH':
+            layer_obj = torch.nn.Hardtanh(**layer_params)
+
+        elif layer_type == 'LEAKYRELU':
+            layer_obj = torch.nn.LeakyReLU(**layer_params)
+
+        elif layer_type == 'LOGSIGMOID':
+            layer_obj = torch.nn.LogSigmoid()
+
+        elif layer_type == 'PRELU':
+            if layer_params.get('num_parameters', None) is not None and \
+                    layer_params.get('init', None) is not None:
+                layer_obj = torch.nn.PReLU(**layer_params)
+
+        elif layer_type == 'RELU':
             layer_obj = torch.nn.ReLU(**layer_params)
+
+        elif layer_type == 'RELU6':
+            layer_obj = torch.nn.ReLU6(**layer_params)
+
+        elif layer_type == 'RRELU':
+            layer_obj = torch.nn.RReLU(**layer_params)
+
+        elif layer_type == 'SELU':
+            layer_obj = torch.nn.SELU(**layer_params)
+
+        elif layer_type == 'SIGMOID':
+            layer_obj = torch.nn.SELU()
+
+        elif layer_type == 'SOFTPLUS':
+            layer_obj = torch.nn.Softplus(**layer_params)
+
+        elif layer_type == 'SOFTSHRINK':
+            layer_obj = torch.nn.Softshrink(**layer_params)
+
+        elif layer_type == 'SOFTSIGN':
+            layer_obj = torch.nn.Softsign()
+
+        elif layer_type == 'TANH':
+            layer_obj = torch.nn.Tanh()
+
+        elif layer_type == 'TANHSHRINK':
+            layer_obj = torch.nn.Tanhshrink()
+
+        elif layer_type == 'THRESHOLD':
+            if layer_params.get('threshold', None) is not None and \
+                    layer_params.get('value', None) is not None:
+                layer_obj = torch.nn.Threshold(**layer_params)
+
+        elif layer_type == 'SOFTMIN':
+            layer_obj = torch.nn.Softmin(**layer_params)
+
+        elif layer_type == 'SOFTMAX':
+            layer_obj = torch.nn.Softmax(**layer_params)
+
+        elif layer_type == 'SOFTMAX2D':
+            layer_obj = torch.nn.Softmax2d()
+
+        elif layer_type == 'LOFSOFTMAX':
+            layer_obj = torch.nn.LogSoftmax(**layer_params)
 
         elif layer_type == 'LINEAR':
             layer_obj = torch.nn.Linear(**layer_params)
@@ -391,11 +624,105 @@ class WrapperPytorch:
         else:
             layer_obj = None
 
+        '''
+        The following function isn't present in the library but is present in the documentation
+        elif layer_type == 'ADAPTIVELOGSOFTMAXWITHLOSS':
+            if self.verify_adaptivesoftmaxwithloss_params(layer_params):
+                layer_obj = torch.nn.AdaptiveLogSoftmaxwithLoss(**layer_params)
+        '''
+
         if layer_obj is not None:
             return copy.deepcopy(layer_obj)
 
         else:
             return None
+
+    def verify_convolutional_params(self, params=None):
+        """
+        The function verifies the paramaters to be passed for creating convolutional layers
+
+        :param params: The parameters for creating the convolutional layer
+
+        :return: True if successful, False otherwise
+
+        TODO: Add datatype validation for arguments and also verify that no extra arguments are present in params
+        """
+        flag = True
+
+        if params is None:
+            params = dict()
+
+        in_channels = params.get('in_channels', None)
+        out_channels = params.get('out_channels', None)
+        kernel_size = params.get('kernel_size', None)
+
+        if in_channels is None or out_channels is None or kernel_size is None:
+            flag = False
+
+        return flag
+
+    def verify_pooling_params(self, params=None):
+        """
+        The function verifies the pooling parameters to be passed to the layer constructor.
+
+        :param params: params to be input to the torch pooling functions.
+
+        :return: True if successful, False otherwise.
+        """
+
+        flag = True
+        if params is None:
+            params = dict()
+
+        kernel_size = params.get('kernel_size', None)
+
+        if kernel_size is None:
+            flag = False
+
+        return flag
+
+    def verify_padding_params(self, params=None):
+        """
+        The function verifies the padding parameters to be passed to the layer constructor.
+
+        :param params: Params to be input to the torch padding functions.
+
+        :return: True if successful, False otherwise
+        """
+
+        flag = True
+        if params is None:
+            params = dict()
+
+        padding = params.get('padding', None)
+
+        if padding is None:
+            flag = False
+
+        return flag
+
+    def verify_adaptivesoftmaxwithloss_params(self, params=None):
+        """
+        The function verifies the parameters to be passed to the Adaptive Softmax with loss Layer
+
+        :param params: Parameters to be input to the Adaptive Softmax with Loss function
+
+        :return: True if successful, False otherwise
+        """
+
+        if params is None:
+            params = dict()
+
+        flag = True
+
+        in_features = params.get('in_features', None)
+        n_classes = params.get('n_classes', None)
+        cutoffs = params.get('cutoffs')
+
+        if in_features is None or n_classes is None or cutoffs is None:
+            flag = False
+
+        return flag
 
 
 
