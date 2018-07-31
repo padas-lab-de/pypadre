@@ -57,6 +57,27 @@ constantpad1d = "CONSTANTPAD1D"
 constantpad2d = "CONSTANTPAD2D"
 constantpad3d = "CONSTANTPAD3D"
 
+elu = "ELU"
+hardshrink = "HARDSHRINK"
+hardtanh = "HARDTANH"
+leakyrelu = "LEAKYRELU"
+logsigmoid = "LOGSIGMOID"
+prelu = "PRELU"
+relu = "RELU"
+relu6 = "RELU6"
+rrelu = "RRELU"
+selu = "SELU"
+sigmoid = "SIGMOID"
+softplus = "SOFTPLUS"
+softshrink = "SOFTSHRINK"
+softsign = "SOFTSIGN"
+tanh = "TANH"
+tanhshrink = "TANKHSHRINK"
+threshold = "THRESHOLD"
+softmin = "SOFTMIN"
+softmax = "SOFTMAX"
+softmax2d = "SOFTMAX2D"
+logsoftmax = "LOGSOFTMAX"
 
 # The different parameters for the layers are declared below
 in_channels = "in_channels"
@@ -74,6 +95,13 @@ ceil_mode = "ceil_mode"
 count_include = "count_include"
 norm_type = "norm_type"
 value = "value"
+alpha = "alpha"
+inplace = "inplace"
+lambd = "lambd"
+min_val = "min_val"
+max_val = "max_val"
+min_value = "min_value"
+max_value = "max_value"
 
 
 # Convolution 1D Layer Definition
@@ -1148,6 +1176,82 @@ constantpad3d_dict[path] = "torch.nn.ConstantPad3d"
 constantpad3d_dict[params] = deepcopy(constantpad3d_params)
 
 layers_dict[constantpad3d] = deepcopy(constantpad3d_dict)
+
+# ELU
+alpha_dict = dict()
+alpha_dict[_type] = [_float]
+alpha_dict[optional] = True
+alpha_dict[default] = 1
+
+inplace_dict = dict()
+inplace_dict[_type] = _bool
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+elu_params = dict()
+elu_params[alpha] = alpha_dict
+elu_params[inplace] = inplace_dict
+
+elu_dict = dict()
+elu_dict[path] = "torch.nn.ELU"
+elu_dict[params] = deepcopy(elu_params)
+
+layers_dict[elu] = deepcopy(elu_dict)
+
+# Hardshrink
+lambd_dict = dict()
+lambd_dict[_type] = [_float]
+lambd_dict[optional] = True
+lambd_dict[default] = 0.5
+
+hardshrink_params = dict()
+hardshrink_params[lambd] = lambd_dict
+
+hardshrink_dict = dict()
+hardshrink_dict[path] = "torch.nn.ELU"
+hardshrink_dict[params] = deepcopy(hardshrink_params)
+
+layers_dict[hardshrink] = deepcopy(hardshrink_dict)
+
+# Hardtanh
+min_val_dict = dict()
+min_val_dict[_type] = _float
+min_val_dict[optional] = True
+min_val_dict[default] = -1
+
+max_val_dict = dict()
+max_val_dict[_type] = _float
+max_val_dict[optional] = True
+max_val_dict[default] = 1
+
+inplace_dict = dict()
+inplace_dict[_type] = _bool
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+min_value_dict = dict()
+min_value_dict[_type] = _float
+min_value_dict[optional] = True
+min_value_dict[default] = None
+
+max_value_dict = dict()
+max_value_dict[_type] = _float
+max_value_dict[optional] = False
+max_value_dict[default] = None
+
+hardtanh_params = dict()
+hardtanh_params[min_val] = min_val_dict
+hardtanh_params[max_val] = max_val_dict
+hardtanh_params[inplace] = inplace_dict
+hardtanh_params[min_value] = min_value_dict
+hardtanh_params[max_value] = max_value_dict
+
+hardtanh_dict = dict()
+hardtanh_dict[path] = "torch.nn.Hardtanh"
+hardtanh_dict[params] = deepcopy(hardtanh_params)
+
+layers_dict[hardtanh] = hardtanh_dict
+
 
 # Print the current working directory and write the dictionary to JSON file
 import os
