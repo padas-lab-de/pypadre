@@ -81,6 +81,16 @@ softmin = "SOFTMIN"
 softmax = "SOFTMAX"
 softmax2d = "SOFTMAX2D"
 logsoftmax = "LOGSOFTMAX"
+adaptivelogsoftmaxwithloss = "ADAPTIVELOGSOFTMAXWITHLOSS"
+batchnorm1d = "BATCHNORM1D"
+batchnorm2d = "BATCHNORM2D"
+batchnorm3d = "BATCHNORM3D"
+groupnorm = "GROUPNORM"
+instancenorm1d = "INSTANCENORM1D"
+instancenorm2d = "INSTANCENORM2D"
+instancenorm3d = "INSTANCENORM3D"
+layernorm = "LAYERNORM"
+localresponsenorm = "LOCALRESPONSENORM"
 
 # The different parameters for the layers are declared below
 in_channels = "in_channels"
@@ -118,6 +128,17 @@ n_classes = "n_classes"
 cutoffs = "cutoffs"
 div_value = "div_value"
 head_bias = "head_bias"
+num_features = "num_features"
+eps = "eps"
+momentum = "momentum"
+affine = "affine"
+track_running_status = "track_running_status"
+num_groups = "num_groups"
+num_channels = "num_channels"
+normalized_shape = "normalized_shape"
+elementwise_affine = "elementwise_affine"
+size = "size"
+k = "k"
 
 
 # Convolution 1D Layer Definition
@@ -1294,7 +1315,7 @@ logsigmoid_dict = dict()
 logsigmoid_dict[path] = "torch.nn.LogSigmoid"
 logsigmoid_dict[params] = None
 
-layers_dict[logsigmoid] = logsigmoid_dict
+layers_dict[logsigmoid] = deepcopy(logsigmoid_dict)
 
 # PReLU
 num_parameters_dict = dict()
@@ -1328,9 +1349,9 @@ relu_params[inplace] = inplace_dict
 
 relu_dict = dict()
 relu_dict[path] = "torch.nn.ReLU"
-relu_dict[params] = relu_params
+relu_dict[params] = deepcopy(relu_params)
 
-layers_dict[relu] = relu_dict
+layers_dict[relu] = deepcopy(relu_dict)
 
 # ReLU6
 inplace_dict = dict()
@@ -1394,7 +1415,7 @@ sigmoid_dict = dict()
 sigmoid_dict[path] = "torch.nn.Sigmoid"
 sigmoid_dict[params] = None
 
-layers_dict[sigmoid] = sigmoid_dict
+layers_dict[sigmoid] = deepcopy(sigmoid_dict)
 
 # Softplus
 beta_dict = dict()
@@ -1413,9 +1434,9 @@ softplus_params[param_threshold] = threshold_dict
 
 softplus_dict = dict()
 softplus_dict[path] = "torch.nn.Softplus"
-softplus_dict[params] = softplus_params
+softplus_dict[params] = deepcopy(softplus_params)
 
-layers_dict[softplus] = softplus_dict
+layers_dict[softplus] = deepcopy(softplus_dict)
 
 # Softshrink
 lambd_dict = dict()
@@ -1430,28 +1451,28 @@ softshrink_dict = dict()
 softshrink_dict[path] = "torch.nn.Softshrink"
 softshrink_dict[params] = softshrink_params
 
-layers_dict[softshrink] = softshrink_dict
+layers_dict[softshrink] = deepcopy(softshrink_dict)
 
 # Softsign
 softsign_dict = dict()
 softplus_dict[path] = "torch.nn.Softsign"
 softplus_dict[params] = None
 
-layers_dict[softsign] = softsign_dict
+layers_dict[softsign] = deepcopy(softsign_dict)
 
 # Tanh
 tanh_dict = dict()
 tanh_dict[path] = "torch.nn.Tanh"
 tanh_dict[params] = None
 
-layers_dict[tanh] = tanh_dict
+layers_dict[tanh] = deepcopy(tanh_dict)
 
 # Tanhshrink
 tanhshrink_dict = dict()
 tanhshrink_dict[path] = "torch.nn.Tanhshrink"
 tanhshrink_dict[params] = None
 
-layers_dict[tanh] = tanhshrink_dict
+layers_dict[tanh] = deepcopy(tanhshrink_dict)
 
 # Threshold
 threshold_dict = dict()
@@ -1478,9 +1499,9 @@ softmin_params[dim] = dim_dict
 
 softmin_dict = dict()
 softmin_dict[path] = "torch.nn.Softmin"
-softmin_dict[params] = softmin_params
+softmin_dict[params] = deepcopy(softmin_params)
 
-layers_dict[softmin] = softmin_dict
+layers_dict[softmin] = deepcopy(softmin_dict)
 
 # Softmax
 dim_dict = dict()
@@ -1493,16 +1514,16 @@ softmax_params[dim] = dim_dict
 
 softmax_dict = dict()
 softmax_dict[path] = "torch.nn.Softmin"
-softmax_dict[params] = softmax_params
+softmax_dict[params] = deepcopy(softmax_params)
 
-layers_dict[softmax] = softmax_dict
+layers_dict[softmax] = deepcopy(softmax_dict)
 
 # Softmax 2D
 softmax2d_dict = dict()
 softmax2d_dict[path] = "torch.nn.Softmax2d"
 softmax2d_dict[params] = None
 
-layers_dict[softmax2d] = softmax2d_dict
+layers_dict[softmax2d] = deepcopy(softmax2d_dict)
 
 # Log Softmax
 dim_dict = dict()
@@ -1515,9 +1536,9 @@ logsoftmax_params[dim] = dim_dict
 
 logsoftmax_dict = dict()
 logsigmoid_dict[path] = "torch.nn.LogSoftmax"
-logsigmoid_dict[params] = logsoftmax_params
+logsigmoid_dict[params] = deepcopy(logsoftmax_params)
 
-layers_dict[logsoftmax] = logsigmoid_dict
+layers_dict[logsoftmax] = deepcopy(logsigmoid_dict)
 
 # Adaptive Log Softmax With Loss
 in_features_dict = dict()
@@ -1549,6 +1570,328 @@ adaptivelogsoftmaxwithloss_params[cutoffs] = cutoffs_dict
 adaptivelogsoftmaxwithloss_params[div_value] = div_value_dict
 adaptivelogsoftmaxwithloss_params[head_bias] = head_bias_dict
 
+adaptivelogsoftmaxwithloss_dict = dict()
+adaptivelogsoftmaxwithloss_dict[path] = "torch.nn.AdaaptiveLogSoftmaxWithLoss"
+adaptivelogsoftmaxwithloss_dict[params] = deepcopy(adaptivelogsoftmaxwithloss_params)
+
+layers_dict[adaptivelogsoftmaxwithloss] = deepcopy(adaptivelogsoftmaxwithloss_dict)
+
+# Batch norm 1D
+num_features_dict = dict()
+num_features_dict[_type] = [_int]
+num_features_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.1
+
+affine_dict = dict()
+affine_dict[_type] = [_bool]
+affine_dict[optional] = True
+affine_dict[default] = True
+
+track_running_status_dict = dict()
+track_running_status_dict[_type] = [_bool]
+track_running_status_dict[optional] = True
+track_running_status_dict[default] = True
+
+batchnorm1d_params = dict()
+batchnorm1d_params[num_features] = num_features_dict
+batchnorm1d_params[eps] = eps_dict
+batchnorm1d_params[momentum] = momentum_dict
+batchnorm1d_params[affine] = affine_dict
+batchnorm1d_params[track_running_status] = track_running_status_dict
+
+batchnorm1d_dict = dict()
+batchnorm1d_dict[path] = "torch.nn.BatchNorm1d"
+batchnorm1d_dict[params] = deepcopy(batchnorm1d_params)
+
+layers_dict[batchnorm1d] = deepcopy(batchnorm1d_dict)
+
+# Batch norm 2D
+num_features_dict = dict()
+num_features_dict[_type] = [_int]
+num_features_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.1
+
+affine_dict = dict()
+affine_dict[_type] = [_bool]
+affine_dict[optional] = True
+affine_dict[default] = True
+
+track_running_status_dict = dict()
+track_running_status_dict[_type] = [_bool]
+track_running_status_dict[optional] = True
+track_running_status_dict[default] = True
+
+batchnorm2d_params = dict()
+batchnorm2d_params[num_features] = num_features_dict
+batchnorm2d_params[eps] = eps_dict
+batchnorm2d_params[momentum] = momentum_dict
+batchnorm2d_params[affine] = affine_dict
+batchnorm2d_params[track_running_status] = track_running_status_dict
+
+batchnorm2d_dict = dict()
+batchnorm2d_dict[path] = "torch.nn.BatchNorm2d"
+batchnorm2d_dict[params] = deepcopy(batchnorm2d_params)
+
+layers_dict[batchnorm2d] = deepcopy(batchnorm2d_dict)
+
+# Batch norm 3D
+num_features_dict = dict()
+num_features_dict[_type] = [_int]
+num_features_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.1
+
+affine_dict = dict()
+affine_dict[_type] = [_bool]
+affine_dict[optional] = True
+affine_dict[default] = True
+
+track_running_status_dict = dict()
+track_running_status_dict[_type] = [_bool]
+track_running_status_dict[optional] = True
+track_running_status_dict[default] = True
+
+batchnorm3d_params = dict()
+batchnorm3d_params[num_features] = num_features_dict
+batchnorm3d_params[eps] = eps_dict
+batchnorm3d_params[momentum] = momentum_dict
+batchnorm3d_params[affine] = affine_dict
+batchnorm3d_params[track_running_status] = track_running_status_dict
+
+batchnorm3d_dict = dict()
+batchnorm3d_dict[path] = "torch.nn.BatchNorm3d"
+batchnorm3d_dict[params] = deepcopy(batchnorm3d_params)
+
+layers_dict[batchnorm3d] = deepcopy(batchnorm3d_dict)
+
+# Group Norm
+num_groups_dict = dict()
+num_groups_dict[_type] = [_int]
+num_groups_dict[optional] = False
+
+num_channels_dict = dict()
+num_channels_dict[_type] = [_int]
+num_channels_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+affine_dict = dict()
+affine_dict[_type] = [_bool]
+affine_dict[optional] = True
+affine_dict[default] = True
+
+groupnorm_params = dict()
+groupnorm_params[num_groups] = num_groups_dict
+groupnorm_params[num_channels] = num_channels_dict
+groupnorm_params[eps] = eps_dict
+groupnorm_params[affine] = affine_dict
+
+groupnorm_dict = dict()
+groupnorm_dict[path] = "torch.nn.GroupNorm"
+groupnorm_dict[params] = groupnorm_params
+
+layers_dict[groupnorm] = groupnorm_dict
+
+# Instance norm 1D
+num_features_dict = dict()
+num_features_dict[_type] = [_int]
+num_features_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.1
+
+affine_dict = dict()
+affine_dict[_type] = [_bool]
+affine_dict[optional] = True
+affine_dict[default] = True
+
+track_running_status_dict = dict()
+track_running_status_dict[_type] = [_bool]
+track_running_status_dict[optional] = True
+track_running_status_dict[default] = True
+
+instancenorm1d_params = dict()
+instancenorm1d_params[num_features] = num_features_dict
+instancenorm1d_params[eps] = eps_dict
+instancenorm1d_params[momentum] = momentum_dict
+instancenorm1d_params[affine] = affine_dict
+instancenorm1d_params[track_running_status] = track_running_status_dict
+
+instancehnorm1d_dict = dict()
+instancehnorm1d_dict[path] = "torch.nn.InstanceNorm1d"
+instancehnorm1d_dict[params] = deepcopy(instancenorm1d_params)
+
+layers_dict[instancenorm1d] = deepcopy(instancehnorm1d_dict)
+
+# Instance norm 2D
+num_features_dict = dict()
+num_features_dict[_type] = [_int]
+num_features_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.1
+
+affine_dict = dict()
+affine_dict[_type] = [_bool]
+affine_dict[optional] = True
+affine_dict[default] = True
+
+track_running_status_dict = dict()
+track_running_status_dict[_type] = [_bool]
+track_running_status_dict[optional] = True
+track_running_status_dict[default] = True
+
+instancenorm2d_params = dict()
+instancenorm2d_params[num_features] = num_features_dict
+instancenorm2d_params[eps] = eps_dict
+instancenorm2d_params[momentum] = momentum_dict
+instancenorm2d_params[affine] = affine_dict
+instancenorm2d_params[track_running_status] = track_running_status_dict
+
+instancenorm2d_dict = dict()
+instancenorm2d_dict[path] = "torch.nn.InstanceNorm2d"
+instancenorm2d_dict[params] = deepcopy(instancenorm2d_params)
+
+layers_dict[instancenorm2d] = deepcopy(instancenorm2d_dict)
+
+# Instance norm 3D
+num_features_dict = dict()
+num_features_dict[_type] = [_int]
+num_features_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.1
+
+affine_dict = dict()
+affine_dict[_type] = [_bool]
+affine_dict[optional] = True
+affine_dict[default] = True
+
+track_running_status_dict = dict()
+track_running_status_dict[_type] = [_bool]
+track_running_status_dict[optional] = True
+track_running_status_dict[default] = True
+
+instancenorm3d_params = dict()
+instancenorm3d_params[num_features] = num_features_dict
+instancenorm3d_params[eps] = eps_dict
+instancenorm3d_params[momentum] = momentum_dict
+instancenorm3d_params[affine] = affine_dict
+instancenorm3d_params[track_running_status] = track_running_status_dict
+
+instancenorm3d_dict = dict()
+instancenorm3d_dict[path] = "torch.nn.InstanceNorm3d"
+instancenorm3d_dict[params] = deepcopy(instancenorm3d_params)
+
+layers_dict[instancenorm3d] = deepcopy(instancenorm3d_dict)
+
+# Layer Norm
+normalized_shape_dict = dict()
+normalized_shape_dict[_type] = [_int, _list]
+normalized_shape_dict[optional] = False
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-05
+
+elementwise_affine_dict = dict()
+elementwise_affine_dict[_type] = [_bool]
+elementwise_affine_dict[optional] = True
+elementwise_affine_dict[default] = True
+
+layernorm_params = dict()
+layernorm_params[normalized_shape] = normalized_shape_dict
+layernorm_params[eps] = eps_dict
+layernorm_params[elementwise_affine] = elementwise_affine_dict
+
+layernorm_dict = dict()
+layernorm_dict[path] = "torch.nn.LayerNorm"
+layernorm_dict[params] = deepcopy(layernorm_params)
+
+layers_dict[layernorm] = deepcopy(layernorm_dict)
+
+# Local Response Norm
+size_dict = dict()
+size_dict[_type] = [_int]
+size_dict[optional] = False
+
+alpha_dict = dict()
+alpha_dict[_type] = [_float]
+alpha_dict[optional] = True
+alpha_dict[default] = 0.0001
+
+beta_dict = dict()
+beta_dict[_type] = [_float]
+beta_dict[optional] = True
+beta_dict[default] = 0.75
+
+k_dict = dict()
+k_dict[_type] = [_int]
+k_dict[optional] = True
+k_dict[default] = 1
+
+localresponsenorm_params = dict()
+localresponsenorm_params[size] = size_dict
+localresponsenorm_params[alpha] = alpha_dict
+localresponsenorm_params[beta] = beta_dict
+localresponsenorm_params[k] = k_dict
+
+localresponsenorm_dict = dict()
+localresponsenorm_dict[path] = "torch.nn.LocalResponseNorm"
+localresponsenorm_dict[params] = localresponsenorm_params
+
+layers_dict[localresponsenorm] = localresponsenorm_dict
 
 # Print the current working directory and write the dictionary to JSON file
 import os
