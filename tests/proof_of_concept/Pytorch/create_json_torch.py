@@ -5,6 +5,8 @@ import json
 # Random samples parameter not included in FractionalMaxPool2D as the documentation does not specify the type
 
 # The final dictionary to be dumped to JSON
+from numpy.distutils.system_info import openblas_info
+
 layers_dict = dict()
 
 # The different strings present in the dictionaries are declared below
@@ -15,6 +17,7 @@ _int = "int"
 _tuple = "tuple"
 _bool = "bool"
 _float = "float"
+_list = "list"
 default = "default"
 params = "params"
 
@@ -102,6 +105,19 @@ min_val = "min_val"
 max_val = "max_val"
 min_value = "min_value"
 max_value = "max_value"
+negative_slope = "negative_slope"
+num_parameters = "num_parameters"
+init = "init"
+lower = "lower"
+upper = "upper"
+beta = "beta"
+param_threshold = "threshold"
+dim = "dim"
+in_features = "in_features"
+n_classes = "n_classes"
+cutoffs = "cutoffs"
+div_value = "div_value"
+head_bias = "head_bias"
 
 
 # Convolution 1D Layer Definition
@@ -1184,7 +1200,7 @@ alpha_dict[optional] = True
 alpha_dict[default] = 1
 
 inplace_dict = dict()
-inplace_dict[_type] = _bool
+inplace_dict[_type] = [_bool]
 inplace_dict[optional] = True
 inplace_dict[default] = False
 
@@ -1215,28 +1231,28 @@ layers_dict[hardshrink] = deepcopy(hardshrink_dict)
 
 # Hardtanh
 min_val_dict = dict()
-min_val_dict[_type] = _float
+min_val_dict[_type] = [_float]
 min_val_dict[optional] = True
 min_val_dict[default] = -1
 
 max_val_dict = dict()
-max_val_dict[_type] = _float
+max_val_dict[_type] = [_float]
 max_val_dict[optional] = True
 max_val_dict[default] = 1
 
 inplace_dict = dict()
-inplace_dict[_type] = _bool
+inplace_dict[_type] = [_bool]
 inplace_dict[optional] = True
 inplace_dict[default] = False
 
 min_value_dict = dict()
-min_value_dict[_type] = _float
+min_value_dict[_type] = [_float]
 min_value_dict[optional] = True
 min_value_dict[default] = None
 
 max_value_dict = dict()
-max_value_dict[_type] = _float
-max_value_dict[optional] = False
+max_value_dict[_type] = [_float]
+max_value_dict[optional] = True
 max_value_dict[default] = None
 
 hardtanh_params = dict()
@@ -1251,6 +1267,287 @@ hardtanh_dict[path] = "torch.nn.Hardtanh"
 hardtanh_dict[params] = deepcopy(hardtanh_params)
 
 layers_dict[hardtanh] = hardtanh_dict
+
+# Leaky ReLU
+negative_slope_dict = dict()
+negative_slope_dict[_type] = [_float]
+negative_slope_dict[optional] = True
+negative_slope_dict[default] = 0.01
+
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+leakyrelu_params = dict()
+leakyrelu_params[negative_slope] = negative_slope_dict
+leakyrelu_params[inplace] = inplace_dict
+
+leakyrelu_dict = dict()
+leakyrelu_dict[path] = "torch.nn.LeakyReLU"
+leakyrelu_dict[params] = deepcopy(leakyrelu_params)
+
+layers_dict[leakyrelu] = deepcopy(leakyrelu_dict)
+
+# Log Sigmoid
+logsigmoid_dict = dict()
+logsigmoid_dict[path] = "torch.nn.LogSigmoid"
+logsigmoid_dict[params] = None
+
+layers_dict[logsigmoid] = logsigmoid_dict
+
+# PReLU
+num_parameters_dict = dict()
+num_parameters_dict[_type] = [_int]
+num_parameters_dict[optional] = True
+num_parameters_dict[default] = 1
+
+init_dict = dict()
+init_dict[_type] = [_float]
+init_dict[optional] = True
+init_dict[default] = 0.25
+
+prelu_params = dict()
+prelu_params[num_parameters] = num_parameters_dict
+prelu_params[init] = init_dict
+
+prelu_dict = dict()
+prelu_dict[path] = "torch.nn.PReLU"
+prelu_dict[params] = prelu_params
+
+layers_dict[prelu] = prelu_dict
+
+# ReLU
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+relu_params = dict()
+relu_params[inplace] = inplace_dict
+
+relu_dict = dict()
+relu_dict[path] = "torch.nn.ReLU"
+relu_dict[params] = relu_params
+
+layers_dict[relu] = relu_dict
+
+# ReLU6
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+relu6_params = dict()
+relu6_params[inplace] = inplace_dict
+
+relu6_dict = dict()
+relu6_dict[path] = "torch.nn.ReLU6"
+relu6_dict[params] = relu6_params
+
+layers_dict[relu6] = relu6_dict
+
+# RReLU
+lower_dict = dict()
+lower_dict[_type] = [_float]
+lower_dict[optional] = True
+lower_dict[default] = 0.125
+
+upper_dict = dict()
+upper_dict[_type] = [_float]
+upper_dict[optional] = True
+upper_dict[default] = 0.3333333333333333333333
+
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+rrelu_params = dict()
+rrelu_params[lower] = lower_dict
+rrelu_params[upper] = upper_dict
+rrelu_params[inplace] = inplace_dict
+
+rrelu_dict = dict()
+rrelu_dict[path] = "torch.nn.RReLU"
+rrelu_dict[params] = rrelu_params
+
+layers_dict[rrelu] = rrelu_dict
+
+# SELU
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+selu_params = dict()
+selu_params[inplace] = inplace_dict
+
+selu_dict = dict()
+selu_dict[path] = "torch.nn.SELU"
+selu_dict[params] = selu_params
+
+layers_dict[selu] = selu_dict
+
+# Sigmoid
+sigmoid_dict = dict()
+sigmoid_dict[path] = "torch.nn.Sigmoid"
+sigmoid_dict[params] = None
+
+layers_dict[sigmoid] = sigmoid_dict
+
+# Softplus
+beta_dict = dict()
+beta_dict[_type] = [_float]
+beta_dict[optional] = True
+beta_dict[default] = 1
+
+threshold_dict = dict()
+threshold_dict[_type] = [_float]
+threshold_dict[optional] = True
+threshold_dict[default] = 20
+
+softplus_params = dict()
+softplus_params[beta] = beta_dict
+softplus_params[param_threshold] = threshold_dict
+
+softplus_dict = dict()
+softplus_dict[path] = "torch.nn.Softplus"
+softplus_dict[params] = softplus_params
+
+layers_dict[softplus] = softplus_dict
+
+# Softshrink
+lambd_dict = dict()
+lambd_dict[_type] = [_float]
+lambd_dict[optional] = True
+lambd_dict[default] = 0.5
+
+softshrink_params = dict()
+softshrink_params[lambd] = lambd_dict
+
+softshrink_dict = dict()
+softshrink_dict[path] = "torch.nn.Softshrink"
+softshrink_dict[params] = softshrink_params
+
+layers_dict[softshrink] = softshrink_dict
+
+# Softsign
+softsign_dict = dict()
+softplus_dict[path] = "torch.nn.Softsign"
+softplus_dict[params] = None
+
+layers_dict[softsign] = softsign_dict
+
+# Tanh
+tanh_dict = dict()
+tanh_dict[path] = "torch.nn.Tanh"
+tanh_dict[params] = None
+
+layers_dict[tanh] = tanh_dict
+
+# Tanhshrink
+tanhshrink_dict = dict()
+tanhshrink_dict[path] = "torch.nn.Tanhshrink"
+tanhshrink_dict[params] = None
+
+layers_dict[tanh] = tanhshrink_dict
+
+# Threshold
+threshold_dict = dict()
+threshold_dict[_type] = [_float]
+threshold_dict[optional] = False
+
+value_dict = dict()
+value_dict[_type] = [_int, _tuple]
+value_dict[optional] = False
+
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+# Softmin
+dim_dict = dict()
+dim_dict[_type] = [_int]
+dim_dict[optional] = True
+dim_dict[default] = None
+
+softmin_params = dict()
+softmin_params[dim] = dim_dict
+
+softmin_dict = dict()
+softmin_dict[path] = "torch.nn.Softmin"
+softmin_dict[params] = softmin_params
+
+layers_dict[softmin] = softmin_dict
+
+# Softmax
+dim_dict = dict()
+dim_dict[_type] = [_int]
+dim_dict[optional] = True
+dim_dict[default] = None
+
+softmax_params = dict()
+softmax_params[dim] = dim_dict
+
+softmax_dict = dict()
+softmax_dict[path] = "torch.nn.Softmin"
+softmax_dict[params] = softmax_params
+
+layers_dict[softmax] = softmax_dict
+
+# Softmax 2D
+softmax2d_dict = dict()
+softmax2d_dict[path] = "torch.nn.Softmax2d"
+softmax2d_dict[params] = None
+
+layers_dict[softmax2d] = softmax2d_dict
+
+# Log Softmax
+dim_dict = dict()
+dim_dict[_type] = [_int]
+dim_dict[optional] = True
+dim_dict[default] = None
+
+logsoftmax_params = dict()
+logsoftmax_params[dim] = dim_dict
+
+logsoftmax_dict = dict()
+logsigmoid_dict[path] = "torch.nn.LogSoftmax"
+logsigmoid_dict[params] = logsoftmax_params
+
+layers_dict[logsoftmax] = logsigmoid_dict
+
+# Adaptive Log Softmax With Loss
+in_features_dict = dict()
+in_features_dict[_type] = [_int]
+in_features_dict[optional] = False
+
+n_classes_dict = dict()
+n_classes_dict[_type] = [_int]
+n_classes_dict[optional] = False
+
+cutoffs_dict = dict()
+cutoffs_dict[_type] = [_list]
+cutoffs_dict[optional] = False
+
+div_value_dict = dict()
+div_value_dict[_type] = [_float]
+div_value_dict[optional] = True
+div_value_dict[default] = 4.0
+
+head_bias_dict = dict()
+head_bias_dict[_type] = [_bool]
+head_bias_dict[optional] = True
+head_bias_dict[default] = False
+
+adaptivelogsoftmaxwithloss_params = dict()
+adaptivelogsoftmaxwithloss_params[in_features] = in_features_dict
+adaptivelogsoftmaxwithloss_params[n_classes] = n_classes_dict
+adaptivelogsoftmaxwithloss_params[cutoffs] = cutoffs_dict
+adaptivelogsoftmaxwithloss_params[div_value] = div_value_dict
+adaptivelogsoftmaxwithloss_params[head_bias] = head_bias_dict
 
 
 # Print the current working directory and write the dictionary to JSON file
