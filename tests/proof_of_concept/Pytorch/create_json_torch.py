@@ -180,7 +180,7 @@ groups_dict[optional] = True
 groups_dict[default] = 1
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -234,7 +234,7 @@ groups_dict[optional] = True
 groups_dict[default] = 1
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -288,7 +288,7 @@ groups_dict[optional] = True
 groups_dict[default] = 1
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -342,7 +342,7 @@ groups_dict[optional] = True
 groups_dict[default] = 1
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -402,7 +402,7 @@ groups_dict[optional] = True
 groups_dict[default] = 1
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -462,7 +462,7 @@ groups_dict[optional] = True
 groups_dict[default] = 1
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -788,7 +788,7 @@ ceil_mode_dict[optional] = True
 ceil_mode_dict[default] = False
 
 count_include_dict = dict()
-count_include_dict[_type] = _bool
+count_include_dict[_type] = [_bool]
 count_include_dict[optional] = True
 count_include_dict[default] = True
 
@@ -801,7 +801,7 @@ avgpool1d_params[count_include] = count_include_dict
 
 avgpool1d_dict = dict()
 avgpool1d_dict[path] = "torch.nn.AvgPool1d"
-avgpool1d_dict[params] = deepcopy(avgpool1d_dict)
+avgpool1d_dict[params] = deepcopy(avgpool1d_params)
 
 layers_dict[avgpool1d] = deepcopy(avgpool1d_dict)
 
@@ -826,7 +826,7 @@ ceil_mode_dict[optional] = True
 ceil_mode_dict[default] = False
 
 count_include_dict = dict()
-count_include_dict[_type] = _bool
+count_include_dict[_type] = [_bool]
 count_include_dict[optional] = True
 count_include_dict[default] = True
 
@@ -864,7 +864,7 @@ ceil_mode_dict[optional] = True
 ceil_mode_dict[default] = False
 
 count_include_dict = dict()
-count_include_dict[_type] = _bool
+count_include_dict[_type] = [_bool]
 count_include_dict[optional] = True
 count_include_dict[default] = True
 
@@ -1250,7 +1250,7 @@ hardshrink_params = dict()
 hardshrink_params[lambd] = lambd_dict
 
 hardshrink_dict = dict()
-hardshrink_dict[path] = "torch.nn.ELU"
+hardshrink_dict[path] = "torch.nn.Hardshrink"
 hardshrink_dict[params] = deepcopy(hardshrink_params)
 
 layers_dict[hardshrink] = deepcopy(hardshrink_dict)
@@ -1503,7 +1503,7 @@ softmin_params = dict()
 softmin_params[dim] = dim_dict
 
 softmin_dict = dict()
-softmin_dict[path] = "torch.nn.Softmin"
+softmin_dict[path] = "torch.nn.Softmax"
 softmin_dict[params] = deepcopy(softmin_params)
 
 layers_dict[softmin] = deepcopy(softmin_dict)
@@ -1908,7 +1908,7 @@ out_features_dict[_type] = [_int]
 out_features_dict[optional] = False
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -1937,7 +1937,7 @@ out_features_dict[_type] = [_int]
 out_features_dict[optional] = False
 
 bias_dict = dict()
-bias_dict[_type] = _bool
+bias_dict[_type] = [_bool]
 bias_dict[optional] = True
 bias_dict[default] = True
 
@@ -1963,6 +1963,57 @@ with open('torch_params.json', 'w') as fp:
     json.dump(layers_dict, fp)
 
 print(layers_dict)
+
+# This part is for the testing of the entered layers
+# Tests are
+# 1. All layers should have unique paths
+# 2. Default parameters should have a value associated with it
+# 3. Compulsory parameters should not have a value along with it
+# 4. The types possible should be a list
+
+layer_paths = []
+for layer_name in layers_dict:
+
+    curr_layer_path = layers_dict.get(layer_name, None).get(path)
+
+    if curr_layer_path in layer_paths:
+        print('Path duplicate found for path:' + curr_layer_path)
+
+    else:
+        layer_paths.append(curr_layer_path)
+
+
+
+    layer_params_dict = layers_dict.get(layer_name).get(params, None)
+
+    if layer_params_dict is None:
+        continue
+
+    for param_name in layer_params_dict:
+        param_dict = layer_params_dict.get(param_name, None)
+        if param_dict is None:
+            continue
+
+        if type(param_dict) is str:
+            print(param_dict)
+
+        default_value = param_dict.get(default, 'DEFAULTPARAMETERNOTFOUND')
+
+        if param_dict.get(optional) is True and default_value == 'DEFAULTPARAMETERNOTFOUND':
+            print("Default parameter missing for parameter " + param_name + " in layer " + layer_name)
+
+        elif param_dict.get(optional) is False and param_dict.get(default, None) is not None:
+            print("Default parameter given for compulsory parameter " + param_name + " in layer " + layer_name)
+
+        possible_types = param_dict.get(_type, None)
+
+        if possible_types is None:
+            print('Types not specified for parameter ' + param_name + ' for layer ' + layer_name)
+
+        if type(possible_types) is not list:
+            print('Types wrongly specified for parameter ' + param_name + ' for layer ' + layer_name)
+
+
 
 
 
