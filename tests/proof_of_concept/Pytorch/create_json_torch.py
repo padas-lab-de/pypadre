@@ -75,13 +75,14 @@ softplus = "SOFTPLUS"
 softshrink = "SOFTSHRINK"
 softsign = "SOFTSIGN"
 tanh = "TANH"
-tanhshrink = "TANKHSHRINK"
+tanhshrink = "TANHSHRINK"
 threshold = "THRESHOLD"
 softmin = "SOFTMIN"
 softmax = "SOFTMAX"
 softmax2d = "SOFTMAX2D"
 logsoftmax = "LOGSOFTMAX"
 adaptivelogsoftmaxwithloss = "ADAPTIVELOGSOFTMAXWITHLOSS"
+
 batchnorm1d = "BATCHNORM1D"
 batchnorm2d = "BATCHNORM2D"
 batchnorm3d = "BATCHNORM3D"
@@ -91,8 +92,14 @@ instancenorm2d = "INSTANCENORM2D"
 instancenorm3d = "INSTANCENORM3D"
 layernorm = "LAYERNORM"
 localresponsenorm = "LOCALRESPONSENORM"
+
 linear = "LINEAR"
 bilinear = "BILINEAR"
+
+dropout = "DROPOUT"
+dropout2d = "DROPOUT2D"
+dropout3d = "DROPOUT3D"
+alphadropout = "ALPHADROPOUT"
 
 # The different parameters for the layers are declared below
 in_channels = "in_channels"
@@ -144,6 +151,7 @@ k = "k"
 out_features = "out_features"
 in1_features = "in1_features"
 in2_features = "in2_features"
+p = "p"
 
 
 # Convolution 1D Layer Definition
@@ -879,7 +887,7 @@ avgpool3d_dict = dict()
 avgpool3d_dict[path] = "torch.nn.AvgPool3d"
 avgpool3d_dict[params] = deepcopy(avgpool3d_params)
 
-layers_dict[avgpool2d] = deepcopy(avgpool3d_dict)
+layers_dict[avgpool3d] = deepcopy(avgpool3d_dict)
 
 # Fractional Max Pool 2D
 kernel_size_dict = dict()
@@ -1014,7 +1022,7 @@ adaptivemaxpool2d_dict = dict()
 adaptivemaxpool2d_dict[path] = "torch.nn.AdaptiveMaxPool2d"
 adaptivemaxpool2d_dict[params] = deepcopy(adaptivemaxpool2d_params)
 
-layers_dict[adaptivemaxpool1d] = deepcopy(adaptivemaxpool2d_dict)
+layers_dict[adaptivemaxpool2d] = deepcopy(adaptivemaxpool2d_dict)
 
 # Adaptive Max Pooling 3D
 output_size_dict = dict()
@@ -1034,7 +1042,7 @@ adaptivemaxpool3d_dict = dict()
 adaptivemaxpool3d_dict[path] = "torch.nn.AdaptiveMaxPoo31d"
 adaptivemaxpool3d_dict[params] = deepcopy(adaptivemaxpool3d_params)
 
-layers_dict[adaptivemaxpool1d] = deepcopy(adaptivemaxpool3d_dict)
+layers_dict[adaptivemaxpool3d] = deepcopy(adaptivemaxpool3d_dict)
 
 # Adaptive Average Pooling 1D
 output_size_dict = dict()
@@ -1477,7 +1485,7 @@ tanhshrink_dict = dict()
 tanhshrink_dict[path] = "torch.nn.Tanhshrink"
 tanhshrink_dict[params] = None
 
-layers_dict[tanh] = deepcopy(tanhshrink_dict)
+layers_dict[tanhshrink] = deepcopy(tanhshrink_dict)
 
 # Threshold
 threshold_dict = dict()
@@ -1492,6 +1500,17 @@ inplace_dict = dict()
 inplace_dict[_type] = [_bool]
 inplace_dict[optional] = True
 inplace_dict[default] = False
+
+threshold_params_dict = dict()
+threshold_params_dict[param_threshold] = threshold_dict
+threshold_params_dict[value] = value_dict
+threshold_params_dict[inplace] = inplace_dict
+
+threshold_dict = dict()
+threshold_dict[path] = "torch.nn.Threshold"
+threshold_dict[params] = deepcopy(threshold_params_dict)
+
+layers_dict[threshold] = threshold_dict
 
 # Softmin
 dim_dict = dict()
@@ -1894,9 +1913,9 @@ localresponsenorm_params[k] = k_dict
 
 localresponsenorm_dict = dict()
 localresponsenorm_dict[path] = "torch.nn.LocalResponseNorm"
-localresponsenorm_dict[params] = localresponsenorm_params
+localresponsenorm_dict[params] = deepcopy(localresponsenorm_params)
 
-layers_dict[localresponsenorm] = localresponsenorm_dict
+layers_dict[localresponsenorm] = deepcopy(localresponsenorm_dict)
 
 # Linear
 in_features_dict = dict()
@@ -1919,9 +1938,9 @@ linear_params_dict[bias] = bias_dict
 
 linear_dict = dict()
 linear_dict[path] = "torch.nn.Linear"
-linear_dict[params] = linear_params_dict
+linear_dict[params] = deepcopy(linear_params_dict)
 
-layers_dict[linear] = linear_dict
+layers_dict[linear] = deepcopy(linear_dict)
 
 # Bilinear
 in1_features_dict = dict()
@@ -1949,10 +1968,93 @@ bilinear_params_dict[bias] = bias_dict
 
 bilinear_dict = dict()
 bilinear_dict[path] = "torch.nn.Bilinear"
-bilinear_dict[params] = bilinear_params_dict
+bilinear_dict[params] = deepcopy(linear_params_dict)
 
-layers_dict[bilinear] = bilinear_dict
+layers_dict[bilinear] = deepcopy(bilinear_dict)
 
+# Dropout
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 0.5
+
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+dropout_params = dict()
+dropout_params[p] = p_dict
+dropout_params[inplace] = inplace_dict
+
+dropout_dict = dict()
+dropout_dict[path] = "torch.nn.Dropout"
+dropout_dict[params] = dropout_params
+
+layers_dict[dropout] = dropout_dict
+
+# Dropout 2D
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 0.5
+
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+dropout2d_params = dict()
+dropout2d_params[p] = p_dict
+dropout2d_params[inplace] = inplace_dict
+
+dropout2d_dict = dict()
+dropout2d_dict[path] = "torch.nn.Dropout2d"
+dropout2d_dict[params] = dropout2d_params
+
+layers_dict[dropout2d] = dropout2d_dict
+
+# Dropout 3D
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 0.5
+
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+dropout3d_params = dict()
+dropout3d_params[p] = p_dict
+dropout3d_params[inplace] = inplace_dict
+
+dropout3d_dict = dict()
+dropout3d_dict[path] = "torch.nn.Dropout3d"
+dropout3d_dict[params] = dropout3d_params
+
+layers_dict[dropout3d] = dropout3d_dict
+
+# Alpha Dropout
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 0.5
+
+inplace_dict = dict()
+inplace_dict[_type] = [_bool]
+inplace_dict[optional] = True
+inplace_dict[default] = False
+
+alphadropout_params = dict()
+alphadropout_params[p] = p_dict
+alphadropout_params[inplace] = inplace_dict
+
+alphadropout_dict = dict()
+alphadropout_dict[path] = "torch.nn.AlphaDropout"
+alphadropout_dict[params] = alphadropout_params
+
+layers_dict[alphadropout] = alphadropout_dict
 
 
 # Print the current working directory and write the dictionary to JSON file
@@ -1964,15 +2066,37 @@ with open('torch_params.json', 'w') as fp:
 
 print(layers_dict)
 
+# Create a list with all the layer names in it
+list_layer_names = []
+
 # This part is for the testing of the entered layers
 # Tests are
 # 1. All layers should have unique paths
 # 2. Default parameters should have a value associated with it
 # 3. Compulsory parameters should not have a value along with it
 # 4. The types possible should be a list
+# 5. Verify that all defined layers are present within the layers_dict
+
+
+completed_layers =\
+                    [conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
+                    maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d, fractionalmaxpool2d,
+                    lppool1d, lppool2d, adaptivemaxpool1d, adaptivemaxpool2d, adaptivemaxpool3d, adaptiveavgpool1d,
+                    reflectionpad1d, reflectionpad2d, replicationpad1d, replicationpad2d, replicationpad3d, zeropad2d,
+                    constantpad1d, constantpad2d, constantpad3d, adaptiveavgpool2d, adaptiveavgpool3d,  elu, hardshrink,
+                    hardtanh, leakyrelu, logsigmoid, prelu, relu, relu6, rrelu, selu, sigmoid, softplus, softshrink,
+                    softsign, tanh, tanhshrink, threshold, softmin, softmax, softmax2d, logsoftmax,
+                    adaptivelogsoftmaxwithloss, batchnorm1d, batchnorm2d, batchnorm3d, groupnorm, instancenorm1d,
+                    instancenorm2d, instancenorm3d, layernorm, localresponsenorm, linear, bilinear, dropout, dropout2d,
+                    dropout3d, alphadropout
+                    ]
 
 layer_paths = []
-for layer_name in layers_dict:
+for layer_name in completed_layers:
+
+    if layers_dict.get(layer_name, None) is None:
+        print('Missing entry for ' + layer_name)
+        continue
 
     curr_layer_path = layers_dict.get(layer_name, None).get(path)
 
@@ -2012,19 +2136,3 @@ for layer_name in layers_dict:
 
         if type(possible_types) is not list:
             print('Types wrongly specified for parameter ' + param_name + ' for layer ' + layer_name)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
