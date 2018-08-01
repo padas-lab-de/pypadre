@@ -14,7 +14,7 @@
 
 from copy import deepcopy
 import json
-
+import os
 
 layers_dict = dict()
 
@@ -959,8 +959,6 @@ lppool1d_dict[path] = "torch.nn.LPPool1d"
 lppool1d_dict[params] = deepcopy(lppool1d_params)
 
 layers_dict[lppool1d] = deepcopy(lppool1d_dict)
-
-
 
 # LP Pool 2D
 norm_type_dict = dict()
@@ -2067,10 +2065,9 @@ layers_dict[alphadropout] = deepcopy(alphadropout_dict)
 
 
 # Print the current working directory and write the dictionary to JSON file
-import os
 cwd = os.getcwd()
 print(cwd)
-with open('torch_params.json', 'w') as fp:
+with open('mappings_torch.json', 'w') as fp:
     json.dump(layers_dict, fp)
 
 print(layers_dict)
@@ -2088,18 +2085,18 @@ list_layer_names = []
 # 6. Verify that all the layers in layers_dict is present within the completed layers list
 
 
-completed_layers =\
-                [conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
-                maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d, fractionalmaxpool2d,
-                lppool1d, lppool2d, adaptivemaxpool1d, adaptivemaxpool2d, adaptivemaxpool3d, adaptiveavgpool1d,
-                reflectionpad1d, reflectionpad2d, replicationpad1d, replicationpad2d, replicationpad3d, zeropad2d,
-                constantpad1d, constantpad2d, constantpad3d, adaptiveavgpool2d, adaptiveavgpool3d,  elu, hardshrink,
-                hardtanh, leakyrelu, logsigmoid, prelu, relu, relu6, rrelu, selu, sigmoid, softplus, softshrink,
-                softsign, tanh, tanhshrink, threshold, softmin, softmax, softmax2d, logsoftmax,
-                adaptivelogsoftmaxwithloss, batchnorm1d, batchnorm2d, batchnorm3d, groupnorm, instancenorm1d,
-                instancenorm2d, instancenorm3d, layernorm, localresponsenorm, linear, bilinear, dropout, dropout2d,
-                dropout3d, alphadropout
-                ]
+completed_layers = [
+                    conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
+                    maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d,
+                    fractionalmaxpool2d, lppool1d, lppool2d, adaptivemaxpool1d, adaptivemaxpool2d, adaptivemaxpool3d,
+                    adaptiveavgpool1d, reflectionpad1d, reflectionpad2d, replicationpad1d, replicationpad2d,
+                    replicationpad3d, zeropad2d, constantpad1d, constantpad2d, constantpad3d, adaptiveavgpool2d,
+                    adaptiveavgpool3d,  elu, hardshrink, hardtanh, leakyrelu, logsigmoid, prelu, relu, relu6, rrelu,
+                    selu, sigmoid, softplus, softshrink, softsign, tanh, tanhshrink, threshold, softmin, softmax,
+                    softmax2d, logsoftmax, adaptivelogsoftmaxwithloss, batchnorm1d, batchnorm2d, batchnorm3d, groupnorm,
+                    instancenorm1d, instancenorm2d, instancenorm3d, layernorm, localresponsenorm, linear, bilinear,
+                    dropout, dropout2d, dropout3d, alphadropout
+                    ]
 
 layer_paths = []
 for layer_name in completed_layers:
@@ -2115,8 +2112,6 @@ for layer_name in completed_layers:
 
     else:
         layer_paths.append(curr_layer_path)
-
-
 
     layer_params_dict = layers_dict.get(layer_name).get(params, None)
 
@@ -2146,8 +2141,6 @@ for layer_name in completed_layers:
 
         if type(possible_types) is not list:
             print('Types wrongly specified for parameter ' + param_name + ' for layer ' + layer_name)
-
-
 
 set_diff = (set(layers_dict.keys()).difference(set(completed_layers)))
 if len(set_diff) > 0:
