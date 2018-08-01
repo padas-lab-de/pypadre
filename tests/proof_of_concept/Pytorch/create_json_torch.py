@@ -1,11 +1,20 @@
-from copy import deepcopy
-import json
 
 # This code has been created with the pytorch documentation from "https://pytorch.org/docs/stable/nn.html"
 # Random samples parameter not included in FractionalMaxPool2D as the documentation does not specify the type
-
+# All the layers, types used for parameters and parameter names are defined below.
+# This is to ensure that errors, if any are easy to be found and rectified.
+# Each layer is defined with a name which identifies the layer.
+# It is given in all upper case to ensure that even if the user changes the case, the code would work
+# Each layer is defined as a dictionary with the key as the layer name.
+# The dictionary contains the implementation path of the layer for dynamic loading,
+# and a dictionary of the parameters of that layers
+# The parameter dictionary contains the name of the parameter, with the possible types in a list,
+# whether the parameter is optional or not, and if it is optional the default value of the parameter
 # The final dictionary to be dumped to JSON
-from numpy.distutils.system_info import openblas_info
+
+from copy import deepcopy
+import json
+
 
 layers_dict = dict()
 
@@ -1300,7 +1309,7 @@ hardtanh_dict = dict()
 hardtanh_dict[path] = "torch.nn.Hardtanh"
 hardtanh_dict[params] = deepcopy(hardtanh_params)
 
-layers_dict[hardtanh] = hardtanh_dict
+layers_dict[hardtanh] = deepcopy(hardtanh_dict)
 
 # Leaky ReLU
 negative_slope_dict = dict()
@@ -1347,9 +1356,9 @@ prelu_params[init] = init_dict
 
 prelu_dict = dict()
 prelu_dict[path] = "torch.nn.PReLU"
-prelu_dict[params] = prelu_params
+prelu_dict[params] = deepcopy(prelu_params)
 
-layers_dict[prelu] = prelu_dict
+layers_dict[prelu] = deepcopy(prelu_dict)
 
 # ReLU
 inplace_dict = dict()
@@ -1377,9 +1386,9 @@ relu6_params[inplace] = inplace_dict
 
 relu6_dict = dict()
 relu6_dict[path] = "torch.nn.ReLU6"
-relu6_dict[params] = relu6_params
+relu6_dict[params] = deepcopy(relu6_params)
 
-layers_dict[relu6] = relu6_dict
+layers_dict[relu6] = deepcopy(relu6_dict)
 
 # RReLU
 lower_dict = dict()
@@ -1404,9 +1413,9 @@ rrelu_params[inplace] = inplace_dict
 
 rrelu_dict = dict()
 rrelu_dict[path] = "torch.nn.RReLU"
-rrelu_dict[params] = rrelu_params
+rrelu_dict[params] = deepcopy(rrelu_params)
 
-layers_dict[rrelu] = rrelu_dict
+layers_dict[rrelu] = deepcopy(rrelu_dict)
 
 # SELU
 inplace_dict = dict()
@@ -1419,9 +1428,9 @@ selu_params[inplace] = inplace_dict
 
 selu_dict = dict()
 selu_dict[path] = "torch.nn.SELU"
-selu_dict[params] = selu_params
+selu_dict[params] = deepcopy(selu_params)
 
-layers_dict[selu] = selu_dict
+layers_dict[selu] = deepcopy(selu_dict)
 
 # Sigmoid
 sigmoid_dict = dict()
@@ -1462,7 +1471,7 @@ softshrink_params[lambd] = lambd_dict
 
 softshrink_dict = dict()
 softshrink_dict[path] = "torch.nn.Softshrink"
-softshrink_dict[params] = softshrink_params
+softshrink_dict[params] = deepcopy(softshrink_params)
 
 layers_dict[softshrink] = deepcopy(softshrink_dict)
 
@@ -1510,7 +1519,7 @@ threshold_dict = dict()
 threshold_dict[path] = "torch.nn.Threshold"
 threshold_dict[params] = deepcopy(threshold_params_dict)
 
-layers_dict[threshold] = threshold_dict
+layers_dict[threshold] = deepcopy(threshold_dict)
 
 # Softmin
 dim_dict = dict()
@@ -1741,9 +1750,9 @@ groupnorm_params[affine] = affine_dict
 
 groupnorm_dict = dict()
 groupnorm_dict[path] = "torch.nn.GroupNorm"
-groupnorm_dict[params] = groupnorm_params
+groupnorm_dict[params] = deepcopy(groupnorm_params)
 
-layers_dict[groupnorm] = groupnorm_dict
+layers_dict[groupnorm] = deepcopy(groupnorm_dict)
 
 # Instance norm 1D
 num_features_dict = dict()
@@ -1989,9 +1998,9 @@ dropout_params[inplace] = inplace_dict
 
 dropout_dict = dict()
 dropout_dict[path] = "torch.nn.Dropout"
-dropout_dict[params] = dropout_params
+dropout_dict[params] = deepcopy(dropout_params)
 
-layers_dict[dropout] = dropout_dict
+layers_dict[dropout] = deepcopy(dropout_dict)
 
 # Dropout 2D
 p_dict = dict()
@@ -2010,9 +2019,9 @@ dropout2d_params[inplace] = inplace_dict
 
 dropout2d_dict = dict()
 dropout2d_dict[path] = "torch.nn.Dropout2d"
-dropout2d_dict[params] = dropout2d_params
+dropout2d_dict[params] = deepcopy(dropout2d_params)
 
-layers_dict[dropout2d] = dropout2d_dict
+layers_dict[dropout2d] = deepcopy(dropout2d_dict)
 
 # Dropout 3D
 p_dict = dict()
@@ -2031,9 +2040,9 @@ dropout3d_params[inplace] = inplace_dict
 
 dropout3d_dict = dict()
 dropout3d_dict[path] = "torch.nn.Dropout3d"
-dropout3d_dict[params] = dropout3d_params
+dropout3d_dict[params] = deepcopy(dropout3d_params)
 
-layers_dict[dropout3d] = dropout3d_dict
+layers_dict[dropout3d] = deepcopy(dropout3d_dict)
 
 # Alpha Dropout
 p_dict = dict()
@@ -2052,9 +2061,9 @@ alphadropout_params[inplace] = inplace_dict
 
 alphadropout_dict = dict()
 alphadropout_dict[path] = "torch.nn.AlphaDropout"
-alphadropout_dict[params] = alphadropout_params
+alphadropout_dict[params] = deepcopy(alphadropout_params)
 
-layers_dict[alphadropout] = alphadropout_dict
+layers_dict[alphadropout] = deepcopy(alphadropout_dict)
 
 
 # Print the current working directory and write the dictionary to JSON file
@@ -2076,20 +2085,21 @@ list_layer_names = []
 # 3. Compulsory parameters should not have a value along with it
 # 4. The types possible should be a list
 # 5. Verify that all defined layers are present within the layers_dict
+# 6. Verify that all the layers in layers_dict is present within the completed layers list
 
 
 completed_layers =\
-                    [conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
-                    maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d, fractionalmaxpool2d,
-                    lppool1d, lppool2d, adaptivemaxpool1d, adaptivemaxpool2d, adaptivemaxpool3d, adaptiveavgpool1d,
-                    reflectionpad1d, reflectionpad2d, replicationpad1d, replicationpad2d, replicationpad3d, zeropad2d,
-                    constantpad1d, constantpad2d, constantpad3d, adaptiveavgpool2d, adaptiveavgpool3d,  elu, hardshrink,
-                    hardtanh, leakyrelu, logsigmoid, prelu, relu, relu6, rrelu, selu, sigmoid, softplus, softshrink,
-                    softsign, tanh, tanhshrink, threshold, softmin, softmax, softmax2d, logsoftmax,
-                    adaptivelogsoftmaxwithloss, batchnorm1d, batchnorm2d, batchnorm3d, groupnorm, instancenorm1d,
-                    instancenorm2d, instancenorm3d, layernorm, localresponsenorm, linear, bilinear, dropout, dropout2d,
-                    dropout3d, alphadropout
-                    ]
+                [conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
+                maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d, fractionalmaxpool2d,
+                lppool1d, lppool2d, adaptivemaxpool1d, adaptivemaxpool2d, adaptivemaxpool3d, adaptiveavgpool1d,
+                reflectionpad1d, reflectionpad2d, replicationpad1d, replicationpad2d, replicationpad3d, zeropad2d,
+                constantpad1d, constantpad2d, constantpad3d, adaptiveavgpool2d, adaptiveavgpool3d,  elu, hardshrink,
+                hardtanh, leakyrelu, logsigmoid, prelu, relu, relu6, rrelu, selu, sigmoid, softplus, softshrink,
+                softsign, tanh, tanhshrink, threshold, softmin, softmax, softmax2d, logsoftmax,
+                adaptivelogsoftmaxwithloss, batchnorm1d, batchnorm2d, batchnorm3d, groupnorm, instancenorm1d,
+                instancenorm2d, instancenorm3d, layernorm, localresponsenorm, linear, bilinear, dropout, dropout2d,
+                dropout3d, alphadropout
+                ]
 
 layer_paths = []
 for layer_name in completed_layers:
@@ -2136,3 +2146,10 @@ for layer_name in completed_layers:
 
         if type(possible_types) is not list:
             print('Types wrongly specified for parameter ' + param_name + ' for layer ' + layer_name)
+
+
+
+set_diff = (set(layers_dict.keys()).difference(set(completed_layers)))
+if len(set_diff) > 0:
+    print("Following layers are present in the dictionary but not in completed layers")
+    print(set_diff)
