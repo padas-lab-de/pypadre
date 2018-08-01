@@ -91,6 +91,8 @@ instancenorm2d = "INSTANCENORM2D"
 instancenorm3d = "INSTANCENORM3D"
 layernorm = "LAYERNORM"
 localresponsenorm = "LOCALRESPONSENORM"
+linear = "LINEAR"
+bilinear = "BILINEAR"
 
 # The different parameters for the layers are declared below
 in_channels = "in_channels"
@@ -139,6 +141,9 @@ normalized_shape = "normalized_shape"
 elementwise_affine = "elementwise_affine"
 size = "size"
 k = "k"
+out_features = "out_features"
+in1_features = "in1_features"
+in2_features = "in2_features"
 
 
 # Convolution 1D Layer Definition
@@ -1892,6 +1897,63 @@ localresponsenorm_dict[path] = "torch.nn.LocalResponseNorm"
 localresponsenorm_dict[params] = localresponsenorm_params
 
 layers_dict[localresponsenorm] = localresponsenorm_dict
+
+# Linear
+in_features_dict = dict()
+in_features_dict[_type] = [_int]
+in_features_dict[optional] = False
+
+out_features_dict = dict()
+out_features_dict[_type] = [_int]
+out_features_dict[optional] = False
+
+bias_dict = dict()
+bias_dict[_type] = _bool
+bias_dict[optional] = True
+bias_dict[default] = True
+
+linear_params_dict = dict()
+linear_params_dict[in_features] = in_features_dict
+linear_params_dict[out_features] = out_features_dict
+linear_params_dict[bias] = bias_dict
+
+linear_dict = dict()
+linear_dict[path] = "torch.nn.Linear"
+linear_dict[params] = linear_params_dict
+
+layers_dict[linear] = linear_dict
+
+# Bilinear
+in1_features_dict = dict()
+in1_features_dict[_type] = [_int]
+in1_features_dict[optional] = False
+
+in2_features_dict = dict()
+in2_features_dict[_type] = [_int]
+in2_features_dict[optional] = False
+
+out_features_dict = dict()
+out_features_dict[_type] = [_int]
+out_features_dict[optional] = False
+
+bias_dict = dict()
+bias_dict[_type] = _bool
+bias_dict[optional] = True
+bias_dict[default] = True
+
+bilinear_params_dict = dict()
+bilinear_params_dict[in1_features] = in1_features_dict
+bilinear_params_dict[in2_features] = in2_features_dict
+bilinear_params_dict[out_features] = out_features_dict
+bilinear_params_dict[bias] = bias_dict
+
+bilinear_dict = dict()
+bilinear_dict[path] = "torch.nn.Bilinear"
+bilinear_dict[params] = bilinear_params_dict
+
+layers_dict[bilinear] = bilinear_dict
+
+
 
 # Print the current working directory and write the dictionary to JSON file
 import os
