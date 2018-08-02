@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import torch
 import copy
+import numpy as np
 import json
 import importlib
 
@@ -9,8 +10,6 @@ import importlib
 # TODO: Implement Dataparallel layers
 # TODO: Implement utilities
 # TODO: Implement modules and containers
-# TODO: Implement parameter mapping file for layers to validate the parameter dictionary
-# TODO: The above mapping file should contain the compulsory as well as optional parameters
 # TODO: Batch processing to be implemented
 # TODO: Implement Recurrent Layers
 
@@ -19,6 +18,10 @@ class WrapperPytorch:
     model = None
 
     layers_dict = None
+
+    top_shape = 0
+
+    probabilities = None
 
     def __init__(self, params=None):
         """
@@ -65,9 +68,26 @@ class WrapperPytorch:
         """
         import numpy as np
 
+        self.probabilities = None
+
         # The output is always a 2 Dimensional matrix and y is reshaped for the shapes to be compatible
         if y.ndim == 1:
-            y = np.reshape(y, newshape=(y.shape[0], 1))
+            if self.top_shape == 1:
+                y = np.reshape(y, newshape=(y.shape[0], 1))
+
+            else:
+                # Do one hot encoding
+                from numpy import array
+                from numpy import argmax
+                from sklearn.preprocessing import LabelEncoder
+                from sklearn.preprocessing import OneHotEncoder
+
+                label_encoder = LabelEncoder()
+                integer_encoded = label_encoder.fit_transform(y)
+                print(integer_encoded)
+                onehot_encoder = OneHotEncoder(sparse=False)
+                integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
+                y = onehot_encoder.fit_transform(integer_encoded)
 
         x = torch.autograd.Variable(torch.from_numpy(x), requires_grad=False)
         y = torch.autograd.Variable(torch.from_numpy(y), requires_grad=False)
@@ -95,7 +115,21 @@ class WrapperPytorch:
         with torch.no_grad():
             output = self.model(x)
 
+        if output.shape[1] > 1 and self.top_shape > 1:
+            self.probabilities = output
+            output = np.argmax(output, axis=1)
+
         return output
+
+    def predict_proba(self, x):
+
+        if self.probabilities is None:
+            probabilites = np.zeros(shape=(len(x), self.top_shape))
+
+        probabilities = self.probabilities
+
+        return probabilities
+
 
     def create_model(self, shape):
 
@@ -370,6 +404,8 @@ class WrapperPytorch:
 
             if layer_obj is not None:
                 layers.append(layer_obj)
+                if str(layer_type).upper() in ['LINEAR', 'BILINEAR']:
+                    self.top_shape = params.get('out_features')
 
             else:
                 layers = None
