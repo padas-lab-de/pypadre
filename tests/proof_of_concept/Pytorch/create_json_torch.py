@@ -2072,9 +2072,6 @@ with open('mappings_torch.json', 'w') as fp:
 
 print(layers_dict)
 
-# Create a list with all the layer names in it
-list_layer_names = []
-
 # This part is for the testing of the entered layers
 # Tests are
 # 1. All layers should have unique paths
@@ -2084,7 +2081,7 @@ list_layer_names = []
 # 5. Verify that all defined layers are present within the layers_dict
 # 6. Verify that all the layers in layers_dict is present within the completed layers list
 
-
+# Create a list with all the layer names in it
 completed_layers = [
                     conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
                     maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d,

@@ -1,6 +1,8 @@
 from collections import OrderedDict
 import torch
 import copy
+import json
+import importlib
 
 # TODO: Add LR scheduler policy to code
 # TODO: Implement Vision Layers
@@ -10,15 +12,13 @@ import copy
 # TODO: Implement parameter mapping file for layers to validate the parameter dictionary
 # TODO: The above mapping file should contain the compulsory as well as optional parameters
 # TODO: Batch processing to be implemented
-# TODO: Implement rest of layers
 # TODO: Implement Recurrent Layers
-# Types of layers Convolutional, Pooling, Padding, Non-Linear Activations,
-# Normalization, Recurrent, Linear, Dropout, Sparse
-
 
 class WrapperPytorch:
 
     model = None
+
+    layers_dict = None
 
     def __init__(self, params=None):
         """
@@ -30,6 +30,9 @@ class WrapperPytorch:
         print('Initialize')
         if params is None:
             return
+
+        with open('mappings_torch.json') as f:
+            self.layers_dict = json.load(f)
 
         self.params = copy.deepcopy(params)
         self.steps = params.get('steps', 1000)
@@ -61,7 +64,6 @@ class WrapperPytorch:
         :return: None
         """
         import numpy as np
-        print('fit')
 
         # The output is always a 2 Dimensional matrix and y is reshaped for the shapes to be compatible
         if y.ndim == 1:
@@ -394,502 +396,43 @@ class WrapperPytorch:
         if layer_params is None:
             layer_params = dict()
 
-        layer_obj = None
+        # Verify params for the module
+        layer = self.layers_dict.get(layer_type, None)
 
-        # Convolutional layers
-        if layer_type == 'CONV1D':
-            if self.verify_convolutional_params(layer_params):
-                layer_obj = torch.nn.Conv1d(**layer_params)
-
-        elif layer_type == 'CONV2D':
-            if self.verify_convolutional_params(layer_params):
-                layer_obj = torch.nn.Conv2d(**layer_params)
-
-        elif layer_type == 'CONV3D':
-            if self.verify_convolutional_params(layer_params):
-                layer_obj = torch.nn.Conv3d(**layer_params)
-
-        # Transpose Layers
-        elif layer_type == 'CONVTRANSPOSE1D':
-            if self.verify_convolutional_params(layer_params):
-                layer_obj = torch.nn.ConvTranspose1d(**layer_params)
-
-        elif layer_type == 'CONVTRANSPOSE2D':
-            if self.verify_convolutional_params(layer_params):
-                layer_obj = torch.nn.ConvTranspose2d(**layer_params)
-
-        elif layer_type == 'CONVTRANSPOSE3D':
-            if self.verify_convolutional_params(layer_params):
-                layer_obj = torch.nn.ConvTranspose3d(**layer_params)
-
-        elif layer_type == 'UNFOLD':
-            layer_obj = torch.nn.Unfold(**layer_params)
-
-        elif layer_type == 'FOLD':
-            layer_obj = torch.nn.Fold(**layer_params)
-
-        # Max Pooling Layers
-        elif layer_type == 'MAXPOOL1D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.MaxPool1d(**layer_params)
-
-        elif layer_type == 'MAXPOOL2D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.MaxPool2d(**layer_params)
-
-        elif layer_type == 'MAXPOOL3D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.MaxPool3d(**layer_params)
-
-        # Unpooling Layers
-        elif layer_type == 'MAXUNPOOL1D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.MaxUnpool1d(**layer_params)
-
-        elif layer_type == 'MAXUNPOOL2D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.MaxUnpool2d(**layer_params)
-
-        elif layer_type == 'MAXUNPOOL3D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.MaxUnpool3d(**layer_params)
-
-        # Average Pooling Layers
-        elif layer_type == 'AVGPOOL1D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.AvgPool1d(**layer_params)
-
-        elif layer_type == 'AVGPOOL2D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.AvgPool2d(**layer_params)
-
-        elif layer_type == 'AVGPOOL3D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.AvgPool3d(**layer_params)
-
-        # Fractional Pooling
-        elif layer_type == 'FRACTIONALMAXPOOL2D':
-            if self.verify_pooling_params(layer_params):
-                layer_obj = torch.nn.FractionalMaxPool2d(**layer_params)
-
-        # Power Average Pooling
-        elif layer_type == 'LPPOOL1D':
-            if self.verify_pooling_params(layer_params) and \
-                    layer_params.get('norm_type', None) is not None:
-                layer_obj = torch.nn.LPPool1d(**layer_params)
-
-        elif layer_type == 'LPPOOL2D':
-            if self.verify_pooling_params(layer_params) and \
-                    layer_params.get('norm_type', None) is not None:
-                layer_obj = torch.nn.LPPool2d(**layer_params)
-
-        # Adaptive Pooling Layers
-        elif layer_type == 'ADAPTIVEMAXPOOL1D':
-            if layer_params.get('output_size', None) is not None:
-                layer_obj = torch.nn.AdaptiveMaxPool1d(**layer_params)
-
-        elif layer_type == 'ADAPTIVEMAXPOOL2D':
-            if layer_params.get('output_size', None) is not None:
-                layer_obj = torch.nn.AdaptiveMaxPool2d(**layer_params)
-
-        elif layer_type == 'ADAPTIVEMAXPOOL3D':
-            if layer_params.get('output_size', None) is not None:
-                layer_obj = torch.nn.AdaptiveMaxPool3d(**layer_params)
-
-        elif layer_type == 'ADAPTIVEAVGPOOL1D':
-            if layer_params.get('output_size', None) is not None:
-                layer_obj = torch.nn.AdaptiveAvgPool1d(**layer_params)
-
-        elif layer_type == 'ADAPTIVEAVGPOOL2D':
-            if layer_params.get('output_size', None) is not None:
-                layer_obj = torch.nn.AdaptiveAvgPool2d(**layer_params)
-
-        elif layer_type == 'ADAPTIVEAVGPOOL3D':
-            if layer_params.get('output_size', None) is not None:
-                layer_obj = torch.nn.AdaptiveAvgPool3d(**layer_params)
-
-        # Reflection Padding Layers
-        elif layer_type == 'REFLECTIONPAD1D':
-            if self.verify_padding_params(layer_params):
-                layer_obj = torch.nn.ReflectionPad1d(**layer_params)
-
-        elif layer_type == 'REFLECTIONPAD2D':
-            if self.verify_padding_params(layer_params):
-                layer_obj = torch.nn.ReflectionPad2d(**layer_params)
-
-        # Replication Padding Layers
-        elif layer_type == 'REPLICATIONPAD1D':
-            if self.verify_padding_params(layer_params):
-                layer_obj = torch.nn.ReplicationPad1d(**layer_params)
-
-        elif layer_type == 'REPLICATIONPAD2D':
-            if self.verify_padding_params(layer_params):
-                layer_obj = torch.nn.ReplicationPad2d(**layer_params)
-
-        elif layer_type == 'REPLICATIONPAD3D':
-            if self.verify_padding_params(layer_params):
-                layer_obj = torch.nn.ReplicationPad3d(**layer_params)
-
-        # Zero Padding Layers
-        elif layer_type == 'ZEROPAD2D':
-            if self.verify_padding_params(layer_params):
-                layer_obj = torch.nn.ZeroPad2d(**layer_params)
-
-        # Constant Padding Layers
-        elif layer_type == 'CONSTANTPAD1D':
-            if self.verify_padding_params(layer_params) and \
-                    layer_params.get('value', None) is not None:
-                layer_obj = torch.nn.ConstantPad1d(**layer_params)
-
-        elif layer_type == 'CONSTANTPAD2D':
-            if self.verify_padding_params(layer_params) and \
-                    layer_params.get('value', None) is not None:
-                layer_obj = torch.nn.ConstantPad2d(**layer_params)
-
-        elif layer_type == 'CONSTANTPAD3D':
-            if self.verify_padding_params(layer_params) and \
-                    layer_params.get('value', None) is not None:
-                layer_obj = torch.nn.ConstantPad3d(**layer_params)
-
-        # Non Linear Activation Layers
-        elif layer_type == 'ELU':
-            layer_obj = torch.nn.ELU(**layer_params)
-
-        elif layer_type == 'HARDSHRINK':
-            layer_obj = torch.nn.Hardshrink(**layer_params)
-
-        elif layer_type == 'HARDTANH':
-            layer_obj = torch.nn.Hardtanh(**layer_params)
-
-        elif layer_type == 'LEAKYRELU':
-            layer_obj = torch.nn.LeakyReLU(**layer_params)
-
-        elif layer_type == 'LOGSIGMOID':
-            layer_obj = torch.nn.LogSigmoid()
-
-        elif layer_type == 'PRELU':
-            if layer_params.get('num_parameters', None) is not None and \
-                    layer_params.get('init', None) is not None:
-                layer_obj = torch.nn.PReLU(**layer_params)
-
-        elif layer_type == 'RELU':
-            layer_obj = torch.nn.ReLU(**layer_params)
-
-        elif layer_type == 'RELU6':
-            layer_obj = torch.nn.ReLU6(**layer_params)
-
-        elif layer_type == 'RRELU':
-            layer_obj = torch.nn.RReLU(**layer_params)
-
-        elif layer_type == 'SELU':
-            layer_obj = torch.nn.SELU(**layer_params)
-
-        elif layer_type == 'SIGMOID':
-            layer_obj = torch.nn.SELU()
-
-        elif layer_type == 'SOFTPLUS':
-            layer_obj = torch.nn.Softplus(**layer_params)
-
-        elif layer_type == 'SOFTSHRINK':
-            layer_obj = torch.nn.Softshrink(**layer_params)
-
-        elif layer_type == 'SOFTSIGN':
-            layer_obj = torch.nn.Softsign()
-
-        elif layer_type == 'TANH':
-            layer_obj = torch.nn.Tanh()
-
-        elif layer_type == 'TANHSHRINK':
-            layer_obj = torch.nn.Tanhshrink()
-
-        elif layer_type == 'THRESHOLD':
-            if layer_params.get('threshold', None) is not None and \
-                    layer_params.get('value', None) is not None:
-                layer_obj = torch.nn.Threshold(**layer_params)
-
-        elif layer_type == 'SOFTMIN':
-            layer_obj = torch.nn.Softmin(**layer_params)
-
-        elif layer_type == 'SOFTMAX':
-            layer_obj = torch.nn.Softmax(**layer_params)
-
-        elif layer_type == 'SOFTMAX2D':
-            layer_obj = torch.nn.Softmax2d()
-
-        elif layer_type == 'LOGSOFTMAX':
-            layer_obj = torch.nn.LogSoftmax(**layer_params)
-
-        # Batch Normalization Layers
-        elif layer_type == 'BATCHNORM1D':
-            if self.verify_batch_norm_params(layer_params):
-                layer_obj = torch.nn.BatchNorm1d(**layer_params)
-
-        elif layer_type == 'BATCHNORM2D':
-            if self.verify_batch_norm_params(layer_params):
-                layer_obj = torch.nn.BatchNorm2d(**layer_params)
-
-        elif layer_type == 'BATCHNORM3D':
-            if self.verify_batch_norm_params(layer_params):
-                layer_obj = torch.nn.BatchNorm3d(**layer_params)
-
-        elif layer_type == 'GROUPNORM':
-            if layer_params.get('num_groups', None) is not None and \
-                    layer_params.get('num_channels', None) is not None:
-                layer_obj = torch.nn.GroupNorm(**layer_params)
-
-        elif layer_type == 'INSTANCENORM1D':
-            if self.verify_instance_norm_params(layer_params):
-                layer_obj = torch.nn.InstanceNorm1d(**layer_params)
-
-        elif layer_type == 'INSTANCENORM2D':
-            if self.verify_instance_norm_params(layer_params):
-                layer_obj = torch.nn.InstanceNorm2d(**layer_params)
-
-        elif layer_type == 'INSTANCENORM3D':
-            if self.verify_instance_norm_params(layer_params):
-                layer_obj = torch.nn.InstanceNorm3d(**layer_params)
-
-        elif layer_type == 'LOCALRESPONSENORM':
-            if layer_params.get('size', None) is not None:
-                layer_obj = torch.nn.LocalResponseNorm(**layer_params)
-
-        # Linear Layers
-        elif layer_type == 'LINEAR':
-            if self.verify_linear_params(layer_params):
-                layer_obj = torch.nn.Linear(**layer_params)
-
-        elif layer_type == 'BILINEAR':
-            if self.verify_bilinear_params(layer_params):
-                layer_obj = torch.nn.Bilinear(**layer_params)
-
-        # Dropout Layers
-        elif layer_type == 'DROPOUT':
-            layer_obj = torch.nn.Dropout(**layer_params)
-
-        elif layer_type == 'DROPOUT2D':
-            layer_obj = torch.nn.Dropout2d(**layer_params)
-
-        elif layer_type == 'DROPOUT3D':
-            layer_obj = torch.nn.Dropout3d(**layer_params)
-
-        elif layer_type == 'ALPHADROPOUT':
-            layer_obj = torch.nn.AlphaDropout(**layer_params)
-
-        # Sparse Layers
-        elif layer_type == 'EMBEDDING':
-            if self.verify_embedding_params(layer_params):
-                layer_obj = torch.nn.Embedding(**layer_params)
-
-        elif layer_type == 'EMBEDDINGBAG':
-            if self.verify_embedding_params(layer_params):
-                layer_obj = torch.nn.EmbeddingBag(**layer_params)
-
-        else:
-            layer_obj = None
-
-        '''
-        The following function isn't present in the library but is present in the documentation of Torch
-        elif layer_type == 'ADAPTIVELOGSOFTMAXWITHLOSS':
-            if self.verify_adaptivesoftmaxwithloss_params(layer_params):
-                layer_obj = torch.nn.AdaptiveLogSoftmaxwithLoss(**layer_params)
-        '''
-
-        if layer_obj is not None:
-            return copy.deepcopy(layer_obj)
-
-        else:
+        if layer is None:
             return None
 
-    def verify_convolutional_params(self, params=None):
-        """
-        The function verifies the paramaters to be passed for creating convolutional layers
-
-        :param params: The parameters for creating the convolutional layer
-
-        :return: True if successful, False otherwise
-
-        TODO: Add datatype validation for arguments and also verify that no extra arguments are present in params
-        """
-        flag = True
-
-        if params is None:
-            params = dict()
-
-        in_channels = params.get('in_channels', None)
-        out_channels = params.get('out_channels', None)
-        kernel_size = params.get('kernel_size', None)
-
-        if in_channels is None or out_channels is None or kernel_size is None:
-            flag = False
-
-        return flag
-
-    def verify_pooling_params(self, params=None):
-        """
-        The function verifies the pooling parameters to be passed to the layer constructor.
-
-        :param params: params to be input to the torch pooling functions.
-
-        :return: True if successful, False otherwise.
-        """
-
-        flag = True
-        if params is None:
-            params = dict()
-
-        kernel_size = params.get('kernel_size', None)
-
-        if kernel_size is None:
-            flag = False
-
-        return flag
-
-    def verify_padding_params(self, params=None):
-        """
-        The function verifies the padding parameters to be passed to the layer constructor.
-
-        :param params: Params to be input to the torch padding functions.
-
-        :return: True if successful, False otherwise
-        """
-
-        flag = True
-        if params is None:
-            params = dict()
-
-        padding = params.get('padding', None)
-
-        if padding is None:
-            flag = False
-
-        return flag
-
-    def verify_adaptivesoftmaxwithloss_params(self, params=None):
-        """
-        The function verifies the parameters to be passed to the Adaptive Softmax with loss Layer
-
-        :param params: Parameters to be input to the Adaptive Softmax with Loss function
-
-        :return: True if successful, False otherwise
-        """
-
-        if params is None:
-            params = dict()
-
-        flag = True
-
-        in_features = params.get('in_features', None)
-        n_classes = params.get('n_classes', None)
-        cutoffs = params.get('cutoffs')
-
-        if in_features is None or n_classes is None or cutoffs is None:
-            flag = False
-
-        return flag
-
-    def verify_batch_norm_params(self, params=None):
-        """
-        The function verifies the parameters to be passed to the Batch Normalization layers
-
-        :param params: Parameters to be input to the Batch Normalization Layer
-
-        :return: True if successful, False otherwise
-        """
-
-        if params is None:
-            params = dict()
-
-        flag = True
-
-        num_features = params.get('num_features', None)
-
-        if num_features is None:
-            flag = False
-
-        return flag
-
-    def verify_instance_norm_params(self, params=None):
-
-
-        if params is None:
-            params = dict()
-
-        flag = True
-
-        num_features = params.get('num_features', None)
-
-        if num_features is None:
-            flag = False
-
-        return flag
-
-    def verify_linear_params(self, params=None):
-        """
-        The functions verifies the input arguments for the Linear Layer
-
-        :param params: Params to be used as input for the Linear Layer
-
-        :return: True if successful, False otherwise
-        """
-
-        if params is None:
-            params = dict()
-
-        flag = True
-
-        in_features = params.get('in_features', None)
-        out_features = params.get('out_features')
-
-        if in_features is None or out_features is None:
-            flag = False
-
-        return flag
-
-    def verify_bilinear_params(self, params=None):
-        """
-        The function verifies the bilinear layer parameters
-
-        :param params: Parameters to be used to create a bilinear layers
-
-        :return: True if successful, False otherwise
-        """
-
-        if params is None:
-            params = dict()
-
-        flag = True
-
-        in1_features = params.get('in1_features', None)
-        in2_features = params.get('in2_features', None)
-        out_features = params.get('out_features', None)
-
-        if in1_features is None or in2_features is None or out_features is None:
-            flag = False
-
-        return flag
-
-    def verify_embedding_params(self, params=None):
-        """
-        This function verifies the parameters for the Embedding Layer in torch
-
-        :param params: Parameters to be passed to the constructor of the embedding layer
-
-        :return: True if successful, False otherwise
-        """
-
-        if params is None:
-            params = dict()
-
-        flag = True
-
-        num_embeddings = params.get('num_embeddings', None)
-        embedding_dim = params.get('embedding_dim', None)
-
-        if num_embeddings is None or embedding_dim is None:
-            flag = False
-
-        return flag
-
+        path = layer.get('path', None)
+
+        if path is None:
+            return None
+
+        # Some layers have no parameters while some layers might have not defined any parameters.
+        # The latter case is an error and the string is used to distinguish between both cases.
+        params = layer.get('params', "PARAMSNOTDEFINED")
+        if params == 'PARAMSNOTDEFINED':
+            return None
+
+        curr_params = dict()
+        for param in params:
+            param_value = layer_params.get(param, None)
+            if param_value is None and params.get(param).get('optional') is False:
+                curr_params = None
+                break
+
+            else:
+                curr_params[param] = param_value
+
+        obj = None
+        if curr_params is not None:
+            split_idx = path.rfind('.')
+            import_path = path[:split_idx]
+            class_name = path[split_idx + 1:]
+            module = importlib.import_module(import_path)
+            class_ = getattr(module, class_name)
+            obj = class_(**curr_params)
+
+        return copy.deepcopy(obj)
 
 
 
