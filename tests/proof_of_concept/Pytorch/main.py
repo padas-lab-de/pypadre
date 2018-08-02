@@ -18,7 +18,7 @@ def main():
     params['lr'] = 0.01
 
     import json
-    with open('config.json') as json_data:
+    with open('classification.json') as json_data:
         params = json.load(json_data)
         print(params)
 

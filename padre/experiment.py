@@ -426,7 +426,7 @@ class SKLearnWorkflow:
                 metrics = dict()
                 metrics['dataset'] = ctx.dataset.name
                 # log the probabilities of the result too if the method is present
-                if 'predict_proba' in dir(self._pipeline.steps[-1][1]):
+                if 'predict_proba' in dir(self._pipeline.steps[-1][1]) and np.all(np.mod(y_predicted, 1) == 0):
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
                     ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
                                    truth=y, probabilities=y_predicted_probabilities,

@@ -1,0 +1,60 @@
+{
+  "layer_order": [
+    "layer1",
+    "layer2",
+    "layer3",
+    "layer4",
+    "layer5"
+  ],
+  "architecture": {
+    "layer1": {
+      "type": "linear",
+      "params": {
+        "in_features": 4,
+        "out_features": 20,
+        "bias": true
+      }
+    },
+    "layer2": {
+      "type": "relu"
+    },
+    "layer3": {
+      "type": "linear",
+      "params": {
+        "in_features": 20,
+        "out_features": 10,
+        "bias": true
+      }
+    },
+    "layer4": {
+      "type": "linear",
+      "params": {
+        "in_features": 10,
+        "out_features": 3,
+        "bias": true
+      }
+    },
+    "layer5": {
+      "type": "softmax"
+    }
+  },
+  "loss": {
+    "type": "crossentropyloss",
+    "params": {
+      "size_average": true,
+      "reduce": true
+    }
+  },
+  "optimizer": {
+    "type": "SGD",
+    "params": {
+      "momentum": 0.9,
+      "dampening": 0,
+      "weight_decay": 0,
+      "Nesterov": false,
+      "lr": 0.01
+    }
+  },
+  "steps": 100,
+  "batch_size": 1
+}

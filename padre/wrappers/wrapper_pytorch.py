@@ -126,7 +126,8 @@ class WrapperPytorch:
         if self.probabilities is None:
             probabilites = np.zeros(shape=(len(x), self.top_shape))
 
-        probabilities = self.probabilities
+        else:
+            probabilities = self.probabilities
 
         return probabilities
 
