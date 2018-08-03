@@ -4,7 +4,7 @@ import copy
 import numpy as np
 import json
 import importlib
-
+from torch.nn import Module
 # TODO: Add LR scheduler policy to code
 # TODO: Implement Vision Layers
 # TODO: Implement Dataparallel layers
@@ -12,6 +12,33 @@ import importlib
 # TODO: Implement modules and containers
 # TODO: Batch processing to be implemented
 # TODO: Implement Recurrent Layers
+
+
+class Flatten(Module):
+    """
+    This class is used to flatten the output of a layer inorder to pass it to a fully connected layer
+    """
+    def forward(self, input):
+        """
+        Returns a reshaped array of the input
+        :param input: A multidimensional array
+        :return: A two dimensional array with the first dimension same 
+        """
+        #print ('Flatten Input size:' + str(input.size()))
+        #temp = input.view(input.size()[0], -1)
+        #print('Flatten Output Size:' + str(temp.size()))
+        #return temp
+        return input.view(input.size()[0], -1)
+
+
+class TestLayer(Module):
+    """
+    This is a debugging layer to pause the forward pass
+    """
+    def forward(self, input):
+        print ('Test Input size:' + str(input.size()))
+        return input
+
 
 class WrapperPytorch:
 
@@ -22,6 +49,8 @@ class WrapperPytorch:
     top_shape = 0
 
     probabilities = None
+
+    flatten = False
 
     def __init__(self, params=None):
         """
@@ -44,6 +73,11 @@ class WrapperPytorch:
         architecture = params.get('architecture', None)
         layer_order = params.get('layer_order', None)
         shape = self.create_network_shape(architecture=architecture, layer_order=layer_order)
+
+        # Failed network creation
+        if shape is None:
+            return
+
         self.model = self.create_model(shape)
 
         loss = params.get('loss', dict())
@@ -392,9 +426,9 @@ class WrapperPytorch:
 
         layers = []
 
-        for layer in layer_order:
+        for layer_name in layer_order:
 
-            layer = architecture.get(layer, None)
+            layer = architecture.get(layer_name, None)
             if layer is None:
                 return None
 
@@ -404,9 +438,12 @@ class WrapperPytorch:
             layer_obj = self.create_layer_object(layer_type, params)
 
             if layer_obj is not None:
-                layers.append(layer_obj)
                 if str(layer_type).upper() in ['LINEAR', 'BILINEAR']:
                     self.top_shape = params.get('out_features')
+                    if self.flatten is False:
+                        layers.append(Flatten())
+                        self.flatten = True
+                layers.append(layer_obj)
 
             else:
                 layers = None
@@ -458,7 +495,8 @@ class WrapperPytorch:
                 break
 
             else:
-                curr_params[param] = param_value
+                if param_value is not None:
+                    curr_params[param] = param_value
 
         obj = None
         if curr_params is not None:
@@ -467,6 +505,7 @@ class WrapperPytorch:
             class_name = path[split_idx + 1:]
             module = importlib.import_module(import_path)
             class_ = getattr(module, class_name)
+            print(class_name)
             obj = class_(**curr_params)
 
         return copy.deepcopy(obj)
