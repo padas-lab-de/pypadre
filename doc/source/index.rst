@@ -11,10 +11,14 @@ Welcome to PyPaDRE Documentation's documentation!
 
    :caption: Contents:
 
-   intro
+   concept
    design_principles
+   setup_experiments
    experiment_creator
    metrics
+   storage_details
+   visualisation
+   high_level_interfaces
 
 
 
