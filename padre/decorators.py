@@ -1,6 +1,8 @@
 import pprint
 from functools import wraps
 from padre.experiment import Experiment
+import itertools
+import copy
 
 _experiments = {}
 
@@ -65,29 +67,68 @@ def Dataset(exp_name, *args, **kwargs):
 
     return dataset_decorator
 
-def run(name=None, backend = None):
+def run(name=None, backend = None, change_name=True):
     """
     runs the experiments with the specific name. If no name is provided, all experiments available are run
     :param name: name of the experiment to run or None if all should be run
+    :param backend: if not None, the backend will be set for all experiment runs
+    :param change_name: if set to True, the experiment name is changed when hyperparameters are given.
     :return: Experiment object or list of Experiments if name was None.
     """
+    def generate_config(hp_dict):
+        """
+        generator function that creates all possible configuration taking a key of a dict as parameter name and one
+        value
+        :param hp_dict:
+        :return:
+        """
+        idx = []
+        val = []
+        # todo: dicts of dicts should be considered!!
+        for k in hp_dict.keys():
+            idx.append(k)
+            val.append(hp_dict[k])
+        for v in itertools.product(*val):
+            yield dict(zip(idx, v))
+
+
+
     def _run(name_, params_):
         if backend is not None:
             params_ = params_.copy()
-            params_["backend"] = backend
-        ex = Experiment(name=name_, **params_["kwargs"],
-                        workflow=params_["workflow"](),
-                        dataset=params_["datasets"]())
-        ex.run()
-        return ex
+            params_["kwargs"]["backend"] = backend
+
+        if "hyperparameters" in params_["kwargs"]:  # do we have to iterate over different hyperparameters?
+            params_ = copy.deepcopy(params_)
+            hp = params_["kwargs"].pop("hyperparameters")
+            exs = []
+            for config in generate_config(hp):
+                if change_name:
+                    # todo: do some template based labelling
+                    n = name_+"("+",".join([str(k)+":"+str(v) for k, v in config.items()])+")"
+                else:
+                    n =name_
+                ex = Experiment(name=n, **params_["kwargs"],
+                                workflow=params_["workflow"](**config),
+                                dataset=params_["datasets"]())
+                ex.run()
+                exs.append(ex)
+            return exs
+
+        else:
+            ex = Experiment(name=name_, **params_["kwargs"],
+                            workflow=params_["workflow"](),
+                            dataset=params_["datasets"]())
+            ex.run()
+            return [ex]
 
     if name is None:
-        return [_run(name_, params) for name_, params in _experiments.items()]
+        return [r for name_, params in _experiments.items() for r in _run(name_, params)]
 
     else:
         if name not in _experiments:
             raise Exception("No experiment with name %s found. My config is: \n %s"
                             % (name, pprint.pformat(_experiments)))
         else:
-            return _run(name,_experiments[name])
+            return [r for r in _run(name, _experiments[name])]
 
