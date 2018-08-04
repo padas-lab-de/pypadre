@@ -178,15 +178,22 @@ class ExperimentApp:
 
     def run(self, **ex_params):
         """
-        runs an experiment with the given parameters and stores it into the configured file_repository.experiments
-        :param ex_params:
+        runs an experiment either with the given parameters or, if there is a parameter decorated=True, runs all
+        decorated experiments.
+        Befor running the experiments, the backend for storing results is configured as file_repository.experiments
+        :param ex_params: kwargs for an experiment or decorated=True
         :return:
         """
-        p = ex_params.copy()
-        p["backend"] = self._parent.file_repository.experiments
-        ex = Experiment(**p)
-        ex.run()
-        return ex
+        if "decorated" in ex_params and ex_params["decorated"]:
+            from tests.proof_of_concept.decorators import run
+            return run(backend=self._parent.file_repository.experiments)
+        else:
+            p = ex_params.copy()
+            p["backend"] = self._parent.file_repository.experiments
+            ex = Experiment(**p)
+            ex.run()
+            return ex
+
 
 
 class PadreApp:

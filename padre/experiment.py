@@ -1085,7 +1085,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
     @property
     def runs(self):
-        if self._keep_runs:
+        if self._runs is not None:
             return self._runs
         else:
             # load splits from backend.

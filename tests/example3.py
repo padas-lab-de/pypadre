@@ -36,8 +36,8 @@ def main():
     experiment = ['Test Experiment PCA Linear', 'Test Experiment PCA Logistic']
     datasets = ['Diabetes', 'Boston_House_Prices']
     datasets_logistic = ['Iris', 'Digits', 'Breast_Cancer', 'Boston_House_Prices']
-    experiment_datasets = {experiment[0]:datasets,
-                           experiment[1]:datasets_logistic}
+    experiment_datasets = {experiment[0]: datasets,
+                           experiment[1]: datasets_logistic}
     experiment_helper.do_experiments(experiment_datasets)
 
 

@@ -46,7 +46,6 @@ def Dataset(exp_name, *args, **kwargs):
     :param kwargs: additional kw arguments for the expeirment constructor
     :return:
     """
-
     def dataset_decorator(f_get_datasets):
         @wraps(f_get_datasets)
         def wrap_dataset(*args, **kwargs):
@@ -72,7 +71,6 @@ def run(name=None, backend = None):
     :param name: name of the experiment to run or None if all should be run
     :return: Experiment object or list of Experiments if name was None.
     """
-
     def _run(name_, params_):
         if backend is not None:
             params_ = params_.copy()
@@ -84,7 +82,7 @@ def run(name=None, backend = None):
         return ex
 
     if name is None:
-        return [_run(name_,params) for name_, params in _experiments.items()]
+        return [_run(name_, params) for name_, params in _experiments.items()]
 
     else:
         if name not in _experiments:
