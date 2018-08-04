@@ -58,7 +58,6 @@ Experiment Evaluation
 
 
 
-
 Storage
 -------
 
@@ -66,3 +65,63 @@ Storage
 Metasearch and Automated Machine Learning
 -----------------------------------------
 
+PyPadre App and CLI
+-------------------
+
+One core criterion of PyPaDRE is its ease of use and hence we support a class interface,
+a high-level app interface and a command line interface.
+
+Python Class Interface
+**********************
+
+First, when knowing the details of all packages PyPaDRE can be used in code.
+This is either done by creating an :class:`padre.experiment.Experiment` or
+through using decorators (currently under development). However, in this case
+the user is responsible for using the correct backends to persist results to.
+
+.. code-block:: python
+
+    from padre.ds_import import load_sklearn_toys
+    from padre.experiment import Experiment
+    ds = [i for i in load_sklearn_toys()]
+    ex = Experiment(name="Test Experiment SVM",
+                    description="Testing Support Vector Machines via SKLearn Pipeline\n"
+                                    "- no persisting via a backend\n"
+                                    "- manual data set loading\n"
+                                    "- default parameters",
+                    dataset=ds[2],
+                    workflow=Pipeline([('clf', SVC(probability=True))]))
+    ex.run()
+
+Please note, that this is not the standard case and proper evaluation classes are currently under development.
+
+Python App Interface
+********************
+
+As a second interface, PyPaDRE support a high-level app. This high-level app integrates experiments, file backends, configuration
+files and http server interface in a high level, easy to use interface.
+
+.. code-block:: python
+
+    from padre.ds_import import load_sklearn_toys
+    from padre.app import pypadre
+    from sklearn.pipeline import Pipeline
+    from sklearn.svm import SVC
+    ex = pypadre.experiments.run(name="Test Experiment SVM",
+                                     description="Testing Support Vector Machines via SKLearn Pipeline",
+                                     dataset=ds,
+                                     workflow=Pipeline([('clf', SVC(probability=True))]))
+    print("========Available experiments=========")
+    for idx, ex in enumerate(pypadre.experiments.list_experiments()):
+        print("%d: %s" % (idx, str(ex)))
+        for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
+            print("\tRun: %s" % str(run))
+
+
+TODO: add more details here.
+
+Python CLI Interface
+********************
+
+The third interface is a command line interface for using Python via a command line. Please note that not all
+functions are available.

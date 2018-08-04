@@ -850,7 +850,7 @@ class Run(MetadataEntity, _LoggerMixin):
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
             sp = Split(self, split, train_idx, val_idx, test_idx, **self._metadata)
             sp.execute()
-            if self._keep_splits:
+            if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
         self.log_stop_run(self)
 
@@ -1040,7 +1040,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
-        if self._keep_runs:
+        if self._keep_runs or self._backend is None:
             self._runs.append(r)
         self._last_run = r
         self.log_stop_experiment(self)

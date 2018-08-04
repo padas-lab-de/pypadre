@@ -16,6 +16,7 @@ from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.ds_import import load_sklearn_toys
 from padre.ExperimentCreator import ExperimentCreator
+from padre.experiment import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
 
@@ -174,6 +175,18 @@ class ExperimentApp:
 
     def list_runs(self, ex_id, start=0, count=999999999, search=None):
         return self._parent.file_repository.experiments.list_runs(ex_id)
+
+    def run(self, **ex_params):
+        """
+        runs an experiment with the given parameters and stores it into the configured file_repository.experiments
+        :param ex_params:
+        :return:
+        """
+        p = ex_params.copy()
+        p["backend"] = self._parent.file_repository.experiments
+        ex = Experiment(**p)
+        ex.run()
+        return ex
 
 
 class PadreApp:
