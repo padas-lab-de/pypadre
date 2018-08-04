@@ -1,5 +1,5 @@
 """
-This file shows an example on how to use the pypadre app via decorates.
+This file shows an example on how to use PyPaDRE via decorators defining a single experiments.
 
 Note: it is a proof of concept now rather than a test.
 """
@@ -18,21 +18,20 @@ def create_test_pipeline():
     return Pipeline(estimators)
 
 
-@Dataset(exp_name="Test",
-         backend=pypadre.file_repository.experiments)
-# Note that actually putting the backend here is not good style
-# It should only demonstrate, that parameters for the Experiment can be provided via the decorators
-# in fact, the padre app should have a run method where the backend parameters are set automatically
+@Dataset(exp_name="Test")
 def get_dataset():
     ds = [i for i in load_sklearn_toys()][2]
     return ds
 
 if __name__ == '__main__':
-    ex = run("Test")  # run the experiment and report
+    # call run without pypadre app backend
+    ex = run("Test")
     print("Runs retained in memory ")
     for r in ex.runs:
         print(r)
-
-    print("Runs on disk via padre app")
+    # call via pipadre backend
+    ex = pypadre.experiments.run(decorated=True)
+    ex = run("Test")  # run the experiment and report
+    print("Runs stored on disk via padre app")
     for idx2, run in enumerate(pypadre.experiments.list_runs(ex.name)):
         print("\tRun: %s" % str(run))

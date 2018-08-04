@@ -66,33 +66,30 @@ def Dataset(exp_name, *args, **kwargs):
 
     return dataset_decorator
 
-def run(name=None):
+def run(name=None, backend = None):
     """
     runs the experiments with the specific name. If no name is provided, all experiments available are run
     :param name: name of the experiment to run or None if all should be run
     :return: Experiment object or list of Experiments if name was None.
     """
-    returns = []
+
+    def _run(name_, params_):
+        if backend is not None:
+            params_ = params_.copy()
+            params_["backend"] = backend
+        ex = Experiment(name=name_, **params_["kwargs"],
+                        workflow=params_["workflow"](),
+                        dataset=params_["datasets"]())
+        ex.run()
+        return ex
+
     if name is None:
-        for name_, params in _experiments.items():
-            ex = Experiment(name=name_,
-                            **params["kwargs"],
-                            workflow=params["workflow"](),
-                            dataset=params["datasets"]())
-            ex.run()
-            returns.append(ex)
-        return returns
+        return [_run(name_,params) for name_, params in _experiments.items()]
 
     else:
         if name not in _experiments:
             raise Exception("No experiment with name %s found. My config is: \n %s"
                             % (name, pprint.pformat(_experiments)))
         else:
-            params = _experiments[name]
-            ex = Experiment(name=name,
-                            **params["kwargs"],
-                            workflow=params["workflow"](),
-                            dataset=params["datasets"]())
-            ex.run()
-            return ex
+            return _run(name,_experiments[name])
 
