@@ -3,9 +3,9 @@ This file shows an example on how to use PyPaDRE via decorators defining multipe
 
 Note: it is a proof of concept now rather than a test.
 """
-from tests.proof_of_concept.decorators.multi_experiments.ex1 import *
-from tests.proof_of_concept.decorators.multi_experiments.ex2 import *
-
+from padre import *
+from tests.experiments.decorator_import.ex1 import *
+from tests.experiments.decorator_import.ex2 import *
 
 if __name__ == '__main__':
     exs = run()  # run the experiment and report

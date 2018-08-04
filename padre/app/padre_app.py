@@ -185,7 +185,7 @@ class ExperimentApp:
         :return:
         """
         if "decorated" in ex_params and ex_params["decorated"]:
-            from tests.proof_of_concept.decorators import run
+            from padre.decorators import run
             return run(backend=self._parent.file_repository.experiments)
         else:
             p = ex_params.copy()

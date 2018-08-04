@@ -5,7 +5,7 @@ Note: it is a proof of concept now rather than a test.
 """
 from padre.app import pypadre
 # Note that we want to include all decorator at once using package import
-from tests.proof_of_concept.decorators import *
+from padre import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from padre.app import pypadre

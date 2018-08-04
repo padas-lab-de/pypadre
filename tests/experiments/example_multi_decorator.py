@@ -4,9 +4,9 @@ This file shows an example on how to use PyPaDRE via decorators defining multipe
 Note: it is a proof of concept now rather than a test.
 """
 # Note that we want to include all decorator at once using package import
-from tests.proof_of_concept.decorators import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+from padre import *
 from padre.ds_import import load_sklearn_toys
 
 
