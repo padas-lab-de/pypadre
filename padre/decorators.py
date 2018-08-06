@@ -28,7 +28,7 @@ def Workflow(exp_name, *args, **kwargs):
             # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
             return f_create_workflow(*args, **kwargs)
         # here we store the workflow for the experiment in a dictionary usable as constructor to experiments
-        print("Storing workflow for experiment %s" % exp_name)
+        # print("Storing workflow for experiment %s" % exp_name)
         if exp_name not in _experiments:
             _experiments[exp_name] = {"args": args, "kwargs": kwargs}
         else:
@@ -55,7 +55,7 @@ def Dataset(exp_name, *args, **kwargs):
             print ("creating the workflow")
             return f_get_datasets(*args, **kwargs)
         # here we store the workflow for the experiment in a dictionary usable as constructor to experiments
-        print("Storing workflow for experiment %s" % exp_name)
+        #print("Storing workflow for experiment %s" % exp_name)
         if exp_name not in _experiments:
             _experiments[exp_name] = {"args": args, "kwargs": kwargs}
         else:
@@ -104,7 +104,8 @@ def run(name=None, backend = None, change_name=True):
             exs = []
             for config in generate_config(hp):
                 if change_name:
-                    # todo: do some template based labelling
+                    # todo: do some template based labeling
+                    # todo: we might introduce experiment groups (as sub directory or via labeling) in order to avoid the need for changing names.
                     n = name_+"("+",".join([str(k)+":"+str(v) for k, v in config.items()])+")"
                 else:
                     n =name_

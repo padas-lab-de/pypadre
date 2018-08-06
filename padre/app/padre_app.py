@@ -6,6 +6,8 @@ Padre app as single point of interaction.
 
 import os
 import configparser
+
+import copy
 from beautifultable import BeautifulTable
 from beautifultable.enums import Alignment
 from scipy.stats.stats import DescribeResult
@@ -35,6 +37,15 @@ _DEFAULT_HTTP_CONFIG = {
         "user": "",
         "passwd": ""
     }
+
+
+def _sub_list(l, start=-1, count=9999999999999):
+    start = max(start, 0)
+    stop = min(start + count, len(l))
+    if start >= len(l):
+        return []
+    else:
+        return l[start:stop]
 
 
 def load_padre_config(config_file = _PADRE_CFG_FILE):
@@ -170,11 +181,49 @@ class ExperimentApp:
     def __init__(self, parent):
         self._parent = parent
 
-    def list_experiments(self, start=0, count=999999999, search=None):
-        return self._parent.file_repository.experiments.list_experiments()
+    def delete_experiments(self, search):
+        """
+           lists the experiments and returns a list of experiment names matching the criterions
+           :param search: str to search experiment name only or
+           dict object with format {field : regexp<String>} pattern to search in particular fields using a regexp.
+           None for all experiments
+        """
+        if isinstance(search, dict):
+            s = copy.deepcopy(search)
+            file_name = s.pop("name")
+        else:
+            file_name = search
+            s = None
 
-    def list_runs(self, ex_id, start=0, count=999999999, search=None):
-        return self._parent.file_repository.experiments.list_runs(ex_id)
+        self._parent.file_repository.experiments.delete_experiments(search_id=file_name, search_metadata=s)
+
+
+
+    def list_experiments(self, search=None, start=-1, count=999999999, ):
+        """
+        lists the experiments and returns a list of experiment names matching the criterions
+        :param search: str to search experiment name only or
+        dict object with format {field : regexp<String>} pattern to search in particular fields using a regexp.
+        None for all experiments
+        :param start: start in the list to be returned
+        :param count: number of elements in the list to be returned
+        :return:
+        """
+        if search is not None:
+            if isinstance(search, dict):
+                s = copy.deepcopy(search)
+                file_name = s.pop("name")
+            else:
+                file_name = search
+                s = None
+            return _sub_list(self._parent.file_repository.experiments.list_experiments(search_id=file_name,
+                                                                                       search_metadata=s)
+                             , start, count)
+        else:
+            return _sub_list(self._parent.file_repository.experiments.list_experiments(), start, count)
+
+    def list_runs(self, ex_id, start=-1, count=999999999, search=None):
+        return _sub_list(self._parent.file_repository.experiments.list_runs(ex_id), start, count)
 
     def run(self, **ex_params):
         """

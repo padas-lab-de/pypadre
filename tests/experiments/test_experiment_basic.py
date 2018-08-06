@@ -13,7 +13,7 @@ class TestBasic(unittest.TestCase):
 
     def test_SVC_SKLeanr(self):
         ds = [i for i in load_sklearn_toys()]
-        ex = Experiment(name="Test Experiment SVM",
+        ex = Experiment(name="test_Experiment SVM",
                         description="Testing Support Vector Machines via SKLearn Pipeline\n"
                                     "- no persisting via a backend\n"
                                     "- manual data set loading\n"
