@@ -144,7 +144,9 @@ class WrapperPytorch:
         randomize = False
 
         # Run the model for the steps specified in the parameters
-        for step in range(self.steps):
+        step = 0
+
+        while step < self.steps:
 
             if randomize is True:
                 permutation = torch.randperm(x.size()[0])
@@ -169,10 +171,20 @@ class WrapperPytorch:
 
             if step % self.checkpoint == 0:
                 save_file_name = "_".join(["model", str(step)])
-                torch.save(self.model, save_file_name)
+                state = dict()
+                state['step'] = step
+                state['model'] = self.model.state_dict()
+                state['optimizer'] = self.optimizer.state_dict()
+                torch.save(state, save_file_name)
 
-        save_file_name = "_".join(["model", str(step+1)])
-        torch.save(self.model, save_file_name)
+            step = step + 1
+
+        save_file_name = "_".join(["model", str(step)])
+        state = dict()
+        state['step'] = step
+        state['model'] = self.model.state_dict()
+        state['optimizer'] = self.optimizer.state_dict()
+        torch.save(state, save_file_name)
 
     def predict(self, x):
         """
