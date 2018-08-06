@@ -70,9 +70,9 @@
             "dampening": 0,
             "weight_decay": 0,
             "Nesterov": false,
-            "lr": 0.01
+            "lr": 0.0001
         }
     },
     "steps": 1000,
-    "batch_size": 1
+    "batch_size": 100
 }

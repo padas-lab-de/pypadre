@@ -1,4 +1,4 @@
-from padre.wrappers.wrapper_pytorch import  WrapperPytorch
+from padre.wrappers.wrapper_pytorch import WrapperPytorch
 from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import  Pipeline
 from sklearn import datasets
@@ -20,7 +20,6 @@ def main():
     import json
     with open('classification.json') as json_data:
         params = json.load(json_data)
-        print(params)
 
     obj = WrapperPytorch(params=params)
     estimators = [('clf', obj)]

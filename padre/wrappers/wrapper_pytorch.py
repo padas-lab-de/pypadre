@@ -4,6 +4,7 @@ import copy
 import numpy as np
 import json
 import importlib
+import random
 from torch.nn import Module
 # TODO: Add LR scheduler policy to code
 # TODO: Implement Vision Layers
@@ -22,7 +23,7 @@ class Flatten(Module):
         """
         Returns a reshaped array of the input
         :param input: A multidimensional array
-        :return: A two dimensional array with the first dimension same 
+        :return: A two dimensional array with the first dimension same
         """
         #print ('Flatten Input size:' + str(input.size()))
         #temp = input.view(input.size()[0], -1)
@@ -59,7 +60,6 @@ class WrapperPytorch:
         :param params: The parameters for creating the whole network
 
         """
-        print('Initialize')
         if params is None:
             return
 
@@ -104,6 +104,9 @@ class WrapperPytorch:
 
         self.probabilities = None
 
+        training_samples_count = y.shape[0]
+
+
         # The output is always a 2 Dimensional matrix and y is reshaped for the shapes to be compatible
         if y.ndim == 1:
             if self.top_shape == 1:
@@ -118,7 +121,6 @@ class WrapperPytorch:
 
                 label_encoder = LabelEncoder()
                 integer_encoded = label_encoder.fit_transform(y)
-                print(integer_encoded)
                 onehot_encoder = OneHotEncoder(sparse=False)
                 integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
                 y = onehot_encoder.fit_transform(integer_encoded)
@@ -127,10 +129,36 @@ class WrapperPytorch:
         y = torch.autograd.Variable(torch.from_numpy(y), requires_grad=False)
         self.model = self.model.double()
 
+        permutation = torch.randperm(x.size()[0])
+        start_idx = 0
+
+        if self.batch_size > x.size()[0]:
+            batch_size = x.size()[0]
+
+        else:
+            batch_size = self.batch_size
+
+        randomize = False
+
         # Run the model for the steps specified in the parameters
         for step in range(self.steps):
-            y_pred = self.model(x)
-            loss = self.loss(y_pred, y)
+
+            if randomize is True:
+                permutation = torch.randperm(x.size()[0])
+
+            indices = permutation[start_idx: start_idx + batch_size]
+
+            if start_idx + batch_size > training_samples_count:
+                indices = permutation[start_idx:training_samples_count]
+                randomize = True
+                indices = np.append(indices, permutation[0:start_idx + batch_size - training_samples_count])
+
+            start_idx = (start_idx + batch_size) % training_samples_count
+            x_mini_batch = x[indices]
+            y_mini_batch = y[indices]
+
+            y_pred = self.model(x_mini_batch)
+            loss = self.loss(y_pred, y_mini_batch)
             print(step, loss.item())
             self.optimizer.zero_grad()
             loss.backward()
@@ -144,14 +172,39 @@ class WrapperPytorch:
 
         :return: Predicted results
         """
+        test_samples_count = x.shape[0]
+        start_idx = 0
+        batch_size = self.batch_size
+
         x = torch.autograd.Variable(torch.from_numpy(x), requires_grad=False)
         self.model.eval()
-        with torch.no_grad():
-            output = self.model(x)
 
-        if output.shape[1] > 1 and self.top_shape > 1:
+        if self.top_shape > 1:
+            output = np.zeros(shape=(test_samples_count, self.top_shape))
+
+        else:
+            output = np.zeros(shape=(test_samples_count,1))
+
+        with torch.no_grad():
+            while start_idx <= test_samples_count:
+                indices = torch.LongTensor(list(range(start_idx, start_idx+batch_size)))
+                end_idx = start_idx+batch_size
+                if end_idx > test_samples_count:
+                    indices = torch.LongTensor(list(range(start_idx, test_samples_count)))
+                    end_idx = test_samples_count
+
+                mini_batch_x = x[indices]
+                mini_batch_output = self.model(mini_batch_x)
+                output[start_idx:end_idx,:] = mini_batch_output
+                start_idx = start_idx + batch_size
+
+
+        if mini_batch_output.shape[1] > 1 and self.top_shape > 1:
             self.probabilities = output
             output = np.argmax(output, axis=1)
+
+        else:
+            output = np.reshape(output, newshape=(output.shape[0]))
 
         return output
 
@@ -505,7 +558,6 @@ class WrapperPytorch:
             class_name = path[split_idx + 1:]
             module = importlib.import_module(import_path)
             class_ = getattr(module, class_name)
-            print(class_name)
             obj = class_(**curr_params)
 
         return copy.deepcopy(obj)

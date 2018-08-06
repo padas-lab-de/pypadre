@@ -52,5 +52,5 @@
     }
   },
   "steps": 100,
-  "batch_size": 1
+  "batch_size": 5
 }
