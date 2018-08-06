@@ -106,6 +106,7 @@ def run(name=None, backend = None, change_name=True):
                 if change_name:
                     # todo: do some template based labeling
                     # todo: we might introduce experiment groups (as sub directory or via labeling) in order to avoid the need for changing names.
+                    # todo: we could also argue, that experiments are unique only within a single call fo _run or extend via UUID
                     n = name_+"("+",".join([str(k)+":"+str(v) for k, v in config.items()])+")"
                 else:
                     n =name_
