@@ -53,6 +53,8 @@ class WrapperPytorch:
 
     flatten = False
 
+    checkpoint = 0
+
     def __init__(self, params=None):
         """
         The initialization function for the pyTorch wrapper
@@ -68,6 +70,7 @@ class WrapperPytorch:
 
         self.params = copy.deepcopy(params)
         self.steps = params.get('steps', 1000)
+        self.checkpoint = params.get('checkpoint', self.steps)
         self.batch_size = params.get('batch_size', 1)
 
         architecture = params.get('architecture', None)
@@ -159,10 +162,17 @@ class WrapperPytorch:
 
             y_pred = self.model(x_mini_batch)
             loss = self.loss(y_pred, y_mini_batch)
-            print(step, loss.item())
+            print(step+1, loss.item())
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+
+            if step % self.checkpoint == 0:
+                save_file_name = "_".join(["model", str(step)])
+                torch.save(self.model, save_file_name)
+
+        save_file_name = "_".join(["model", str(step+1)])
+        torch.save(self.model, save_file_name)
 
     def predict(self, x):
         """
@@ -561,6 +571,8 @@ class WrapperPytorch:
             obj = class_(**curr_params)
 
         return copy.deepcopy(obj)
+
+
 
 
 
