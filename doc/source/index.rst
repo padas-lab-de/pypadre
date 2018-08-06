@@ -19,6 +19,7 @@ Welcome to PyPaDRE Documentation's documentation!
    storage_details
    visualisation
    high_level_interfaces
+   development
 
 
 

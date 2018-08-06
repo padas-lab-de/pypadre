@@ -9,9 +9,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 
 
-class TestSklearn(unittest.TestCase):
+class TestBasic(unittest.TestCase):
 
-    def test_SVC(self):
+    def test_SVC_SKLeanr(self):
         ds = [i for i in load_sklearn_toys()]
         ex = Experiment(name="Test Experiment SVM",
                         description="Testing Support Vector Machines via SKLearn Pipeline\n"
