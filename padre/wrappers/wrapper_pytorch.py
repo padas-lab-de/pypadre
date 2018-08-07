@@ -4,6 +4,7 @@ import copy
 import numpy as np
 import json
 import importlib
+import os
 import random
 from torch.nn import Module
 # TODO: Add LR scheduler policy to code
@@ -55,6 +56,10 @@ class WrapperPytorch:
 
     checkpoint = 0
 
+    resume = False
+
+    pre_trained_model_path = None
+
     def __init__(self, params=None):
         """
         The initialization function for the pyTorch wrapper
@@ -72,6 +77,9 @@ class WrapperPytorch:
         self.steps = params.get('steps', 1000)
         self.checkpoint = params.get('checkpoint', self.steps)
         self.batch_size = params.get('batch_size', 1)
+        self.resume = params.get('resume', False)
+        self.pre_trained_model_path = params.get('model', None)
+        self.model_prefix = params.get('model_prefix', "")
 
         architecture = params.get('architecture', None)
         layer_order = params.get('layer_order', None)
@@ -146,6 +154,12 @@ class WrapperPytorch:
         # Run the model for the steps specified in the parameters
         step = 0
 
+        if self.resume is True and os.path.isfile(self.pre_trained_model_path):
+            state = torch.load(self.pre_trained_model_path)
+            self.optimizer.load_state_dict(state['optimizer'])
+            self.model.load_state_dict(state['model'])
+            step = state['step']
+
         while step < self.steps:
 
             if randomize is True:
@@ -170,7 +184,8 @@ class WrapperPytorch:
             self.optimizer.step()
 
             if step % self.checkpoint == 0:
-                save_file_name = "_".join(["model", str(step)])
+                prefix = self.model_prefix
+                save_file_name = "_".join([prefix, "model", str(step)])
                 state = dict()
                 state['step'] = step
                 state['model'] = self.model.state_dict()
@@ -179,7 +194,8 @@ class WrapperPytorch:
 
             step = step + 1
 
-        save_file_name = "_".join(["model", str(step)])
+        prefix = self.model_prefix
+        save_file_name = "_".join([prefix, "model", str(step)])
         state = dict()
         state['step'] = step
         state['model'] = self.model.state_dict()

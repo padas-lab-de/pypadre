@@ -18,7 +18,7 @@ def main():
     params['lr'] = 0.01
 
     import json
-    with open('classification.json') as json_data:
+    with open('regression.json') as json_data:
         params = json.load(json_data)
 
     obj = WrapperPytorch(params=params)

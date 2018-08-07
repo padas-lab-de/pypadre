@@ -57,5 +57,8 @@
   },
   "steps": 100,
   "batch_size": 5,
-  "checkpoint":10
+  "checkpoint":10,
+  "resume":false,
+  "model":"/home/christofer/PycharmProjects/PyPaDRe/tests/proof_of_concept/Pytorch/model_80",
+  "model_prefix":"classification"
 }
