@@ -129,11 +129,12 @@ class ExperimentFileRepository:
 
 
 
-    def put_experiment(self, experiment, allow_overwrite=False):
+    def put_experiment(self, experiment, append_runs=False):
         """
         Stores an experiment to the file. Only metadata, hyperparameter and the workflow is stored.
         :param experiment:
-        :param allow_overwrite: True if an existing experiment can be overwritten
+        :param append_runs: True if runs can be added to an existing experiment.
+        If false, any existing experiment will be removed
         :return:
         """
         if experiment.id is None:  #  this is a new experiment
@@ -142,12 +143,12 @@ class ExperimentFileRepository:
             else:
                 experiment.id = experiment.name
         dir = os.path.join(self.root_dir, *self._dir(experiment.id))
-        if os.path.exists(dir) and not allow_overwrite:
-            raise ValueError("Experiment %s already exists." +
-                             "Overwriting not explicitly allowed. Set allow_overwrite=True")
         if os.path.exists(dir):
-            shutil.rmtree(dir)
-        os.mkdir(dir)
+            if not append_runs:
+                shutil.rmtree(dir)
+                os.mkdir(dir)
+        else:
+            os.mkdir(dir)
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 

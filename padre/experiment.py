@@ -228,7 +228,6 @@ class _LoggerMixin:
     _backend = None
     _stdout = False
     _events = {}
-    _overwrite = True
 
     def _padding(self, source):
         if isinstance(source, Split):
@@ -238,10 +237,9 @@ class _LoggerMixin:
         else:
             return ""
 
-    def log_start_experiment(self, experiment):
+    def log_start_experiment(self, experiment, append_runs:bool =False):
         if self.has_backend():
-            # todo overwrite solution not good. we need a mechanism to add runs
-            self._backend.put_experiment(experiment, allow_overwrite=self._overwrite)
+            self._backend.put_experiment(experiment, append_runs=append_runs)
         self.log_event(experiment, exp_events.start, phase=phases.experiment)
 
     def log_stop_experiment(self, experiment):
@@ -1036,7 +1034,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
-        self.log_start_experiment(self)
+        self.log_start_experiment(self, append_runs)
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
