@@ -48,6 +48,7 @@ class WrapperPytorch:
 
     layers_dict = None
     transforms_dict = None
+    optimizers_dict = None
 
     top_shape = 0
 
@@ -73,8 +74,9 @@ class WrapperPytorch:
 
         with open('mappings_torch.json') as f:
             framework_dict = json.load(f)
-        self.layers_dict = framework_dict['layers']
-        self.transforms_dict = framework_dict['transforms']
+        self.layers_dict = framework_dict.get('layers', None)
+        self.transforms_dict = framework_dict.get('transforms', None)
+        self.optimizers_dict = framework_dict.get('optimizers', None)
 
         self.params = copy.deepcopy(params)
         self.steps = params.get('steps', 1000)
@@ -287,94 +289,45 @@ class WrapperPytorch:
 
         # Create an object of the optimizer specified by the user.
         # Required parameters are given by the user within the params dictionary.
-        # Missing parameters are substituted with default values obtained from the pytorch documentation.
-        # Default optimizer is the Adam optimizer and SGD is selected if no match is found.
+        # Default optimizer is SGD if no match is found.
 
-        if optimizer_type == 'ADADELTA':
-            rho = params.get('rho', 0.9)
-            eps = params.get('eps', 0.000001)
-            weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.Adadelta(self.model.parameters(), lr=lr, rho=rho,
-                                             eps=eps, weight_decay=weight_decay)
+        optimizer_dict = self.optimizers_dict.get(optimizer_type, None)
+        if optimizer_dict is None:
+            optimizer_type = 'SGD'
+            optimizer_dict = self.optimizers_dict.get(optimizer_type, None)
 
-        elif optimizer_type == 'ADAGRAD':
-            lr_decay = params.get('lr_decay', 0)
-            weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.Adagrad(self.model.parameters(), lr=lr, lr_decay=lr_decay,
-                                            weight_decay=weight_decay)
+        optimizer_params = optimizer_dict.get('params', None)
+        if optimizer_params is None:
+            optimizer_params = dict()
 
-        elif optimizer_type == 'ADAM':
-            betas = params.get('betas', (0.9, 0.999))
-            eps = params.get('eps', 0.00000001)
-            weight_decay = params.get('weight_decay', 0)
-            amsgrad = params.get('amsgrad', False)
-            optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, betas=betas, eps=eps,
-                                         weight_decay=weight_decay, amsgrad=amsgrad)
+        curr_params = dict()
+        # Iterate through all the parameters possible for the optimizer and select those parameters that are valid
+        for param in optimizer_params:
+            print(param)
+            # Get the corresponding parameter value from the input param list
+            param_value = params.get(param, None)
+            if param == 'params':
+                curr_params[param] = self.model.parameters()
 
-        elif optimizer_type == 'SPARSEADAM':
-            betas = params.get('betas', (0.9, 0.999))
-            eps = params.get('eps', 0.00000001)
-            optimizer = torch.optim.SparseAdam(self.model.parameters(), lr=lr, betas=betas, eps=eps)
+            elif param_value is None and optimizer_params.get(param).get('optional') is False:
+                curr_params = None
+                break
 
-        elif optimizer_type == 'ADAMAX':
-            betas = params.get('betas', (0.9, 0.999))
-            eps = params.get('eps', 0.00000001)
-            weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.Adamax(self.model.parameters(), lr=lr, betas=betas,
-                                           eps=eps, weight_decay=weight_decay)
+            else:
+                if param_value is not None:
+                    curr_params[param] = param_value
 
-        elif optimizer_type == 'ASGD':
-            lambd = params.get('lambd', 0.0001)
-            alpha = params.get('alpha', 0.75)
-            t0 = params.get('t0', 1000000.0)
-            weight_decay = params.get('weight_decay', 0)
-            optimizer = torch.optim.ASGD(self.model.parameters(), lr=lr, lambd=lambd, alpha=alpha,
-                                         t0=t0, weight_decay=weight_decay)
+        path = optimizer_dict.get('path', None)
+        # Dynamically load the module from the path
+        if path is not None:
+            split_idx = path.rfind('.')
+            import_path = path[:split_idx]
+            class_name = path[split_idx + 1:]
+            module = importlib.import_module(import_path)
+            class_ = getattr(module, class_name)
+            optimizer = class_(**curr_params)
 
-        elif optimizer_type == 'LBFGS':
-            max_iter = params.get('max_iter', 20)
-            max_eval = params.get('max_eval', None)
-            tolerance_grad = params.get('tolerance_grad', 0.00001)
-            tolerance_change = params.get('tolerance_change', 0.000000001)
-            history_size = params.get('history_size', 100)
-            line_search_fn = params.get('line_search_fn', None)
-            optimizer = torch.optim.LBFGS(self.model.parameters(), lr=lr, max_iter=max_iter,
-                                          max_eval=max_eval, tolerance_grad=tolerance_grad,
-                                          tolerance_change=tolerance_change, history_size=history_size,
-                                          line_search_fn=line_search_fn)
-
-        elif optimizer_type == 'RMSPROP':
-            alpha = params.get('alpha', 0.75)
-            eps = params.get('eps', 0.00000001)
-            weight_decay = params.get('weight_decay', 0)
-            momentum = params.get('momentum', 0)
-            centered = params.get('centered', False)
-            optimizer = torch.optim.RMSprop(self.model.parameters(), lr=lr, alpha=alpha,
-                                            eps=eps, weight_decay=weight_decay,
-                                            momentum=momentum, centered=centered)
-
-        elif optimizer_type == 'RPROP':
-            etas = tuple(params.get('etas', (0.5, 1.2)))
-            step_sizes = tuple(params.get('step_sizes', (0.000006, 50)))
-            optimizer = torch.optim.Rprop(self.model.parameters(), lr=lr, etas=etas, step_sizes=step_sizes)
-
-        elif optimizer_type == 'SGD':
-            momentum = params.get('momentum', 0.9)
-            dampening = params.get('dampening', 0)
-            weight_decay = params.get('weight_decay', 0)
-            nesterov = params.get('Nesterov', False)
-            optimizer = torch.optim.SGD(self.model.parameters(), lr=lr, momentum=momentum, dampening=dampening,
-                                        weight_decay=weight_decay, nesterov=nesterov)
-
-        else:
-            momentum = params.get('momentum', 0.9)
-            dampening = params.get('dampening', 0)
-            weight_decay = params.get('weight_decay', 0)
-            nesterov = params.get('Nesterov', False)
-            optimizer = torch.optim.SGD(self.model.parameters(), lr=lr, momentum=momentum, dampening=dampening,
-                                        weight_decay=weight_decay, nesterov=nesterov)
-
-        return optimizer
+        return copy.deepcopy(optimizer)
 
     def create_loss(self, name='MSELOSS', params=None):
         """
