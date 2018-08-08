@@ -26,6 +26,7 @@ _bool = "bool"
 _float = "float"
 _list = "list"
 _str = "str"
+_tensor = "Tensor"
 _iterable = "iterable"
 default = "default"
 params = "params"
@@ -3011,14 +3012,644 @@ optimizer_dict[sgd] = deepcopy(sgd_dict)
 completed_optimizers = [adadelta, adagrad, adam, sparseadam, adamax, asgd, lbfgs, rmsprop, rprop, sgd]
 test_dictionary(completed_object_list=completed_optimizers, input_dict=optimizer_dict)
 
+# The following part implements the loss functions based on the pytorch documentation
+# https://pytorch.org/docs/stable/nn.html#loss-functions
+l1loss = "L1LOSS"
+mseloss = "MSELOSS"
+crossentropyloss = "CROSSENTROPYLOSS"
+nllloss = "NLLLOSS"
+poissonnllloss = "POISSONNLLLOSS"
+kldivloss = "KLDIVLOSS"
+bceloss = "BCELOSS"
+bcewithlogitsloss = "BCEWITHLOGITSLOSS"
+marginrankingloss = "MARGINRANKINGLOSS"
+hingeembeddingloss = "HINGEEMBEDDINGLOSS"
+multilabelmarginloss = "MULTILABELMARGINLOSS"
+smoothl1loss = "SMOOTHL1LOSS"
+softmarginloss = "SOFTMARGINLOSS"
+multilabelsoftmarginloss = "MULTILABELSOFTMARGINLOSS"
+cosineembeddingloss = "COSINEEMBEDDINGLOSS"
+multimarginloss = "MULTIMARGINLOSS"
+tripletmarginloss = "TRIPLETMARGINLOSS"
+
+# parameters
+size_average = "size_average"
+reduce = "reduce"
+reduction = "reduction"
+weight = "weight"
+ignore_index = "ignore_index"
+log_input = "log_input"
+full = "full"
+pos_weight = "pos_weight"
+margin = "margin"
+
+loss_dict = dict()
+
+# L1 Loss
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+l1loss_params = dict()
+l1loss_params[size_average] = size_average_dict
+l1loss_params[reduce] = reduce_dict
+l1loss_params[reduction] = reduction_dict
+
+l1loss_dict = dict()
+l1loss_dict[path] = "torch.nn.L1Loss"
+l1loss_dict[params] = deepcopy(l1loss_params)
+
+loss_dict[l1loss] = deepcopy(l1loss_dict)
+
+# MSE Loss
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+mseloss_params = dict()
+mseloss_params[size_average] = size_average_dict
+mseloss_params[reduce] = reduce_dict
+mseloss_params[reduction] = reduction_dict
+
+mseloss_dict = dict()
+mseloss_dict[path] = "torch.nn.MSELoss"
+mseloss_dict[params] = deepcopy(mseloss_params)
+
+loss_dict[mseloss] = deepcopy(mseloss_dict)
+
+# Cross Entropy Loss
+weight_dict = dict()
+weight_dict[_type] = [_tensor]
+weight_dict[optional] = True
+weight_dict[default] = None
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+ignore_index_dict = dict()
+ignore_index_dict[_type] = [_int]
+ignore_index_dict[optional] = True
+ignore_index_dict[default] = -100
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+crossentropyloss_params = dict()
+crossentropyloss_params[weight] = weight_dict
+crossentropyloss_params[size_average] = size_average_dict
+crossentropyloss_params[ignore_index] = ignore_index_dict
+crossentropyloss_params[reduce] = reduce_dict
+crossentropyloss_params[reduction] = reduction_dict
+
+crossentropyloss_dict = dict()
+crossentropyloss_dict[path] = "torch.nn.CrossEntropyLoss"
+crossentropyloss_dict[params] = deepcopy(crossentropyloss_params)
+
+loss_dict[crossentropyloss] = deepcopy(crossentropyloss_dict)
+
+# NLL Loss
+weight_dict = dict()
+weight_dict[_type] = [_tensor]
+weight_dict[optional] = True
+weight_dict[default] = None
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+ignore_index_dict = dict()
+ignore_index_dict[_type] = [_int]
+ignore_index_dict[optional] = True
+ignore_index_dict[default] = -100
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+nllloss_params = dict()
+nllloss_params[weight] = weight_dict
+nllloss_params[size_average] = size_average_dict
+nllloss_params[ignore_index] = ignore_index_dict
+nllloss_params[reduce] = reduce_dict
+nllloss_params[reduction] = reduction_dict
+
+nllloss_dict = dict()
+nllloss_dict[path] = "torch.nn.NLLLoss"
+nllloss_dict[params] = deepcopy(nllloss_params)
+
+loss_dict[nllloss] = deepcopy(nllloss_dict)
+
+# Poisson NLL Loss
+log_input_dict = dict()
+log_input_dict[_type] = [_bool]
+log_input_dict[optional] = True
+log_input_dict[default] = True
+
+full_dict = dict()
+full_dict[_type] = [_bool]
+full_dict[optional] = True
+full_dict[default] = False
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-08
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+poissonnllloss_params = dict()
+poissonnllloss_params[log_input] = log_input_dict
+poissonnllloss_params[full] = full_dict
+poissonnllloss_params[size_average] = size_average_dict
+poissonnllloss_params[eps] = eps_dict
+poissonnllloss_params[reduce] = reduce_dict
+poissonnllloss_params[reduction] = reduction_dict
+
+poissonnllloss_dict = dict()
+poissonnllloss_dict[path] = "torch.nn.PoissonNLLLoss"
+poissonnllloss_dict[params] = deepcopy(poissonnllloss_params)
+
+loss_dict[poissonnllloss] = deepcopy(poissonnllloss_dict)
+
+# Kullback-Leibler Divergence Loss
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+kldivloss_params = dict()
+kldivloss_params[size_average] = size_average_dict
+kldivloss_params[reduce] = reduce_dict
+kldivloss_params[reduction] = reduction_dict
+
+kldivloss_dict = dict()
+kldivloss_dict[path] = "torch.nn.KLDivLoss"
+kldivloss_dict[params] = deepcopy(kldivloss_params)
+
+loss_dict[kldivloss] = deepcopy(kldivloss_dict)
+
+# Binary Cross Entropy Loss
+weight_dict = dict()
+weight_dict[_type] = [_tensor]
+weight_dict[optional] = True
+weight_dict[default] = None
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+bceloss_params = dict()
+bceloss_params[weight] = weight_dict
+bceloss_params[size_average] = size_average_dict
+bceloss_params[reduce] = reduce_dict
+bceloss_params[reduction] = reduction_dict
+
+bceloss_dict = dict()
+bceloss_dict[path] = "torch.nn.BCELoss"
+bceloss_dict[params] = deepcopy(bceloss_params)
+
+loss_dict[bceloss] = deepcopy(bceloss_dict)
+
+# Binary Cross Entropy Loss with Logits
+weight_dict = dict()
+weight_dict[_type] = [_tensor]
+weight_dict[optional] = True
+weight_dict[default] = None
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+pos_weight_dict = dict()
+pos_weight_dict[_type] = [_list]
+pos_weight_dict[optional] = True
+pos_weight_dict[default] = None
+
+
+bcewithlogitsloss_params = dict()
+bcewithlogitsloss_params[weight] = weight_dict
+bcewithlogitsloss_params[size_average] = size_average_dict
+bcewithlogitsloss_params[reduce] = reduce_dict
+bcewithlogitsloss_params[reduction] = reduction_dict
+bcewithlogitsloss_params[pos_weight] = pos_weight_dict
+
+bcewithlogitsloss_dict = dict()
+bcewithlogitsloss_dict[path] = "torch.nn.BCEWithLogitsLoss"
+bcewithlogitsloss_dict[params] = deepcopy(bcewithlogitsloss_params)
+
+loss_dict[bcewithlogitsloss] = deepcopy(bcewithlogitsloss_dict)
+
+# Margin Ranking Loss
+margin_dict = dict()
+margin_dict[_type] = [_float]
+margin_dict[optional] = True
+margin_dict[default] = 0.0
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+marginrankingloss_params = dict()
+marginrankingloss_params[margin] = margin_dict
+marginrankingloss_params[size_average] = size_average_dict
+marginrankingloss_params[reduce] = reduce_dict
+marginrankingloss_params[reduction] = reduction_dict
+
+marginrankingloss_dict = dict()
+marginrankingloss_dict[path] = "torch.nn.MarginRankingLoss"
+marginrankingloss_dict[params] = deepcopy(marginrankingloss_params)
+
+loss_dict[marginrankingloss] = deepcopy(marginrankingloss_dict)
+
+# Hinge Embedding Loss
+margin_dict = dict()
+margin_dict[_type] = [_float]
+margin_dict[optional] = True
+margin_dict[default] = 1.0
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+hingeembeddingloss_params = dict()
+hingeembeddingloss_params[margin] = margin_dict
+hingeembeddingloss_params[size_average] = size_average_dict
+hingeembeddingloss_params[reduce] = reduce_dict
+hingeembeddingloss_params[reduction] = reduction_dict
+
+hingeembeddingloss_dict = dict()
+hingeembeddingloss_dict[path] = "torch.nn.HingeEmbeddingLoss"
+hingeembeddingloss_dict[params] = deepcopy(hingeembeddingloss_params)
+
+loss_dict[hingeembeddingloss] = deepcopy(hingeembeddingloss_dict)
+
+# Multilabel Margin Loss
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+multilabelmarginloss_params = dict()
+multilabelmarginloss_params[size_average] = size_average_dict
+multilabelmarginloss_params[reduce] = reduce_dict
+multilabelmarginloss_params[reduction] = reduction_dict
+
+multilabelmarginloss_dict = dict()
+multilabelmarginloss_dict[path] = "torch.nn.MultiLabelMarginLoss"
+multilabelmarginloss_dict[params] = deepcopy(multilabelmarginloss_params)
+
+loss_dict[multilabelmarginloss] = deepcopy(multilabelmarginloss_dict)
+
+# Smooth L1 Loss
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+smoothl1loss_params = dict()
+smoothl1loss_params[size_average] = size_average_dict
+smoothl1loss_params[reduce] = reduce_dict
+smoothl1loss_params[reduction] = reduction_dict
+
+smooothl1loss_dict = dict()
+smooothl1loss_dict[path] = "torch.nn.SmoothL1Loss"
+smooothl1loss_dict[params] = deepcopy(smoothl1loss_params)
+
+loss_dict[smoothl1loss] = deepcopy(smooothl1loss_dict)
+
+# Soft Margin Loss
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+softmarginloss_params = dict()
+softmarginloss_params[size_average] = size_average_dict
+softmarginloss_params[reduce] = reduce_dict
+softmarginloss_params[reduction] = reduction_dict
+
+softmarginloss_dict = dict()
+softmarginloss_dict[path] = "torch.nn.SoftMarginLoss"
+softmarginloss_dict[params] = deepcopy(softmarginloss_params)
+
+loss_dict[softmarginloss] = deepcopy(softmarginloss_dict)
+
+# Multilable Soft Margin Loss
+weight_dict = dict()
+weight_dict[_type] = [_tensor]
+weight_dict[optional] = True
+weight_dict[default] = None
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+multilabelsoftmarginloss_params = dict()
+multilabelsoftmarginloss_params[weight] = weight_dict
+multilabelsoftmarginloss_params[size_average] = size_average_dict
+multilabelsoftmarginloss_params[reduce] = reduce_dict
+multilabelsoftmarginloss_params[reduction] = reduction_dict
+
+multilabelsoftmarginloss_dict = dict()
+multilabelsoftmarginloss_dict[path] = "torch.nn.MultiLabelSoftMarginLoss"
+multilabelsoftmarginloss_dict[params] = deepcopy(multilabelsoftmarginloss_params)
+
+loss_dict[multilabelsoftmarginloss] = deepcopy(multilabelsoftmarginloss_dict)
+
+# Cosine Embedding Loss
+margin_dict = dict()
+margin_dict[_type] = [_float]
+margin_dict[optional] = True
+margin_dict[default] = 1.0
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+cosineembeddingloss_params = dict()
+cosineembeddingloss_params[margin] = weight_dict
+cosineembeddingloss_params[size_average] = size_average_dict
+cosineembeddingloss_params[reduce] = reduce_dict
+cosineembeddingloss_params[reduction] = reduction_dict
+
+cosineembeddingloss_params_dict = dict()
+cosineembeddingloss_params_dict[path] = "torch.nn.CosineEmbeddingLoss"
+cosineembeddingloss_params_dict[params] = deepcopy(cosineembeddingloss_params)
+
+loss_dict[cosineembeddingloss] = deepcopy(cosineembeddingloss_params_dict)
+
+# Multi Margin Loss
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 1
+
+margin_dict = dict()
+margin_dict[_type] = [_float]
+margin_dict[optional] = True
+margin_dict[default] = 1.0
+
+weight_dict = dict()
+weight_dict[_type] = [_tensor]
+weight_dict[optional] = True
+weight_dict[default] = None
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+multimarginloss_params = dict()
+multimarginloss_params[p] = p_dict
+multimarginloss_params[weight] = weight_dict
+multimarginloss_params[margin] = weight_dict
+multimarginloss_params[size_average] = size_average_dict
+multimarginloss_params[reduce] = reduce_dict
+multimarginloss_params[reduction] = reduction_dict
+
+multimarginloss_dict = dict()
+multimarginloss_dict[path] = "torch.nn.MultiMarginLoss"
+multimarginloss_dict[params] = deepcopy(multimarginloss_params)
+
+loss_dict[multimarginloss] = deepcopy(multimarginloss_dict)
+
+# Triplet Margin Loss
+margin_dict = dict()
+margin_dict[_type] = [_float]
+margin_dict[optional] = True
+margin_dict[default] = 1.0
+
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 1
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-08
+
+swap_dict = dict()
+swap_dict[_type] = [_bool]
+swap_dict[optional] = True
+swap_dict[default] = False
+
+size_average_dict = dict()
+size_average_dict[_type] = [_bool]
+size_average_dict[optional] = True
+size_average_dict[default] = True
+
+reduce_dict = dict()
+reduce_dict[_type] = [_bool]
+reduce_dict[optional] = True
+reduce_dict[default] = True
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "elementwise_mean"
+
+tripletmarginloss_params = dict()
+tripletmarginloss_params[p] = p_dict
+tripletmarginloss_params[weight] = weight_dict
+tripletmarginloss_params[margin] = weight_dict
+tripletmarginloss_params[size_average] = size_average_dict
+tripletmarginloss_params[reduce] = reduce_dict
+tripletmarginloss_params[reduction] = reduction_dict
+
+tripletmarginloss_dict = dict()
+tripletmarginloss_dict[path] = "torch.nn.TripletMarginLoss"
+tripletmarginloss_dict[params] = deepcopy(tripletmarginloss_params)
+
+loss_dict[tripletmarginloss] = deepcopy(tripletmarginloss_dict)
+
+completed_loss_functions = [
+                            l1loss, mseloss, crossentropyloss, nllloss, poissonnllloss, kldivloss, bceloss,
+                            bcewithlogitsloss, marginrankingloss, hingeembeddingloss, multilabelmarginloss,
+                            smoothl1loss, softmarginloss, multilabelsoftmarginloss, cosineembeddingloss,
+                            multimarginloss, tripletmarginloss
+                           ]
+
+test_dictionary(completed_loss_functions, loss_dict)
+
 # Print the current working directory and write the dictionary to JSON file
 layers = "layers"
 transforms = "transforms"
 optimizers = "optimizers"
+loss_functions = "loss_functions"
+
 framework_dict = dict()
 framework_dict[layers] = layers_dict
 framework_dict[transforms] = transforms_dict
 framework_dict[optimizers] = optimizer_dict
+framework_dict[loss_functions] = loss_dict
 
 cwd = os.getcwd()
 print(cwd)
