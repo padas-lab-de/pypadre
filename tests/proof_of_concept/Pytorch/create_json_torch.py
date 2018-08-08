@@ -1,13 +1,13 @@
 
 # This code has been created with the pytorch documentation from "https://pytorch.org/docs/stable/nn.html"
 # Random samples parameter not included in FractionalMaxPool2D as the documentation does not specify the type
-# All the layers, types used for parameters and parameter names are defined below.
-# This is to ensure that errors, if any are easy to be found and rectified.
+# All the layer names, types used for parameters and parameter names are defined below so that
+# recurring magic strings do not appear. This is to ensure that errors, if any are easy to be found and rectified.
 # Each layer is defined with a name which identifies the layer.
 # It is given in all upper case to ensure that even if the user changes the case, the code would work
 # Each layer is defined as a dictionary with the key as the layer name.
-# The dictionary contains the implementation path of the layer for dynamic loading,
-# and a dictionary of the parameters of that layers
+# The dictionary contains the implementation path of the layer for dynamic loading of the module,
+# and a dictionary of the parameters of that layer
 # The parameter dictionary contains the name of the parameter, with the possible types in a list,
 # whether the parameter is optional or not, and if it is optional the default value of the parameter
 # The final dictionary to be dumped to JSON
