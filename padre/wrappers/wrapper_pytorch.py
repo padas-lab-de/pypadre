@@ -47,6 +47,7 @@ class WrapperPytorch:
     model = None
 
     layers_dict = None
+    transforms_dict = None
 
     top_shape = 0
 
@@ -71,7 +72,9 @@ class WrapperPytorch:
             return
 
         with open('mappings_torch.json') as f:
-            self.layers_dict = json.load(f)
+            framework_dict = json.load(f)
+        self.layers_dict = framework_dict['layers']
+        self.transforms_dict = framework_dict['transforms']
 
         self.params = copy.deepcopy(params)
         self.steps = params.get('steps', 1000)
@@ -117,14 +120,13 @@ class WrapperPytorch:
 
         training_samples_count = y.shape[0]
 
-
         # The output is always a 2 Dimensional matrix and y is reshaped for the shapes to be compatible
         if y.ndim == 1:
             if self.top_shape == 1:
                 y = np.reshape(y, newshape=(y.shape[0], 1))
 
             else:
-                # Do one hot encoding
+                # Do one hot encoding if it is a classification problem
                 from numpy import array
                 from numpy import argmax
                 from sklearn.preprocessing import LabelEncoder
@@ -154,6 +156,7 @@ class WrapperPytorch:
         # Run the model for the steps specified in the parameters
         step = 0
 
+        # Load the model if resume is true and the file exists
         if self.resume is True and os.path.isfile(self.pre_trained_model_path):
             state = torch.load(self.pre_trained_model_path)
             self.optimizer.load_state_dict(state['optimizer'])
@@ -167,6 +170,7 @@ class WrapperPytorch:
 
             indices = permutation[start_idx: start_idx + batch_size]
 
+            # Randomize the order after every epoch
             if start_idx + batch_size > training_samples_count:
                 indices = permutation[start_idx:training_samples_count]
                 randomize = True
