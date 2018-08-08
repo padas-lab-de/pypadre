@@ -16,8 +16,6 @@ from copy import deepcopy
 import json
 import os
 
-layers_dict = dict()
-
 # The different strings present in the dictionaries are declared below
 optional = "optional"
 _type = "type"
@@ -28,6 +26,7 @@ _bool = "bool"
 _float = "float"
 _list = "list"
 _str = "str"
+_iterable = "iterable"
 default = "default"
 params = "params"
 
@@ -163,6 +162,70 @@ in1_features = "in1_features"
 in2_features = "in2_features"
 p = "p"
 
+# This part is for the testing of the entered layers
+# Tests are
+# 1. All layers should have unique paths
+# 2. Default parameters should have a value associated with it
+# 3. Compulsory parameters should not have a value along with it
+# 4. The types possible should be a list
+# 5. Verify that all defined layers are present within the layers_dict
+# 6. Verify that all the layers in layers_dict is present within the completed layers list
+
+# Create a list with all the layer names in it
+
+
+def test_dictionary(completed_object_list, input_dict):
+    layer_paths = []
+    for layer_name in completed_object_list:
+
+        if input_dict.get(layer_name, None) is None:
+            print('Missing entry for ' + layer_name)
+            continue
+
+        curr_layer_path = input_dict.get(layer_name, None).get(path)
+
+        if curr_layer_path in layer_paths:
+            print('Path duplicate found for path:' + curr_layer_path)
+
+        else:
+            layer_paths.append(curr_layer_path)
+
+        layer_params_dict = input_dict.get(layer_name).get(params, None)
+
+        if layer_params_dict is None:
+            continue
+
+        for param_name in layer_params_dict:
+            param_dict = layer_params_dict.get(param_name, None)
+            if param_dict is None:
+                continue
+
+            if type(param_dict) is str:
+                print(param_dict)
+
+            default_value = param_dict.get(default, 'DEFAULTPARAMETERNOTFOUND')
+
+            if param_dict.get(optional) is True and default_value == 'DEFAULTPARAMETERNOTFOUND':
+                print("Default parameter missing for parameter " + param_name + " in layer " + layer_name)
+
+            elif param_dict.get(optional) is False and param_dict.get(default, None) is not None:
+                print("Default parameter given for compulsory parameter " + param_name + " in layer " + layer_name)
+
+            possible_types = param_dict.get(_type, None)
+
+            if possible_types is None:
+                print('Types not specified for parameter ' + param_name + ' for layer ' + layer_name)
+
+            if type(possible_types) is not list:
+                print('Types wrongly specified for parameter ' + param_name + ' for layer ' + layer_name)
+
+    set_diff = (set(input_dict.keys()).difference(set(completed_object_list)))
+    if len(set_diff) > 0:
+        print("Following keys are present in the dictionary but not in completed list")
+        print(set_diff)
+
+
+layers_dict = dict()
 
 # Convolution 1D Layer Definition
 in_channels_dict = dict()
@@ -2064,18 +2127,6 @@ alphadropout_dict[params] = deepcopy(alphadropout_params)
 
 layers_dict[alphadropout] = deepcopy(alphadropout_dict)
 
-print(layers_dict)
-
-# This part is for the testing of the entered layers
-# Tests are
-# 1. All layers should have unique paths
-# 2. Default parameters should have a value associated with it
-# 3. Compulsory parameters should not have a value along with it
-# 4. The types possible should be a list
-# 5. Verify that all defined layers are present within the layers_dict
-# 6. Verify that all the layers in layers_dict is present within the completed layers list
-
-# Create a list with all the layer names in it
 completed_layers = [
                     conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
                     maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d,
@@ -2089,56 +2140,7 @@ completed_layers = [
                     dropout, dropout2d, dropout3d, alphadropout
                     ]
 
-layer_paths = []
-for layer_name in completed_layers:
-
-    if layers_dict.get(layer_name, None) is None:
-        print('Missing entry for ' + layer_name)
-        continue
-
-    curr_layer_path = layers_dict.get(layer_name, None).get(path)
-
-    if curr_layer_path in layer_paths:
-        print('Path duplicate found for path:' + curr_layer_path)
-
-    else:
-        layer_paths.append(curr_layer_path)
-
-    layer_params_dict = layers_dict.get(layer_name).get(params, None)
-
-    if layer_params_dict is None:
-        continue
-
-    for param_name in layer_params_dict:
-        param_dict = layer_params_dict.get(param_name, None)
-        if param_dict is None:
-            continue
-
-        if type(param_dict) is str:
-            print(param_dict)
-
-        default_value = param_dict.get(default, 'DEFAULTPARAMETERNOTFOUND')
-
-        if param_dict.get(optional) is True and default_value == 'DEFAULTPARAMETERNOTFOUND':
-            print("Default parameter missing for parameter " + param_name + " in layer " + layer_name)
-
-        elif param_dict.get(optional) is False and param_dict.get(default, None) is not None:
-            print("Default parameter given for compulsory parameter " + param_name + " in layer " + layer_name)
-
-        possible_types = param_dict.get(_type, None)
-
-        if possible_types is None:
-            print('Types not specified for parameter ' + param_name + ' for layer ' + layer_name)
-
-        if type(possible_types) is not list:
-            print('Types wrongly specified for parameter ' + param_name + ' for layer ' + layer_name)
-
-set_diff = (set(layers_dict.keys()).difference(set(completed_layers)))
-if len(set_diff) > 0:
-    print("Following layers are present in the dictionary but not in completed layers")
-    print(set_diff)
-
-
+test_dictionary(completed_object_list=completed_layers, input_dict=layers_dict)
 # This part deals with the different types of transformations possible for torch framework
 # The parameters are based on the documentation available at the link below
 # https://pytorch.org/docs/stable/torchvision/transforms.html
@@ -2165,6 +2167,8 @@ randomverticalflip = "RANDOMVERTICALFLIP"
 resize = "RESIZE"
 tencrop = "TENCROP"
 normalize = "NORMALIZE"
+topilimage = "TOPILIMAGE"
+totensor = "TOTENSOR"
 
 
 # Parameters
@@ -2246,7 +2250,7 @@ fivecrop_params[size] = deepcopy(size_dict)
 
 fivecrop_dict = dict()
 fivecrop_dict[path] = "torchvision.transforms.FiveCrop"
-fivecrop_dict[params] = deepcopy(fivecrop_dict)
+fivecrop_dict[params] = deepcopy(fivecrop_params)
 
 transforms_dict[fivecrop] = deepcopy(fivecrop_dict)
 
@@ -2485,6 +2489,8 @@ randomrotation_dict = dict()
 randomrotation_dict[path] = "torchvision.transforms.RandomRotation"
 randomrotation_dict[params] = deepcopy(randomrotation_params)
 
+transforms_dict[randomrotation] = randomrotation_dict
+
 # Random Vertical Flip
 p_dict = dict()
 p_dict[_type] = [_int]
@@ -2540,15 +2546,482 @@ tencrop_dict[params] = tencrop_params
 
 transforms_dict[tencrop] = tencrop_dict
 
+# Testing part for the transforms layers
+# Create a list with all the layer names in it
+completed_transform = [
+                        centercrop, colorjitter, fivecrop, grayscale, lineartransformation, pad, randomaffine,
+                        randomapply, randomchoise, randomcrop, randomgrayscale, randomhorizontalflip,
+                        randomorder, randomresizedcrop, randomrotation, randomsizedcrop, randomverticalflip, resize,
+                        tencrop, normalize, topilimage, totensor
+                      ]
+
+test_dictionary(completed_object_list=completed_transform, input_dict=transforms_dict)
+
+# This part contains the optimizers
+# The parameters and functions are defined based on the documentation
+# https://pytorch.org/docs/stable/optim.html#algorithms
+adadelta = "ADADELTA"
+adagrad = "ADAGRAD"
+adam = "ADAM"
+sparseadam = "SPARSEADAM"
+adamax = "ADAMAX"
+asgd = "ASGD"
+lbfgs = "LBFGS"
+rmsprop = "RMSPROP"
+rprop = "RPROP"
+sgd = "SGD"
+
+#parameters
+lr = "lr"
+rho = "rho"
+weight_decay = "weight_decay"
+lr_decay = "lr_decay"
+initial_accumulator_value = "initial_accumulator_value"
+betas = "betas"
+amsgrad = "amsgrad"
+t0 = "t0"
+max_iter = "max_iter"
+max_eval = "max_eval"
+tolerance_grad = "tolerance_grad"
+tolerance_change = "tolerance_change"
+history_size = "history_size"
+centered = "centered"
+etas = "etas"
+step_sizes = "step_sizes"
+dampening = "dampening"
+nesterov = "nesterov"
+
+optimizer_dict = dict()
+
+# Adadelta
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 1.0
+
+rho_dict = dict()
+rho_dict[_type] = [_float]
+rho_dict[optional] = True
+rho_dict[default] = 0.9
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-06
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+adadelta_params = dict()
+adadelta_params[params] = params_dict
+adadelta_params[lr] = lr_dict
+adadelta_params[rho] = rho_dict
+adadelta_params[eps] = eps_dict
+adadelta_params[weight_decay] = weight_decay_dict
+
+adadelta_dict = dict()
+adadelta_dict[path] = "torch.optim.Adadelta"
+adadelta_dict[params] = deepcopy(adadelta_params)
+
+optimizer_dict[adadelta] = deepcopy(adadelta_dict)
+
+# Adagrad
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.01
+
+lr_decay_dict = dict()
+lr_decay_dict[_type] = [_float]
+lr_decay_dict[optional] = True
+lr_decay_dict[default] = 0
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+initial_accumulator_value_dict = dict()
+initial_accumulator_value_dict[_type] = [_int]
+initial_accumulator_value_dict[optional] = True
+initial_accumulator_value_dict[default] = 0
+
+adagrad_params = dict()
+adagrad_params[params] = params_dict
+adagrad_params[lr] = lr_dict
+adagrad_params[lr_decay] = lr_decay_dict
+adagrad_params[weight_decay] = weight_decay_dict
+adagrad_params[initial_accumulator_value] = initial_accumulator_value_dict
+
+adagrad_dict = dict()
+adagrad_dict[path] = "torch.optim.Adagrad"
+adagrad_dict[params] = deepcopy(adagrad_params)
+
+optimizer_dict[adagrad] = deepcopy(adagrad_dict)
+
+# Adam
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.001
+
+betas_dict = dict()
+betas_dict[_type] = [_tuple]
+betas_dict[optional] = True
+betas_dict[default] = [0.9, 0.999]
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-08
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+amsgrad_dict = dict()
+amsgrad_dict[_type] = [_bool]
+amsgrad_dict[optional] = True
+amsgrad_dict[default] = False
+
+adam_params = dict()
+adam_params[params] = params_dict
+adam_params[lr] = lr_dict
+adam_params[betas] = betas_dict
+adam_params[eps] = eps_dict
+adam_params[weight_decay] = weight_decay_dict
+adam_params[amsgrad] = amsgrad_dict
+
+adam_dict = dict()
+adam_dict[path] = "torch.optim.Adam"
+adam_dict[params] = deepcopy(adam_params)
+
+optimizer_dict[adam] = deepcopy(adam_dict)
+
+# SparseAdam
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.001
+
+betas_dict = dict()
+betas_dict[_type] = [_tuple]
+betas_dict[optional] = True
+betas_dict[default] = [0.9, 0.999]
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-08
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+sparseadam_params = dict()
+sparseadam_params[params] = params_dict
+sparseadam_params[lr] = lr_dict
+sparseadam_params[betas] = betas_dict
+sparseadam_params[eps] = eps_dict
+
+sparseadam_dict = dict()
+sparseadam_dict[path] = "torch.optim.SparseAdam"
+sparseadam_dict[params] = deepcopy(sparseadam_params)
+
+optimizer_dict[sparseadam] = deepcopy(sparseadam_dict)
+
+# Adamax
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.002
+
+betas_dict = dict()
+betas_dict[_type] = [_tuple]
+betas_dict[optional] = True
+betas_dict[default] = [0.9, 0.999]
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-08
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+sparseadam_params = dict()
+sparseadam_params[params] = params_dict
+sparseadam_params[lr] = lr_dict
+sparseadam_params[betas] = betas_dict
+sparseadam_params[eps] = eps_dict
+
+sparseadam_dict = dict()
+sparseadam_dict[path] = "torch.optim.Adamax"
+sparseadam_dict[params] = deepcopy(sparseadam_params)
+
+optimizer_dict[adamax] = deepcopy(sparseadam_dict)
+
+# ASGD
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.01
+
+lambd_dict = dict()
+lambd_dict[_type] = [_float]
+lambd_dict[optional] = True
+lambd_dict[default] = 0.0001
+
+alpha_dict = dict()
+alpha_dict[_type] = [_float]
+alpha_dict[optional] = True
+alpha_dict[default] = 0.75
+
+t0_dict = dict()
+t0_dict[_type] = [_float]
+t0_dict[optional] = True
+t0_dict[default] = 1000000.0
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+asgd_params = dict()
+asgd_params[params] = params_dict
+asgd_params[lr] = lr_dict
+asgd_params[lambd] = lambd_dict
+asgd_params[alpha] = alpha_dict
+asgd_params[t0] = t0_dict
+asgd_params[weight_decay] = weight_decay_dict
+
+asgd_dict = dict()
+asgd_dict[path] = "torch.optim.ASGD"
+asgd_dict[params] = asgd_params
+
+optimizer_dict[asgd] = asgd_dict
+
+# LBFGS
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 1.0
+
+max_iter_dict = dict()
+max_iter_dict[_type] = [_int]
+max_iter_dict[optional] = True
+max_iter_dict[default] = 20
+
+max_eval_dict = dict()
+max_eval_dict[_type] = [_int]
+max_eval_dict[optional] = True
+max_eval_dict[default] = None
+
+tolerance_grad_dict = dict()
+tolerance_grad_dict[_type] = [_float]
+tolerance_grad_dict[optional] = True
+tolerance_grad_dict[default] = 1e-05
+
+tolerance_change_dict = dict()
+tolerance_change_dict[_type] = [_float]
+tolerance_change_dict[optional] = True
+tolerance_change_dict[default] = 1e-09
+
+
+history_size_dict = dict()
+history_size_dict[_type] = [_int]
+history_size_dict[optional] = True
+history_size_dict[default] = 100
+
+lbfgs_params = dict()
+lbfgs_params[params] = params_dict
+lbfgs_params[lr] = lr_dict
+lbfgs_params[max_iter] = max_iter_dict
+lbfgs_params[max_eval] = max_eval_dict
+lbfgs_params[tolerance_grad] = tolerance_grad_dict
+lbfgs_params[tolerance_change] = tolerance_change_dict
+lbfgs_params[history_size] = history_size_dict
+
+lbfgs_dict = dict()
+lbfgs_dict[path] = "torch.optim.LBFGS"
+lbfgs_dict[params] = lbfgs_params
+
+optimizer_dict[lbfgs] = lbfgs_dict
+
+# RMSProp
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.01
+
+alpha_dict = dict()
+alpha_dict[_type] = [_float]
+alpha_dict[optional] = True
+alpha_dict[default] = 0.99
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-08
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.0
+
+centered_dict = dict()
+centered_dict[_type] = [_bool]
+centered_dict[optional] = True
+centered_dict[default] = False
+
+rmsprop_params = dict()
+rmsprop_params[params] = params_dict
+rmsprop_params[lr] = lr_dict
+rmsprop_params[alpha] = alpha_dict
+rmsprop_params[eps] = eps_dict
+rmsprop_params[weight_decay] = weight_decay_dict
+rmsprop_params[momentum] = momentum_dict
+rmsprop_params[centered] = centered_dict
+
+rmsprop_dict = dict()
+rmsprop_dict[path] = "torch.optim.RMSprop"
+rmsprop_dict[params] = deepcopy(rmsprop_params)
+
+optimizer_dict[rmsprop] = deepcopy(rmsprop_dict)
+
+# RPROP
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.01
+
+etas_dict = dict()
+etas_dict[_type] = [_tuple]
+etas_dict[optional] = True
+etas_dict[default] = [0.5, 1.2]
+
+step_sizes_dict = dict()
+step_sizes_dict[_type] = [_tuple]
+step_sizes_dict[optional] = True
+step_sizes_dict[default] = [1e06, 50]
+
+rprop_params = dict()
+rprop_params[params] = params_dict
+rprop_params[lr] = lr_dict
+rprop_params[etas] = etas_dict
+rprop_params[step_sizes] = step_sizes_dict
+
+rprop_dict = dict()
+rprop_dict[path] = "torch.optim.Rprop"
+rprop_dict[params] = deepcopy(rprop_params)
+
+optimizer_dict[rprop] = deepcopy(rprop_dict)
+
+# SGD
+params_dict = dict()
+params_dict[_type] = [_iterable]
+params_dict[optional] = False
+
+lr_dict = dict()
+lr_dict[_type] = [_float]
+lr_dict[optional] = True
+lr_dict[default] = 0.01
+
+momentum_dict = dict()
+momentum_dict[_type] = [_float]
+momentum_dict[optional] = True
+momentum_dict[default] = 0.0
+
+dampening_dict = dict()
+dampening_dict[_type] = [_float]
+dampening_dict[optional] = True
+dampening_dict[default] = 0.0
+
+weight_decay_dict = dict()
+weight_decay_dict[_type] = [_float]
+weight_decay_dict[optional] = True
+weight_decay_dict[default] = 0
+
+nesterov_dict = dict()
+nesterov_dict[_type] = [_bool]
+nesterov_dict[optional] = True
+nesterov_dict[default] = False
+
+sgd_params = dict()
+sgd_params[params] = params_dict
+sgd_params[lr] = lr_dict
+sgd_params[momentum] = momentum_dict
+sgd_params[dampening] = dampening_dict
+sgd_params[weight_decay] = weight_decay_dict
+sgd_params[nesterov] = nesterov_dict
+
+sgd_dict = dict()
+sgd_dict[path] = "torch.optim.SGD"
+sgd_dict[params] = deepcopy(sgd_params)
+
+optimizer_dict[sgd] = deepcopy(sgd_dict)
+
+completed_optimizers = [adadelta, adagrad, adam, sparseadam, adamax, asgd, lbfgs, rmsprop, rprop, sgd]
+test_dictionary(completed_object_list=completed_optimizers, input_dict=optimizer_dict)
 
 # Print the current working directory and write the dictionary to JSON file
 layers = "layers"
 transforms = "transforms"
-
+optimizers = "optimizers"
 framework_dict = dict()
 framework_dict[layers] = layers_dict
 framework_dict[transforms] = transforms_dict
+framework_dict[optimizers] = optimizer_dict
+
 cwd = os.getcwd()
 print(cwd)
 with open('mappings_torch.json', 'w') as fp:
     json.dump(framework_dict, fp)
+

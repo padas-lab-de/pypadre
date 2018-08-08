@@ -1936,7 +1936,13 @@
         "FIVECROP": {
             "path": "torchvision.transforms.FiveCrop",
             "params": {
-                "path": "torchvision.transforms.FiveCrop"
+                "size": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                }
             }
         },
         "GRAYSCALE": {
@@ -2144,6 +2150,33 @@
                 }
             }
         },
+        "RANDOMROTATION": {
+            "path": "torchvision.transforms.RandomRotation",
+            "params": {
+                "degrees": {
+                    "type": [
+                        "list",
+                        "float",
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "expand": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "center": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
         "RANDOMVERTICALFLIP": {
             "p": {
                 "type": [
@@ -2183,6 +2216,441 @@
                     "optional": false
                 },
                 "vertical_flip": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        }
+    },
+    "optimizers": {
+        "ADADELTA": {
+            "path": "torch.optim.Adadelta",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "rho": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.9
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.000001
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "ADAGRAD": {
+            "path": "torch.optim.Adagrad",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "lr_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "initial_accumulator_value": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "ADAM": {
+            "path": "torch.optim.Adam",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.001
+                },
+                "betas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.9,
+                        0.999
+                    ]
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "amsgrad": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "SPARSEADAM": {
+            "path": "torch.optim.SparseAdam",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.001
+                },
+                "betas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.9,
+                        0.999
+                    ]
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                }
+            }
+        },
+        "ADAMAX": {
+            "path": "torch.optim.Adamax",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.002
+                },
+                "betas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.9,
+                        0.999
+                    ]
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                }
+            }
+        },
+        "ASGD": {
+            "path": "torch.optim.ASGD",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "lambd": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.0001
+                },
+                "alpha": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.75
+                },
+                "t0": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1000000
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "LBFGS": {
+            "path": "torch.optim.LBFGS",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "max_iter": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 20
+                },
+                "max_eval": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "tolerance_grad": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "tolerance_change": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-9
+                },
+                "history_size": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 100
+                }
+            }
+        },
+        "RMSPROP": {
+            "path": "torch.optim.RMSprop",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "alpha": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.99
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "centered": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "RPROP": {
+            "path": "torch.optim.Rprop",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "etas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.5,
+                        1.2
+                    ]
+                },
+                "step_sizes": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        1000000,
+                        50
+                    ]
+                }
+            }
+        },
+        "SGD": {
+            "path": "torch.optim.SGD",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dampening": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "nesterov": {
                     "type": [
                         "bool"
                     ],
