@@ -49,6 +49,7 @@ class WrapperPytorch:
     layers_dict = None
     transforms_dict = None
     optimizers_dict = None
+    loss_dict = None
 
     top_shape = 0
 
@@ -77,6 +78,11 @@ class WrapperPytorch:
         self.layers_dict = framework_dict.get('layers', None)
         self.transforms_dict = framework_dict.get('transforms', None)
         self.optimizers_dict = framework_dict.get('optimizers', None)
+        self.loss_dict = framework_dict.get('loss_functions', None)
+
+        if self.layers_dict is None or self.transforms_dict is None or \
+                self.optimizers_dict is None or self.loss_dict is None:
+            return
 
         self.params = copy.deepcopy(params)
         self.steps = params.get('steps', 1000)
@@ -303,7 +309,6 @@ class WrapperPytorch:
         curr_params = dict()
         # Iterate through all the parameters possible for the optimizer and select those parameters that are valid
         for param in optimizer_params:
-            print(param)
             # Get the corresponding parameter value from the input param list
             param_value = params.get(param, None)
             if param == 'params':
@@ -333,7 +338,7 @@ class WrapperPytorch:
         """
         The function returns an object of the required loss function
 
-        :param name: Name of the loss funNonection
+        :param name: Name of the loss function
         :param params: The parameters of the loss function
 
         :return: Object of the loss function
@@ -346,116 +351,38 @@ class WrapperPytorch:
 
         name = str(name).upper()
 
-        if name == 'L1LOSS':
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.L1Loss(size_average=size_average, reduce=reduce)
+        loss_function_details = self.loss_dict.get(name, None)
 
-        elif name == 'MSELOSS':
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.MSELoss(size_average=size_average, reduce=reduce)
+        if loss_function_details is not None:
+            path = loss_function_details.get('path', None)
 
-        elif name == 'CROSSENTROPYLOSS':
-            weight = params.get('weight', None)
-            size_average = params.get('size_average', True)
-            ignore_index = params.get('ignore_index', -100)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.CrossEntropyLoss(weight=weight, size_average=size_average,
-                                             ignore_index=ignore_index, reduce=reduce)
+            if path is not None:
 
-        elif name == 'NLLLoss':
-            weight = params.get('weight', None)
-            size_average = params.get('size_average', True)
-            ignore_index = params.get('ignore_index', -100)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.NLLLoss(weight=weight, size_average=size_average, ignore_index=ignore_index, reduce=reduce)
+                curr_params = dict()
 
-        elif name == 'POISSONNLLLoss':
-            log_input = params.get('log_input', True)
-            full = params.get('full', False)
-            size_average = params.get('size_average', True)
-            eps = params.get('eps', 0.00000001)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.PoissonNLLLoss(log_input=log_input, full=full, size_average=size_average,
-                                           eps=eps, reduce=reduce)
+                loss_params= loss_function_details.get('params', None)
+                if loss_params is None:
+                    loss_params = dict()
 
-        elif name == 'KLDIVLOSS':
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.KLDivLoss(size_average=size_average, reduce=reduce)
+                for param in loss_params:
+                    # Get the corresponding parameter value from the input param list
 
-        elif name == 'BCELOSS':
-            weight = params.get('weight', None)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.BCELoss(weight=weight, size_average=size_average, reduce=reduce)
+                    param_value = params.get(param, None)
 
-        elif name == 'BCEWITHLOGITSLOSS':
-            weight = params.get('weight', None)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.BCEWithLogitsLoss(weight=weight, size_average=size_average, reduce=reduce)
+                    if param_value is None and loss_params.get(param).get('optional') is False:
+                        curr_params = None
+                        break
 
-        elif name == 'MARGINRANKINGLOSS':
-            margin = params.get('margin', 0)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.MarginRankingLoss(margin=margin, size_average=size_average, reduce=reduce)
+                    else:
+                        if param_value is not None:
+                            curr_params[param] = param_value
 
-        elif name == 'HINGEEMBEDDINGLOSS':
-            margin = params.get('margin', 1.0)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.HingeEmbeddingLoss(margin=margin, size_average=size_average, reduce=reduce)
-
-        elif name == 'MULTILABELMARGINLOSS':
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.MultiLabelMarginLoss(size_average=size_average, reduce=reduce)
-
-        elif name == 'SMOOTHL1LOSS':
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.SmoothL1Loss(size_average=size_average, reduce=reduce)
-
-        elif name == 'SOFTMARGINLOSS':
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.SoftMarginLoss(size_average=size_average, reduce=reduce)
-
-        elif name == 'MULTILABELSOFTMARGINLOSS':
-            weight = params.get('weight', None)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.MultiLabelSoftMarginLoss(weight=weight, size_average=size_average, reduce=reduce)
-
-        elif name == 'COSINEEMBEDDINGLOSS':
-            margin = params.get('margin', 1.0)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.CosineEmbeddingLoss(margin=margin, size_average=size_average, reduce=reduce)
-
-        elif name == 'MULTIMARGINLOSS':
-            p = params.get('p', 1)
-            margin = params.get('margin', 1.0)
-            weight = params.get('weight', None)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.MultiMarginLoss(p=p, margin=margin, weight=weight, size_average=size_average, reduce=reduce)
-
-        elif name == 'TRIPLETMARGINLOSS':
-            margin = params.get('margin', 1.0)
-            p = params.get('p', 2)
-            eps = params.get('eps', 0.000001)
-            swap = params.get('swap', False)
-            size_average = params.get('size_average', True)
-            reduce = params.get('reduce', True)
-            loss = torch.nn.TripletMarginLoss(margin=margin, p=p, eps=eps, swap=swap,
-                                              size_average=size_average, reduce=reduce)
-
-        else:
-            loss = torch.nn.MSELoss(size_average=False)
+                split_idx = path.rfind('.')
+                import_path = path[:split_idx]
+                class_name = path[split_idx + 1:]
+                module = importlib.import_module(import_path)
+                class_ = getattr(module, class_name)
+                loss = class_(**curr_params)
 
         return loss
 
