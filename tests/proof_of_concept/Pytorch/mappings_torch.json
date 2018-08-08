@@ -2659,5 +2659,589 @@
                 }
             }
         }
+    },
+    "loss_functions": {
+        "L1LOSS": {
+            "path": "torch.nn.L1Loss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MSELOSS": {
+            "path": "torch.nn.MSELoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "CROSSENTROPYLOSS": {
+            "path": "torch.nn.CrossEntropyLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "ignore_index": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -100
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "NLLLOSS": {
+            "path": "torch.nn.NLLLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "ignore_index": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -100
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "POISSONNLLLOSS": {
+            "path": "torch.nn.PoissonNLLLoss",
+            "params": {
+                "log_input": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "full": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "KLDIVLOSS": {
+            "path": "torch.nn.KLDivLoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "BCELOSS": {
+            "path": "torch.nn.BCELoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "BCEWITHLOGITSLOSS": {
+            "path": "torch.nn.BCEWithLogitsLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                },
+                "pos_weight": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
+        "MARGINRANKINGLOSS": {
+            "path": "torch.nn.MarginRankingLoss",
+            "params": {
+                "margin": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "HINGEEMBEDDINGLOSS": {
+            "path": "torch.nn.HingeEmbeddingLoss",
+            "params": {
+                "margin": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MULTILABELMARGINLOSS": {
+            "path": "torch.nn.MultiLabelMarginLoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "SMOOTHL1LOSS": {
+            "path": "torch.nn.SmoothL1Loss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "SOFTMARGINLOSS": {
+            "path": "torch.nn.SoftMarginLoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MULTILABELSOFTMARGINLOSS": {
+            "path": "torch.nn.MultiLabelSoftMarginLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "COSINEEMBEDDINGLOSS": {
+            "path": "torch.nn.CosineEmbeddingLoss",
+            "params": {
+                "margin": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MULTIMARGINLOSS": {
+            "path": "torch.nn.MultiMarginLoss",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "margin": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "TRIPLETMARGINLOSS": {
+            "path": "torch.nn.TripletMarginLoss",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "margin": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        }
     }
 }
