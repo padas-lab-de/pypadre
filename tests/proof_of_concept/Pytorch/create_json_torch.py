@@ -27,6 +27,7 @@ _tuple = "tuple"
 _bool = "bool"
 _float = "float"
 _list = "list"
+_str = "str"
 default = "default"
 params = "params"
 
@@ -2063,13 +2064,6 @@ alphadropout_dict[params] = deepcopy(alphadropout_params)
 
 layers_dict[alphadropout] = deepcopy(alphadropout_dict)
 
-
-# Print the current working directory and write the dictionary to JSON file
-cwd = os.getcwd()
-print(cwd)
-with open('mappings_torch.json', 'w') as fp:
-    json.dump(layers_dict, fp)
-
 print(layers_dict)
 
 # This part is for the testing of the entered layers
@@ -2143,3 +2137,418 @@ set_diff = (set(layers_dict.keys()).difference(set(completed_layers)))
 if len(set_diff) > 0:
     print("Following layers are present in the dictionary but not in completed layers")
     print(set_diff)
+
+
+# This part deals with the different types of transformations possible for torch framework
+# The parameters are based on the documentation available at the link below
+# https://pytorch.org/docs/stable/torchvision/transforms.html
+
+transforms_dict = dict()
+# Transform names
+centercrop = 'CENTERCROP'
+colorjitter = "COLORJITTER"
+fivecrop = "FIVECROP"
+grayscale = "GRAYSCALE"
+lineartransformation = "LINEARTRANSFORMATION"
+pad = "PAD"
+randomaffine = "RANDOMAFFINE"
+randomapply = "RANDOMAPPLY"
+randomchoise = "RANDOMCHOICE"
+randomcrop = "RANDOMCROP"
+randomgrayscale = "RANDOMGRAYSCALE"
+randomhorizontalflip = "RANDOMHORIZONTALFLIP"
+randomorder = "RANDOMORDER"
+randomresizedcrop = "RANDOMRESIZEDCROP"
+randomrotation = "RANDOMROTATION"
+randomsizedcrop = "RANDOMSIZEDCROP"
+randomverticalflip = "RANDOMVERTICALFLIP"
+resize = "RESIZE"
+tencrop = "TENCROP"
+normalize = "NORMALIZE"
+
+
+# Parameters
+brightness = "brightness"
+contrast = "contrast"
+saturation = "saturation"
+hue = "hue"
+num_output_channels = "num_output_channels"
+transformation_matrix = "transformation_matrix"
+fill = "fill"
+padding_mode = "padding_mode"
+degrees = "degrees"
+translate = "translate"
+scale = "scale"
+shear = "shear"
+resample = "resample"
+fillcolor = "fillcolor"
+pad_if_needed = "pad_if_needed"
+ratio = "ratio"
+interpolation = "interpolation"
+expand = "expand"
+center = "center"
+vertical_flip = "vertical_flip"
+
+# centercrop
+size_dict = dict()
+size_dict[_type] = [_int, _list]
+size_dict[optional] = False
+
+centercrop_params = dict()
+centercrop_params[size] = deepcopy(size_dict)
+
+centercrop_dict = dict()
+centercrop_dict[path] = "torchvision.transforms.CenterCrop"
+centercrop_dict[params] = deepcopy(centercrop_params)
+
+transforms_dict[centercrop] = deepcopy(centercrop_dict)
+
+#colorjitter
+brightness_dict = dict()
+brightness_dict[_type] = [_float]
+brightness_dict[optional] = True
+brightness_dict[default] = 0
+
+contrast_dict = dict()
+contrast_dict[_type] = [_float]
+contrast_dict[optional] = True
+contrast_dict[default] = 0
+
+saturation_dict = dict()
+saturation_dict[_type] = [_float]
+saturation_dict[optional] = True
+saturation_dict[default] = 0
+
+hue_dict = dict()
+hue_dict[_type] = [_float]
+hue_dict[optional] = True
+hue_dict[default] = 0
+
+colorjitter_params = dict()
+colorjitter_params[brightness] = brightness_dict
+colorjitter_params[contrast] = contrast_dict
+colorjitter_params[saturation] = saturation_dict
+colorjitter_params[hue] = hue_dict
+
+colorjitter_dict = dict()
+colorjitter_dict[path] = "torchvision.transforms.ColorJitter"
+colorjitter_dict[params] = deepcopy(colorjitter_params)
+
+transforms_dict[colorjitter] = deepcopy(colorjitter_dict)
+
+# FiveCrop
+size_dict = dict()
+size_dict[_type] = [_int, _list]
+size_dict[optional] = False
+
+fivecrop_params = dict()
+fivecrop_params[size] = deepcopy(size_dict)
+
+fivecrop_dict = dict()
+fivecrop_dict[path] = "torchvision.transforms.FiveCrop"
+fivecrop_dict[params] = deepcopy(fivecrop_dict)
+
+transforms_dict[fivecrop] = deepcopy(fivecrop_dict)
+
+# Grayscale
+num_output_channels_dict = dict()
+num_output_channels_dict[_type] = [_int]
+num_output_channels_dict[optional] = True
+num_output_channels_dict[default] = 1
+
+grayscale_params = dict()
+grayscale_params[num_output_channels] = num_output_channels_dict
+
+grayscale_dict = dict()
+grayscale_dict[path] = "torchvision.transforms.Grayscale"
+grayscale_dict[params] = grayscale_params
+
+transforms_dict[grayscale] = grayscale_dict
+
+# Linear Transformation
+transformation_matrix_dict = dict()
+transformation_matrix_dict[_type] = [_list]
+transformation_matrix_dict[optional] = False
+
+lineartransformation_params = dict()
+lineartransformation_params[transformation_matrix] = transformation_matrix_dict
+
+lineartransformation_dict = dict()
+lineartransformation_dict[path] = "torch.nn.LinearTransformation"
+lineartransformation_dict[params] = deepcopy(lineartransformation_params)
+
+transforms_dict[lineartransformation] = deepcopy(lineartransformation_dict)
+
+# Pad
+padding_dict = dict()
+padding_dict[_type] = [_int, _tuple]
+padding_dict[optional] = False
+
+fill_dict = dict()
+fill_dict[_type] = [_int, _tuple]
+fill_dict[optional] = True
+fill_dict[default] = 0
+
+padding_mode_dict = dict()
+padding_mode_dict[_type] = [_str]
+padding_mode_dict[optional] = True
+padding_mode_dict[default] = "constant"
+
+pad_params = dict()
+pad_params[padding] = padding_dict
+pad_params[fill] = fill_dict
+pad_params[padding_mode] = padding_mode_dict
+
+pad_dict = dict()
+pad_dict[path] = "torchvision.transforms.Pad"
+pad_dict[params] = deepcopy(pad_params)
+
+transforms_dict[pad] = deepcopy(pad_dict)
+
+# Random Affine
+degrees_dict = dict()
+degrees_dict[_type] = [_list, _float, _int]
+degrees_dict[optional] = False
+
+translate_dict = dict()
+translate_dict[_type] = [_tuple]
+translate_dict[optional] = True
+translate_dict[default] = None
+
+scale_dict = dict()
+scale_dict[_type] = [_tuple]
+scale_dict[optional] = True
+scale_dict[default] = None
+
+shear_dict = dict()
+shear_dict[_type] = [_list, _float, _int]
+shear_dict[optional] = True
+shear_dict[default] = None
+
+resample_dict = dict()
+resample_dict[_type] = [_bool]
+resample_dict[optional] = True
+resample_dict[default] = False
+
+fillcolor_dict = dict()
+fillcolor_dict[_type] = [_int]
+fillcolor_dict[optional] = True
+fillcolor_dict[default] = 0
+
+randomaffine_params = dict()
+randomaffine_params[degrees] = degrees_dict
+randomaffine_params[translate] = translate_dict
+randomaffine_params[scale] = scale_dict
+randomaffine_params[shear] = shear_dict
+randomaffine_params[resample] = resample_dict
+randomaffine_params[fillcolor] = fillcolor_dict
+
+randomaffine_dict = dict()
+randomaffine_dict[path] = "torchvision.transforms.RandomAffine"
+randomaffine_dict[params] = deepcopy(randomaffine_params)
+
+transforms_dict[randomaffine] = deepcopy(randomaffine_dict)
+
+# Random Apply
+# Cannot be implemented for now because the parameters to the function is a list of Transformation objects
+
+# Random Choice
+# Cannot be implemented for now because the parameters to the function is a list of Transformation objects
+
+# Random crop
+size_dict = dict()
+size_dict[_type] = [_int, _list]
+size_dict[optional] = False
+
+padding_dict = dict()
+padding_dict[_type] = [_int, _list]
+padding_dict[optional] = True
+padding_dict[default] = None
+
+pad_if_needed_dict = dict()
+pad_if_needed_dict[_type] = [_bool]
+pad_if_needed_dict[optional] = True
+pad_if_needed_dict[default] = False
+
+fill_dict = dict()
+fill_dict[_type] = [_int, _tuple]
+fill_dict[optional] = True
+fill_dict[default] = 0
+
+padding_mode_dict = dict()
+padding_mode_dict[_type] = [_str]
+padding_mode_dict[optional] = True
+padding_mode_dict[default] = "constant"
+
+randomcrop_params = dict()
+randomcrop_params[size] = size_dict
+randomcrop_params[padding] = padding_dict
+randomcrop_params[pad_if_needed] = pad_if_needed_dict
+randomcrop_params[fill] = fill_dict
+randomcrop_params[padding_mode] = padding_mode_dict
+
+randomcrop_dict = dict()
+randomcrop_dict[path] = "torchvision.transforms.RandomCrop"
+randomcrop_dict[params] = deepcopy(randomcrop_params)
+
+transforms_dict[randomcrop] = deepcopy(randomcrop_dict)
+
+# Random Grayscale
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 0.1
+
+randomgrayscale_params = dict()
+randomgrayscale_params[p] = p_dict
+
+randomgrayscale_dict = dict()
+randomgrayscale_dict[path] = "torchvision.transforms.RandomGrayscale"
+randomgrayscale_dict[params] = deepcopy(randomgrayscale_params)
+
+transforms_dict[randomgrayscale] = deepcopy(randomgrayscale_dict)
+
+# Random Horizontal Flip
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 0.1
+
+randomhorizontalflip_params = dict()
+randomhorizontalflip_params[p] = p_dict
+
+randomhorizontalflip_dict = dict()
+randomhorizontalflip_dict[path] = "torchvision.transforms.RandomHorizontalFlip"
+randomhorizontalflip_dict[params] = deepcopy(randomhorizontalflip_params)
+
+transforms_dict[randomhorizontalflip] = deepcopy(randomhorizontalflip_dict)
+
+# Random Resized Crop
+size_dict = dict()
+size_dict[_type] = [_int, _list]
+size_dict[optional] = False
+
+scale_dict = dict()
+scale_dict[_type] = [_tuple]
+scale_dict[optional] = True
+scale_dict[default] = [0.08, 1.0]
+
+ratio_dict = dict()
+ratio_dict[_type] = [_tuple]
+ratio_dict[optional] = True
+ratio_dict[default] = [0.75, 1.3333333333333333333]
+
+interpolation_dict = dict()
+interpolation_dict[_type] = [_int]
+interpolation_dict[optional] = True
+interpolation_dict[default] = 2
+
+randomresizedcrop_params = dict()
+randomresizedcrop_params[size] = size_dict
+randomresizedcrop_params[scale] = scale_dict
+randomresizedcrop_params[ratio] = ratio_dict
+randomresizedcrop_params[interpolation] = interpolation_dict
+
+randomresizedcrop_dict = dict()
+randomresizedcrop_dict[path] = "torchvision.transforms.RandomResizedCrop"
+randomresizedcrop_dict[params] = deepcopy(randomresizedcrop_params)
+
+transforms_dict[randomresizedcrop] = deepcopy(randomresizedcrop_dict)
+
+
+# Random Rotation
+degrees_dict = dict()
+degrees_dict[_type] = [_list, _float, _int]
+degrees_dict[optional] = False
+
+resample_dict = dict()
+resample_dict[_type] = [_bool]
+resample_dict[optional] = True
+resample_dict[default] = False
+
+expand_dict = dict()
+expand_dict[_type] = [_bool]
+expand_dict[optional] = True
+expand_dict[default] = False
+
+center_dict = dict()
+center_dict[_type] = [_list]
+center_dict[optional] = True
+center_dict[default] = None
+
+randomrotation_params = dict()
+randomrotation_params[degrees] = degrees_dict
+randomrotation_params[expand] = expand_dict
+randomrotation_params[center] = center_dict
+
+randomrotation_dict = dict()
+randomrotation_dict[path] = "torchvision.transforms.RandomRotation"
+randomrotation_dict[params] = deepcopy(randomrotation_params)
+
+# Random Vertical Flip
+p_dict = dict()
+p_dict[_type] = [_int]
+p_dict[optional] = True
+p_dict[default] = 0.1
+
+randomverticalflip_params = dict()
+randomverticalflip_params[p] = p_dict
+
+randomverticalflip_dict = dict()
+randomverticalflip_dict[path] = "torchvision.transforms.RandomVerticalFlip"
+randomverticalflip_dict[params] = deepcopy(randomverticalflip_params)
+
+transforms_dict[randomverticalflip] = deepcopy(randomverticalflip_params)
+
+# Resize
+size_dict = dict()
+size_dict[_type] = [_int, _list]
+size_dict[optional] = False
+
+interpolation_dict = dict()
+interpolation_dict[_type] = [_int]
+interpolation_dict[optional] = True
+interpolation_dict[default] = 2
+
+resize_params = dict()
+resize_params[size] = size_dict
+resize_params[interpolation] = interpolation_dict
+
+resize_dict = dict()
+resize_dict[path] = "torchvision.transforms.Resize"
+resize_dict[params] = deepcopy(resize_params)
+
+transforms_dict[resize] = deepcopy(resize_dict)
+
+# Ten Crop
+size_dict = dict()
+size_dict[_type] = [_int, _list]
+size_dict[optional] = False
+
+vertical_flip_dict = dict()
+vertical_flip_dict[_type] = [_bool]
+vertical_flip_dict[optional] = True
+vertical_flip_dict[default] = False
+
+tencrop_params = dict()
+tencrop_params[size] = size_dict
+tencrop_params[vertical_flip] = vertical_flip_dict
+
+tencrop_dict = dict()
+tencrop_dict[path] = "torchvision.transforms.TenCrop"
+tencrop_dict[params] = tencrop_params
+
+transforms_dict[tencrop] = tencrop_dict
+
+
+# Print the current working directory and write the dictionary to JSON file
+layers = "layers"
+transforms = "transforms"
+
+framework_dict = dict()
+framework_dict[layers] = layers_dict
+framework_dict[transforms] = transforms_dict
+cwd = os.getcwd()
+print(cwd)
+with open('mappings_torch.json', 'w') as fp:
+    json.dump(framework_dict, fp)
