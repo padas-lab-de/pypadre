@@ -2223,6 +2223,31 @@
                     "default": false
                 }
             }
+        },
+        "NORMALIZE": {
+            "path": "torchvision.transforms.Normalize",
+            "params": {
+                "mean": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "std": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "TOPILIMAGE": {
+            "path": "torchvision.transforms.ToPILImage",
+            "params": null
+        },
+        "TOTENSOR": {
+            "path": "torchvision.transforms.ToTensor",
+            "params": null
         }
     },
     "optimizers": {

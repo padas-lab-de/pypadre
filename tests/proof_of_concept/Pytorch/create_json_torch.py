@@ -2193,6 +2193,8 @@ interpolation = "interpolation"
 expand = "expand"
 center = "center"
 vertical_flip = "vertical_flip"
+mean = "mean"
+std = "std"
 
 # centercrop
 size_dict = dict()
@@ -2546,6 +2548,43 @@ tencrop_dict[path] = "torchvision.transforms.TenCrop"
 tencrop_dict[params] = tencrop_params
 
 transforms_dict[tencrop] = tencrop_dict
+
+# Normalize
+mean_dict = dict()
+mean_dict[_type] = [_list]
+mean_dict[optional] = False
+
+std_dict = dict()
+std_dict[_type] = [_list]
+std_dict[optional] = False
+
+normalize_params = dict()
+normalize_params[mean] = mean_dict
+normalize_params[std] = std_dict
+
+normalize_dict = dict()
+normalize_dict[path] = "torchvision.transforms.Normalize"
+normalize_dict[params] = normalize_params
+
+transforms_dict[normalize] = normalize_dict
+
+# to Pilimage
+pilimage_params = None
+
+pilimage_dict = dict()
+pilimage_dict[path] = "torchvision.transforms.ToPILImage"
+pilimage_dict[params] = pilimage_params
+
+transforms_dict[topilimage] = deepcopy(pilimage_dict)
+
+# ToTensor
+totensor_params = None
+
+totensor_dict = dict()
+totensor_dict[path] = "torchvision.transforms.ToTensor"
+totensor_dict[params] = totensor_params
+
+transforms_dict[totensor] = deepcopy(totensor_dict)
 
 # Testing part for the transforms layers
 # Create a list with all the layer names in it
