@@ -70,9 +70,14 @@
             "dampening": 0,
             "weight_decay": 0,
             "Nesterov": false,
-            "lr": 0.0001
+            "lr": 0.00001
         }
     },
     "steps": 1000,
-    "batch_size": 100
+    "batch_size": 500,
+    "transforms":{
+        "randomhorizontalflip":{
+            "p":0.5
+        }
+    }
 }
