@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import torch
 import copy
 import numpy as np
@@ -6,7 +5,6 @@ import json
 import importlib
 import os
 import torchvision
-import random
 from torch.nn import Module
 # TODO: Add LR scheduler policy to code
 # TODO: Implement Vision Layers
@@ -105,8 +103,10 @@ class WrapperPytorch:
 
 
         transformers_ = self.params.get('transforms', None)
-        if transformers_ is not None:
-            self.create_transforms(transformers=transformers_)
+        transform_order = self.params.get('transform_order', None)
+
+        if transformers_ is not None and transform_order is not None:
+            self.create_transforms(transformers=transformers_, transform_order=transform_order)
 
         self.model = self.create_model(shape)
 
@@ -156,10 +156,11 @@ class WrapperPytorch:
 
         x = torch.autograd.Variable(torch.from_numpy(x), requires_grad=False)
         y = torch.autograd.Variable(torch.from_numpy(y), requires_grad=False)
-        self.model = self.model.double()
 
         if self.transforms is not None:
             x = self.transforms(x)
+
+        self.model = self.model.double()
 
         permutation = torch.randperm(x.size()[0])
         start_idx = 0
@@ -496,10 +497,13 @@ class WrapperPytorch:
         return copy.deepcopy(obj)
 
 
-    def create_transforms(self, transformers):
+    def create_transforms(self, transformers, transform_order):
         """
         This function creates the necessary transforms to be applied on the data
+
         :param transforms: The transforms and the corresponding parameters
+        :param transform_order: The order in which data transforms should be done
+
         :return: A transform object if successful, else None
         """
 
@@ -508,12 +512,15 @@ class WrapperPytorch:
 
         transformer_list = []
 
-        for transform in transformers:
+        for transform in transform_order:
             # Get the transformer object defined in the JSON file
             transformer = self.transforms_dict.get(transform.upper(), None)
 
             # Get all the possible params from the dictionary
             transform_params = transformer.get('params', None)
+
+            if transform_params is None:
+                transform_params = dict()
 
             # Get all the parameters entered for the transformer
             curr_transformer_params = transformers.get(transform)
@@ -523,7 +530,10 @@ class WrapperPytorch:
             # This is done so that only the possible parameters are selected to create the object
             for param in transform_params:
                 param_value = curr_transformer_params.get(param, None)
-                if param_value is None and transform_params.get(param).get('optional') is False:
+                if transform_params is None:
+                    continue
+
+                elif param_value is None and transform_params.get(param).get('optional') is False:
                     curr_params = None
                     break
 
