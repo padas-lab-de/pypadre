@@ -5,6 +5,7 @@ import numpy as np
 import json
 import importlib
 import os
+import torchvision
 import random
 from torch.nn import Module
 # TODO: Add LR scheduler policy to code
@@ -50,6 +51,8 @@ class WrapperPytorch:
     transforms_dict = None
     optimizers_dict = None
     loss_dict = None
+
+    transforms = None
 
     top_shape = 0
 
@@ -100,6 +103,11 @@ class WrapperPytorch:
         if shape is None:
             return
 
+
+        transformers_ = self.params.get('transforms', None)
+        if transformers_ is not None:
+            self.create_transforms(transformers=transformers_)
+
         self.model = self.create_model(shape)
 
         loss = params.get('loss', dict())
@@ -149,6 +157,9 @@ class WrapperPytorch:
         x = torch.autograd.Variable(torch.from_numpy(x), requires_grad=False)
         y = torch.autograd.Variable(torch.from_numpy(y), requires_grad=False)
         self.model = self.model.double()
+
+        if self.transforms is not None:
+            x = self.transforms(x)
 
         permutation = torch.randperm(x.size()[0])
         start_idx = 0
@@ -485,15 +496,48 @@ class WrapperPytorch:
         return copy.deepcopy(obj)
 
 
+    def create_transforms(self, transformers):
+        """
+        This function creates the necessary transforms to be applied on the data
+        :param transforms: The transforms and the corresponding parameters
+        :return: A transform object if successful, else None
+        """
 
+        if transformers is None:
+            return None
 
+        transformer_list = []
 
+        for transform in transformers:
+            # Get the transformer object defined in the JSON file
+            transformer = self.transforms_dict.get(transform.upper(), None)
 
+            # Get all the possible params from the dictionary
+            transform_params = transformer.get('params', None)
 
+            # Get all the parameters entered for the transformer
+            curr_transformer_params = transformers.get(transform)
 
+            curr_params = dict()
+            # Iterate through all the possible params for the transformer
+            # This is done so that only the possible parameters are selected to create the object
+            for param in transform_params:
+                param_value = curr_transformer_params.get(param, None)
+                if param_value is None and transform_params.get(param).get('optional') is False:
+                    curr_params = None
+                    break
 
+                else:
+                    curr_params[param] = param_value
 
+            path = transformer.get('path', None)
+            if curr_params is not None and path is not None:
+                split_idx = path.rfind('.')
+                import_path = path[:split_idx]
+                class_name = path[split_idx + 1:]
+                module = importlib.import_module(import_path)
+                class_ = getattr(module, class_name)
+                obj = class_(**curr_params)
+                transformer_list.append(copy.deepcopy(obj))
 
-
-
-
+        self.transforms = torchvision.transforms.Compose(transformer_list)
