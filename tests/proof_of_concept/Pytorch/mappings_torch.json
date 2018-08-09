@@ -2104,7 +2104,7 @@
             "params": {
                 "p": {
                     "type": [
-                        "int"
+                        "float"
                     ],
                     "optional": true,
                     "default": 0.1
@@ -2180,7 +2180,7 @@
         "RANDOMVERTICALFLIP": {
             "p": {
                 "type": [
-                    "int"
+                    "float"
                 ],
                 "optional": true,
                 "default": 0.1

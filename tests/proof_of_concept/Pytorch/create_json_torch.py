@@ -2417,7 +2417,7 @@ transforms_dict[randomgrayscale] = deepcopy(randomgrayscale_dict)
 
 # Random Horizontal Flip
 p_dict = dict()
-p_dict[_type] = [_int]
+p_dict[_type] = [_float]
 p_dict[optional] = True
 p_dict[default] = 0.1
 
@@ -2496,7 +2496,7 @@ transforms_dict[randomrotation] = randomrotation_dict
 
 # Random Vertical Flip
 p_dict = dict()
-p_dict[_type] = [_int]
+p_dict[_type] = [_float]
 p_dict[optional] = True
 p_dict[default] = 0.1
 
