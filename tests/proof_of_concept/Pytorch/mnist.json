@@ -70,7 +70,7 @@
             "dampening": 0,
             "weight_decay": 0,
             "Nesterov": false,
-            "lr": 0.00001
+            "lr": 0.0001
         }
     },
     "steps": 1000,
@@ -79,5 +79,8 @@
         "randomhorizontalflip":{
             "p":0.5
         }
-    }
+    },
+    "transform_order":[
+        "randomhorizontalflip"
+        ]
 }
