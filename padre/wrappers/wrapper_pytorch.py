@@ -7,7 +7,7 @@ import importlib
 import os
 import random
 from torch.nn import Module
-# TODO: Add LR scheduler policy to code
+# TODO: Look into ReduceLROnPlateau LR Policy
 # TODO: Implement Vision Layers
 # TODO: Implement Dataparallel layers
 # TODO: Implement utilities
@@ -44,12 +44,17 @@ class TestLayer(Module):
 
 class WrapperPytorch:
 
-    model = None
-
+    # The different dictionaries containing information about the objects, its parameters etc
     layers_dict = None
     transforms_dict = None
     optimizers_dict = None
     loss_dict = None
+    lr_scheduler_dict = None
+
+    # Model related variables
+    model = None
+    lr_scheduler = None
+    optimizer = None
 
     top_shape = 0
 
@@ -79,6 +84,7 @@ class WrapperPytorch:
         self.transforms_dict = framework_dict.get('transforms', None)
         self.optimizers_dict = framework_dict.get('optimizers', None)
         self.loss_dict = framework_dict.get('loss_functions', None)
+        self.lr_scheduler_dict = framework_dict.get('lr_scheduler')
 
         if self.layers_dict is None or self.transforms_dict is None or \
                 self.optimizers_dict is None or self.loss_dict is None:
@@ -112,6 +118,9 @@ class WrapperPytorch:
         optimizer_params = optimizer.get('params', None)
         self.optimizer = self.create_optimizer(optimizer_type=optimizer_type,
                                                params=optimizer_params)
+
+        if params.get('lr_scheduler', None) is not None:
+            self.create_lr_scheduler(params.get('lr_scheduler'))
 
     def fit(self, x, y):
         """
@@ -159,7 +168,7 @@ class WrapperPytorch:
         else:
             batch_size = self.batch_size
 
-        randomize = False
+        epoch_completed = False
 
         # Run the model for the steps specified in the parameters
         step = 0
@@ -173,15 +182,16 @@ class WrapperPytorch:
 
         while step < self.steps:
 
-            if randomize is True:
+            if epoch_completed is True:
                 permutation = torch.randperm(x.size()[0])
+                self.lr_scheduler.step()
 
             indices = permutation[start_idx: start_idx + batch_size]
 
             # Randomize the order after every epoch
             if start_idx + batch_size > training_samples_count:
                 indices = permutation[start_idx:training_samples_count]
-                randomize = True
+                epoch_completed = True
                 indices = np.append(indices, permutation[0:start_idx + batch_size - training_samples_count])
 
             start_idx = (start_idx + batch_size) % training_samples_count
@@ -484,7 +494,53 @@ class WrapperPytorch:
 
         return copy.deepcopy(obj)
 
+    def create_lr_scheduler(self, params):
+        """
+        The function creates an LR scheduler policy as defined in the documentation
+        https://pytorch.org/docs/stable/optim.html
 
+        :param params: The name of the scheduler and corresponding parameters
+
+        :return: None
+        """
+
+        scheduler = params.get('type', None)
+        scheduler_obj = None
+
+        if scheduler is None:
+            return None
+
+        curr_scheduler_params = params.get('params', 'PARAMSNOTDEFINED')
+        if curr_scheduler_params == "PARAMSNOTDEFINED":
+            return None
+
+        scheduler_params = self.lr_scheduler_dict.get(scheduler, None).get('params', None)
+
+        curr_params = dict()
+        if scheduler_params is not None and self.optimizer is not None:
+            curr_params['optimizer'] = self.optimizer
+            for param in scheduler_params:
+
+                param_value = curr_scheduler_params.get(param, None)
+                if param_value is None and scheduler_params.get(param).get('optional') is False:
+                    curr_params = None
+                    break
+                else:
+                    if param_value is not None:
+                        curr_params[param] = param_value
+
+        if curr_params is not None:
+
+            path = self.lr_scheduler_dict.get(scheduler).get('path')
+            split_idx = path.rfind('.')
+            import_path = path[:split_idx]
+            class_name = path[split_idx + 1:]
+            module = importlib.import_module(import_path)
+            class_ = getattr(module, class_name)
+            scheduler_obj = class_(**curr_params)
+
+            # Passed by reference as passing a copy results in an error while training
+            self.lr_scheduler =  scheduler_obj
 
 
 
