@@ -514,7 +514,7 @@ class WrapperPytorch:
         if curr_scheduler_params == "PARAMSNOTDEFINED":
             return None
 
-        scheduler_params = self.lr_scheduler_dict.get(scheduler, None).get('params', None)
+        scheduler_params = self.lr_scheduler_dict.get(str(scheduler).upper(), None).get('params', None)
 
         curr_params = dict()
         if scheduler_params is not None and self.optimizer is not None:
