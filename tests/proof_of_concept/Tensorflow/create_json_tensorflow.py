@@ -87,6 +87,10 @@ conv2d_transpose = "CONV2D_TRANSPOSE"
 conv3d_transpose = "CONV3D_TRANSPOSE"
 dense = "DENSE"
 dropout = "DROPOUT"
+flatten = "FLATTEN"
+max_pooling1d = "MAXPOOL1D"
+max_pooling2d = "MAXPOOL2D"
+max_pooling3d = "MAXPOOL3D"
 
 def test_dictionary(completed_object_list, input_dict):
     """
@@ -1121,4 +1125,115 @@ flatten_dict[path] = "tf.layers.Flatten"
 flatten_dict[params] = deepcopy(flatten_params)
 
 layers_dict[flatten] = deepcopy(flatten_dict)
+
+# Max Pooling 1D
+pool_size_dict = dict()
+pool_size_dict[_type] = [_int, _list]
+pool_size_dict[optional] = False
+
+stride_dict = dict()
+stride_dict[_type] = [_int, _list]
+stride_dict[optional] = False
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] =  'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+max_pooling1d_params = dict()
+max_pooling1d_params[pool_size] = pool_size_dict
+max_pooling1d_params[stride] = stride_dict
+max_pooling1d_params[padding] = padding_dict
+max_pooling1d_params[data_format] = data_format_dict
+max_pooling1d_params[name] = name_dict
+
+max_pooling1d_dict = dict()
+max_pooling1d_dict[path] = "tf.layers.MaxPooling1D"
+max_pooling1d_dict[params] = deepcopy(max_pooling1d_params)
+
+layers_dict[max_pooling1d] = deepcopy(max_pooling1d_dict)
+
+# Max Pooling 2D
+pool_size_dict = dict()
+pool_size_dict[_type] = [_int, _list]
+pool_size_dict[optional] = False
+
+stride_dict = dict()
+stride_dict[_type] = [_int, _list]
+stride_dict[optional] = False
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] =  'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+max_pooling2d_params = dict()
+max_pooling2d_params[pool_size] = pool_size_dict
+max_pooling2d_params[stride] = stride_dict
+max_pooling2d_params[padding] = padding_dict
+max_pooling2d_params[data_format] = data_format_dict
+max_pooling2d_params[name] = name_dict
+
+max_pooling2d_dict = dict()
+max_pooling2d_dict[path] = "tf.layers.MaxPooling2D"
+max_pooling2d_dict[params] = deepcopy(max_pooling2d_params)
+
+layers_dict[max_pooling2d] = deepcopy(max_pooling2d_dict)
+
+# Max Pooling 3D
+pool_size_dict = dict()
+pool_size_dict[_type] = [_int, _list]
+pool_size_dict[optional] = False
+
+stride_dict = dict()
+stride_dict[_type] = [_int, _list]
+stride_dict[optional] = False
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] =  'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+max_pooling3d_params = dict()
+max_pooling3d_params[pool_size] = pool_size_dict
+max_pooling3d_params[stride] = stride_dict
+max_pooling3d_params[padding] = padding_dict
+max_pooling3d_params[data_format] = data_format_dict
+max_pooling3d_params[name] = name_dict
+
+max_pooling3d_dict = dict()
+max_pooling3d_dict[path] = "tf.layers.MaxPooling3D"
+max_pooling3d_dict[params] = deepcopy(max_pooling3d_params)
+
+layers_dict[max_pooling3d] = deepcopy(max_pooling3d_dict)
 
