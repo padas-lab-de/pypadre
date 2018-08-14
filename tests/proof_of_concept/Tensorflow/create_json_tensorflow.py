@@ -74,6 +74,13 @@ units = "units"
 rate = "rate"
 noise_shape = "noise_shape"
 seed = "seed"
+depth_multiplier = "depth_multiplier"
+depthwise_initializer = "depthwise_initializer"
+depthwise_regularizer = "depthwise_regularizer"
+depthwise_constraint = "depthwise_constraint"
+pointwise_initializer = "pointwise_initializer"
+pointwise_regularizer = "pointwise_regularizer"
+pointwise_constraint = "pointwise_constraint"
 
 # Layers
 average_pooling1d = "AVGPOOL1D"
@@ -91,6 +98,8 @@ flatten = "FLATTEN"
 max_pooling1d = "MAXPOOL1D"
 max_pooling2d = "MAXPOOL2D"
 max_pooling3d = "MAXPOOL3D"
+separableconv1d = "SEPARABLECONV1D"
+separableconv2d = "SEPARABLECONV2D"
 
 def test_dictionary(completed_object_list, input_dict):
     """
@@ -1237,3 +1246,290 @@ max_pooling3d_dict[params] = deepcopy(max_pooling3d_params)
 
 layers_dict[max_pooling3d] = deepcopy(max_pooling3d_dict)
 
+# Separable Convolution 1D
+filters_dict = dict()
+filters_dict[_type] = [_int]
+filters_dict[optional] = False
+
+kernel_size_dict = dict()
+kernel_size_dict[_type] = [_int, _tuple, _list]
+kernel_size_dict[optional] = False
+
+strides_dict = dict()
+strides_dict[_type] = [_int, _tuple, _list]
+strides_dict[optional] = True
+strides_dict[default] = 1
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] =  'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+dilation_rate_dict = dict()
+dilation_rate_dict[_type] = [_int, _tuple, _list]
+dilation_rate_dict[optional] = True
+dilation_rate_dict[default] = 1
+
+depth_multiplier_dict = dict()
+dilation_rate_dict[_type] = [_int]
+dilation_rate_dict[optional] = True
+dilation_rate_dict[default] = 1
+
+# Activation function, currently using str as parameter
+activation_dict = dict()
+activation_dict[_type] = [_str]
+activation_dict[optional] = True
+activation_dict[default] = None
+
+use_bias_dict = dict()
+use_bias_dict[_type] =  [_bool]
+use_bias_dict[optional] = True
+use_bias_dict[default] = True
+
+# Currently using str as param
+depthwise_initializer_dict = dict()
+depthwise_initializer_dict[_type] = [_str]
+depthwise_initializer_dict[optional] = True
+depthwise_initializer_dict[default] = None
+
+# Currently using str as param
+pointwise_initializer_dict = dict()
+pointwise_initializer_dict[_type] = [_str]
+pointwise_initializer_dict[optional] = True
+pointwise_initializer_dict[default] = None
+
+# Currently using str as param
+bias_initializer_dict = dict()
+bias_initializer_dict[_type] = [_str]
+bias_initializer_dict[optional] = True
+bias_initializer_dict[default] = "tf.zeros_initializer"
+
+# Currently using str as param
+depthwise_regularizer_dict = dict()
+depthwise_regularizer_dict[_type] = [_str]
+depthwise_regularizer_dict[optional] = True
+depthwise_regularizer_dict[default] = None
+
+# Currently using str as param
+pointwise_regularizer_dict = dict()
+pointwise_regularizer_dict[_type] = [_str]
+pointwise_regularizer_dict[optional] = True
+pointwise_regularizer_dict[default] = None
+
+# Currently param is given as a string
+bias_regularizer_dict = dict()
+bias_regularizer_dict[_type] = [_str]
+bias_regularizer_dict[optional] = True
+bias_regularizer_dict[default] = None
+
+# Currently param is given as a string
+activity_regularizer_dict = dict()
+activity_regularizer_dict[_type] = [_str]
+activity_regularizer_dict[optional] = True
+activity_regularizer_dict[default] = None
+
+# Currently param is given as a string
+depthwise_constraint_dict = dict()
+depthwise_constraint_dict[_type] = [_str]
+depthwise_constraint_dict[optional] = True
+depthwise_constraint_dict[default] = None
+
+# Currently param is given as a string
+pointwise_constraint_dict = dict()
+pointwise_constraint_dict[_type] = [_str]
+pointwise_constraint_dict[optional] = True
+pointwise_constraint_dict[default] = None
+
+# Currently param is given as a string
+bias_constraint_dict = dict()
+bias_constraint_dict[_type] = [_str]
+bias_constraint_dict[optional] = True
+bias_constraint_dict[default] = None
+
+trainable_dict = dict()
+trainable_dict[_type] = [_bool]
+trainable_dict[optional] = True
+trainable_dict[default] = True
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+separableconv1d_params = dict()
+separableconv1d_params[filters] = filters_dict
+separableconv1d_params[kernel_size] = kernel_size_dict
+separableconv1d_params[strides] = strides_dict
+separableconv1d_params[padding] = padding_dict
+separableconv1d_params[data_format] = data_format_dict
+separableconv1d_params[dilation_rate] = dilation_rate_dict
+separableconv1d_params[depth_multiplier] = depth_multiplier_dict
+separableconv1d_params[activation] = activation_dict
+separableconv1d_params[use_bias] = use_bias_dict
+separableconv1d_params[depthwise_initializer] = depthwise_initializer_dict
+separableconv1d_params[pointwise_initializer] = pointwise_initializer_dict
+separableconv1d_params[bias_initializer] = bias_initializer_dict
+separableconv1d_params[depthwise_regularizer] = depthwise_regularizer_dict
+separableconv1d_params[pointwise_regularizer] = pointwise_regularizer_dict
+separableconv1d_params[bias_regularizer] = bias_regularizer_dict
+separableconv1d_params[activity_regularizer] = activity_regularizer_dict
+separableconv1d_params[depthwise_constraint] = depthwise_constraint_dict
+separableconv1d_params[pointwise_constraint] = pointwise_constraint_dict
+separableconv1d_params[bias_constraint] = bias_constraint_dict
+separableconv1d_params[trainable] = trainable_dict
+separableconv1d_params[name] = name_dict
+
+separableconv1d_dict = dict()
+separableconv1d_dict[path] = "tf.layers.SeparableConv1D"
+separableconv1d_dict[params] = deepcopy(separableconv1d_params)
+
+layers_dict[separableconv1d] = deepcopy(separableconv1d_dict)
+
+# Separable Convolution 2D
+filters_dict = dict()
+filters_dict[_type] = [_int]
+filters_dict[optional] = False
+
+kernel_size_dict = dict()
+kernel_size_dict[_type] = [_int, _tuple, _list]
+kernel_size_dict[optional] = False
+
+strides_dict = dict()
+strides_dict[_type] = [_int, _tuple, _list]
+strides_dict[optional] = True
+strides_dict[default] = [1, 1]
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] =  'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+dilation_rate_dict = dict()
+dilation_rate_dict[_type] = [_int, _tuple, _list]
+dilation_rate_dict[optional] = True
+dilation_rate_dict[default] = [1, 1]
+
+depth_multiplier_dict = dict()
+dilation_rate_dict[_type] = [_int]
+dilation_rate_dict[optional] = True
+dilation_rate_dict[default] = 1
+
+# Activation function, currently using str as parameter
+activation_dict = dict()
+activation_dict[_type] = [_str]
+activation_dict[optional] = True
+activation_dict[default] = None
+
+use_bias_dict = dict()
+use_bias_dict[_type] =  [_bool]
+use_bias_dict[optional] = True
+use_bias_dict[default] = True
+
+# Currently using str as param
+depthwise_initializer_dict = dict()
+depthwise_initializer_dict[_type] = [_str]
+depthwise_initializer_dict[optional] = True
+depthwise_initializer_dict[default] = None
+
+# Currently using str as param
+pointwise_initializer_dict = dict()
+pointwise_initializer_dict[_type] = [_str]
+pointwise_initializer_dict[optional] = True
+pointwise_initializer_dict[default] = None
+
+# Currently using str as param
+bias_initializer_dict = dict()
+bias_initializer_dict[_type] = [_str]
+bias_initializer_dict[optional] = True
+bias_initializer_dict[default] = "tf.zeros_initializer"
+
+# Currently using str as param
+depthwise_regularizer_dict = dict()
+depthwise_regularizer_dict[_type] = [_str]
+depthwise_regularizer_dict[optional] = True
+depthwise_regularizer_dict[default] = None
+
+# Currently using str as param
+pointwise_regularizer_dict = dict()
+pointwise_regularizer_dict[_type] = [_str]
+pointwise_regularizer_dict[optional] = True
+pointwise_regularizer_dict[default] = None
+
+# Currently param is given as a string
+bias_regularizer_dict = dict()
+bias_regularizer_dict[_type] = [_str]
+bias_regularizer_dict[optional] = True
+bias_regularizer_dict[default] = None
+
+# Currently param is given as a string
+activity_regularizer_dict = dict()
+activity_regularizer_dict[_type] = [_str]
+activity_regularizer_dict[optional] = True
+activity_regularizer_dict[default] = None
+
+# Currently param is given as a string
+depthwise_constraint_dict = dict()
+depthwise_constraint_dict[_type] = [_str]
+depthwise_constraint_dict[optional] = True
+depthwise_constraint_dict[default] = None
+
+# Currently param is given as a string
+pointwise_constraint_dict = dict()
+pointwise_constraint_dict[_type] = [_str]
+pointwise_constraint_dict[optional] = True
+pointwise_constraint_dict[default] = None
+
+# Currently param is given as a string
+bias_constraint_dict = dict()
+bias_constraint_dict[_type] = [_str]
+bias_constraint_dict[optional] = True
+bias_constraint_dict[default] = None
+
+trainable_dict = dict()
+trainable_dict[_type] = [_bool]
+trainable_dict[optional] = True
+trainable_dict[default] = True
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+separableconv2d_params = dict()
+separableconv2d_params[filters] = filters_dict
+separableconv2d_params[kernel_size] = kernel_size_dict
+separableconv2d_params[strides] = strides_dict
+separableconv2d_params[padding] = padding_dict
+separableconv2d_params[data_format] = data_format_dict
+separableconv2d_params[dilation_rate] = dilation_rate_dict
+separableconv2d_params[depth_multiplier] = depth_multiplier_dict
+separableconv2d_params[activation] = activation_dict
+separableconv2d_params[use_bias] = use_bias_dict
+separableconv2d_params[depthwise_initializer] = depthwise_initializer_dict
+separableconv2d_params[pointwise_initializer] = pointwise_initializer_dict
+separableconv2d_params[bias_initializer] = bias_initializer_dict
+separableconv2d_params[depthwise_regularizer] = depthwise_regularizer_dict
+separableconv2d_params[pointwise_regularizer] = pointwise_regularizer_dict
+separableconv2d_params[bias_regularizer] = bias_regularizer_dict
+separableconv2d_params[activity_regularizer] = activity_regularizer_dict
+separableconv2d_params[depthwise_constraint] = depthwise_constraint_dict
+separableconv2d_params[pointwise_constraint] = pointwise_constraint_dict
+separableconv2d_params[bias_constraint] = bias_constraint_dict
+separableconv2d_params[trainable] = trainable_dict
+separableconv2d_params[name] = name_dict
+
+separableconv2d_dict = dict()
+separableconv2d_dict[path] = "tf.layers.SeparableConv2D"
+separableconv2d_dict[params] = deepcopy(separableconv2d_params)
+
+layers_dict[separableconv2d] = deepcopy(separableconv2d_dict)
