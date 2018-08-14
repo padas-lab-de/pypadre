@@ -26,6 +26,7 @@ _str = "str"
 _tensor = "Tensor"
 _dict = "dict"
 _iterable = "iterable"
+_long = "long"
 default = "default"
 params = "params"
 
@@ -68,6 +69,11 @@ bias_regularizer = "bias_regularizer"
 activity_regularizer = "activity_regularizer"
 kernel_constraint = "kernel_constraint"
 bias_constraint = "bias_constrain"
+virtual_batch_size = "virtual_batch_size"
+units = "units"
+rate = "rate"
+noise_shape = "noise_shape"
+seed = "seed"
 
 # Layers
 average_pooling1d = "AVGPOOL1D"
@@ -77,6 +83,10 @@ batch_norm = "BATCHNORM"
 conv1d = "CONV1D"
 conv2d = "CONV2D"
 conv3d = "CONV3D"
+conv2d_transpose = "CONV2D_TRANSPOSE"
+conv3d_transpose = "CONV3D_TRANSPOSE"
+dense = "DENSE"
+dropout = "DROPOUT"
 
 def test_dictionary(completed_object_list, input_dict):
     """
@@ -453,9 +463,9 @@ bias_initializer_dict[default] = "tf.zeros_initializer"
 
 # Currently param given as string
 kernel_regularizer_dict = dict()
-kernel_initializer_dict[_type] = [_str]
-kernel_initializer_dict[optional] = True
-kernel_initializer_dict[default] = None
+kernel_regularizer_dict[_type] = [_str]
+kernel_regularizer_dict[optional] = True
+kernel_regularizer_dict[default] = None
 
 # Currently param is given as a string
 bias_regularizer_dict = dict()
@@ -520,3 +530,595 @@ conv1d_dict[path] = "tf.layers.Conv1D"
 conv1d_dict[params] = deepcopy(conv1d_params)
 
 layers_dict[conv1d] = deepcopy(conv1d_dict)
+
+# 2D Convolution
+filters_dict = dict()
+filters_dict[_type] = [_int]
+filters_dict[optional] = False
+
+kernel_size_dict = dict()
+kernel_size_dict[_type] = [_int, _tuple, _list]
+kernel_size_dict[optional] = False
+
+strides_dict = dict()
+strides_dict[_type] = [_int, _tuple, _list]
+strides_dict[optional] = True
+strides_dict[default] = [1, 1]
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] = 'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+dilation_rate_dict = dict()
+dilation_rate_dict[_type] = [_int, _tuple, _list]
+dilation_rate_dict[optional] = True
+dilation_rate_dict[default] = [1, 1]
+
+# Activation function, currently using str as parameter
+activation_dict = dict()
+activation_dict[_type] = [_str]
+activation_dict[optional] = True
+activation_dict[default] = None
+
+use_bias_dict = dict()
+use_bias_dict[_type] =  [_bool]
+use_bias_dict[optional] = True
+use_bias_dict[default] = True
+
+# Currently string is given
+kernel_initializer_dict = dict()
+kernel_initializer_dict[_type] = [_str]
+kernel_initializer_dict[optional] = True
+kernel_initializer_dict[default] = None
+
+# Can accept a function, currently a string is given as param
+bias_initializer_dict = dict()
+bias_initializer_dict[_type] = [_str]
+bias_initializer_dict[optional] = True
+bias_initializer_dict[default] = "tf.zeros_initializer"
+
+# Currently param given as string
+kernel_regularizer_dict = dict()
+kernel_regularizer_dict[_type] = [_str]
+kernel_regularizer_dict[optional] = True
+kernel_regularizer_dict[default] = None
+
+# Currently param is given as a string
+bias_regularizer_dict = dict()
+bias_regularizer_dict[_type] = [_str]
+bias_regularizer_dict[optional] = True
+bias_regularizer_dict[default] = None
+
+# Currently param is given as a string
+activity_regularizer_dict = dict()
+activity_regularizer_dict[_type] = [_str]
+activity_regularizer_dict[optional] = True
+activity_regularizer_dict[default] = None
+
+# Currently param is given as a string
+kernel_constraint_dict = dict()
+kernel_constraint_dict[_type] = [_str]
+kernel_constraint_dict[optional] =  True
+kernel_constraint_dict[default] = None
+
+# Currently param is given as a string
+bias_constraint_dict = dict()
+bias_constraint_dict[_type] = [_str]
+bias_constraint_dict[optional] = True
+bias_constraint_dict[default] = None
+
+trainable_dict = dict()
+trainable_dict[_type] = [_bool]
+trainable_dict[optional] = True
+trainable_dict[default] = True
+
+virtual_batch_size_dict = dict()
+virtual_batch_size_dict[_type] = [_int]
+virtual_batch_size_dict[optional] = True
+virtual_batch_size_dict[default] = None
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+conv2d_params = dict()
+conv2d_params[filters] = filters_dict
+conv2d_params[kernel_size] = kernel_size_dict
+conv2d_params[strides] = strides_dict
+conv2d_params[padding] = padding_dict
+conv2d_params[data_format] = data_format_dict
+conv2d_params[dilation_rate] = dilation_rate_dict
+conv2d_params[activation] = activation_dict
+conv2d_params[use_bias] = use_bias_dict
+conv2d_params[kernel_initializer] = kernel_initializer_dict
+conv2d_params[bias_initializer] = bias_initializer_dict
+conv2d_params[kernel_regularizer] = kernel_regularizer_dict
+conv2d_params[bias_regularizer] = bias_regularizer_dict
+conv2d_params[activity_regularizer] = activity_regularizer_dict
+conv2d_params[kernel_constraint] = kernel_constraint_dict
+conv2d_params[bias_constraint] = bias_constraint_dict
+conv2d_params[trainable] = trainable_dict
+conv2d_params[virtual_batch_size] = virtual_batch_size_dict
+conv2d_params[name] = name_dict
+
+conv2d_dict = dict()
+conv2d_dict[path] = "tf.layers.Conv2D"
+conv2d_dict[params] = deepcopy(conv2d_params)
+
+layers_dict[conv2d] = deepcopy(conv2d_dict)
+
+# Transpose 2D Convolution
+filters_dict = dict()
+filters_dict[_type] = [_int]
+filters_dict[optional] = False
+
+kernel_size_dict = dict()
+kernel_size_dict[_type] = [_int, _tuple, _list]
+kernel_size_dict[optional] = False
+
+strides_dict = dict()
+strides_dict[_type] = [_int, _tuple, _list]
+strides_dict[optional] = True
+strides_dict[default] = [1, 1]
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] = 'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+# Activation function, currently using str as parameter
+activation_dict = dict()
+activation_dict[_type] = [_str]
+activation_dict[optional] = True
+activation_dict[default] = None
+
+use_bias_dict = dict()
+use_bias_dict[_type] =  [_bool]
+use_bias_dict[optional] = True
+use_bias_dict[default] = True
+
+# Currently string is given
+kernel_initializer_dict = dict()
+kernel_initializer_dict[_type] = [_str]
+kernel_initializer_dict[optional] = True
+kernel_initializer_dict[default] = None
+
+# Can accept a function, currently a string is given as param
+bias_initializer_dict = dict()
+bias_initializer_dict[_type] = [_str]
+bias_initializer_dict[optional] = True
+bias_initializer_dict[default] = "tf.zeros_initializer"
+
+# Currently param given as string
+kernel_regularizer_dict = dict()
+kernel_regularizer_dict[_type] = [_str]
+kernel_regularizer_dict[optional] = True
+kernel_regularizer_dict[default] = None
+
+# Currently param is given as a string
+bias_regularizer_dict = dict()
+bias_regularizer_dict[_type] = [_str]
+bias_regularizer_dict[optional] = True
+bias_regularizer_dict[default] = None
+
+# Currently param is given as a string
+activity_regularizer_dict = dict()
+activity_regularizer_dict[_type] = [_str]
+activity_regularizer_dict[optional] = True
+activity_regularizer_dict[default] = None
+
+# Currently param is given as a string
+kernel_constraint_dict = dict()
+kernel_constraint_dict[_type] = [_str]
+kernel_constraint_dict[optional] =  True
+kernel_constraint_dict[default] = None
+
+# Currently param is given as a string
+bias_constraint_dict = dict()
+bias_constraint_dict[_type] = [_str]
+bias_constraint_dict[optional] = True
+bias_constraint_dict[default] = None
+
+trainable_dict = dict()
+trainable_dict[_type] = [_bool]
+trainable_dict[optional] = True
+trainable_dict[default] = True
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+conv2d_transpose_params = dict()
+conv2d_transpose_params[filters] = filters_dict
+conv2d_transpose_params[kernel_size] = kernel_size_dict
+conv2d_transpose_params[strides] = strides_dict
+conv2d_transpose_params[padding] = padding_dict
+conv2d_transpose_params[data_format] = data_format_dict
+conv2d_transpose_params[activation] = activation_dict
+conv2d_transpose_params[use_bias] = use_bias_dict
+conv2d_transpose_params[kernel_initializer] = kernel_initializer_dict
+conv2d_transpose_params[bias_initializer] = bias_initializer_dict
+conv2d_transpose_params[kernel_regularizer] = kernel_regularizer_dict
+conv2d_transpose_params[bias_regularizer] = bias_regularizer_dict
+conv2d_transpose_params[activity_regularizer] = activity_regularizer_dict
+conv2d_transpose_params[kernel_constraint] = kernel_constraint_dict
+conv2d_transpose_params[bias_constraint] = bias_constraint_dict
+conv2d_transpose_params[trainable] = trainable_dict
+conv2d_transpose_params[name] = name_dict
+
+conv2d_transpose_dict = dict()
+conv2d_transpose_dict[path] = "tf.layers.Conv2DTranspose"
+conv2d_transpose_dict[params] = deepcopy(conv2d_transpose_params)
+
+layers_dict[conv2d_transpose] = deepcopy(conv2d_transpose_dict)
+
+# 3D Convolution
+filters_dict = dict()
+filters_dict[_type] = [_int]
+filters_dict[optional] = False
+
+kernel_size_dict = dict()
+kernel_size_dict[_type] = [_int, _tuple, _list]
+kernel_size_dict[optional] = False
+
+strides_dict = dict()
+strides_dict[_type] = [_int, _tuple, _list]
+strides_dict[optional] = True
+strides_dict[default] = [1, 1, 1]
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] = 'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+dilation_rate_dict = dict()
+dilation_rate_dict[_type] = [_int, _tuple, _list]
+dilation_rate_dict[optional] = True
+dilation_rate_dict[default] = [1, 1, 1]
+
+# Activation function, currently using str as parameter
+activation_dict = dict()
+activation_dict[_type] = [_str]
+activation_dict[optional] = True
+activation_dict[default] = None
+
+use_bias_dict = dict()
+use_bias_dict[_type] =  [_bool]
+use_bias_dict[optional] = True
+use_bias_dict[default] = True
+
+# Currently string is given
+kernel_initializer_dict = dict()
+kernel_initializer_dict[_type] = [_str]
+kernel_initializer_dict[optional] = True
+kernel_initializer_dict[default] = None
+
+# Can accept a function, currently a string is given as param
+bias_initializer_dict = dict()
+bias_initializer_dict[_type] = [_str]
+bias_initializer_dict[optional] = True
+bias_initializer_dict[default] = "tf.zeros_initializer"
+
+# Currently param given as string
+kernel_regularizer_dict = dict()
+kernel_regularizer_dict[_type] = [_str]
+kernel_regularizer_dict[optional] = True
+kernel_regularizer_dict[default] = None
+
+# Currently param is given as a string
+bias_regularizer_dict = dict()
+bias_regularizer_dict[_type] = [_str]
+bias_regularizer_dict[optional] = True
+bias_regularizer_dict[default] = None
+
+# Currently param is given as a string
+activity_regularizer_dict = dict()
+activity_regularizer_dict[_type] = [_str]
+activity_regularizer_dict[optional] = True
+activity_regularizer_dict[default] = None
+
+# Currently param is given as a string
+kernel_constraint_dict = dict()
+kernel_constraint_dict[_type] = [_str]
+kernel_constraint_dict[optional] =  True
+kernel_constraint_dict[default] = None
+
+# Currently param is given as a string
+bias_constraint_dict = dict()
+bias_constraint_dict[_type] = [_str]
+bias_constraint_dict[optional] = True
+bias_constraint_dict[default] = None
+
+trainable_dict = dict()
+trainable_dict[_type] = [_bool]
+trainable_dict[optional] = True
+trainable_dict[default] = True
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+conv3d_params = dict()
+conv3d_params[filters] = filters_dict
+conv3d_params[kernel_size] = kernel_size_dict
+conv3d_params[strides] = strides_dict
+conv3d_params[padding] = padding_dict
+conv3d_params[data_format] = data_format_dict
+conv3d_params[dilation_rate] = dilation_rate_dict
+conv3d_params[activation] = activation_dict
+conv3d_params[use_bias] = use_bias_dict
+conv3d_params[kernel_initializer] = kernel_initializer_dict
+conv3d_params[bias_initializer] = bias_initializer_dict
+conv3d_params[kernel_regularizer] = kernel_regularizer_dict
+conv3d_params[bias_regularizer] = bias_regularizer_dict
+conv3d_params[activity_regularizer] = activity_regularizer_dict
+conv3d_params[kernel_constraint] = kernel_constraint_dict
+conv3d_params[bias_constraint] = bias_constraint_dict
+conv3d_params[trainable] = trainable_dict
+conv3d_params[name] = name_dict
+
+conv3d_dict = dict()
+conv3d_dict[path] = "tf.layers.Conv3D"
+conv3d_dict[params] = deepcopy(conv3d_params)
+
+layers_dict[conv3d] = deepcopy(conv3d_dict)
+
+# Transpose 3D Convolution
+filters_dict = dict()
+filters_dict[_type] = [_int]
+filters_dict[optional] = False
+
+kernel_size_dict = dict()
+kernel_size_dict[_type] = [_int, _tuple, _list]
+kernel_size_dict[optional] = False
+
+strides_dict = dict()
+strides_dict[_type] = [_int, _tuple, _list]
+strides_dict[optional] = True
+strides_dict[default] = [1, 1, 1]
+
+padding_dict = dict()
+padding_dict[_type] = [_str]
+padding_dict[optional] = True
+padding_dict[default] = 'valid'
+
+data_format_dict = dict()
+data_format_dict[_type] = [_str]
+data_format_dict[optional] = True
+data_format_dict[default] = 'channels_last'
+
+# Activation function, currently using str as parameter
+activation_dict = dict()
+activation_dict[_type] = [_str]
+activation_dict[optional] = True
+activation_dict[default] = None
+
+use_bias_dict = dict()
+use_bias_dict[_type] =  [_bool]
+use_bias_dict[optional] = True
+use_bias_dict[default] = True
+
+# Currently string is given
+kernel_initializer_dict = dict()
+kernel_initializer_dict[_type] = [_str]
+kernel_initializer_dict[optional] = True
+kernel_initializer_dict[default] = None
+
+# Can accept a function, currently a string is given as param
+bias_initializer_dict = dict()
+bias_initializer_dict[_type] = [_str]
+bias_initializer_dict[optional] = True
+bias_initializer_dict[default] = "tf.zeros_initializer"
+
+# Currently param given as string
+kernel_regularizer_dict = dict()
+kernel_regularizer_dict[_type] = [_str]
+kernel_regularizer_dict[optional] = True
+kernel_regularizer_dict[default] = None
+
+# Currently param is given as a string
+bias_regularizer_dict = dict()
+bias_regularizer_dict[_type] = [_str]
+bias_regularizer_dict[optional] = True
+bias_regularizer_dict[default] = None
+
+# Currently param is given as a string
+activity_regularizer_dict = dict()
+activity_regularizer_dict[_type] = [_str]
+activity_regularizer_dict[optional] = True
+activity_regularizer_dict[default] = None
+
+# Currently param is given as a string
+kernel_constraint_dict = dict()
+kernel_constraint_dict[_type] = [_str]
+kernel_constraint_dict[optional] =  True
+kernel_constraint_dict[default] = None
+
+# Currently param is given as a string
+bias_constraint_dict = dict()
+bias_constraint_dict[_type] = [_str]
+bias_constraint_dict[optional] = True
+bias_constraint_dict[default] = None
+
+trainable_dict = dict()
+trainable_dict[_type] = [_bool]
+trainable_dict[optional] = True
+trainable_dict[default] = True
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+conv3d_transpose_params = dict()
+conv3d_transpose_params[filters] = filters_dict
+conv3d_transpose_params[kernel_size] = kernel_size_dict
+conv3d_transpose_params[strides] = strides_dict
+conv3d_transpose_params[padding] = padding_dict
+conv3d_transpose_params[data_format] = data_format_dict
+conv3d_transpose_params[activation] = activation_dict
+conv3d_transpose_params[use_bias] = use_bias_dict
+conv3d_transpose_params[kernel_initializer] = kernel_initializer_dict
+conv3d_transpose_params[bias_initializer] = bias_initializer_dict
+conv3d_transpose_params[kernel_regularizer] = kernel_regularizer_dict
+conv3d_transpose_params[bias_regularizer] = bias_regularizer_dict
+conv3d_transpose_params[activity_regularizer] = activity_regularizer_dict
+conv3d_transpose_params[kernel_constraint] = kernel_constraint_dict
+conv3d_transpose_params[bias_constraint] = bias_constraint_dict
+conv3d_transpose_params[trainable] = trainable_dict
+conv3d_transpose_params[name] = name_dict
+
+conv3d_transpose_dict = dict()
+conv3d_transpose_dict[path] = "tf.layers.Conv3DTranspose"
+conv3d_transpose_dict[params] = deepcopy(conv3d_transpose_params)
+
+layers_dict[conv3d_transpose] = deepcopy(conv3d_transpose_dict)
+
+# Dense Layer
+units_dict = dict()
+units_dict[_type] = [_int, _long]
+units_dict[optional] = False
+
+# Activation function, currently using str as parameter
+activation_dict = dict()
+activation_dict[_type] = [_str]
+activation_dict[optional] = True
+activation_dict[default] = None
+
+use_bias_dict = dict()
+use_bias_dict[_type] =  [_bool]
+use_bias_dict[optional] = True
+use_bias_dict[default] = True
+
+# Currently string is given
+kernel_initializer_dict = dict()
+kernel_initializer_dict[_type] = [_str]
+kernel_initializer_dict[optional] = True
+kernel_initializer_dict[default] = None
+
+# Can accept a function, currently a string is given as param
+bias_initializer_dict = dict()
+bias_initializer_dict[_type] = [_str]
+bias_initializer_dict[optional] = True
+bias_initializer_dict[default] = "tf.zeros_initializer"
+
+# Currently param given as string
+kernel_regularizer_dict = dict()
+kernel_regularizer_dict[_type] = [_str]
+kernel_regularizer_dict[optional] = True
+kernel_regularizer_dict[default] = None
+
+# Currently param is given as a string
+bias_regularizer_dict = dict()
+bias_regularizer_dict[_type] = [_str]
+bias_regularizer_dict[optional] = True
+bias_regularizer_dict[default] = None
+
+# Currently param is given as a string
+activity_regularizer_dict = dict()
+activity_regularizer_dict[_type] = [_str]
+activity_regularizer_dict[optional] = True
+activity_regularizer_dict[default] = None
+
+# Currently param is given as a string
+kernel_constraint_dict = dict()
+kernel_constraint_dict[_type] = [_str]
+kernel_constraint_dict[optional] =  True
+kernel_constraint_dict[default] = None
+
+# Currently param is given as a string
+bias_constraint_dict = dict()
+bias_constraint_dict[_type] = [_str]
+bias_constraint_dict[optional] = True
+bias_constraint_dict[default] = None
+
+trainable_dict = dict()
+trainable_dict[_type] = [_bool]
+trainable_dict[optional] = True
+trainable_dict[default] = True
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+dense_params = dict()
+dense_params[units] = units_dict
+dense_params[activation] = activation_dict
+dense_params[use_bias] = use_bias_dict
+dense_params[kernel_initializer] = kernel_initializer_dict
+dense_params[bias_initializer] = bias_initializer
+dense_params[kernel_regularizer] = kernel_regularizer_dict
+dense_params[bias_regularizer] = bias_regularizer_dict
+dense_params[activity_regularizer] = activity_regularizer_dict
+dense_params[kernel_constraint] = kernel_constraint_dict
+dense_params[bias_constraint] = bias_constraint_dict
+dense_params[trainable] = trainable_dict
+dense_params[name] = name_dict
+
+dense_dict = dict()
+dense_dict[path] = "tf.layers.Dense"
+dense_dict[params] = deepcopy(dense_params)
+
+layers_dict[dense] = deepcopy(dense_dict)
+
+# Dropout Layer
+rate_dict = dict()
+rate_dict[_type] = [_float]
+rate_dict[optional] = False
+
+noise_shape_dict = dict()
+noise_shape_dict[_type] = [_list]
+noise_shape_dict[optional] = True
+noise_shape_dict[default] = None
+
+seed_dict = dict()
+seed_dict[_type] = [_int]
+seed_dict[optional] = True
+seed_dict[default] = None
+
+name_dict = dict()
+name_dict[_type] = [_str]
+name_dict[optional] = True
+name_dict[default] = None
+
+dropout_params = dict()
+dropout_params[rate] = rate_dict
+dropout_params[noise_shape] = noise_shape_dict
+dropout_params[seed] = seed_dict
+dropout_params[name] = name_dict
+
+dropout_dict = dict()
+dropout_dict[path] = "tf.layers.Dropout"
+dropout_dict[params] = deepcopy(dropout_params)
+
+layers_dict[dropout] = deepcopy(dropout_dict)
+
+# Flatten Layer
+flatten_params = dict()
+
+flatten_dict = dict()
+flatten_dict[path] = "tf.layers.Flatten"
+flatten_dict[params] = deepcopy(flatten_params)
+
+layers_dict[flatten] = deepcopy(flatten_dict)
+
