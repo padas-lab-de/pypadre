@@ -11,6 +11,8 @@
 # whether the parameter is optional or not, and if it is optional the default value of the parameter
 # The final dictionary to be dumped to JSON
 
+import json
+import os
 from copy import deepcopy
 
 # Datatypes and other keywords
@@ -201,7 +203,7 @@ average_pooling1d_params[data_format] = data_format_dict
 average_pooling1d_params[name] = name_dict
 
 average_pooling1d_dict = dict()
-average_pooling1d_dict[path] = "tf.layers.AveragePooling1D"
+average_pooling1d_dict[path] = "tensorflow.layers.AveragePooling1D"
 average_pooling1d_dict[params] = deepcopy(average_pooling1d_params)
 
 layers_dict[average_pooling1d] = deepcopy(average_pooling1d_dict)
@@ -238,7 +240,7 @@ average_pooling2d_params[data_format] = data_format_dict
 average_pooling2d_params[name] = name_dict
 
 average_pooling2d_dict = dict()
-average_pooling2d_dict[path] = "tf.layers.AveragePooling2D"
+average_pooling2d_dict[path] = "tensorflow.layers.AveragePooling2D"
 average_pooling2d_dict[params] = deepcopy(average_pooling2d_params)
 
 layers_dict[average_pooling2d] = deepcopy(average_pooling2d_dict)
@@ -275,7 +277,7 @@ average_pooling3d_params[data_format] = data_format_dict
 average_pooling3d_params[name] = name_dict
 
 average_pooling3d_dict = dict()
-average_pooling3d_dict[path] = "tf.layers.AveragePooling3D"
+average_pooling3d_dict[path] = "tensorflow.layers.AveragePooling3D"
 average_pooling3d_dict[params] = deepcopy(average_pooling3d_params)
 
 layers_dict[average_pooling3d] = deepcopy(average_pooling3d_dict)
@@ -310,25 +312,25 @@ scale_dict[default] = True
 beta_initializer_dict = dict()
 beta_initializer_dict[_type] = [_str]
 beta_initializer_dict[optional] = True
-beta_initializer_dict[default] = "tf.zeros_initializer()"
+beta_initializer_dict[default] = "tensorflow.zeros_initializer()"
 
 # Currently this is set as string although it can take a function
 gamma_initializer_dict = dict()
 gamma_initializer_dict[_type] = [_str]
 gamma_initializer_dict[optional] = True
-gamma_initializer_dict[default] = "tf.ones_initializer()"
+gamma_initializer_dict[default] = "tensorflow.ones_initializer()"
 
 # Currently this is set as string although it can take a function
 moving_mean_initializer_dict = dict()
 moving_mean_initializer_dict[_type] = [_str]
 moving_mean_initializer_dict[optional] = True
-moving_mean_initializer_dict[default] = "tf.zeros_initializer()"
+moving_mean_initializer_dict[default] = "tensorflow.zeros_initializer()"
 
 # Currently this is set as string although it can take a function
 moving_variance_initializer_dict = dict()
 moving_variance_initializer_dict[_type] = [_str]
 moving_variance_initializer_dict[optional] = True
-moving_variance_initializer_dict[default] = "tf.ones_initializer()"
+moving_variance_initializer_dict[default] = "tensorflow.ones_initializer()"
 
 # Currently this is set as string although it can take a function
 beta_regularizer_dict = dict()
@@ -417,7 +419,7 @@ batch_norm_params[adjustment] = adjustment_dict
 batch_norm_params[name] = name_dict
 
 batch_norm_dict = dict()
-batch_norm_dict[path] = "tf.layers.BatchNormalization"
+batch_norm_dict[path] = "tensorflow.layers.BatchNormalization"
 batch_norm_dict[params] = deepcopy(batch_norm_params)
 
 layers_dict[batch_norm] = deepcopy(batch_norm_dict)
@@ -472,7 +474,7 @@ kernel_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently param given as string
 kernel_regularizer_dict = dict()
@@ -539,7 +541,7 @@ conv1d_params[trainable] = trainable_dict
 conv1d_params[name] = name_dict
 
 conv1d_dict = dict()
-conv1d_dict[path] = "tf.layers.Conv1D"
+conv1d_dict[path] = "tensorflow.layers.Conv1D"
 conv1d_dict[params] = deepcopy(conv1d_params)
 
 layers_dict[conv1d] = deepcopy(conv1d_dict)
@@ -594,7 +596,7 @@ kernel_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently param given as string
 kernel_regularizer_dict = dict()
@@ -662,7 +664,7 @@ conv2d_params[virtual_batch_size] = virtual_batch_size_dict
 conv2d_params[name] = name_dict
 
 conv2d_dict = dict()
-conv2d_dict[path] = "tf.layers.Conv2D"
+conv2d_dict[path] = "tensorflow.layers.Conv2D"
 conv2d_dict[params] = deepcopy(conv2d_params)
 
 layers_dict[conv2d] = deepcopy(conv2d_dict)
@@ -712,7 +714,7 @@ kernel_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently param given as string
 kernel_regularizer_dict = dict()
@@ -773,7 +775,7 @@ conv2d_transpose_params[trainable] = trainable_dict
 conv2d_transpose_params[name] = name_dict
 
 conv2d_transpose_dict = dict()
-conv2d_transpose_dict[path] = "tf.layers.Conv2DTranspose"
+conv2d_transpose_dict[path] = "tensorflow.layers.Conv2DTranspose"
 conv2d_transpose_dict[params] = deepcopy(conv2d_transpose_params)
 
 layers_dict[conv2d_transpose] = deepcopy(conv2d_transpose_dict)
@@ -828,7 +830,7 @@ kernel_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently param given as string
 kernel_regularizer_dict = dict()
@@ -890,7 +892,7 @@ conv3d_params[trainable] = trainable_dict
 conv3d_params[name] = name_dict
 
 conv3d_dict = dict()
-conv3d_dict[path] = "tf.layers.Conv3D"
+conv3d_dict[path] = "tensorflow.layers.Conv3D"
 conv3d_dict[params] = deepcopy(conv3d_params)
 
 layers_dict[conv3d] = deepcopy(conv3d_dict)
@@ -940,7 +942,7 @@ kernel_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently param given as string
 kernel_regularizer_dict = dict()
@@ -1001,7 +1003,7 @@ conv3d_transpose_params[trainable] = trainable_dict
 conv3d_transpose_params[name] = name_dict
 
 conv3d_transpose_dict = dict()
-conv3d_transpose_dict[path] = "tf.layers.Conv3DTranspose"
+conv3d_transpose_dict[path] = "tensorflow.layers.Conv3DTranspose"
 conv3d_transpose_dict[params] = deepcopy(conv3d_transpose_params)
 
 layers_dict[conv3d_transpose] = deepcopy(conv3d_transpose_dict)
@@ -1032,7 +1034,7 @@ kernel_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently param given as string
 kernel_regularizer_dict = dict()
@@ -1079,7 +1081,7 @@ dense_params[units] = units_dict
 dense_params[activation] = activation_dict
 dense_params[use_bias] = use_bias_dict
 dense_params[kernel_initializer] = kernel_initializer_dict
-dense_params[bias_initializer] = bias_initializer
+dense_params[bias_initializer] = bias_initializer_dict
 dense_params[kernel_regularizer] = kernel_regularizer_dict
 dense_params[bias_regularizer] = bias_regularizer_dict
 dense_params[activity_regularizer] = activity_regularizer_dict
@@ -1089,7 +1091,7 @@ dense_params[trainable] = trainable_dict
 dense_params[name] = name_dict
 
 dense_dict = dict()
-dense_dict[path] = "tf.layers.Dense"
+dense_dict[path] = "tensorflow.layers.Dense"
 dense_dict[params] = deepcopy(dense_params)
 
 layers_dict[dense] = deepcopy(dense_dict)
@@ -1121,7 +1123,7 @@ dropout_params[seed] = seed_dict
 dropout_params[name] = name_dict
 
 dropout_dict = dict()
-dropout_dict[path] = "tf.layers.Dropout"
+dropout_dict[path] = "tensorflow.layers.Dropout"
 dropout_dict[params] = deepcopy(dropout_params)
 
 layers_dict[dropout] = deepcopy(dropout_dict)
@@ -1130,7 +1132,7 @@ layers_dict[dropout] = deepcopy(dropout_dict)
 flatten_params = dict()
 
 flatten_dict = dict()
-flatten_dict[path] = "tf.layers.Flatten"
+flatten_dict[path] = "tensorflow.layers.Flatten"
 flatten_dict[params] = deepcopy(flatten_params)
 
 layers_dict[flatten] = deepcopy(flatten_dict)
@@ -1167,7 +1169,7 @@ max_pooling1d_params[data_format] = data_format_dict
 max_pooling1d_params[name] = name_dict
 
 max_pooling1d_dict = dict()
-max_pooling1d_dict[path] = "tf.layers.MaxPooling1D"
+max_pooling1d_dict[path] = "tensorflow.layers.MaxPooling1D"
 max_pooling1d_dict[params] = deepcopy(max_pooling1d_params)
 
 layers_dict[max_pooling1d] = deepcopy(max_pooling1d_dict)
@@ -1204,7 +1206,7 @@ max_pooling2d_params[data_format] = data_format_dict
 max_pooling2d_params[name] = name_dict
 
 max_pooling2d_dict = dict()
-max_pooling2d_dict[path] = "tf.layers.MaxPooling2D"
+max_pooling2d_dict[path] = "tensorflow.layers.MaxPooling2D"
 max_pooling2d_dict[params] = deepcopy(max_pooling2d_params)
 
 layers_dict[max_pooling2d] = deepcopy(max_pooling2d_dict)
@@ -1241,7 +1243,7 @@ max_pooling3d_params[data_format] = data_format_dict
 max_pooling3d_params[name] = name_dict
 
 max_pooling3d_dict = dict()
-max_pooling3d_dict[path] = "tf.layers.MaxPooling3D"
+max_pooling3d_dict[path] = "tensorflow.layers.MaxPooling3D"
 max_pooling3d_dict[params] = deepcopy(max_pooling3d_params)
 
 layers_dict[max_pooling3d] = deepcopy(max_pooling3d_dict)
@@ -1307,7 +1309,7 @@ pointwise_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently using str as param
 depthwise_regularizer_dict = dict()
@@ -1385,7 +1387,7 @@ separableconv1d_params[trainable] = trainable_dict
 separableconv1d_params[name] = name_dict
 
 separableconv1d_dict = dict()
-separableconv1d_dict[path] = "tf.layers.SeparableConv1D"
+separableconv1d_dict[path] = "tensorflow.layers.SeparableConv1D"
 separableconv1d_dict[params] = deepcopy(separableconv1d_params)
 
 layers_dict[separableconv1d] = deepcopy(separableconv1d_dict)
@@ -1451,7 +1453,7 @@ pointwise_initializer_dict[default] = None
 bias_initializer_dict = dict()
 bias_initializer_dict[_type] = [_str]
 bias_initializer_dict[optional] = True
-bias_initializer_dict[default] = "tf.zeros_initializer"
+bias_initializer_dict[default] = "tensorflow.zeros_initializer"
 
 # Currently using str as param
 depthwise_regularizer_dict = dict()
@@ -1529,7 +1531,21 @@ separableconv2d_params[trainable] = trainable_dict
 separableconv2d_params[name] = name_dict
 
 separableconv2d_dict = dict()
-separableconv2d_dict[path] = "tf.layers.SeparableConv2D"
+separableconv2d_dict[path] = "tensorflow.layers.SeparableConv2D"
 separableconv2d_dict[params] = deepcopy(separableconv2d_params)
 
 layers_dict[separableconv2d] = deepcopy(separableconv2d_dict)
+
+layers = "layers"
+transforms = "transforms"
+optimizers = "optimizers"
+loss_functions = "loss_functions"
+lrscheduler = "lr_scheduler"
+
+framework_dict = dict()
+framework_dict[layers] = layers_dict
+
+cwd = os.getcwd()
+print(cwd)
+with open('mappings_tensorflow.json', 'w') as fp:
+    json.dump(framework_dict, fp)
