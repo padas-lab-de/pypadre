@@ -83,6 +83,10 @@ depthwise_constraint = "depthwise_constraint"
 pointwise_initializer = "pointwise_initializer"
 pointwise_regularizer = "pointwise_regularizer"
 pointwise_constraint = "pointwise_constraint"
+weights = "weights"
+loss_collection = "loss_collection"
+scope = "scope"
+reduction = "reduction"
 
 # Layers
 average_pooling1d = "AVGPOOL1D"
@@ -1536,6 +1540,47 @@ separableconv2d_dict[params] = deepcopy(separableconv2d_params)
 
 layers_dict[separableconv2d] = deepcopy(separableconv2d_dict)
 
+# This part contains the different loss functions of tensorflow
+# https://www.tensorflow.org/api_docs/python/tf/losses
+absolute_differences = "ABSOLUTE_DIFFERENCES"
+
+loss_dict = dict()
+
+# Absolute difference
+weights_dict = dict()
+weights_dict[_type] = [_list]
+weights_dict[optional] = True
+weights_dict[default] = 1.0
+
+# Currently setting the parameter type as string
+scope_dict = dict()
+scope_dict[_type] = [_str]
+scope_dict[optional] = True
+scope_dict[default] = None
+
+loss_collection_dict = dict()
+loss_collection_dict[_type] = [_str]
+loss_collection_dict[optional] = True
+loss_collection_dict[default] = "tensorflow.GraphKeys.LOSSES"
+
+reduction_dict = dict()
+reduction_dict[_type] = [_str]
+reduction_dict[optional] = True
+reduction_dict[default] = "Reduction.SUM_BY_NONZERO_WEIGHTS"
+
+absolute_differences_params = dict()
+absolute_differences_params[weights] = weights_dict
+absolute_differences_params[scope] = scope_dict
+absolute_differences_params[loss_collection] = loss_collection_dict
+absolute_differences_params[reduction] = reduction_dict
+
+absolute_differences_dict = dict()
+absolute_differences_dict[path] = "tensorflow.losses.absolute_difference"
+absolute_differences_dict[params] = deepcopy(absolute_differences_params)
+
+loss_dict[absolute_differences] = deepcopy(absolute_differences_dict)
+
+
 layers = "layers"
 transforms = "transforms"
 optimizers = "optimizers"
@@ -1544,6 +1589,7 @@ lrscheduler = "lr_scheduler"
 
 framework_dict = dict()
 framework_dict[layers] = layers_dict
+framework_dict[loss_functions] = loss_dict
 
 cwd = os.getcwd()
 print(cwd)
