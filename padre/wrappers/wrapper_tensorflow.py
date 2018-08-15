@@ -40,6 +40,11 @@ class WrapperTensorFlow:
         layer_order = params.get('layer_order', None)
         shape = self.create_network_shape(architecture=architecture, layer_order=layer_order)
 
+        if shape is None:
+            return
+
+        self.model = shape
+
     def create_network_shape(self, architecture=None, layer_order=None):
         """
         This function creates the network from the architecture specified in the config file
@@ -133,3 +138,56 @@ class WrapperTensorFlow:
             obj = class_(**curr_params)
 
         return copy.deepcopy(obj)
+
+    def create_loss_function(self, name, params):
+        """
+        Function to create the loss function and set all the corresponding params in a dictionary
+
+        :param params: Parameters of the loss function
+
+        :return: The loss function and a dictionary containing all the required parameters
+        """
+
+        if params is None:
+            params = dict()
+
+        loss = None
+
+        name = str(name).upper()
+
+        loss_function_details = self.loss_dict.get(name, None)
+
+        if loss_function_details is not None:
+            path = loss_function_details.get('path', None)
+
+            if path is not None:
+
+                curr_params = dict()
+
+                loss_params= loss_function_details.get('params', None)
+                if loss_params is None:
+                    loss_params = dict()
+
+                for param in loss_params:
+                    # Get the corresponding parameter value from the input param list
+
+                    param_value = params.get(param, None)
+
+                    if param_value is None and loss_params.get(param).get('optional') is False:
+                        curr_params = None
+                        break
+
+                    else:
+                        if param_value is not None:
+                            curr_params[param] = param_value
+
+                split_idx = path.rfind('.')
+                import_path = path[:split_idx]
+                class_name = path[split_idx + 1:]
+                module = importlib.import_module(import_path)
+                loss = getattr(module, class_name)
+
+                if curr_params is None:
+                    curr_params = dict()
+
+        return copy.deepcopy(loss), copy.deepcopy(curr_params)
