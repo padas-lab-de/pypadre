@@ -1328,7 +1328,10 @@
                 }
             }
         },
-        "SOFTSIGN": {},
+        "SOFTSIGN": {
+            "path": "torch.nn.Softsign",
+            "params": null
+        },
         "TANH": {
             "path": "torch.nn.Tanh",
             "params": null
@@ -2107,7 +2110,7 @@
                         "float"
                     ],
                     "optional": true,
-                    "default": 0.1
+                    "default": 0.5
                 }
             }
         },
@@ -2183,7 +2186,7 @@
                     "float"
                 ],
                 "optional": true,
-                "default": 0.1
+                "default": 0.5
             }
         },
         "RESIZE": {

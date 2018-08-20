@@ -185,15 +185,22 @@ def test_dictionary(completed_object_list, input_dict):
 
         curr_layer_path = input_dict.get(layer_name, None).get(path)
 
-        if curr_layer_path in layer_paths:
+        if curr_layer_path is None:
+            print('No path found for layer:' + layer_name)
+
+        elif curr_layer_path in layer_paths:
             print('Path duplicate found for path:' + curr_layer_path)
 
         else:
             layer_paths.append(curr_layer_path)
 
-        layer_params_dict = input_dict.get(layer_name).get(params, None)
+        layer_params_dict = input_dict.get(layer_name).get(params, "NOPARAMSFOUND")
 
         if layer_params_dict is None:
+            continue
+
+        elif layer_params_dict == "NOPARAMSFOUND":
+            print('No parameters found for layer:' + layer_name)
             continue
 
         for param_name in layer_params_dict:
@@ -1540,8 +1547,8 @@ layers_dict[softshrink] = deepcopy(softshrink_dict)
 
 # Softsign
 softsign_dict = dict()
-softplus_dict[path] = "torch.nn.Softsign"
-softplus_dict[params] = None
+softsign_dict[path] = "torch.nn.Softsign"
+softsign_dict[params] = None
 
 layers_dict[softsign] = deepcopy(softsign_dict)
 
@@ -2419,7 +2426,7 @@ transforms_dict[randomgrayscale] = deepcopy(randomgrayscale_dict)
 p_dict = dict()
 p_dict[_type] = [_float]
 p_dict[optional] = True
-p_dict[default] = 0.1
+p_dict[default] = 0.5
 
 randomhorizontalflip_params = dict()
 randomhorizontalflip_params[p] = p_dict
@@ -2498,7 +2505,7 @@ transforms_dict[randomrotation] = randomrotation_dict
 p_dict = dict()
 p_dict[_type] = [_float]
 p_dict[optional] = True
-p_dict[default] = 0.1
+p_dict[default] = 0.5
 
 randomverticalflip_params = dict()
 randomverticalflip_params[p] = p_dict
@@ -2507,7 +2514,7 @@ randomverticalflip_dict = dict()
 randomverticalflip_dict[path] = "torchvision.transforms.RandomVerticalFlip"
 randomverticalflip_dict[params] = deepcopy(randomverticalflip_params)
 
-transforms_dict[randomverticalflip] = deepcopy(randomverticalflip_params)
+transforms_dict[randomverticalflip] = deepcopy(randomverticalflip_dict)
 
 # Resize
 size_dict = dict()
@@ -3678,17 +3685,233 @@ completed_loss_functions = [
 
 test_dictionary(completed_loss_functions, loss_dict)
 
+# This part contains the different LR Scheduler policies based on the Pytorch documentation
+# https://pytorch.org/docs/stable/optim.html
+
+# LR Scheduler Policies
+lambdalr = "LAMBDALR"
+steplr = "STEPLR"
+multisteplr = "MULTISTEPLR"
+exponentiallr = "EXPONENTIALLR"
+cosineannealinglr = "COSINEANNEALINGLR"
+reducelronplateau = "REDUCELRONPLATEAU"
+
+# parameters
+lr_lambda = "lr_lambda"
+last_epoch = "last_epoch"
+step_size = "step_size"
+gamma = "gamma"
+t_max = "t_max"
+eta_min = "eta_min"
+mode = "mode"
+factor = "factor"
+patience = "patience"
+verbose = "verbose"
+threshold = "threshold"
+threshold_mode = "threshold_mode"
+cooldown = "cooldown"
+min_lr = "min_lr"
+
+lrscheduler_dict = dict()
+
+# LAMBDALR
+lr_lambda_dict = dict()
+lr_lambda_dict[_type] = [_list]
+lr_lambda_dict[optional] = False
+
+last_epoch_dict = dict()
+last_epoch_dict[_type] = [_int]
+last_epoch_dict[optional] = True
+last_epoch_dict[default] = -1
+
+lambdalr_params = dict()
+lambdalr_params[lr_lambda] = lr_lambda_dict
+lambdalr_params[last_epoch] = last_epoch_dict
+
+lambdalr_dict = dict()
+lambdalr_dict[path] = "torch.optim.lr_scheduler.LambdaLR"
+lambdalr_dict[params] = deepcopy(lambdalr_params)
+
+lrscheduler_dict[lambdalr] = deepcopy(lambdalr_dict)
+
+# STEPLR
+step_size_dict = dict()
+step_size_dict[_type] = [_int]
+step_size_dict[optional] = False
+
+gamma_dict = dict()
+gamma_dict[_type] = [_float]
+gamma_dict[optional] = True
+gamma_dict[default] = 0.1
+
+last_epoch_dict = dict()
+last_epoch_dict[_type] = [_int]
+last_epoch_dict[optional] = True
+last_epoch_dict[default] = -1
+
+steplr_params = dict()
+steplr_params[step_size] = step_size_dict
+steplr_params[gamma] = gamma_dict
+steplr_params[last_epoch] = last_epoch_dict
+
+steplr_dict = dict()
+steplr_dict[path] = "torch.optim.lr_scheduler.StepLR"
+steplr_dict[params] = deepcopy(steplr_params)
+
+lrscheduler_dict[steplr] = deepcopy(steplr_dict)
+
+# Multistep LR
+milestones_dict = dict()
+milestones_dict[_type] = [_list]
+milestones_dict[optional] = False
+
+gamma_dict = dict()
+gamma_dict[_type] = [_float]
+gamma_dict[optional] = True
+gamma_dict[default] = 0.1
+
+last_epoch_dict = dict()
+last_epoch_dict[_type] = [_int]
+last_epoch_dict[optional] = True
+last_epoch_dict[default] = -1
+
+multisteplr_params = dict()
+multisteplr_params[step_size] = step_size_dict
+multisteplr_params[gamma] = gamma_dict
+multisteplr_params[last_epoch] = last_epoch_dict
+
+multisteplr_dict = dict()
+multisteplr_dict[path] = "torch.optim.lr_scheduler.MultiStepLR"
+multisteplr_dict[params] = deepcopy(multisteplr_params)
+
+lrscheduler_dict[multisteplr] = deepcopy(multisteplr_dict)
+
+# Exponential LR
+gamma_dict = dict()
+gamma_dict[_type] = [_float]
+gamma_dict[optional] = True
+gamma_dict[default] = 0.1
+
+last_epoch_dict = dict()
+last_epoch_dict[_type] = [_int]
+last_epoch_dict[optional] = True
+last_epoch_dict[default] = -1
+
+exponentiallr_params = dict()
+exponentiallr_params[gamma] = gamma_dict
+exponentiallr_params[last_epoch] = last_epoch_dict
+
+exponentiallr_dict = dict()
+exponentiallr_dict[path] = "torch.optim.lr_scheduler.ExponentialLR"
+exponentiallr_dict[params] = deepcopy(exponentiallr_params)
+
+lrscheduler_dict[exponentiallr] = deepcopy(exponentiallr_dict)
+
+# Cosine Annealing LR
+t_max_dict = dict()
+t_max_dict[_type] = [_int]
+t_max_dict[optional] = False
+
+eta_min_dict = dict()
+eta_min_dict[_type] = [_float]
+eta_min_dict[optional] = True
+eta_min_dict[default] = 0.0
+
+last_epoch_dict = dict()
+last_epoch_dict[_type] = [_int]
+last_epoch_dict[optional] = True
+last_epoch_dict[default] = -1
+
+cosineannealinglr_params = dict()
+cosineannealinglr_params[t_max] = t_max_dict
+cosineannealinglr_params[eta_min] = eta_min_dict
+cosineannealinglr_params[last_epoch] = last_epoch_dict
+
+cosineannealinglr_dict = dict()
+cosineannealinglr_dict[path] = "torch.optim.lr_scheduler.CosineAnnealingLR"
+cosineannealinglr_dict[params] = deepcopy(cosineannealinglr_params)
+
+lrscheduler_dict[cosineannealinglr] = deepcopy(cosineannealinglr_dict)
+
+# Reduce LR on Plateau
+mode_dict = dict()
+mode_dict[_type] = [_str]
+mode_dict[optional] = True
+mode_dict[default] = "min"
+
+factor_dict = dict()
+factor_dict[_type] = [_float]
+factor_dict[optional] = True
+factor_dict[default] = 0.1
+
+patience_dict = dict()
+patience_dict[_type] = [_int]
+patience_dict[optional] = True
+patience_dict[default] = 10
+
+verbose_dict = dict()
+verbose_dict[_type] = [_bool]
+verbose_dict[optional] = True
+verbose_dict[default] = False
+
+threshold_dict = dict()
+threshold_dict[_type] = [_float]
+threshold_dict[optional] = True
+threshold_dict[default] = 0.0001
+
+threshold_mode_dict = dict()
+threshold_mode_dict[_type] = [_str]
+threshold_mode_dict[optional] = True
+threshold_mode_dict[default] = 'rel'
+
+cooldown_dict = dict()
+cooldown_dict[_type] = [_int]
+cooldown_dict[optional] = True
+cooldown_dict[default] = 0
+
+min_lr_dict = dict()
+min_lr_dict[_type] = [_float, _list]
+min_lr_dict[optional] = True
+min_lr_dict[default] = 0.0
+
+eps_dict = dict()
+eps_dict[_type] = [_float]
+eps_dict[optional] = True
+eps_dict[default] = 1e-08
+
+reducelronplateau_params = dict()
+reducelronplateau_params[mode] = mode_dict
+reducelronplateau_params[factor] = factor_dict
+reducelronplateau_params[patience] = patience_dict
+reducelronplateau_params[verbose] = verbose_dict
+reducelronplateau_params[threshold] = threshold_dict
+reducelronplateau_params[threshold_mode] = threshold_mode_dict
+reducelronplateau_params[cooldown] = cooldown_dict
+reducelronplateau_params[min_lr] = min_lr_dict
+reducelronplateau_params[eps] = eps_dict
+
+reducelronplateau_dict = dict()
+reducelronplateau_dict[path] = "torch.optim.lr_scheduler.ReduceLROnPlateau"
+reducelronplateau_dict[params] = deepcopy(reducelronplateau_params)
+
+lrscheduler_dict[reducelronplateau] = deepcopy(reducelronplateau_dict)
+
+completed_lrscheduler = [lambdalr, steplr, multisteplr, exponentiallr, cosineannealinglr, reducelronplateau]
+test_dictionary(completed_lrscheduler, lrscheduler_dict)
+
 # Print the current working directory and write the dictionary to JSON file
 layers = "layers"
 transforms = "transforms"
 optimizers = "optimizers"
 loss_functions = "loss_functions"
+lrscheduler = "lr_scheduler"
 
 framework_dict = dict()
 framework_dict[layers] = layers_dict
 framework_dict[transforms] = transforms_dict
 framework_dict[optimizers] = optimizer_dict
 framework_dict[loss_functions] = loss_dict
+framework_dict[lrscheduler] = lrscheduler_dict
 
 cwd = os.getcwd()
 print(cwd)
