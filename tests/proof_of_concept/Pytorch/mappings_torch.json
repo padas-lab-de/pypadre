@@ -2181,12 +2181,15 @@
             }
         },
         "RANDOMVERTICALFLIP": {
-            "p": {
-                "type": [
-                    "float"
-                ],
-                "optional": true,
-                "default": 0.5
+            "path": "torchvision.transforms.RandomVerticalFlip",
+            "params": {
+                "p": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                }
             }
         },
         "RESIZE": {
@@ -3268,6 +3271,189 @@
                     ],
                     "optional": true,
                     "default": "elementwise_mean"
+                }
+            }
+        }
+    },
+    "lr_scheduler": {
+        "LAMBDALR": {
+            "path": "torch.optim.lr_scheduler.LambdaLR",
+            "params": {
+                "lr_lambda": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "STEPLR": {
+            "path": "torch.optim.lr_scheduler.StepLR",
+            "params": {
+                "step_size": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "gamma": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "MULTISTEPLR": {
+            "path": "torch.optim.lr_scheduler.MultiStepLR",
+            "params": {
+                "step_size": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "gamma": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "EXPONENTIALLR": {
+            "path": "torch.optim.lr_scheduler.ExponentialLR",
+            "params": {
+                "gamma": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "COSINEANNEALINGLR": {
+            "path": "torch.optim.lr_scheduler.CosineAnnealingLR",
+            "params": {
+                "t_max": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eta_min": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "REDUCELRONPLATEAU": {
+            "path": "torch.optim.lr_scheduler.ReduceLROnPlateau",
+            "params": {
+                "mode": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "min"
+                },
+                "factor": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "patience": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 10
+                },
+                "verbose": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "threshold": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.0001
+                },
+                "threshold_mode": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "rel"
+                },
+                "cooldown": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "min_lr": {
+                    "type": [
+                        "float",
+                        "list"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
                 }
             }
         }
