@@ -11,7 +11,33 @@ class WrapperTensorFlow:
     This class wraps the whole Tensorflow network and exposes an easy to use interface to the user
     """
 
-    network = None
+    # The different dictionaries containing information about the objects, its parameters etc
+    layers_dict = None
+    transforms_dict = None
+    optimizers_dict = None
+    loss_dict = None
+    lr_scheduler_dict = None
+
+    # Model related variables
+    model = None
+    lr_scheduler = None
+    optimizer = None
+
+    transforms = None
+
+    top_shape = 0
+
+    probabilities = None
+
+    flatten = False
+
+    checkpoint = 0
+
+    resume = False
+
+    pre_trained_model_path = None
+
+    learning_rate = None
 
     def __init__(self, params:dict):
         """
@@ -43,7 +69,102 @@ class WrapperTensorFlow:
         if shape is None:
             return
 
+        if self.learning_rate is None:
+            self.learning_rate = 0.1
+
         self.model = shape
+
+    def fit(self, x, y):
+        """
+        This function creates a model from the existing data
+
+        :param x: Training data
+        :param y: Traning labels/values
+
+        :return: None
+        """
+
+        print('Fit')
+
+        import tensorflow as tf
+
+
+
+        step = 0
+
+        x = tf.cast(x, tf.float32)
+        y = np.reshape(y, newshape=(y.shape[0], 1))
+        # y = tf.one_hot(y, 3)
+        X = tf.placeholder("float", [None, x.shape[1]])
+        Y = tf.placeholder("float", [None, 1])
+
+        # TODO: Implement batch processing
+        x_mini_batch = x
+        y_mini_batch = y
+
+        results = self.execute_model(x_mini_batch)
+        prediction = tf.nn.softmax(results)
+        loss_op = tf.reduce_mean(tf.losses.absolute_difference(labels=y_mini_batch, predictions=results))
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
+        train_op = optimizer.minimize(loss_op)
+
+        correct_pred = tf.equal(tf.argmax(prediction, 1), tf.argmax(y_mini_batch, 1))
+        accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+
+            while step < self.steps:
+                print(step)
+                sess.run([loss_op, accuracy], feed_dict={X:x_mini_batch.eval(), Y:y_mini_batch})
+                step = step + 1
+
+    def predict(self, x):
+        """
+        This function predicts based on the model created in fit
+
+        :param x: Testing data
+
+        :return: Results
+        """
+
+        print('Predict')
+        import tensorflow as tf
+
+        step = 0
+
+        x = tf.cast(x, tf.float32)
+        # y = tf.one_hot(y, 3)
+        X = tf.placeholder("float", [None, x.shape[1]])
+
+        # TODO: Implement batch processing
+        x_mini_batch = x
+
+        results = self.execute_model(x_mini_batch)
+
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+            print(step)
+            sess.run([results], feed_dict={X: x_mini_batch.eval()})
+            t = results.eval()
+        return t
+
+    def execute_model(self, x):
+        """
+        This function runs the input through the model
+
+        :param x: Input feature vectors
+
+        :return: results of the pass
+        """
+
+        result = x
+
+        for layer in self.model:
+            print(layer)
+            result = layer(result)
+
+        return result
 
     def create_network_shape(self, architecture=None, layer_order=None):
         """
@@ -164,7 +285,7 @@ class WrapperTensorFlow:
 
                 curr_params = dict()
 
-                loss_params= loss_function_details.get('params', None)
+                loss_params = loss_function_details.get('params', None)
                 if loss_params is None:
                     loss_params = dict()
 
