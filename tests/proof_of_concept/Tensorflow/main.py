@@ -22,7 +22,7 @@ def main():
     y = iris.target
     ds = [i for i in load_sklearn_toys()][4]
     # workflow.fit(np.asarray(x), np.reshape(y, newshape=(150,1)))
-    ex = Experiment(name="Torch",
+    ex = Experiment(name="Tensorflow",
                     description="Testing Torch via SKLearn Pipeline",
                     dataset=ds,
                     workflow=workflow,

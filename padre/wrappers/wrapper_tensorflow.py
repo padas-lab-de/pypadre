@@ -39,6 +39,8 @@ class WrapperTensorFlow:
 
     learning_rate = None
 
+    classification = False
+
     def __init__(self, params:dict):
         """
         Function for initializing the wrapper, creating the network and setting all the necessary parameters
@@ -93,10 +95,15 @@ class WrapperTensorFlow:
         step = 0
 
         x = tf.cast(x, tf.float32)
-        y = np.reshape(y, newshape=(y.shape[0], 1))
-        # y = tf.one_hot(y, 3)
         X = tf.placeholder("float", [None, x.shape[1]])
-        Y = tf.placeholder("float", [None, 1])
+
+        if self.classification is True:
+            Y = tf.placeholder("float", [None, self.top_shape])
+            y = tf.one_hot(y, 3)
+
+        else:
+            y = np.reshape(y, newshape=(y.shape[0], 1))
+            Y = tf.placeholder("float", [None, 1])
 
         # TODO: Implement batch processing
         x_mini_batch = x
@@ -104,7 +111,7 @@ class WrapperTensorFlow:
 
         results = self.execute_model(x_mini_batch)
         prediction = tf.nn.softmax(results)
-        loss_op = tf.reduce_mean(tf.losses.absolute_difference(labels=y_mini_batch, predictions=results))
+        loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=results, labels=y_mini_batch))
         optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
         train_op = optimizer.minimize(loss_op)
 
@@ -116,7 +123,7 @@ class WrapperTensorFlow:
 
             while step < self.steps:
                 print(step)
-                sess.run([loss_op, accuracy], feed_dict={X:x_mini_batch.eval(), Y:y_mini_batch})
+                sess.run([loss_op, accuracy], feed_dict={X:x_mini_batch.eval(), Y:y_mini_batch.eval()})
                 step = step + 1
 
     def predict(self, x):
@@ -146,8 +153,32 @@ class WrapperTensorFlow:
             sess.run(tf.global_variables_initializer())
             print(step)
             sess.run([results], feed_dict={X: x_mini_batch.eval()})
-            t = results.eval()
-        return t
+            predicted = results.eval()
+
+        if self.classification is True:
+            self.probabilities = predicted
+            predicted = predicted.argmax(axis=1)
+
+        return predicted
+
+    def predict_proba(self, x):
+        """
+        Returns the predicted probabilities for a classification model.
+        Currently, this returns the previous probabilities stored inorder to avoid recomputation
+
+        :param x: The input vectors
+
+        :return: The probabilities of the predictions
+        """
+
+        if self.probabilities is None:
+            probabilites = np.zeros(shape=(len(x), self.top_shape))
+
+        else:
+            probabilities = self.probabilities
+
+        return probabilities
+
 
     def execute_model(self, x):
         """
@@ -193,6 +224,11 @@ class WrapperTensorFlow:
             layer_obj = self.create_layer_object(layer_type, params)
 
             if layer_obj is not None:
+                if str(layer_type).upper() in ['DENSE']:
+                    self.top_shape = params.get('units')
+                    if self.top_shape > 1:
+                        self.classification = True
+
                 layers.append(layer_obj)
 
             else:
