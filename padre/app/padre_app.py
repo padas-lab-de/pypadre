@@ -6,6 +6,8 @@ Padre app as single point of interaction.
 
 import os
 import configparser
+
+import copy
 from beautifultable import BeautifulTable
 from beautifultable.enums import Alignment
 from scipy.stats.stats import DescribeResult
@@ -15,6 +17,10 @@ from padre.datasets import formats
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.ds_import import load_sklearn_toys
+from padre.ExperimentCreator import ExperimentCreator
+from padre.experiment import Experiment
+from padre.metrics import ReevaluationMetrics
+from padre.metrics import CompareMetrics
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -31,6 +37,15 @@ _DEFAULT_HTTP_CONFIG = {
         "user": "",
         "passwd": ""
     }
+
+
+def _sub_list(l, start=-1, count=9999999999999):
+    start = max(start, 0)
+    stop = min(start + count, len(l))
+    if start >= len(l):
+        return []
+    else:
+        return l[start:stop]
 
 
 def load_padre_config(config_file = _PADRE_CFG_FILE):
@@ -166,11 +181,68 @@ class ExperimentApp:
     def __init__(self, parent):
         self._parent = parent
 
-    def list_experiments(self, start=0, count=999999999, search=None):
-        return self._parent.file_repository.experiments.list_experiments()
+    def delete_experiments(self, search):
+        """
+           lists the experiments and returns a list of experiment names matching the criterions
+           :param search: str to search experiment name only or
+           dict object with format {field : regexp<String>} pattern to search in particular fields using a regexp.
+           None for all experiments
+        """
+        if isinstance(search, dict):
+            s = copy.deepcopy(search)
+            file_name = s.pop("name")
+        else:
+            file_name = search
+            s = None
 
-    def list_runs(self, ex_id, start=0, count=999999999, search=None):
-        return self._parent.file_repository.experiments.list_runs(ex_id)
+        self._parent.file_repository.experiments.delete_experiments(search_id=file_name, search_metadata=s)
+
+
+
+    def list_experiments(self, search=None, start=-1, count=999999999, ):
+        """
+        lists the experiments and returns a list of experiment names matching the criterions
+        :param search: str to search experiment name only or
+        dict object with format {field : regexp<String>} pattern to search in particular fields using a regexp.
+        None for all experiments
+        :param start: start in the list to be returned
+        :param count: number of elements in the list to be returned
+        :return:
+        """
+        if search is not None:
+            if isinstance(search, dict):
+                s = copy.deepcopy(search)
+                file_name = s.pop("name")
+            else:
+                file_name = search
+                s = None
+            return _sub_list(self._parent.file_repository.experiments.list_experiments(search_id=file_name,
+                                                                                       search_metadata=s)
+                             , start, count)
+        else:
+            return _sub_list(self._parent.file_repository.experiments.list_experiments(), start, count)
+
+    def list_runs(self, ex_id, start=-1, count=999999999, search=None):
+        return _sub_list(self._parent.file_repository.experiments.list_runs(ex_id), start, count)
+
+    def run(self, **ex_params):
+        """
+        runs an experiment either with the given parameters or, if there is a parameter decorated=True, runs all
+        decorated experiments.
+        Befor running the experiments, the backend for storing results is configured as file_repository.experiments
+        :param ex_params: kwargs for an experiment or decorated=True
+        :return:
+        """
+        if "decorated" in ex_params and ex_params["decorated"]:
+            from padre.decorators import run
+            return run(backend=self._parent.file_repository.experiments)
+        else:
+            p = ex_params.copy()
+            p["backend"] = self._parent.file_repository.experiments
+            ex = Experiment(**p)
+            ex.run()
+            return ex
+
 
 
 class PadreApp:
@@ -183,6 +255,9 @@ class PadreApp:
         self._print = printer
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
+        self._experiment_creator = ExperimentCreator()
+        self._metrics_evaluator = CompareMetrics()
+        self._metrics_reevaluator = ReevaluationMetrics()
 
 
     @property
@@ -192,6 +267,18 @@ class PadreApp:
     @property
     def experiments(self):
         return self._experiment_app
+
+    @property
+    def experiment_creator(self):
+        return self._experiment_creator
+
+    @property
+    def metrics_evaluator(self):
+        return self._metrics_evaluator
+
+    @property
+    def metrics_reevaluator(self):
+        return self._metrics_reevaluator
 
     def set_printer(self, printer):
         """

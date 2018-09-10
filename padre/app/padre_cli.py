@@ -5,6 +5,7 @@ Command Line Interface for PADRE.
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
 import click
 import padre.app.padre_app as app
+from padre.app import pypadre
 
 
 #################################
@@ -74,6 +75,155 @@ def do_import(ctx, sklearn):
 def dataset(ctx, dataset_id, binary, format):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
     ctx.obj["pypadre"].datasets.get_dataset(dataset_id, binary, format)
+
+#################################
+####### EXPERIMENT FUNCTIONS ##########
+#################################
+
+@pypadre_cli.command(name="experiment")
+@click.pass_context
+def show_experiments(ctx):
+    # List all the experiments that are currently saved
+    ctx.obj["pypadre"].experiment_creator.experiment_names
+
+
+@pypadre_cli.command(name="components")
+@click.pass_context
+def show_components(ctx):
+    # List all the components of the workflow
+    print(ctx.obj["pypadre"].experiment_creator.components)
+
+
+@pypadre_cli.command(name="parameters")
+@click.argument('estimator')
+@click.pass_context
+def components(ctx, estimator):
+    print(ctx.obj["pypadre"].experiment_creator.get_estimator_params(estimator))
+
+
+@pypadre_cli.command(name="datasets")
+@click.pass_context
+def datasets(ctx):
+    print(ctx.obj["pypadre"].experiment_creator.get_dataset_names())
+
+
+@pypadre_cli.command(name='set_params')
+@click.option("--experiment", default=None, help='Name of the experiment to which parameters are to be set.')
+@click.option("--parameters", default=None, help='Name of the parameter and the parameters.')
+@click.pass_context
+def set_parameters(ctx, experiment, parameters):
+    ctx.obj["pypadre"].experiment_creator.set_param_values(experiment, parameters)
+
+
+@pypadre_cli.command(name='get_params')
+@click.option("--experiment", default=None, help='Name of the experiment from which parameters are to be retrieved')
+@click.pass_context
+def get_parameters(ctx, experiment):
+    print(ctx.obj["pypadre"].experiment_creator.get_param_values(experiment))
+
+
+@pypadre_cli.command(name="create_experiment")
+@click.option('--name', default=None, help='Name of the experiment. If none UUID will be given')
+@click.option('--description', default=None, help='Description of the experiment')
+@click.option('--dataset', default=None, help='Name of the dataset to be used in the experiment')
+@click.option('--workflow', default=None, help='Estimators to be used in the workflow')
+@click.option('--backend', default=None, help='Backend of the experiment')
+@click.pass_context
+def create_experiment(ctx, name, description, dataset, workflow, backend):
+    estimator_list = (workflow.replace(", ",",")).split(sep=",")
+    workflow_obj = ctx.obj["pypadre"].experiment_creator.create_test_pipeline(estimator_list)
+    if backend is None:
+        backend = pypadre.file_repository.experiments
+    ctx.obj["pypadre"].experiment_creator.create_experiment(name, description, dataset, workflow_obj, backend)
+
+
+@pypadre_cli.command(name="run")
+@click.pass_context
+def execute(ctx):
+    ctx.obj["pypadre"].experiment_creator.execute_experiments()
+
+
+@pypadre_cli.command(name="do_experiments")
+@click.option('--experiments', default=None, help='Names of the experiments where the datasets should be applied')
+@click.option('--datasets', default=None, help="Names of datasets for each experiment separated by ;")
+@click.pass_context
+def do_experiment(ctx, experiments, datasets):
+    import copy
+    datasets_list = datasets.split(sep=";")
+    experiments_list = experiments.split(sep=",")
+    if len(datasets_list) == len(experiments_list):
+        experiment_datasets_dict = dict()
+        for idx in range(0, len(experiments_list)):
+            datasets_list[idx] = ((datasets_list[idx].strip()).replace(", ", ",")).replace(" ,",",")
+            curr_exp_datasets = datasets_list[idx].split(sep=",")
+            experiment_datasets_dict[experiments_list[idx]] = copy.deepcopy(curr_exp_datasets)
+
+        ctx.obj["pypadre"].experiment_creator.do_experiments(experiment_datasets_dict)
+
+
+
+
+#################################
+####### METRICS FUNCTIONS ##########
+#################################
+
+@pypadre_cli.command(name="compare_metrics")
+@click.option('--path', default=None, help='Path of the experiment whose runs are to be compared')
+@click.option('--query', default="all", help="Results to be displayed based on the runs")
+@click.option('--metrics', default=None, help='Metrics to be displayed')
+@click.pass_context
+def compare_runs(ctx, path, query, metrics):
+    metrics_list = None
+    dir_path_list = (path.replace(", ","")).split(sep=",")
+    estimators_list = (query.replace(", ","")).split(sep=",")
+    if metrics is not None:
+        metrics_list = (metrics.replace(", ","")).split(sep=",")
+    ctx.obj["pypadre"].metrics_evaluator.read_run_directories(dir_path_list)
+    ctx.obj["pypadre"].metrics_evaluator.get_unique_estimators_parameter_names()
+    ctx.obj["pypadre"].metrics_evaluator.read_split_metrics()
+    ctx.obj["pypadre"].metrics_evaluator.analyze_runs(estimators_list, metrics_list)
+    print(ctx.obj["pypadre"].metrics_evaluator.display_results())
+
+
+@pypadre_cli.command(name="reevaluate_metrics")
+@click.option('--path', default=None, help='Path of experiments whose metrics are to be reevaluated')
+@click.pass_context
+def reevaluate_runs(ctx, path):
+    path_list = (path.replace(", ", ",")).split(sep=",")
+    ctx.obj["pypadre"].metrics_reevaluator.get_split_directories(dir_path=path_list)
+    ctx.obj["pypadre"].metrics_reevaluator.recompute_metrics()
+
+
+@pypadre_cli.command(name="list_experiments")
+@click.pass_context
+def list_experiments(ctx):
+    print(ctx.obj["pypadre"].metrics_evaluator.get_experiment_directores())
+
+
+@pypadre_cli.command(name='get_available_estimators')
+@click.pass_context
+def get_available_estimators(ctx):
+    estimators = ctx.obj["pypadre"].metrics_evaluator.get_unique_estimator_names()
+    if estimators is None:
+        print('No estimators found for the runs compared')
+    else:
+        print(estimators)
+
+
+@pypadre_cli.command(name="list_estimator_params")
+@click.option('--estimator_name', default=None, help='Params of this estimator will be displayed')
+@click.option('--selected_params', default=None, help='List the values of only these parameters')
+@click.option('--return_all_values', default=None,
+              help='Returns all the parameter values for the estimator including the default values')
+def list_estimator_params(ctx, estimator_name, selected_params, return_all_values):
+    params_list = \
+        ctx.obj["pypadre"].metrics_evaluator.get_estimator_param_values\
+            (estimator_name, selected_params, return_all_values)
+    if params_list is None:
+        print('No parameters obtained')
+    else:
+        for param in params_list:
+            print(param, params_list.get(param, '-'))
 
 
 if __name__ == '__main__':

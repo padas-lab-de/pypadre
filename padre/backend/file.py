@@ -16,29 +16,26 @@ from padre.datasets import Dataset, Attribute
 from padre.experiment import Experiment
 
 
-def _get_path(root_dir, name):
+def _get_path(root_dir, name, create=True):
     # internal get or create path function
     _dir = os.path.expanduser(os.path.join(root_dir, name))
-    if not os.path.exists(_dir):
+    if not os.path.exists(_dir) and create:
         os.mkdir(_dir)
     return _dir
 
 
-def _dir_list(root_dir, search_id, search_metadata, strip_postfix=None):
-    # todo implement search in metadata using some kind of syntax (e.g. jsonpath, grep),
-    # then search the metadata files one by one.
-    files = [f for f in os.listdir(root_dir) if strip_postfix==None or f.endswith(strip_postfix)]
-    if search_id is not None:
-        rid = re.compile(search_id)
+def _dir_list(root_dir, matcher, strip_postfix=""):
+    files = [f for f in os.listdir(root_dir) if f.endswith(strip_postfix)]
+    if matcher is not None:
+        rid = re.compile(matcher)
         files = [f for f in files if rid.match(f)]
 
-    if search_metadata is not None:
-        raise NotImplemented()
-
-    if(strip_postfix is not None):
-        return [file[:-1*len(strip_postfix)] for file in files if file is not None and len(file)>=len(strip_postfix)]
-    else:
+    if len(strip_postfix) == 0:
         return files
+    else:
+        return [file[:-1*len(strip_postfix)] for file in files
+            if file is not None and len(file) >= len(strip_postfix)]
+
 
 class PadreFileBackend(object):
     """
@@ -107,21 +104,37 @@ class ExperimentFileRepository:
                 r.append(str(split_num)+".split")
         return r
 
-    def list_experiments(self, search_id=None, search_metadata=None):
+    def list_experiments(self, search_id=".*", search_metadata=None):
         """
         list the experiments available
         :param search_id:
         :param search_metadata:
         :return:
         """
+        returns = _dir_list(self.root_dir, search_id+".ex", ".ex")
+        # todo: implement search metadata filter
+        return returns
 
-        return _dir_list(self.root_dir, search_id, search_metadata, ".ex")
+    def delete_experiments(self, search_id=".*", search_metadata=None):
+        """
+        list the experiments available
+        :param search_id:
+        :param search_metadata:
+        :return:
+        """
+        dirs = _dir_list(self.root_dir, search_id+".ex")
+        # todo: implement search metadata filter
+        for d in dirs:
+            shutil.rmtree(_get_path(self.root_dir, d, False))
 
-    def put_experiment(self, experiment, allow_overwrite=False):
+
+
+    def put_experiment(self, experiment, append_runs=False):
         """
         Stores an experiment to the file. Only metadata, hyperparameter and the workflow is stored.
         :param experiment:
-        :param allow_overwrite: True if an existing experiment can be overwritten
+        :param append_runs: True if runs can be added to an existing experiment.
+        If false, any existing experiment will be removed
         :return:
         """
         if experiment.id is None:  #  this is a new experiment
@@ -134,8 +147,11 @@ class ExperimentFileRepository:
             raise ValueError("Experiment %s already exists." +
                              "Overwriting not explicitly allowed. Set allow_overwrite=True")
         if os.path.exists(dir):
-            shutil.rmtree(dir)
-        os.mkdir(dir)
+            if not append_runs:
+                shutil.rmtree(dir)
+                os.mkdir(dir)
+        else:
+            os.mkdir(dir)
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
@@ -169,7 +185,8 @@ class ExperimentFileRepository:
         :param search_metadata:
         :return:
         """
-        return _dir_list(os.path.join(self.root_dir, *self._dir(experiment_id)), search_id, search_metadata, ".run")
+        # todo: impelement filter on metadata
+        return _dir_list(os.path.join(self.root_dir, *self._dir(experiment_id)), search_id, ".run")
 
     def put_run(self, experiment, run):
         """
