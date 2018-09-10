@@ -88,7 +88,7 @@ class PandasContainer:
     def __init__(self, data, attributes=None):
         # todo rework binary data into delegate pattern.
         self._shape = data.shape
-        pd.DataFrame
+        #pd.DataFrame
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
             self._features = data

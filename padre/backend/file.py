@@ -35,8 +35,10 @@ def _dir_list(root_dir, search_id, search_metadata, strip_postfix=None):
     if search_metadata is not None:
         raise NotImplemented()
 
-    return [file[:-1*len(strip_postfix)] for file in files if file is not None and len(file)>=len(strip_postfix)]
-
+    if(strip_postfix is not None):
+        return [file[:-1*len(strip_postfix)] for file in files if file is not None and len(file)>=len(strip_postfix)]
+    else:
+        return files
 
 class PadreFileBackend(object):
     """
