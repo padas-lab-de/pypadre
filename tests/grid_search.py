@@ -7,6 +7,7 @@ from sklearn.svm import SVC, SVR
 
 from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment
+from padre.uploader import Uploader
 
 
 class experimentHelper:
@@ -281,6 +282,7 @@ def main():
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
 
+    up = Uploader("grid_search")
     experiments_dict = experiment_helper.experiments
     # Run all the experiments in the list
     for experiment in experiments_dict:
@@ -293,6 +295,7 @@ def main():
         conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
         pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
         ex.grid_search(parameters=experiment_param_dict.get(experiment))  # run the experiment and report
+        up.upload_experiment(ex)
 
 
 if __name__ == '__main__':

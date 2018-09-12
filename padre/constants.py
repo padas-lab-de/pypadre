@@ -9,3 +9,8 @@ DATASET_RESOURCE_MAPPING = "/api/dataset/<name>"
 
 RESOURCE_DIRECTORY_PATH = "~/tmp/padre_srv/data"
 DEBUG = True
+
+PADRE_API = "http://padre-api:@localhost:8080"
+HOST = "http://localhost:8080"
+USERNAME = "hmafnan"
+PASSWORD = "test"
