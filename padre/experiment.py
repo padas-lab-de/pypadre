@@ -1105,12 +1105,18 @@ class Experiment(MetadataEntity, _LoggerMixin):
             return "Experiment<" + ";".join(s) + ">"
 
     def traverse_dict(self, dictionary=None):
-        # This function traverses a Nested dictionary structure such as the
-        # parameter dictionary obtained from hyperparameters()
-        # The aim of this function is to convert the param objects to
-        # JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
-        # is used to store the base values. This function changes the type to basic JSON
-        # serializable data types.
+        """
+        This function traverses a Nested dictionary structure such as the
+        parameter dictionary obtained from hyperparameters()
+        The aim of this function is to convert the param objects to
+        JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
+        is used to store the base values. This function changes the type to basic JSON
+        serializable data types.
+
+        :param dictionary: The dictionary containing all the parameters of the pipeline
+
+        :return: A JSON serializable object containing the parameter tree
+        """
 
         if dictionary is None:
             return
