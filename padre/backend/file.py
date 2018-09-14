@@ -202,14 +202,13 @@ class ExperimentFileRepository:
 
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
-        '''
+
         #Commented for pytorch integration
-        
+        '''
         with open(os.path.join(dir, "hyperparameter.json"), 'w') as f:
             params = experiment.hyperparameters()
-            for key in params:
-                # This writes all data present within the params to the JSON file
-                f.write(self._metadata_serializer.serialise(params))
+            # This writes all data present within the params to the JSON file
+            f.write(self._metadata_serializer.serialise(params))
         '''
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
