@@ -471,7 +471,7 @@ class SKLearnWorkflow:
     def compute_confusion_matrix(self, Predicted=None,
                                  Truth=None):
         """
-        This function computes the confusionmatrix of a classification result.
+        This function computes the confusion matrix of a classification result.
         This was done as a general purpose implementation of the confusion_matrix
         :param Predicted: The predicted values of the confusion matrix
         :param Truth: The truth values of the confusion matrix

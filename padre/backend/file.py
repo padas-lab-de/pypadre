@@ -202,9 +202,9 @@ class ExperimentFileRepository:
 
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
-
         '''
-        Commented for pytorch integration
+        #Commented for pytorch integration
+        
         with open(os.path.join(dir, "hyperparameter.json"), 'w') as f:
             params = experiment.hyperparameters()
             for key in params:
