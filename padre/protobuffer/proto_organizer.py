@@ -126,12 +126,25 @@ def send_Dataset(dataset,did,auth_token,path):
 
     m=MultipartEncoder(fields={"field0": ("fname", open(path,"rb"),"application/x.padre.dataset.v1+protobuf")})
     hed["Content-Type"]=m.content_type
-    r = requests.post(url, data=m, headers=hed)
+    try:
+        r = requests.post(url, data=m, headers=hed)
+    except requests.ConnectionError:
+        r.close()
+        requests.session().close()
+        try:
+            r = requests.post(url, data=m, headers=hed)
+        except requests.ConnectionError:
+            print("Unsuccessful upload of filedata of Dataset: "+did)
+            r.close()
+            requests.session().close()
+
+
 
     print(r.request.headers)
     print("responese:")
     print(r.content)
     r.close()
+    requests.session().close()
 
 
 def get_Server_Dataframe(did,auth_token):
@@ -150,6 +163,9 @@ def get_Server_Dataframe(did,auth_token):
     response = requests.get(url, headers=hed)
 
     pb_data=response.content
+    response.close()
+    requests.session().close()
+
     response=None
     t = start_measure_time()
     # read and build metadata

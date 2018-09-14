@@ -94,7 +94,7 @@ def getDataset_load_or_cached(did,path,force_download=False,auth_token=None):
     dataset=None
     file_backend = padre.backend.file.PadreFileBackend(path)
 
-    if(force_download or did not in file_backend.datasets.list_datasets()):
+    if(force_download or did not in file_backend.datasets.list_datasets(search_metadata="")):
         dataset=requestServerDataset(did,auth_token)
         file_backend.datasets.put_dataset(dataset)
         print("Time to load dataset from server:", end=" ")
@@ -243,7 +243,8 @@ def requestServerDataset(did,auth_token):
 
     k=response.content.decode("utf-8")
     response_meta=json.loads(k)
-
+    response.close()
+    requests.session().close()
 
     meta = dict()
     meta["openml_id"] = response_meta["uid"]
@@ -358,6 +359,8 @@ def createServerDataset(dataset,path,auth_token):
 
     print("Time to send dataset " + str(dataset.id) + " to server:", end=" ")
     proto.end_measure_time(t)
+    response.close()
+    requests.session().close()
     return did
 
 
