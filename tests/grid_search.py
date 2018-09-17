@@ -1,10 +1,6 @@
 import copy
 import pprint
 
-import numpy as np
-from sklearn import linear_model, decomposition, manifold
-from sklearn.svm import SVC, SVR
-
 from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment
 from padre.ExperimentCreator import  ExperimentCreator
