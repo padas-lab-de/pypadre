@@ -2766,7 +2766,7 @@
       }
     },
     {
-      "name": "c-oja pas vector classification.",
+      "name": "c-oja pas vector classification",
       "other_names": [
         "SVC"
       ],
