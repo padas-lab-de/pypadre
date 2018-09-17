@@ -54,7 +54,7 @@ class experimentHelper:
 
         self._classifiers = (['SVC'])
 
-        self._parameters = {'SVC': ['probability','C', 'degree'],
+        self._parameters = {'SVC': ['probability', 'C', 'degree'],
                             'LSA': ['n_components'],
                             'isomap': ['n_neighbors', 'n_components'],
                             'lle': ['n_neighbors', 'n_components', 'method'],

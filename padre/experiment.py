@@ -228,7 +228,6 @@ class _LoggerMixin:
     _backend = None
     _stdout = False
     _events = {}
-    _overwrite = True
 
     def _padding(self, source):
         if isinstance(source, Split):
@@ -238,10 +237,9 @@ class _LoggerMixin:
         else:
             return ""
 
-    def log_start_experiment(self, experiment):
+    def log_start_experiment(self, experiment, append_runs:bool =False):
         if self.has_backend():
-            # todo overwrite solution not good. we need a mechanism to add runs
-            self._backend.put_experiment(experiment, allow_overwrite=self._overwrite)
+            self._backend.put_experiment(experiment, append_runs=append_runs)
         self.log_event(experiment, exp_events.start, phase=phases.experiment)
 
     def log_stop_experiment(self, experiment):
@@ -851,7 +849,7 @@ class Run(MetadataEntity, _LoggerMixin):
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
             sp = Split(self, split, train_idx, val_idx, test_idx, **self._metadata)
             sp.execute()
-            if self._keep_splits:
+            if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
         self.log_stop_run(self)
 
@@ -1037,11 +1035,11 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
-        self.log_start_experiment(self)
+        self.log_start_experiment(self, append_runs)
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
-        if self._keep_runs:
+        if self._keep_runs or self._backend is None:
             self._runs.append(r)
         self._last_run = r
         self.log_stop_experiment(self)
@@ -1086,7 +1084,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
     @property
     def runs(self):
-        if self._keep_runs:
+        if self._runs is not None:
             return self._runs
         else:
             # load splits from backend.
