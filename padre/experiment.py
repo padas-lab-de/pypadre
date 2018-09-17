@@ -423,8 +423,15 @@ class SKLearnWorkflow:
                                transforms=None, clustering=None)
                 metrics = dict()
                 metrics['dataset'] = ctx.dataset.name
+
+                # Check if the final estimator has an attribute called probability and if it has check if it is True
+                # SVC has such an attribute
+                compute_probabilities = True
+                if hasattr(self._pipeline.steps[-1][1], 'probability') and not self._pipeline.steps[-1][1].probability:
+                    compute_probabilities = False
+
                 # log the probabilities of the result too if the method is present
-                if 'predict_proba' in dir(self._pipeline.steps[-1][1]):
+                if 'predict_proba' in dir(self._pipeline.steps[-1][1]) and compute_probabilities:
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
                     ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
                                    truth=y, probabilities=y_predicted_probabilities,
