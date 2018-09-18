@@ -35,7 +35,8 @@ def main():
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
     params_svc = {'C': [0.5, 1.0, 1.5],
-                  'degree': [1,2,3,4]}
+                  'degree': [1,2,3,4],
+                  'probability': [True]}
     params_ = {'SVC': params_svc}
     workflow = experiment_helper.create_test_pipeline(['SVC'])
     experiment_param_dict['Grid_search_experiment_3'] = experiment_helper.convert_alternate_estimator_names(params_)
