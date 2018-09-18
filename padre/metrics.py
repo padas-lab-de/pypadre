@@ -604,6 +604,7 @@ class CompareMetrics:
         :param options: Any other option possible, like micro averaged, macro averaged etc
 
         :return: A pandas data frame containing the results of the query
+        
         TODO: The options functionality is not yet implemented
         """
         if query is None:
