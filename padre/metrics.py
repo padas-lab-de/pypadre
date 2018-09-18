@@ -604,6 +604,7 @@ class CompareMetrics:
         :param options: Any other option possible, like micro averaged, macro averaged etc
 
         :return: A pandas data frame containing the results of the query
+        
         TODO: The options functionality is not yet implemented
         """
         if query is None:
@@ -750,6 +751,15 @@ class CompareMetrics:
 
         if len(data_report) > 0 and len(data_report[0]) == len(display_columns):
             df.columns = display_columns
+
+        if metrics.get('type', None) == 'regression':
+            for metric in regression_metrics:
+                df[metric] = df[metric].astype(float)
+
+        elif metrics.get('type', None) == 'classification':
+            for metric in classification_metrics:
+                df[metric] = df[metric].astype(float)
+
         return df
 
     def get_experiment_directores(self):
