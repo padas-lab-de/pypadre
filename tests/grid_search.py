@@ -1,9 +1,9 @@
 import copy
 import pprint
 
-from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment
-from padre.ExperimentCreator import  ExperimentCreator
+
+from padre.ExperimentCreator import ExperimentCreator
 
 def main():
     from padre.app import pypadre
@@ -21,24 +21,25 @@ def main():
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
 
-    experiment_param_dict['Grid_search_experiment_1'] = copy.deepcopy(param_value_dict)
+    experiment_param_dict['Grid_search_experiment_1'] = experiment_helper.convert_alternate_estimator_names(param_value_dict)
 
     params_isomap = {'n_neighbors': [2, 8, 10], 'n_components': [3, 7]}
     params_pca = {'n_components': [4, 5]}
     param_value_dict['isomap embedding'] = params_isomap
-    param_value_dict['principal component analysis'] = params_pca
-    experiment_param_dict['Grid_search_experiment_2'] = copy.deepcopy(param_value_dict)
-    workflow = experiment_helper.create_test_pipeline(['principal component analysis', 'isomap embedding'])
+    param_value_dict['pca'] = params_pca
+    experiment_param_dict['Grid_search_experiment_2'] = experiment_helper.convert_alternate_estimator_names(param_value_dict)
+    workflow = experiment_helper.create_test_pipeline(['pca', 'isomap embedding'])
     experiment_helper.create_experiment(name='Grid_search_experiment_2',
                                         description='This is the second grid search test experiment',
                                         dataset=experiment_helper.get_local_dataset('Boston_House_Prices'),
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
     params_svc = {'C': [0.5, 1.0, 1.5],
-                  'degree': [1,2,3,4]}
-    params_ = {'c-oja pas vector classification': params_svc}
-    workflow = experiment_helper.create_test_pipeline(['c-oja pas vector classification'])
-    experiment_param_dict['Grid_search_experiment_3'] = copy.deepcopy(params_)
+                  'degree': [1,2,3,4],
+                  'probability': [True]}
+    params_ = {'SVC': params_svc}
+    workflow = experiment_helper.create_test_pipeline(['SVC'])
+    experiment_param_dict['Grid_search_experiment_3'] = experiment_helper.convert_alternate_estimator_names(params_)
     experiment_helper.create_experiment(name='Grid_search_experiment_3',
                                         description='Grid search experiment with SVC',
                                         dataset=experiment_helper.get_local_dataset('Iris'),
@@ -48,9 +49,9 @@ def main():
     params_pca = {'n_components': [1, 2, 3, 4, 5, 6]}
     params_svr = {'C': [0.5, 1.0, 1.5],
                   'degree': [1, 2, 3]}
-    params_dict_svr = {'epsilon-support vector regression': params_svr, 'principal component analysis': params_pca}
-    workflow = experiment_helper.create_test_pipeline(['principal component analysis', 'epsilon-support vector regression'])
-    experiment_param_dict['Grid_search_experiment_4'] = copy.deepcopy(params_dict_svr)
+    params_dict_svr = {'SVR': params_svr, 'pca': params_pca}
+    workflow = experiment_helper.create_test_pipeline(['pca', 'SVR'])
+    experiment_param_dict['Grid_search_experiment_4'] = experiment_helper.convert_alternate_estimator_names(params_dict_svr)
     experiment_helper.create_experiment(name='Grid_search_experiment_4',
                                         description='Grid search experiment with SVR',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'),
@@ -58,10 +59,10 @@ def main():
                                         backend=pypadre.file_repository.experiments
                                         )
 
-    workflow = experiment_helper.create_test_pipeline(['principal component analysis', 'logistic regression'])
+    workflow = experiment_helper.create_test_pipeline(['pca', 'MaxEnt'])
     params_logistic_pca = {'n_components': [4, 5, 6, 7, 10]}
-    params_dict_logistic = {'principal component analysis': params_logistic_pca}
-    experiment_param_dict['Grid_search_experiment_5'] = copy.deepcopy(params_dict_logistic)
+    params_dict_logistic = {'pca': params_logistic_pca}
+    experiment_param_dict['Grid_search_experiment_5'] = experiment_helper.convert_alternate_estimator_names(params_dict_logistic)
     experiment_helper.create_experiment(name='Grid_search_experiment_5',
                                         description='Grid search experiment with logistic regression',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'),
@@ -71,7 +72,6 @@ def main():
     experiments_dict = experiment_helper.experiments
     # Run all the experiments in the list
     for experiment in experiments_dict:
-        print(experiment)
         ex = Experiment(name=experiment,
                         description=experiments_dict.get(experiment).get('description'),
                         dataset=experiments_dict.get(experiment).get('dataset', None),
