@@ -334,6 +334,12 @@ class ExperimentCreator:
         """
         from sklearn.pipeline import Pipeline
         estimators = []
+
+        # If the params dict is not none, check whether any alternate estimator names are given and convert the
+        # alternate estimator names to actual estimator names
+        if param_value_dict is not None:
+            name_updated_params = self.convert_alternate_estimator_names(param_value_dict)
+
         for estimator_name in estimator_list:
             if self._workflow_components.get(estimator_name, None) is None and \
                     self._estimator_alternate_names.get(str(estimator_name).upper(), None) is None:
@@ -341,21 +347,16 @@ class ExperimentCreator:
                                      ''.join([estimator_name + ' not present in list']))
                 return None
 
-            curr_estimator_name = estimator_name
+            actual_estimator_name = estimator_name
             if self._estimator_alternate_names.get(str(estimator_name).upper(), None) is not None:
-                curr_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper())
+                actual_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper())
 
-            # Deep copy of the estimator because the estimator object is mutable
-            estimator = self.get_estimator_object(curr_estimator_name)
-            estimators.append((curr_estimator_name, estimator))
+            # Copy of the estimator because the estimator object is mutable
+            estimator = self.get_estimator_object(actual_estimator_name)
+            estimators.append((actual_estimator_name, estimator))
             if param_value_dict is not None and \
-                    param_value_dict.get(estimator_name) is not None:
-                self.set_parameters(estimator, curr_estimator_name, param_value_dict.get(estimator_name))
-
-            if param_value_dict is not None and \
-                    param_value_dict.get(curr_estimator_name) is not None:
-                self.set_parameters(estimator, curr_estimator_name, param_value_dict.get(curr_estimator_name))
-
+                    name_updated_params.get(actual_estimator_name) is not None:
+                self.set_parameters(estimator, actual_estimator_name, name_updated_params.get(actual_estimator_name))
 
         # Check if the created estimators are valid
         if not self.validate_pipeline(estimators):
