@@ -374,6 +374,8 @@ class SKLearnWorkflow:
     Workflows are used for abstracting from the underlying machine learning framework.
     """
 
+    _results = dict()
+
     def __init__(self, pipeline, step_wise=False):
         # check for final component to determine final results
         # if step wise is true, log intermediate results. Otherwise, log only final results.
@@ -404,6 +406,8 @@ class SKLearnWorkflow:
                     ctx.log_score(ctx, keys=["validation score"], values=[score])
 
     def infer(self, ctx, train_idx, test_idx):
+        from copy import deepcopy
+
         if self._step_wise:
             # step wise means going through every component individually and log their results / timing
             raise NotImplemented()
@@ -464,6 +468,10 @@ class SKLearnWorkflow:
 
                 result_logger.log_result(results)
 
+                self._results = deepcopy(results)
+
+
+
     def is_inferencer(self):
         return getattr(self._pipeline, "predict", None)
 
@@ -475,6 +483,10 @@ class SKLearnWorkflow:
 
     def configuration(self):
         return SciKitVisitor(self._pipeline)
+
+    @property
+    def results(self):
+        return self._results
 
     def compute_confusion_matrix(self, Predicted=None,
                                  Truth=None):
@@ -839,6 +851,8 @@ class Run(MetadataEntity, _LoggerMixin):
     According to the experiment setup the pipeline/workflow will be executed
     """
 
+    _results = []
+
     def __init__(self, experiment, workflow, **options):
         self._experiment = experiment
         self._workflow = workflow
@@ -850,6 +864,7 @@ class Run(MetadataEntity, _LoggerMixin):
         super().__init__(self._id, **options)
 
     def do_splits(self):
+        from copy import deepcopy
         self.log_start_run(self)
         # instantiate the splitter here based on the splitting configuration in options
         splitting = Splitter(self._experiment.dataset, **self._metadata)
@@ -858,11 +873,16 @@ class Run(MetadataEntity, _LoggerMixin):
             sp.execute()
             if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
+                self._results.append(deepcopy(self._experiment.workflow.results))
         self.log_stop_run(self)
 
     @property
     def experiment(self):
         return self._experiment
+
+    @property
+    def results(self):
+        return self._results
 
     def __str__(self):
         s = []
@@ -948,6 +968,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
         self._set_workflow(workflow)
         self._last_run = None
+        self._results = []
         super().__init__(options.pop("ex_id", None), **options)
 
         self._fill_sys_info()
@@ -1038,6 +1059,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         Otherwise, the experiment will be deleted
         :return:
         """
+        from copy import deepcopy
 
         # Update metadata with version details of packages used in the workflow
         self.update_experiment_metadata_with_workflow()
@@ -1053,6 +1075,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         r.do_splits()
         if self._keep_runs or self._backend is None:
             self._runs.append(r)
+            self._results.append(deepcopy(r.results))
         self._last_run = r
         self.log_stop_experiment(self)
 
@@ -1063,6 +1086,8 @@ class Experiment(MetadataEntity, _LoggerMixin):
         the second level key is the parameter name, and the value is a list of possible parameters
         :return: None
         """
+        from copy import deepcopy
+
         if parameters is None:
             self.run()
             return
@@ -1099,9 +1124,12 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
-            if self._keep_runs:
+
+            if self._keep_runs or self._backend is None:
                 self._runs.append(r)
+                self._results.append(deepcopy(r.results))
             self._last_run = r
+
         self.log_stop_experiment(self)
 
     @property
@@ -1115,6 +1143,10 @@ class Experiment(MetadataEntity, _LoggerMixin):
     @property
     def last_run(self):
         return self._last_run
+
+    @property
+    def results(self):
+        return self._results
 
     def __str__(self):
         s = []
