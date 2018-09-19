@@ -6,11 +6,11 @@ import requests
 from padre.constants import PADRE_API, HOST, USERNAME, PASSWORD
 
 
-class Uploader:
-    """Uploader helper to upload data to server"""
-    def __init__(self, project_name):
+class ExperimentUploader:
+    """Experiment uploader to upload data to server"""
+    def __init__(self, experiment, project_name="Test project"):
         """
-        This initializes the Uploader class.
+        This initializes the Uploader class for given experiment.
         """
         self._csrf_token = self.get_csrf_token()
         self._bearer_token = self.get_access_token()
@@ -20,8 +20,10 @@ class Uploader:
             'Content-Type': "application/json"
         }
         self.dataset_id = None
+        self.experiment_id = None
         self.project_id = None
         self.create_project(project_name)
+        self.upload_experiment(experiment)
 
     def get_csrf_token(self):
         """Get csrf token"""
@@ -30,6 +32,7 @@ class Uploader:
 
     def get_access_token(self):
         """Get access token"""
+        token = None
         data = {
             "username": USERNAME,
             "password": PASSWORD,
@@ -37,30 +40,37 @@ class Uploader:
         }
         url = PADRE_API + "/oauth/token?=" + self._csrf_token
         response = requests.post(url, data=data)
-        token = "Bearer " + json.loads(response.content)['access_token']
+        if response.status_code == 200:
+            token = "Bearer " + json.loads(response.content)['access_token']
         return token
+
+    def make_post_request(self, url, data):
+        """Makes post request and returns the id of newly created object."""
+        if self._bearer_token:
+            response = requests.post(url, data=data, headers=self._headers)
+            return response.headers['Location'].split('/')[-1]
+        else:
+            return None
 
     def create_dataset(self, data):
         """Create data set"""
         url = HOST + "/api/datasets"
         if isinstance(data, dict):
             data = json.dumps(data)
-        response = requests.post(url, data=data, headers=self._headers)
-        self.dataset_id = response.headers['Location'].split('/')[-1]
+        self.dataset_id = self.make_post_request(url, data)
 
     def create_project(self, name):
         """Create project on server"""
         url = HOST + "/api/projects"
         data = {"name": name, "owner": USERNAME}
-        response = requests.post(url, data=json.dumps(data), headers=self._headers)
-        self.project_id = response.headers['Location'].split('/')[-1]
+        self.project_id = self.make_post_request(url, json.dumps(data))
 
     def create_experiment(self, data):
         """Create experiment on server"""
         url = HOST + "/api/experiments"
         if isinstance(data, dict):
             data = json.dumps(data)
-        return requests.post(url, data=data, headers=self._headers)
+        self.experiment_id = self.make_post_request(url, data)
 
     def upload_experiment(self, experiment):
         """
