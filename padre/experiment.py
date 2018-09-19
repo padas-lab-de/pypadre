@@ -1171,7 +1171,9 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 # Split out only the first part from the module
                 module_name = obj.__module__
                 split_idx = module_name.find('.')
-                module_name = module_name[:split_idx]
+                # If it is a padre package, it may have its own package version, so keep the full path
+                if module_name[:split_idx] != 'padre':
+                    module_name = module_name[:split_idx]
 
                 # Add the module name if it is not present
                 if module_name not in modules:
