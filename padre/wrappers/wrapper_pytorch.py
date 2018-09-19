@@ -15,6 +15,7 @@ from torch.nn import Module
 # TODO: Batch processing to be implemented
 # TODO: Implement Recurrent Layers
 
+__version__ = '0.0.0'
 
 class Flatten(Module):
     """

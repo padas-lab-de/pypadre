@@ -6,6 +6,8 @@ import importlib
 import os
 import random
 
+__version__ = "0.0.0"
+
 class WrapperTensorFlow:
     """
     This class wraps the whole Tensorflow network and exposes an easy to use interface to the user

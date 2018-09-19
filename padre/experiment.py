@@ -1030,11 +1030,16 @@ class Experiment(MetadataEntity, _LoggerMixin):
         Otherwise, the experiment will be deleted
         :return:
         """
+
+        # Update metadata with version details of packages used in the workflow
+        self.update_experiment_metadata_with_workflow()
+
         # todo allow split wise execution of the individual workflow steps. some kind of reproduction / debugging mode
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
         self.log_start_experiment(self, append_runs)
+
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
@@ -1058,6 +1063,10 @@ class Experiment(MetadataEntity, _LoggerMixin):
         workflow = self._workflow
         master_list = []
         params_list = []
+
+        # Update metadata with version details of packages used in the workflow
+        self.update_experiment_metadata_with_workflow()
+
         self.log_start_experiment(self)
         for estimator in parameters:
             param_dict = parameters.get(estimator)
@@ -1136,3 +1145,42 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 self.traverse_dict(dictionary[key])
 
         return dictionary
+
+    def update_experiment_metadata_with_workflow(self):
+        """
+        This function updates the experiment's metadata with details of the different modules used in the pipeline and
+        the corresponding version number of the modules.
+
+        :return: None
+        """
+        import importlib
+
+        modules = list()
+        module_version_info = dict()
+
+        estimators =  self._workflow._pipeline.named_steps
+        # Iterate through the entire pipeline and find the unique modules
+        for estimator in estimators:
+            obj = estimators.get(estimator, None)
+
+            # If the estimator has module attribute, get the name of the module
+            if estimator is not None and hasattr(obj, "__module__"):
+                # module name would be of the form sklearn.utils.
+                # Split out only the first part from the module
+                module_name = obj.__module__
+                split_idx = module_name.find('.')
+                if module_name[:split_idx] != 'padre':
+                    module_name = module_name[:split_idx]
+
+                # Add the module name if it is not present
+                if module_name not in modules:
+                    modules.append(module_name)
+
+        # Obtain the version information of all the modules present in the list
+        for module in modules:
+            module_ =  importlib.import_module(module)
+            if hasattr(module_, "__version__"):
+                module_version_info[module] =  module_.__version__
+
+        self.metadata['versions'] = module_version_info
+
