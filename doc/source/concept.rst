@@ -5,7 +5,7 @@ PyPaDRE Concept
 Goals
 -----
 
-PaDRE (Open Science Machine Learning Reproduciblity Environment) provides a web-based platform to
+PaDRE (oPen mAchine learning and Data science Reproduciblity Environment [for education and research]) provides a web-based platform to
 collect, compare and analys machine learning experiments in a systematic and open way. It builds on
 Open Science principles and strives for improving research and education processes in disciplines
 related to Machine Learning and Data Science.
@@ -14,6 +14,63 @@ PyPaDRE is the Python-centric environment to create and execute Machine Learning
 It aims to be a **minimal-invasive environment** for evaluating Machine Learning and Data Science experiments in a
 **systematic and structured** way.
 While PyPaDRE can be used as standalone, local solution for running and comparing experiments, all results can - and in the spirit of Open Science should - be made available via the PaDRE platform.
+
+Use Cases
+---------
+
+Rapid Development Support
+*************************
+
+Padre's first use case is for rapid development by reducing scaffolding scientific experiments.
+Users should be given
+
+- easy access to datasets
+- convenience functions for setting up experiments
+- running the experiments
+- comparing and visualising results
+- packaging and deploying the experiment
+
+Every experiment run should be logged in order to keep the experiments traceable / comparable.
+
+Hyperparameter Optimization
+***************************
+
+After setting up an initial prototype, the next step is to do some initial hyperparameter tests.
+Padre should support this via a few lines of code and make it easy to analyse the optimized hyperparameters / runs.
+
+Large Scale Experimentation
+***************************
+
+Large scale experimentation aims at a later stage in the research cycle.
+After developing an initial prototype there is often the need to setup larger experiments and compare the different
+runs with each other, show error bars, test for statistical significance etc.
+Large scale experimentation aims to define an experiment and hyperparameters to be tested and to deploy the
+experiment runs over a larger cluster. Results could be checked online and compared online using web-based visualisation.
+Results can be converted in different formats (e.g. latex, markedown).
+
+
+Visual Analysis and Collaborative Exploration
+*********************************************
+
+Experimental results should be visualised / analysed in a interactive frontend and potentially discussed with others.
+
+Interactive Publishing and Versioned Result Publishing
+******************************************************
+
+Experimental results should be accessible online and embedded in online publications (e.g. Blogs).
+When new versions of experiments are available, a new version of the online publication should appear.
+The versions need to be trackable.
+
+Research Management and Collaboration
+*************************************
+
+Managing a smaller (PhD) or larger (funded project) research project should be fully supported by padre. This includes
+
+- source code management
+- experiment management and evaluation
+- formulation of research questions
+- collaboration on experiments, interpretation and writing
+- issue tracking and discussion
 
 Architecture
 ------------
@@ -55,7 +112,6 @@ For more details please refer to Setting up Experiments :ref:`setup_experiments`
 
 Experiment Evaluation
 ---------------------
-
 
 
 Storage
