@@ -702,6 +702,7 @@ class ExperimentCreator:
         from padre.app import pypadre
 
         if not (os.path.exists(filename)):
+            default_logger.warn(False, 'ExperimentCreator.parse_config_file', f"File does not exist {filename}. Return")
             return False
 
         # Load the experiments structure from the file
