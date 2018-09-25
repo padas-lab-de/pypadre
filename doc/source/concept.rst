@@ -110,6 +110,25 @@ Afterwards, it provides easy means to evaluate the experiments and compare them,
 
 For more details please refer to Setting up Experiments :ref:`setup_experiments`.
 
+Components and Hyperparameters
+******************************
+
+Hyperparameters are distinguished between
+
+- model parameters: parameters, that influence the model
+- optimizer parameters: parameters, that influence the optimizer
+- other parameters: parameters, not fitting into the above classes
+
+Hyperparameters can be specified by the individual components directly in code (recommended for smaller experiments) or
+via a mappings file, which is a `json` file that links metadata to the implementation in a library.
+The mapping file also provides an extensible mechanism to add new frameworks easily.
+Via an inspector pattern padre can extract from relevant parameters and components from an instantiated pipeline.
+
+Components follow some implementation details and provide `fit`, `infer` and configuration commands.
+
+TODO: describe more details.
+
+
 Experiment Evaluation
 ---------------------
 
@@ -120,6 +139,8 @@ Storage
 
 Metasearch and Automated Machine Learning
 -----------------------------------------
+
+
 
 PyPadre App and CLI
 -------------------
