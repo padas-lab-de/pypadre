@@ -228,7 +228,6 @@ class _LoggerMixin:
     _backend = None
     _stdout = False
     _events = {}
-    _overwrite = True
 
     def _padding(self, source):
         if isinstance(source, Split):
@@ -238,14 +237,14 @@ class _LoggerMixin:
         else:
             return ""
 
-    def log_start_experiment(self, experiment):
+    def log_start_experiment(self, experiment, append_runs:bool =False):
         if self.has_backend():
-            # todo overwrite solution not good. we need a mechanism to add runs
-            self._backend.put_experiment(experiment, allow_overwrite=self._overwrite)
+            self._backend.put_experiment(experiment, append_runs=append_runs)
         self.log_event(experiment, exp_events.start, phase=phases.experiment)
 
     def log_stop_experiment(self, experiment):
         self.log_event(experiment, exp_events.stop, phase=phases.experiment)
+        default_logger.close_log_file()
 
     def log_start_run(self, run):
         if self.has_backend():
@@ -425,8 +424,15 @@ class SKLearnWorkflow:
                                transforms=None, clustering=None)
                 metrics = dict()
                 metrics['dataset'] = ctx.dataset.name
+
+                # Check if the final estimator has an attribute called probability and if it has check if it is True
+                # SVC has such an attribute
+                compute_probabilities = True
+                if hasattr(self._pipeline.steps[-1][1], 'probability') and not self._pipeline.steps[-1][1].probability:
+                    compute_probabilities = False
+
                 # log the probabilities of the result too if the method is present
-                if 'predict_proba' in dir(self._pipeline.steps[-1][1]):
+                if 'predict_proba' in dir(self._pipeline.steps[-1][1]) and compute_probabilities:
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
                     ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
                                    truth=y, probabilities=y_predicted_probabilities,
@@ -850,7 +856,7 @@ class Run(MetadataEntity, _LoggerMixin):
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
             sp = Split(self, split, train_idx, val_idx, test_idx, **self._metadata)
             sp.execute()
-            if self._keep_splits:
+            if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
         self.log_stop_run(self)
 
@@ -1032,15 +1038,20 @@ class Experiment(MetadataEntity, _LoggerMixin):
         Otherwise, the experiment will be deleted
         :return:
         """
+
+        # Update metadata with version details of packages used in the workflow
+        self.update_experiment_metadata_with_workflow()
+
         # todo allow split wise execution of the individual workflow steps. some kind of reproduction / debugging mode
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
-        self.log_start_experiment(self)
+        self.log_start_experiment(self, append_runs)
+
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
-        if self._keep_runs:
+        if self._keep_runs or self._backend is None:
             self._runs.append(r)
         self._last_run = r
         self.log_stop_experiment(self)
@@ -1060,6 +1071,10 @@ class Experiment(MetadataEntity, _LoggerMixin):
         workflow = self._workflow
         master_list = []
         params_list = []
+
+        # Update metadata with version details of packages used in the workflow
+        self.update_experiment_metadata_with_workflow()
+
         self.log_start_experiment(self)
         for estimator in parameters:
             param_dict = parameters.get(estimator)
@@ -1075,8 +1090,12 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 split_params = param.split(sep='.')
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
 
-                if estimator is not None:
-                    estimator.set_params(**{split_params[1]: element[idx]})
+                if estimator is None:
+                    default_logger.warn(False, self,
+                                        f"Estimator {split_params[0]} is not present in the pipeline")
+                    break
+
+                estimator.set_params(**{split_params[1]: element[idx]})
 
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
@@ -1087,7 +1106,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
     @property
     def runs(self):
-        if self._keep_runs:
+        if self._runs is not None:
             return self._runs
         else:
             # load splits from backend.
@@ -1128,3 +1147,43 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 self.traverse_dict(dictionary[key])
 
         return dictionary
+
+    def update_experiment_metadata_with_workflow(self):
+        """
+        This function updates the experiment's metadata with details of the different modules used in the pipeline and
+        the corresponding version number of the modules.
+
+        :return: None
+        """
+        import importlib
+
+        modules = list()
+        module_version_info = dict()
+
+        estimators =  self._workflow._pipeline.named_steps
+        # Iterate through the entire pipeline and find the unique modules
+        for estimator in estimators:
+            obj = estimators.get(estimator, None)
+
+            # If the estimator has module attribute, get the name of the module
+            if estimator is not None and hasattr(obj, "__module__"):
+                # module name would be of the form sklearn.utils.
+                # Split out only the first part from the module
+                module_name = obj.__module__
+                split_idx = module_name.find('.')
+                # If it is a padre package, it may have its own package version, so keep the full path
+                if module_name[:split_idx] != 'padre':
+                    module_name = module_name[:split_idx]
+
+                # Add the module name if it is not present
+                if module_name not in modules:
+                    modules.append(module_name)
+
+        # Obtain the version information of all the modules present in the list
+        for module in modules:
+            module_ =  importlib.import_module(module)
+            if hasattr(module_, "__version__"):
+                module_version_info[module] =  module_.__version__
+
+        self.metadata['versions'] = module_version_info
+
