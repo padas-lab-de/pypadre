@@ -5,7 +5,6 @@ Command Line Interface for PADRE.
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
 import click
 import padre.app.padre_app as app
-from padre.app.padre_app import PythonLiteralOption
 from padre.app import pypadre
 
 
@@ -187,8 +186,8 @@ def load_config_file(ctx, filename):
 
 @pypadre_cli.command(name="compare_metrics")
 @click.option('--path', default=None, help='Path of the experiment whose runs are to be compared')
-@click.option('--query', cls=PythonLiteralOption, default="all", help="Results to be displayed based on the runs")
-@click.option('--metrics',cls=PythonLiteralOption, default=None, help='Metrics to be displayed')
+@click.option('--query', default="all", help="Results to be displayed based on the runs")
+@click.option('--metrics', default=None, help='Metrics to be displayed')
 @click.pass_context
 def compare_runs(ctx, path, query, metrics):
     metrics_list = None
@@ -229,7 +228,7 @@ def get_available_estimators(ctx):
 
 
 @pypadre_cli.command(name="list_estimator_params")
-@click.option('--estimator_name', cls=PythonLiteralOption, default=None, help='Params of this estimator will be displayed')
+@click.option('--estimator_name', default=None, help='Params of this estimator will be displayed')
 @click.option('--selected_params', default=None, help='List the values of only these parameters')
 @click.option('--return_all_values', default=None,
               help='Returns all the parameter values for the estimator including the default values')
