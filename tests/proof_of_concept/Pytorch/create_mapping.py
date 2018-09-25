@@ -58,10 +58,10 @@ hyperparameters_dict[execution_parameters] = execution_parameters_list
 
 pytorch_dict[hyper_parameters] = hyperparameters_dict
 
-algorithms_dict = dict()
-algorithms_dict[algorithms] = pytorch_dict
+algorithms_list = []
+algorithms_list.append(pytorch_dict)
 
 cwd = os.getcwd()
 print(cwd)
 with open('torch.json', 'w') as fp:
-    json.dump(algorithms_dict, fp)
+    json.dump(algorithms_list, fp)
