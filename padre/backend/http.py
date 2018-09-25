@@ -36,6 +36,7 @@ class PadreHTTPClient:
             self.silent_codes = []
         else:
             self.silent_codes = silent_codes
+        self._access_token = self.get_access_token()
 
     def do_request(self, request, url, **body):
         """
@@ -190,9 +191,34 @@ class PadreHTTPClient:
         else:
             return PadreHTTPClient.paths[kind](id)
 
+    def get_access_token(self):
+        """Get access token"""
+        token = None
+        data = {
+            "username": self.user,
+            "password": self.passwd,
+            "grant_type": "password"
+        }
+        api = PadreHTTPClient.paths["padre-api"]
+        try:
+            csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
+        except req.exceptions.ConnectionError:
+            return token
+        url = api + "/oauth/token?=" + csrf_token
+        response = req.post(url, data)
+        if response.status_code == 200:
+            token = "Bearer " + json.loads(response.content)['access_token']
+        return token
+
+    def has_token(self):
+        if self._access_token is not None:
+            return True
+        return False
+
 
 
 PadreHTTPClient.paths = {
+    "padre-api": "http://padre-api:@localhost:8080",
     "datasets": "/datasets",
     "dataset": lambda id: "/datasets/" + id + "/",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',

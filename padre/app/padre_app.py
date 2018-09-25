@@ -34,8 +34,8 @@ else:
 
 _DEFAULT_HTTP_CONFIG = {
         "base_url": _BASE_URL,
-        "user": "",
-        "passwd": ""
+        "user": "hmafnan",
+        "passwd": "test"
     }
 
 
