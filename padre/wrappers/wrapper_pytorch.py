@@ -56,6 +56,7 @@ class WrapperPytorch:
     model = None
     lr_scheduler = None
     optimizer = None
+    architecture = None
 
     transforms = None
 
@@ -101,9 +102,9 @@ class WrapperPytorch:
         self.pre_trained_model_path = params.get('model', None)
         self.model_prefix = params.get('model_prefix', "")
 
-        architecture = params.get('architecture', None)
+        self.architecture = params.get('architecture', None)
         layer_order = params.get('layer_order', None)
-        shape = self.create_network_shape(architecture=architecture, layer_order=layer_order)
+        shape = self.create_network_shape(architecture=self.architecture, layer_order=layer_order)
 
         # Failed network creation
         if shape is None:
@@ -131,6 +132,57 @@ class WrapperPytorch:
 
         if params.get('lr_scheduler', None) is not None:
             self.create_lr_scheduler(params.get('lr_scheduler'))
+
+    def set_params(self, params):
+        '''
+        This function allows individual parameters to be set to a pytorch network
+
+        :param params: The parameters to be set
+
+        :return: None
+        '''
+
+        # Copy the newly added params
+        for param in params:
+            self.params[param] = params.get(param)
+
+        self.steps = params.get('steps', self.steps)
+        self.checkpoint = params.get('checkpoint', self.checkpoint)
+        self.batch_size = params.get('batch_size', self.batch_size)
+        self.resume = params.get('resume', self.resume)
+        self.pre_trained_model_path = params.get('model', self.pre_trained_model_path)
+        self.model_prefix = params.get('model_prefix', self.model_prefix)
+
+        self.architecture = params.get('architecture', self.architecture)
+        layer_order = params.get('layer_order', None)
+        shape = self.create_network_shape(architecture=self.architecture, layer_order=layer_order)
+
+        # Failed network creation
+        if shape is None:
+            return
+
+        transformers_ = self.params.get('transforms', None)
+        transform_order = self.params.get('transform_order', None)
+
+        if transformers_ is not None and transform_order is not None:
+            self.create_transforms(transformers=transformers_, transform_order=transform_order)
+
+        self.model = self.create_model(shape)
+
+        loss = params.get('loss', dict())
+        loss_name = loss.get('name', 'MSELoss')
+        loss_params = loss.get('params', None)
+        self.loss = self.create_loss(loss_name, loss_params)
+
+        optimizer = params.get('optimizer', dict())
+        optimizer_type = optimizer.get('type', None)
+        optimizer_params = optimizer.get('params', None)
+        self.optimizer = self.create_optimizer(optimizer_type=optimizer_type,
+                                               params=optimizer_params)
+
+        if params.get('lr_scheduler', None) is not None:
+            self.create_lr_scheduler(params.get('lr_scheduler'))
+
 
     def fit(self, x, y):
         """
