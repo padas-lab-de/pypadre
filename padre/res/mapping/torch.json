@@ -1,25 +1,27 @@
 {
-    "algorithms": {
-        "name": "pytorch",
-        "other_names": [],
-        "wikidata_id": "Q47509047",
-        "implementation": {
-            "pytorch": "padre.pypadre.wrappers.wrapper_pytorch"
-        },
-        "type": "Neural Network",
-        "hyper_parameters": {
-            "model_parameters": [
-                {
-                    "name": "steps",
-                    "kind_of_value": "integer",
-                    "range": "Z >= 1",
-                    "optional": false,
-                    "description": "Number of iterations that the data should pass through the Neural Network",
-                    "measurement_scale": "interval"
-                }
-            ],
-            "optimization_parameters": [],
-            "execution_parameters": []
+    "algorithms": [
+        {
+            "name": "pytorch",
+            "other_names": [],
+            "wikidata_id": "Q47509047",
+            "implementation": {
+                "pytorch": "padre.pypadre.wrappers.wrapper_pytorch"
+            },
+            "type": "Neural Network",
+            "hyper_parameters": {
+                "model_parameters": [
+                    {
+                        "name": "steps",
+                        "kind_of_value": "integer",
+                        "range": "Z >= 1",
+                        "optional": false,
+                        "description": "Number of iterations that the data should pass through the Neural Network",
+                        "measurement_scale": "interval"
+                    }
+                ],
+                "optimization_parameters": [],
+                "execution_parameters": []
+            }
         }
-    }
+    ]
 }
