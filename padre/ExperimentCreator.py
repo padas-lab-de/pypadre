@@ -630,7 +630,6 @@ class ExperimentCreator:
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
                 ex.grid_search(parameters=self._param_value_dict.get(experiment))
 
-
     def parse_config_file(self, filename):
         """
         The function parses a JSON file which contains the necessary parameters for creating experiments
