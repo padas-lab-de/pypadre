@@ -16,6 +16,7 @@ from torch.nn import Module
 # TODO: Implement Recurrent Layers
 
 __version__ = '0.0.0'
+__doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method to use the layers of the PyTorch library in a Scikit-learn pipeline"
 
 class Flatten(Module):
     """
@@ -44,7 +45,7 @@ class TestLayer(Module):
 
 
 class WrapperPytorch:
-
+    __doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method to use the layers of the PyTorch library in a Scikit-learn pipeline"
     # The different dictionaries containing information about the objects, its parameters etc
     layers_dict = None
     transforms_dict = None

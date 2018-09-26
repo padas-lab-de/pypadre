@@ -7,6 +7,8 @@ import os
 
 type_mappings = {}
 name_mappings = {}
+# TODO: Currently hard coded, but later should be read from the library tag in the mapping file
+supported_frameworks = ['scikit-learn', 'pytorch']
 
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../res/mapping"))
 mapping_files = os.listdir(path)
