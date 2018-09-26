@@ -15,11 +15,23 @@
                         "kind_of_value": "integer",
                         "range": "Z >= 1",
                         "optional": false,
-                        "description": "Number of iterations that the data should pass through the Neural Network",
-                        "measurement_scale": "interval",
+                        "description": "Number of iterations that the Neural network should be optimized by backward pass",
+                        "measurement_scale": "ratio",
                         "pytorch": {
                             "path": "steps",
                             "default_value": 100
+                        }
+                    },
+                    {
+                        "name": "batch_size",
+                        "kind_of_value": "integer",
+                        "range": "Z >= 1",
+                        "optional": false,
+                        "description": "",
+                        "measurement_scale": "ratio",
+                        "pytorch": {
+                            "path": "batch_size",
+                            "default_value": 1
                         }
                     }
                 ],

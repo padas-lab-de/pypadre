@@ -3,6 +3,7 @@ This file creates a JSON file for the mappings. It contains a detailed informati
 """
 import os
 import json
+from copy import deepcopy
 
 algorithms = "algorithms"
 model_parameters = "model_parameters"
@@ -37,21 +38,40 @@ pytorch_dict[type_] = "Neural Network"
 # Model Hyperparameters
 model_parameters_list = []
 
+# Steps
 steps_dict = dict()
 steps = "steps"
 steps_dict[name] = steps
 steps_dict[kind_of_value] = integer_
 steps_dict[range] = range_greater_than_one
 steps_dict[optional] = False
-steps_dict[description] = "Number of iterations that the data should pass through the Neural Network"
-steps_dict[measurement_scale] = "interval"
+steps_dict[description] = "Number of iterations that the Neural network should be optimized by backward pass"
+steps_dict[measurement_scale] = "ratio"
 
 steps_implementation_dict = dict()
 steps_implementation_dict[path] = steps
 steps_implementation_dict[default_value] = 100
 
 steps_dict[pytorch] = steps_implementation_dict
-model_parameters_list.append(steps_dict)
+model_parameters_list.append(deepcopy(steps_dict))
+
+# Batch Size
+batch_size_dict = dict()
+batch_size = "batch_size"
+batch_size_dict[name] = batch_size
+batch_size_dict[kind_of_value] = integer_
+batch_size_dict[range] = range_greater_than_one
+batch_size_dict[optional] = False
+batch_size_dict[description] = ""
+batch_size_dict[measurement_scale] = "ratio"
+
+batch_size_implementation_dict = dict()
+batch_size_implementation_dict[path] = batch_size
+batch_size_implementation_dict[default_value] = 1
+
+batch_size_dict[pytorch] = batch_size_implementation_dict
+model_parameters_list.append(deepcopy(batch_size_dict))
+
 
 # Model optimization parameters
 optimization_parameters_list = []

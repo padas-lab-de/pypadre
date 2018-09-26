@@ -57,10 +57,10 @@
       "step_size": 25
     }
   },
-  "steps": 100,
+  "steps": 120,
   "batch_size": 5,
   "checkpoint": 10,
   "resume":false,
-  "model":"/home/christofer/PycharmProjects/PyPaDRe/tests/proof_of_concept/Pytorch/model_20",
+  "model":"/home/christofer/PycharmProjects/PyPaDRe/tests/proof_of_concept/Pytorch/regression_model_20",
   "model_prefix":"regression"
 }
