@@ -39,6 +39,8 @@ class ExperimentCreator:
 
     _param_types_dict = dict()
 
+    _estimator_alternate_names = dict()
+
     _param_type_mappings = {
                             u'integer':int,
                             u'float':float,
@@ -62,6 +64,8 @@ class ExperimentCreator:
         self._parameters, self._param_implementation, self._param_types_dict = self.initialize_estimator_parameters_implementation()
 
         self._local_dataset = self.initialize_dataset_names()
+
+        self.populate_alternate_names()
 
     def typecast_variable(self, param, allowed_types):
         """
@@ -330,21 +334,32 @@ class ExperimentCreator:
         """
         from sklearn.pipeline import Pipeline
         estimators = []
+
         if estimator_list is None:
             return None
 
+        # If the params dict is not none, check whether any alternate estimator names are given and convert the
+        # alternate estimator names to actual estimator names
+        if param_value_dict is not None:
+            name_updated_params = self.convert_alternate_estimator_names(param_value_dict)
+
         for estimator_name in estimator_list:
-            if self._workflow_components.get(estimator_name) is None:
+            if self._workflow_components.get(estimator_name, None) is None and \
+                    self._estimator_alternate_names.get(str(estimator_name).upper(), None) is None:
                 default_logger.error(False, 'ExperimentCreator.create_test_pipleline',
                                      ''.join([estimator_name + ' not present in list']))
                 return None
 
-            # Deep copy of the estimator because the estimator object is mutable
-            estimator = self.get_estimator_object(estimator_name)
-            estimators.append((estimator_name, estimator))
+            actual_estimator_name = estimator_name
+            if self._estimator_alternate_names.get(str(estimator_name).upper(), None) is not None:
+                actual_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper())
+
+            # Copy of the estimator because the estimator object is mutable
+            estimator = self.get_estimator_object(actual_estimator_name)
+            estimators.append((actual_estimator_name, estimator))
             if param_value_dict is not None and \
-                    param_value_dict.get(estimator_name) is not None:
-                self.set_parameters(estimator, estimator_name, param_value_dict.get(estimator_name))
+                    name_updated_params.get(actual_estimator_name) is not None:
+                self.set_parameters(estimator, actual_estimator_name, name_updated_params.get(actual_estimator_name))
 
         # Check if the created estimators are valid
         if not self.validate_pipeline(estimators):
@@ -630,6 +645,48 @@ class ExperimentCreator:
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
                 ex.grid_search(parameters=self._param_value_dict.get(experiment))
 
+    def populate_alternate_names(self):
+        """
+        This function populates the alternate names of estimators from name_mappings
+
+        :return: None
+        """
+
+        for estimator in name_mappings:
+            estimator_params = name_mappings.get(estimator)
+
+            other_names = estimator_params.get('other_names', None)
+
+            for name in other_names:
+                self._estimator_alternate_names[str(name).upper()] = estimator
+
+    def convert_alternate_estimator_names(self, params_dict):
+        """
+        This function converts the alternate parameter names to actual parameter names to pass to the experiment class
+
+        :param params_dict: A dictionary containing the parameters of the estimator
+
+        :return: A dictionary containing the parameter with the key as the actual estimator name
+        """
+
+        modified_params_dict = dict()
+
+        for estimator_name in params_dict:
+
+            curr_params = params_dict.get(estimator_name)
+
+            if self._workflow_components.get(estimator_name, None) is not None:
+                modified_params_dict[estimator_name] = copy.deepcopy(curr_params)
+
+            # User has used an alternate name of the estimator
+            elif self._workflow_components.get(estimator_name, None) is None and \
+                    self._estimator_alternate_names.get(str(estimator_name).upper(), None) is not None:
+
+                actual_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper(), None)
+                modified_params_dict[actual_estimator_name] = copy.deepcopy(curr_params)
+
+        return copy.deepcopy(modified_params_dict)
+
     def parse_config_file(self, filename):
         """
         The function parses a JSON file which contains the necessary parameters for creating experiments
@@ -645,6 +702,7 @@ class ExperimentCreator:
         from padre.app import pypadre
 
         if not (os.path.exists(filename)):
+            default_logger.warn(False, 'ExperimentCreator.parse_config_file', f"File does not exist {filename}. Return")
             return False
 
         # Load the experiments structure from the file
