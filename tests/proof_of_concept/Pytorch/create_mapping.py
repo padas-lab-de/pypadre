@@ -16,6 +16,9 @@ implementation = "implementation"
 description = "description"
 measurement_scale = "measurement_scale"
 hyper_parameters = "hyper_parameters"
+pytorch = "pytorch"
+path = "path"
+default_value = "default_value"
 type_ = "type"
 kind_of_value = "kind_of_value"
 integer_ = "integer"
@@ -43,6 +46,11 @@ steps_dict[optional] = False
 steps_dict[description] = "Number of iterations that the data should pass through the Neural Network"
 steps_dict[measurement_scale] = "interval"
 
+steps_implementation_dict = dict()
+steps_implementation_dict[path] = steps
+steps_implementation_dict[default_value] = 100
+
+steps_dict[pytorch] = steps_implementation_dict
 model_parameters_list.append(steps_dict)
 
 # Model optimization parameters
