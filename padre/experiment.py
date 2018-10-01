@@ -860,6 +860,7 @@ class Run(MetadataEntity, _LoggerMixin):
         self._stdout = experiment.stdout
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
+        self._results = []
         self._id = options.pop("run_id", None)
         super().__init__(self._id, **options)
 
