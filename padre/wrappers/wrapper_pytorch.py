@@ -607,7 +607,7 @@ class WrapperPytorch:
             scheduler_obj = class_(**curr_params)
 
             # Passed by reference as passing a copy results in an error while training
-            self.lr_scheduler =  scheduler_obj
+            self.lr_scheduler = scheduler_obj
 
     def create_transforms(self, transformers, transform_order):
         """

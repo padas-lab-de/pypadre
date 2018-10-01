@@ -27,11 +27,57 @@
                         "kind_of_value": "integer",
                         "range": "Z >= 1",
                         "optional": false,
-                        "description": "",
+                        "description": "Number of samples acquired for each iteration",
                         "measurement_scale": "ratio",
                         "pytorch": {
                             "path": "batch_size",
                             "default_value": 1
+                        }
+                    },
+                    {
+                        "name": "checkpoint",
+                        "kind_of_value": "integer",
+                        "range": "Z >= 1",
+                        "optional": true,
+                        "description": "A save point for the intermediate trained model is created every N number of iterations",
+                        "measurement_scale": "ratio",
+                        "pytorch": {
+                            "path": "checkpoint",
+                            "default_value": null
+                        }
+                    },
+                    {
+                        "name": "resume",
+                        "kind_of_value": "boolean",
+                        "range": "{True, False}",
+                        "optional": true,
+                        "description": "Allows the model to resume training based on an earlier saved check point",
+                        "measurement_scale": "nominal",
+                        "pytorch": {
+                            "path": "resume",
+                            "default_value": false
+                        }
+                    },
+                    {
+                        "name": "pre_trained_model_path",
+                        "kind_of_value": "string",
+                        "optional": true,
+                        "description": "Path of a saved model to be loaded for continuing the training",
+                        "measurement_scale": "ordinal",
+                        "pytorch": {
+                            "path": "pre_trained_model_path",
+                            "default_value": null
+                        }
+                    },
+                    {
+                        "name": "model_prefix",
+                        "kind_of_value": "string",
+                        "optional": true,
+                        "description": "The prefix string to be given to the name of the model",
+                        "measurement_scale": "ordinal",
+                        "pytorch": {
+                            "path": "model_prefix",
+                            "default_value": "model_prefix"
                         }
                     }
                 ],
