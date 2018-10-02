@@ -752,13 +752,16 @@ class CompareMetrics:
         if len(data_report) > 0 and len(data_report[0]) == len(display_columns):
             df.columns = display_columns
 
+        # Update only those columns that are present in the data frame
         if metrics.get('type', None) == 'regression':
             for metric in regression_metrics:
-                df[metric] = df[metric].astype(float)
+                if df.get(metric, None) is not None:
+                    df[metric] = df[metric].astype(float)
 
         elif metrics.get('type', None) == 'classification':
             for metric in classification_metrics:
-                df[metric] = df[metric].astype(float)
+                if df.get(metric, None) is not None:
+                    df[metric] = df[metric].astype(float)
 
         return df
 

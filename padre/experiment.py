@@ -37,7 +37,7 @@ from time import time
 import numpy as np
 
 import padre.visitors.parameter
-from padre.base import MetadataEntity, default_logger, result_logger
+from padre.base import MetadataEntity, default_logger
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
 
@@ -260,6 +260,9 @@ class _LoggerMixin:
         self.log_event(split, exp_events.start, phase=phases.split)
 
     def log_stop_split(self, split):
+        if self.has_backend():
+            self._backend.put_results(self.run.experiment, self.run, split, split.run._workflow.results)
+            self._backend.put_metrics(self.run.experiment, self.run, split, split.run._workflow.metrics)
         self.log_event(split, exp_events.stop, phase=phases.split)
 
     def log_event(self, source, kind=None, **parameters):
@@ -375,6 +378,7 @@ class SKLearnWorkflow:
     """
 
     _results = dict()
+    _metrics = dict()
 
     def __init__(self, pipeline, step_wise=False):
         # check for final component to determine final results
@@ -382,6 +386,8 @@ class SKLearnWorkflow:
         # distingusish between training and fitting in classification.
         self._pipeline = pipeline
         self._step_wise = step_wise
+        self._results = dict()
+        self._metrics = dict()
 
     def fit(self, ctx):
         # todo split as parameter just for logging is not very good design. Maybe builder pattern would be better?
@@ -457,7 +463,8 @@ class SKLearnWorkflow:
                     metrics.update(self.compute_regression_metrics(predicted=y_predicted, truth=y))
                     results['type'] = 'regression'
 
-                result_logger.log_metrics(metrics=metrics)
+                self._metrics = deepcopy(metrics)
+
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y, )
                     ctx.log_score(ctx, keys=["test score"], values=[score])
@@ -465,8 +472,6 @@ class SKLearnWorkflow:
                 results['dataset'] = ctx.dataset.name
                 results['train_idx'] = train_idx
                 results['test_idx'] = test_idx
-
-                result_logger.log_result(results)
 
                 self._results = deepcopy(results)
 
@@ -487,6 +492,10 @@ class SKLearnWorkflow:
     @property
     def results(self):
         return self._results
+
+    @property
+    def metrics(self):
+        return self._metrics
 
     def compute_confusion_matrix(self, Predicted=None,
                                  Truth=None):

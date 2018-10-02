@@ -65,48 +65,6 @@ class PadreLogger:
 default_logger = PadreLogger()
 ""
 
-
-class ResultLogger:
-    """
-    Base class for logging the results. Currently, it is assumed to be a separate entity to
-    PadreLogger.
-    """
-    _log_dir = ''
-
-    def log_result(self, result):
-        """
-        This function logs the result to a file within the run folder
-        :param result: A JSON Serializable object
-        :return: None
-        """
-        import os
-        with open(os.path.join(self._log_dir, "results.json"), 'a') as f:
-            f.write(json.dumps(result))
-
-    def set_log_directory(self, dir):
-        """
-        This function sets the path of the log
-        :param dir: The path to the directory where the results are to be written
-        :return: None
-        """
-        if dir is not None:
-            self._log_dir = dir
-
-    def log_metrics(self,  metrics):
-        """
-        This function logs the classification metrics like
-        precision, recall, accuracy etc
-        :param metrics: The JSON serializable object containing the different metrics of that split
-        :return: None
-        """
-        import os
-        with open(os.path.join(self._log_dir, "metrics.json"), 'a') as f:
-            f.write(json.dumps(metrics))
-
-
-result_logger = ResultLogger()
-
-
 class MetadataEntity:
     """
     Base object for entities that manage metadata. A MetadataEntity manages and id and a dict of metadata.
