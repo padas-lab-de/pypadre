@@ -15,6 +15,7 @@ import requests as req
 import json
 import io
 
+from padre.backend.uploader import ExperimentUploader
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
 
@@ -37,6 +38,8 @@ class PadreHTTPClient:
         else:
             self.silent_codes = silent_codes
         self._access_token = self.get_access_token()
+        if self.has_token():
+            self._default_header['Authorization'] = self._access_token
 
     def do_request(self, request, url, **body):
         """
@@ -215,11 +218,17 @@ class PadreHTTPClient:
             return True
         return False
 
+    @property
+    def experiments(self):
+        return ExperimentUploader(self)
+
 
 
 PadreHTTPClient.paths = {
     "padre-api": "http://padre-api:@localhost:8080",
     "datasets": "/datasets",
+    "experiments": "/experiments",
+    "projects": "projects/",
     "dataset": lambda id: "/datasets/" + id + "/",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',
 }

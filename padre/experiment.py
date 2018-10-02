@@ -39,7 +39,6 @@ import numpy as np
 import padre.visitors.parameter
 from padre.base import MetadataEntity, default_logger, result_logger
 from padre.utils import _const
-from padre import uploader
 from padre.visitors.scikit import SciKitVisitor
 
 
@@ -946,7 +945,6 @@ class Experiment(MetadataEntity, _LoggerMixin):
         super().__init__(options.pop("ex_id", None), **options)
 
         self._fill_sys_info()
-        self.client = uploader.ExperimentUploader(self)
 
     def _fill_sys_info(self):
         # TODO: Implement the gathering of system information as dynamic code
