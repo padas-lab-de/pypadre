@@ -79,6 +79,33 @@
                             "path": "model_prefix",
                             "default_value": "model_prefix"
                         }
+                    },
+                    {
+                        "name": "optimizer_params",
+                        "kind_of_value": "dictionary",
+                        "optional": false,
+                        "description": "The optimizer method chosen for the model",
+                        "pytorch": {
+                            "path": "optimizer_params"
+                        }
+                    },
+                    {
+                        "name": "lr_scheduler_params",
+                        "kind_of_value": "dictionary containing the state of the lr_scheduler",
+                        "optional": true,
+                        "description": "The dictionary contains the different parameters of the lr scheduler",
+                        "pytorch": {
+                            "path": "lr_scheduler_params"
+                        }
+                    },
+                    {
+                        "name": "loss_params",
+                        "kind_of_value": "dictionary containing the state of the loss function",
+                        "optional": false,
+                        "description": "The dictionary contains the different parameters of the loss function",
+                        "pytorch": {
+                            "path": "loss_params"
+                        }
                     }
                 ],
                 "optimization_parameters": [],

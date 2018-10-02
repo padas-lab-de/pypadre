@@ -148,9 +148,56 @@ model_prefix_implementation_dict[default_value] = model_prefix
 model_prefix_dict[pytorch] = model_prefix_implementation_dict
 model_parameters_list.append(deepcopy(model_prefix_dict))
 
+# Optimizer
+optimizer_params_dict = dict()
+optimizer_params = 'optimizer_params'
+optimizer_params_dict[name] = optimizer_params
+optimizer_params_dict[kind_of_value] = "dictionary"
+
+# Range is not specified as it is a dictionary
+optimizer_params_dict[optional] = False
+optimizer_params_dict[description] = 'The optimizer method chosen for the model'
+
+optimizer_params_implementation_dict = dict()
+optimizer_params_implementation_dict[path] = optimizer_params
+
+optimizer_params_dict[pytorch] = optimizer_params_implementation_dict
+model_parameters_list.append(deepcopy(optimizer_params_dict))
+
+# lr scheduler
+
+lr_scheduler_params_dict = dict()
+lr_scheduler_params = 'lr_scheduler_params'
+lr_scheduler_params_dict[name] = lr_scheduler_params
+lr_scheduler_params_dict[kind_of_value] = 'dictionary containing the state of the lr_scheduler'
+# Range is not specified as it is a dict
+lr_scheduler_params_dict[optional] = True
+lr_scheduler_params_dict[description] = 'The dictionary contains the different parameters of the lr scheduler'
+
+lr_scheduler_params_implementation_dict = dict()
+lr_scheduler_params_implementation_dict[path] = lr_scheduler_params
+
+lr_scheduler_params_dict[pytorch] = lr_scheduler_params_implementation_dict
+model_parameters_list.append(deepcopy(lr_scheduler_params_dict))
+
+# loss_function
+loss_params_dict = dict()
+loss_params = 'loss_params'
+loss_params_dict[name] = loss_params
+loss_params_dict[kind_of_value] = 'dictionary containing the state of the loss function'
+# Range is not specified
+loss_params_dict[optional] = False
+loss_params_dict[description] = 'The dictionary contains the different parameters of the loss function'
+
+loss_params_implementation_dict = dict()
+loss_params_implementation_dict[path] = loss_params
+
+loss_params_dict[pytorch] = loss_params_implementation_dict
+model_parameters_list.append(deepcopy(loss_params_dict))
+
+
 '''
 loss function
-lr scheduler
 self.architecture = params.get('architecture', None)
 '''
 

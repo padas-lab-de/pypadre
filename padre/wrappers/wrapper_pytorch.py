@@ -71,6 +71,12 @@ class WrapperPytorch:
 
     resume = False
 
+    optimizer_params = None
+
+    lr_scheduler_params = None
+
+    loss_params = dict()
+
     pre_trained_model_path = None
 
     def __init__(self, params=None):
@@ -120,19 +126,37 @@ class WrapperPytorch:
 
         self.model = self.create_model(shape)
 
+        # Create the loss function and store the parameters of the function
         loss = params.get('loss', dict())
         loss_name = loss.get('name', 'MSELoss')
         loss_params = loss.get('params', None)
         self.loss = self.create_loss(loss_name, loss_params)
+        self.loss_params = dict()
+        self.loss_params['name'] = self.loss._get_name()
+        for param in self.loss.__dict__.keys():
+            if str(param)[0] == '_':
+                continue
+
+            self.loss_params[param] = copy.deepcopy(self.loss.__dict__.get(param))
 
         optimizer = params.get('optimizer', dict())
         optimizer_type = optimizer.get('type', None)
         optimizer_params = optimizer.get('params', None)
+
+        # Create the optimizer and extract the parameters of the optimizer
         self.optimizer = self.create_optimizer(optimizer_type=optimizer_type,
                                                params=optimizer_params)
 
+        self.optimizer_params = copy.deepcopy(self.optimizer.state_dict().get('param_groups')[0])
+        self.optimizer_params.pop('params')
+        self.optimizer_params['name'] = self.optimizer.__repr__()[:self.optimizer.__repr__().find('(')]
+
+        # Create the lr_scheduler and extract the parameters
         if params.get('lr_scheduler', None) is not None:
             self.create_lr_scheduler(params.get('lr_scheduler'))
+
+        if self.lr_scheduler is not None:
+            self.lr_scheduler_params = copy.deepcopy(self.lr_scheduler.state_dict())
 
     def set_params(self, params):
         '''
@@ -178,12 +202,18 @@ class WrapperPytorch:
         optimizer = params.get('optimizer', dict())
         optimizer_type = optimizer.get('type', None)
         optimizer_params = optimizer.get('params', None)
+
+        # Create the optimizer and extract the parameters
         self.optimizer = self.create_optimizer(optimizer_type=optimizer_type,
                                                params=optimizer_params)
+        self.optimizer_params = self.optimizer.state_dict().get('param_groups')[0]
+        self.optimizer_params.pop('params')
 
+        # Create the lr_scheduler and extract the parameters
         if params.get('lr_scheduler', None) is not None:
             self.create_lr_scheduler(params.get('lr_scheduler'))
-
+        if self.lr_scheduler is not None:
+            self.lr_scheduler_params = self.lr_scheduler.state_dict()
 
     def fit(self, x, y):
         """
