@@ -106,6 +106,24 @@
                         "pytorch": {
                             "path": "loss_params"
                         }
+                    },
+                    {
+                        "name": "layer_order",
+                        "kind_of_value": "list",
+                        "optional": false,
+                        "description": "This describes the ordering of the different layers of the network",
+                        "pytorch": {
+                            "path": "layer_order"
+                        }
+                    },
+                    {
+                        "name": "architecture",
+                        "kind_of_value": "dictionary containing the layer names and its parameters",
+                        "optional": false,
+                        "description": "The dictionary contains the semantic description of each of the layers",
+                        "pytorch": {
+                            "path": "architecture"
+                        }
                     }
                 ],
                 "optimization_parameters": [],

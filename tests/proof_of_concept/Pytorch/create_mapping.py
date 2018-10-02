@@ -25,6 +25,7 @@ kind_of_value = "kind_of_value"
 integer_ = "integer"
 boolean = 'boolean'
 str_ = 'string'
+list_ = 'list'
 range = "range"
 range_greater_than_one = "Z >= 1"
 range_bool = '{True, False}'
@@ -195,10 +196,38 @@ loss_params_implementation_dict[path] = loss_params
 loss_params_dict[pytorch] = loss_params_implementation_dict
 model_parameters_list.append(deepcopy(loss_params_dict))
 
+# layer order
+layer_order_dict = dict()
+layer_order = 'layer_order'
+layer_order_dict[name] = layer_order
+layer_order_dict[kind_of_value] = list_
+# Range is not specified
+layer_order_dict[optional] = False
+layer_order_dict[description] = 'This describes the ordering of the different layers of the network'
+
+layer_order_implementation_dict = dict()
+layer_order_implementation_dict[path] = layer_order
+
+layer_order_dict[pytorch] = layer_order_implementation_dict
+model_parameters_list.append(deepcopy(layer_order_dict))
+
+# Architecture
+architecture_dict = dict()
+architecture = 'architecture'
+architecture_dict[name] = architecture
+architecture_dict[kind_of_value] = 'dictionary containing the layer names and its parameters'
+# Range is not specified
+architecture_dict[optional] = False
+architecture_dict[description] = 'The dictionary contains the semantic description of each of the layers'
+
+architecture_implementation_dict = dict()
+architecture_implementation_dict[path] = architecture
+
+architecture_dict[pytorch] = architecture_implementation_dict
+model_parameters_list.append(deepcopy(architecture_dict))
 
 '''
-loss function
-self.architecture = params.get('architecture', None)
+layers
 '''
 
 # Model optimization parameters

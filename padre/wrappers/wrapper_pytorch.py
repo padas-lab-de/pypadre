@@ -71,11 +71,11 @@ class WrapperPytorch:
 
     resume = False
 
+    # For the hyperparameters.json file
     optimizer_params = None
-
     lr_scheduler_params = None
-
     loss_params = dict()
+    layer_order = []
 
     pre_trained_model_path = None
 
@@ -110,8 +110,8 @@ class WrapperPytorch:
         self.model_prefix = params.get('model_prefix', "")
 
         self.architecture = params.get('architecture', None)
-        layer_order = params.get('layer_order', None)
-        shape = self.create_network_shape(architecture=self.architecture, layer_order=layer_order)
+        self.layer_order = copy.deepcopy(params.get('layer_order', None))
+        shape = self.create_network_shape(architecture=self.architecture, layer_order=self.layer_order)
 
         # Failed network creation
         if shape is None:
