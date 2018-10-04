@@ -89,19 +89,12 @@ class WrapperPytorch:
         if params is None:
             return
 
-        with open('mappings_torch.json') as f:
-            framework_dict = json.load(f)
-        self.layers_dict = framework_dict.get('layers', None)
-        self.transforms_dict = framework_dict.get('transforms', None)
-        self.optimizers_dict = framework_dict.get('optimizers', None)
-        self.loss_dict = framework_dict.get('loss_functions', None)
-        self.lr_scheduler_dict = framework_dict.get('lr_scheduler')
-
-        if self.layers_dict is None or self.transforms_dict is None or \
-                self.optimizers_dict is None or self.loss_dict is None:
+        if not self.load_components():
             return
 
         self.params = copy.deepcopy(params)
+
+        # Get all the basic information about training and store it
         self.steps = params.get('steps', 1000)
         self.checkpoint = params.get('checkpoint', self.steps)
         self.batch_size = params.get('batch_size', 1)
@@ -109,6 +102,7 @@ class WrapperPytorch:
         self.pre_trained_model_path = params.get('model', None)
         self.model_prefix = params.get('model_prefix', "")
 
+        # Create the network
         self.architecture = params.get('architecture', None)
         self.layer_order = copy.deepcopy(params.get('layer_order', None))
         shape = self.create_network_shape(architecture=self.architecture, layer_order=self.layer_order)
@@ -117,14 +111,14 @@ class WrapperPytorch:
         if shape is None:
             return
 
+        self.model = self.create_model(shape)
 
+        # Transformers
         transformers_ = self.params.get('transforms', None)
         transform_order = self.params.get('transform_order', None)
 
         if transformers_ is not None and transform_order is not None:
             self.create_transforms(transformers=transformers_, transform_order=transform_order)
-
-        self.model = self.create_model(shape)
 
         # Create the loss function and store the parameters of the function
         loss = params.get('loss', dict())
@@ -136,9 +130,10 @@ class WrapperPytorch:
         for param in self.loss.__dict__.keys():
             if str(param)[0] == '_':
                 continue
-
+            # If normal parameter copy to the dictionary
             self.loss_params[param] = copy.deepcopy(self.loss.__dict__.get(param))
 
+        # Create an optimizer, and store the parameters for writing to hyperparameter.json file
         optimizer = params.get('optimizer', dict())
         optimizer_type = optimizer.get('type', None)
         optimizer_params = optimizer.get('params', None)
@@ -171,6 +166,7 @@ class WrapperPytorch:
         for param in params:
             self.params[param] = params.get(param)
 
+        #  Basic parameters of the model. Default parameters are the previous parameters
         self.steps = params.get('steps', self.steps)
         self.checkpoint = params.get('checkpoint', self.checkpoint)
         self.batch_size = params.get('batch_size', self.batch_size)
@@ -178,13 +174,18 @@ class WrapperPytorch:
         self.pre_trained_model_path = params.get('model', self.pre_trained_model_path)
         self.model_prefix = params.get('model_prefix', self.model_prefix)
 
-        self.architecture = params.get('architecture', self.architecture)
-        layer_order = params.get('layer_order', None)
-        shape = self.create_network_shape(architecture=self.architecture, layer_order=layer_order)
+        # Architecture
+        if params.get('architecture', None) is not None:
+            self.architecture = params.get('architecture', self.architecture)
+            layer_order = params.get('layer_order', None)
+            shape = self.create_network_shape(architecture=self.architecture, layer_order=layer_order)
 
-        # Failed network creation
-        if shape is None:
-            return
+            # Failed network creation
+            if shape is None:
+                return
+
+            # Create the model
+            self.model = self.create_model(shape)
 
         transformers_ = self.params.get('transforms', None)
         transform_order = self.params.get('transform_order', None)
@@ -192,28 +193,40 @@ class WrapperPytorch:
         if transformers_ is not None and transform_order is not None:
             self.create_transforms(transformers=transformers_, transform_order=transform_order)
 
-        self.model = self.create_model(shape)
+        # Create the loss function and store the parameters of the function
+        if params.get('loss', None) is not None:
+            loss = params.get('loss', dict())
+            loss_name = loss.get('name', 'MSELoss')
+            loss_params = loss.get('params', None)
+            self.loss = self.create_loss(loss_name, loss_params)
+            self.loss_params = dict()
+            self.loss_params['name'] = self.loss._get_name()
+            for param in self.loss.__dict__.keys():
+                if str(param)[0] == '_':
+                    continue
+                # If normal parameter copy to the dictionary
+                self.loss_params[param] = copy.deepcopy(self.loss.__dict__.get(param))
 
-        loss = params.get('loss', dict())
-        loss_name = loss.get('name', 'MSELoss')
-        loss_params = loss.get('params', None)
-        self.loss = self.create_loss(loss_name, loss_params)
+        # Create an optimizer, and store the parameters for writing to hyperparameter.json file
+        if params.get('optimizer', None) is not None:
+            optimizer = params.get('optimizer', dict())
+            optimizer_type = optimizer.get('type', None)
+            optimizer_params = optimizer.get('params', None)
 
-        optimizer = params.get('optimizer', dict())
-        optimizer_type = optimizer.get('type', None)
-        optimizer_params = optimizer.get('params', None)
+            # Create the optimizer and extract the parameters of the optimizer
+            self.optimizer = self.create_optimizer(optimizer_type=optimizer_type,
+                                                   params=optimizer_params)
 
-        # Create the optimizer and extract the parameters
-        self.optimizer = self.create_optimizer(optimizer_type=optimizer_type,
-                                               params=optimizer_params)
-        self.optimizer_params = self.optimizer.state_dict().get('param_groups')[0]
-        self.optimizer_params.pop('params')
+            self.optimizer_params = copy.deepcopy(self.optimizer.state_dict().get('param_groups')[0])
+            self.optimizer_params.pop('params')
+            self.optimizer_params['name'] = self.optimizer.__repr__()[:self.optimizer.__repr__().find('(')]
 
         # Create the lr_scheduler and extract the parameters
         if params.get('lr_scheduler', None) is not None:
             self.create_lr_scheduler(params.get('lr_scheduler'))
+
         if self.lr_scheduler is not None:
-            self.lr_scheduler_params = self.lr_scheduler.state_dict()
+            self.lr_scheduler_params = copy.deepcopy(self.lr_scheduler.state_dict())
 
     def fit(self, x, y):
         """
@@ -693,3 +706,25 @@ class WrapperPytorch:
                 transformer_list.append(copy.deepcopy(obj))
 
         self.transforms = torchvision.transforms.Compose(transformer_list)
+
+    def load_components(self):
+        """
+        The function loads different components required for the wrapper such as the layers, optimizers etc
+
+        :return: Boolean indicating the success of the function
+        """
+
+        with open('mappings_torch.json') as f:
+            framework_dict = json.load(f)
+        self.layers_dict = framework_dict.get('layers', None)
+        self.transforms_dict = framework_dict.get('transforms', None)
+        self.optimizers_dict = framework_dict.get('optimizers', None)
+        self.loss_dict = framework_dict.get('loss_functions', None)
+        self.lr_scheduler_dict = framework_dict.get('lr_scheduler')
+
+        if self.layers_dict is None or self.transforms_dict is None or \
+                self.optimizers_dict is None or self.loss_dict is None:
+            return False
+
+        return True
+
