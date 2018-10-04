@@ -237,7 +237,7 @@ class _LoggerMixin:
         else:
             return ""
 
-    def log_start_experiment(self, experiment, append_runs:bool =False):
+    def log_start_experiment(self, experiment, append_runs: bool =False):
         if self.has_backend():
             self._backend.put_experiment(experiment, append_runs=append_runs)
         self.log_event(experiment, exp_events.start, phase=phases.experiment)
@@ -476,7 +476,6 @@ class SKLearnWorkflow:
                 self._results = deepcopy(results)
 
 
-
     def is_inferencer(self):
         return getattr(self._pipeline, "predict", None)
 
@@ -537,7 +536,10 @@ class SKLearnWorkflow:
         This function calculates the classification metrics like precision,
         recall, f-measure, accuracy etc
         TODO: Implement weighted sum of averaging metrics
+
         :param confusion_matrix: The confusion matrix of the classification
+        :param option: Micro averaged or macro averaged
+
         :return: Classification metrics as a dictionary
         """
         import copy
@@ -551,7 +553,7 @@ class SKLearnWorkflow:
         tp = 0
         column_sum = np.sum(confusion_matrix, axis=0)
         row_sum = np.sum(confusion_matrix, axis=1)
-        for idx in range(0,len(confusion_matrix)):
+        for idx in range(0, len(confusion_matrix)):
             tp = tp + confusion_matrix[idx][idx]
             # Removes the 0/0 error
             precision[idx] = np.divide(confusion_matrix[idx][idx], column_sum[idx] + int(column_sum[idx] == 0))
@@ -559,7 +561,7 @@ class SKLearnWorkflow:
             if recall[idx] == 0 or precision[idx] == 0:
                 f1_measure[idx] = 0
             else:
-                f1_measure[idx] = 2 / (1.0/ recall[idx] + 1.0 / precision[idx])
+                f1_measure[idx] = 2 / (1.0 / recall[idx] + 1.0 / precision[idx])
 
         accuracy = tp / np.sum(confusion_matrix)
         if option == 'macro':
@@ -582,8 +584,16 @@ class SKLearnWorkflow:
 
         return copy.deepcopy(classification_metrics)
 
-    def compute_regression_metrics(self, predicted=None,
-                                    truth=None):
+    def compute_regression_metrics(self, predicted=None, truth=None):
+        """
+        The function computes the regression metrics of results
+
+        :param predicted: The predicted values
+
+        :param truth: The truth values
+
+        :return: Dictionary containing the computed metrics
+        """
         metrics_dict = dict()
         error = truth - predicted
         metrics_dict['mean_error'] = np.mean(error)
@@ -592,7 +602,6 @@ class SKLearnWorkflow:
         metrics_dict['max_absolute_error'] = np.max(abs(error))
         metrics_dict['min_absolute_error'] = np.min(abs(error))
         return metrics_dict
-
 
 
 class Splitter:
@@ -1202,7 +1211,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         modules = list()
         module_version_info = dict()
 
-        estimators =  self._workflow._pipeline.named_steps
+        estimators = self._workflow._pipeline.named_steps
         # Iterate through the entire pipeline and find the unique modules
         for estimator in estimators:
             obj = estimators.get(estimator, None)
@@ -1223,9 +1232,9 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
         # Obtain the version information of all the modules present in the list
         for module in modules:
-            module_ =  importlib.import_module(module)
+            module_ = importlib.import_module(module)
             if hasattr(module_, "__version__"):
-                module_version_info[module] =  module_.__version__
+                module_version_info[module] = module_.__version__
 
         self.metadata['versions'] = module_version_info
 
