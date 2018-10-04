@@ -11,6 +11,7 @@ import importlib
 from padre.base import default_logger
 from padre.ds_import import load_sklearn_toys
 from padre.visitors.mappings import name_mappings
+from padre.visitors.mappings import supported_frameworks
 from padre.experiment import Experiment
 
 
@@ -527,8 +528,12 @@ class ExperimentCreator:
             param_list_dict = name_mappings.get(estimator).get('hyper_parameters').get('model_parameters')
             for param in param_list_dict:
                 param_list.append(param.get('name'))
-                param_implementation_dict['.'.join([estimator, param.get('name')])] = \
-                    param.get('scikit-learn').get('path')
+                for framework in supported_frameworks:
+                    if param.get(framework, None) is not None:
+                        implementation = param.get(framework).get('path', None)
+                        if implementation is not None:
+                            param_implementation_dict['.'.join([estimator, param.get('name')])] = implementation
+
                 param_types_dict['.'.join([estimator, param.get('name')])] = \
                     param.get('kind_of_value')
             estimator_params[estimator] = copy.deepcopy(param_list)

@@ -1,0 +1,3461 @@
+{
+    "layers": {
+        "CONV1D": {
+            "path": "torch.nn.Conv1d",
+            "params": {
+                "in_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "groups": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "CONV2D": {
+            "path": "torch.nn.Conv2d",
+            "params": {
+                "in_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "groups": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "CONV3D": {
+            "path": "torch.nn.Conv3d",
+            "params": {
+                "in_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "groups": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "CONVTRANSPOSE1D": {
+            "path": "torch.nn.ConvTranspose1d",
+            "params": {
+                "in_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "groups": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "CONVTRANSPOSE2D": {
+            "path": "torch.nn.ConvTranspose2d",
+            "params": {
+                "in_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "groups": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "CONVTRANSPOSE3D": {
+            "path": "torch.nn.ConvTranspose3d",
+            "params": {
+                "in_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "groups": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "UNFOLD": {
+            "path": "torch.nn.Unfold",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                }
+            }
+        },
+        "FOLD": {
+            "path": "torch.nn.Fold",
+            "params": {
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                }
+            }
+        },
+        "MAXPOOL1D": {
+            "path": "torch.nn.MaxPool1d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "return_indices": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "ceil_mode": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "MAXPOOL2D": {
+            "path": "torch.nn.MaxPool2d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "return_indices": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "ceil_mode": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "MAXPOOL3D": {
+            "path": "torch.nn.MaxPool3d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dilation": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "return_indices": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "ceil_mode": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "MAXUNPOOL1D": {
+            "path": "torch.nn.MaxUnpool1d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "MAXUNPOOL2D": {
+            "path": "torch.nn.MaxUnpool2d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "MAXUNPOOL3D": {
+            "path": "torch.nn.MaxUnpool3d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "AVGPOOL1D": {
+            "path": "torch.nn.AvgPool1d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "ceil_mode": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "count_include": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "AVGPOOL2D": {
+            "path": "torch.nn.AvgPool2d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "AVGPOOL3D": {
+            "path": "torch.nn.AvgPool3d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "ceil_mode": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "count_include": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "FRACTIONALMAXPOOL2D": {
+            "path": "torch.nn.FractionalMaxPool2d",
+            "params": {
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "output_ratio": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": null
+                },
+                "return_indices": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "LPPOOL1D": {
+            "path": "torch.nn.LPPool1d",
+            "params": {
+                "norm_type": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "ceil_mode": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "LPPOOL2D": {
+            "path": "torch.nn.LPPool2d",
+            "params": {
+                "norm_type": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "kernel_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "stride": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "ceil_mode": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "ADAPTIVEMAXPOOL1D": {
+            "path": "torch.nn.AdaptiveMaxPool1d",
+            "params": {
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "return_indices": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "ADAPTIVEMAXPOOL2D": {
+            "path": "torch.nn.AdaptiveMaxPool2d",
+            "params": {
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "return_indices": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "ADAPTIVEMAXPOOL3D": {
+            "path": "torch.nn.AdaptiveMaxPoo31d",
+            "params": {
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "return_indices": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "ADAPTIVEAVGPOOL1D": {
+            "path": "torch.nn.AdaptiveAvgPool1d",
+            "params": {
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "ADAPTIVEAVGPOOL2D": {
+            "path": "torch.nn.AdaptiveAvgPool2d",
+            "params": {
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "ADAPTIVEAVGPOOL3D": {
+            "path": "torch.nn.AdaptiveAvgPool3d",
+            "params": {
+                "output_size": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "REFLECTIONPAD1D": {
+            "path": "torch.nn.ReflectionPad1d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "REFLECTIONPAD2D": {
+            "path": "torch.nn.ReflectionPad2d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "REPLICATIONPAD1D": {
+            "path": "torch.nn.ReplicationPad1d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "REPLICATIONPAD2D": {
+            "path": "torch.nn.ReplicationPad2d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "REPLICATIONPAD3D": {
+            "path": "torch.nn.ReplicationPad3d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "ZEROPAD2D": {
+            "path": "torch.nn.ZeroPad2d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "CONSTANTPAD1D": {
+            "path": "torch.nn.ConstantPad1d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "value": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "CONSTANTPAD2D": {
+            "path": "torch.nn.ConstantPad2d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "value": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "CONSTANTPAD3D": {
+            "path": "torch.nn.ConstantPad3d",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "value": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "ELU": {
+            "path": "torch.nn.ELU",
+            "params": {
+                "alpha": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "HARDSHRINK": {
+            "path": "torch.nn.Hardshrink",
+            "params": {
+                "lambd": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                }
+            }
+        },
+        "HARDTANH": {
+            "path": "torch.nn.Hardtanh",
+            "params": {
+                "min_val": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": -1
+                },
+                "max_val": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "min_value": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "max_value": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
+        "LEAKYRELU": {
+            "path": "torch.nn.LeakyReLU",
+            "params": {
+                "negative_slope": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "LOGSIGMOID": {
+            "path": "torch.nn.LogSigmoid",
+            "params": null
+        },
+        "PRELU": {
+            "path": "torch.nn.PReLU",
+            "params": {
+                "num_parameters": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "init": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.25
+                }
+            }
+        },
+        "RELU": {
+            "path": "torch.nn.ReLU",
+            "params": {
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "RELU6": {
+            "path": "torch.nn.ReLU6",
+            "params": {
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "RRELU": {
+            "path": "torch.nn.RReLU",
+            "params": {
+                "lower": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.125
+                },
+                "upper": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.3333333333333333
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "SELU": {
+            "path": "torch.nn.SELU",
+            "params": {
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "SIGMOID": {
+            "path": "torch.nn.Sigmoid",
+            "params": null
+        },
+        "SOFTPLUS": {
+            "path": "torch.nn.Softplus",
+            "params": {
+                "beta": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "threshold": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 20
+                }
+            }
+        },
+        "SOFTSHRINK": {
+            "path": "torch.nn.Softshrink",
+            "params": {
+                "lambd": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                }
+            }
+        },
+        "SOFTSIGN": {
+            "path": "torch.nn.Softsign",
+            "params": null
+        },
+        "TANH": {
+            "path": "torch.nn.Tanh",
+            "params": null
+        },
+        "TANHSHRINK": {
+            "path": "torch.nn.Tanhshrink",
+            "params": null
+        },
+        "THRESHOLD": {
+            "path": "torch.nn.Threshold",
+            "params": {
+                "threshold": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": false
+                },
+                "value": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "SOFTMIN": {
+            "path": "torch.nn.Softmax",
+            "params": {
+                "dim": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
+        "SOFTMAX": {
+            "path": "torch.nn.Softmin",
+            "params": {
+                "dim": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
+        "SOFTMAX2D": {
+            "path": "torch.nn.Softmax2d",
+            "params": null
+        },
+        "LOGSOFTMAX": {
+            "path": "torch.nn.LogSoftmax",
+            "params": {
+                "dim": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
+        "ADAPTIVELOGSOFTMAXWITHLOSS": {
+            "path": "torch.nn.AdaaptiveLogSoftmaxWithLoss",
+            "params": {
+                "in_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "n_classes": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "cutoffs": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "div_value": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 4
+                },
+                "head_bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "BATCHNORM1D": {
+            "path": "torch.nn.BatchNorm1d",
+            "params": {
+                "num_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "track_running_status": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "BATCHNORM2D": {
+            "path": "torch.nn.BatchNorm2d",
+            "params": {
+                "num_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "track_running_status": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "BATCHNORM3D": {
+            "path": "torch.nn.BatchNorm3d",
+            "params": {
+                "num_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "track_running_status": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "GROUPNORM": {
+            "path": "torch.nn.GroupNorm",
+            "params": {
+                "num_groups": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "num_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "INSTANCENORM1D": {
+            "path": "torch.nn.InstanceNorm1d",
+            "params": {
+                "num_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "track_running_status": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "INSTANCENORM2D": {
+            "path": "torch.nn.InstanceNorm2d",
+            "params": {
+                "num_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "track_running_status": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "INSTANCENORM3D": {
+            "path": "torch.nn.InstanceNorm3d",
+            "params": {
+                "num_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "track_running_status": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "LAYERNORM": {
+            "path": "torch.nn.LayerNorm",
+            "params": {
+                "normalized_shape": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "elementwise_affine": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "LOCALRESPONSENORM": {
+            "path": "torch.nn.LocalResponseNorm",
+            "params": {
+                "size": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "alpha": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.0001
+                },
+                "beta": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.75
+                },
+                "k": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                }
+            }
+        },
+        "LINEAR": {
+            "path": "torch.nn.Linear",
+            "params": {
+                "in_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "BILINEAR": {
+            "path": "torch.nn.Bilinear",
+            "params": {
+                "in_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "out_features": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "bias": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                }
+            }
+        },
+        "DROPOUT": {
+            "path": "torch.nn.Dropout",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "DROPOUT2D": {
+            "path": "torch.nn.Dropout2d",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "DROPOUT3D": {
+            "path": "torch.nn.Dropout3d",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "ALPHADROPOUT": {
+            "path": "torch.nn.AlphaDropout",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                },
+                "inplace": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        }
+    },
+    "transforms": {
+        "CENTERCROP": {
+            "path": "torchvision.transforms.CenterCrop",
+            "params": {
+                "size": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "COLORJITTER": {
+            "path": "torchvision.transforms.ColorJitter",
+            "params": {
+                "brightness": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "contrast": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "saturation": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "hue": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "FIVECROP": {
+            "path": "torchvision.transforms.FiveCrop",
+            "params": {
+                "size": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "GRAYSCALE": {
+            "path": "torchvision.transforms.Grayscale",
+            "params": {
+                "num_output_channels": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                }
+            }
+        },
+        "LINEARTRANSFORMATION": {
+            "path": "torch.nn.LinearTransformation",
+            "params": {
+                "transformation_matrix": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "PAD": {
+            "path": "torchvision.transforms.Pad",
+            "params": {
+                "padding": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": false
+                },
+                "fill": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "padding_mode": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "constant"
+                }
+            }
+        },
+        "RANDOMAFFINE": {
+            "path": "torchvision.transforms.RandomAffine",
+            "params": {
+                "degrees": {
+                    "type": [
+                        "list",
+                        "float",
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "translate": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "scale": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "shear": {
+                    "type": [
+                        "list",
+                        "float",
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "resample": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "fillcolor": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "RANDOMCROP": {
+            "path": "torchvision.transforms.RandomCrop",
+            "params": {
+                "size": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "padding": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "pad_if_needed": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "fill": {
+                    "type": [
+                        "int",
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "padding_mode": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "constant"
+                }
+            }
+        },
+        "RANDOMGRAYSCALE": {
+            "path": "torchvision.transforms.RandomGrayscale",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                }
+            }
+        },
+        "RANDOMHORIZONTALFLIP": {
+            "path": "torchvision.transforms.RandomHorizontalFlip",
+            "params": {
+                "p": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                }
+            }
+        },
+        "RANDOMRESIZEDCROP": {
+            "path": "torchvision.transforms.RandomResizedCrop",
+            "params": {
+                "size": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "scale": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.08,
+                        1
+                    ]
+                },
+                "ratio": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.75,
+                        1.3333333333333333
+                    ]
+                },
+                "interpolation": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 2
+                }
+            }
+        },
+        "RANDOMROTATION": {
+            "path": "torchvision.transforms.RandomRotation",
+            "params": {
+                "degrees": {
+                    "type": [
+                        "list",
+                        "float",
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "expand": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "center": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
+        "RANDOMVERTICALFLIP": {
+            "path": "torchvision.transforms.RandomVerticalFlip",
+            "params": {
+                "p": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.5
+                }
+            }
+        },
+        "RESIZE": {
+            "path": "torchvision.transforms.Resize",
+            "params": {
+                "size": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "interpolation": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 2
+                }
+            }
+        },
+        "TENCROP": {
+            "path": "torchvision.transforms.TenCrop",
+            "params": {
+                "size": {
+                    "type": [
+                        "int",
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "vertical_flip": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "NORMALIZE": {
+            "path": "torchvision.transforms.Normalize",
+            "params": {
+                "mean": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "std": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                }
+            }
+        },
+        "TOPILIMAGE": {
+            "path": "torchvision.transforms.ToPILImage",
+            "params": null
+        },
+        "TOTENSOR": {
+            "path": "torchvision.transforms.ToTensor",
+            "params": null
+        }
+    },
+    "optimizers": {
+        "ADADELTA": {
+            "path": "torch.optim.Adadelta",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "rho": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.9
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.000001
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "ADAGRAD": {
+            "path": "torch.optim.Adagrad",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "lr_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "initial_accumulator_value": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "ADAM": {
+            "path": "torch.optim.Adam",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.001
+                },
+                "betas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.9,
+                        0.999
+                    ]
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "amsgrad": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "SPARSEADAM": {
+            "path": "torch.optim.SparseAdam",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.001
+                },
+                "betas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.9,
+                        0.999
+                    ]
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                }
+            }
+        },
+        "ADAMAX": {
+            "path": "torch.optim.Adamax",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.002
+                },
+                "betas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.9,
+                        0.999
+                    ]
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                }
+            }
+        },
+        "ASGD": {
+            "path": "torch.optim.ASGD",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "lambd": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.0001
+                },
+                "alpha": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.75
+                },
+                "t0": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1000000
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                }
+            }
+        },
+        "LBFGS": {
+            "path": "torch.optim.LBFGS",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "max_iter": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 20
+                },
+                "max_eval": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "tolerance_grad": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.00001
+                },
+                "tolerance_change": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-9
+                },
+                "history_size": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 100
+                }
+            }
+        },
+        "RMSPROP": {
+            "path": "torch.optim.RMSprop",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "alpha": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.99
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "centered": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        },
+        "RPROP": {
+            "path": "torch.optim.Rprop",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "etas": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        0.5,
+                        1.2
+                    ]
+                },
+                "step_sizes": {
+                    "type": [
+                        "tuple"
+                    ],
+                    "optional": true,
+                    "default": [
+                        1000000,
+                        50
+                    ]
+                }
+            }
+        },
+        "SGD": {
+            "path": "torch.optim.SGD",
+            "params": {
+                "params": {
+                    "type": [
+                        "iterable"
+                    ],
+                    "optional": false
+                },
+                "lr": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.01
+                },
+                "momentum": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "dampening": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "weight_decay": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "nesterov": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                }
+            }
+        }
+    },
+    "loss_functions": {
+        "L1LOSS": {
+            "path": "torch.nn.L1Loss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MSELOSS": {
+            "path": "torch.nn.MSELoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "CROSSENTROPYLOSS": {
+            "path": "torch.nn.CrossEntropyLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "ignore_index": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -100
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "NLLLOSS": {
+            "path": "torch.nn.NLLLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "ignore_index": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -100
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "POISSONNLLLOSS": {
+            "path": "torch.nn.PoissonNLLLoss",
+            "params": {
+                "log_input": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "full": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "KLDIVLOSS": {
+            "path": "torch.nn.KLDivLoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "BCELOSS": {
+            "path": "torch.nn.BCELoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "BCEWITHLOGITSLOSS": {
+            "path": "torch.nn.BCEWithLogitsLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                },
+                "pos_weight": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": true,
+                    "default": null
+                }
+            }
+        },
+        "MARGINRANKINGLOSS": {
+            "path": "torch.nn.MarginRankingLoss",
+            "params": {
+                "margin": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "HINGEEMBEDDINGLOSS": {
+            "path": "torch.nn.HingeEmbeddingLoss",
+            "params": {
+                "margin": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MULTILABELMARGINLOSS": {
+            "path": "torch.nn.MultiLabelMarginLoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "SMOOTHL1LOSS": {
+            "path": "torch.nn.SmoothL1Loss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "SOFTMARGINLOSS": {
+            "path": "torch.nn.SoftMarginLoss",
+            "params": {
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MULTILABELSOFTMARGINLOSS": {
+            "path": "torch.nn.MultiLabelSoftMarginLoss",
+            "params": {
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "COSINEEMBEDDINGLOSS": {
+            "path": "torch.nn.CosineEmbeddingLoss",
+            "params": {
+                "margin": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "MULTIMARGINLOSS": {
+            "path": "torch.nn.MultiMarginLoss",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "margin": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        },
+        "TRIPLETMARGINLOSS": {
+            "path": "torch.nn.TripletMarginLoss",
+            "params": {
+                "p": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 1
+                },
+                "weight": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "margin": {
+                    "type": [
+                        "Tensor"
+                    ],
+                    "optional": true,
+                    "default": null
+                },
+                "size_average": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduce": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": true
+                },
+                "reduction": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "elementwise_mean"
+                }
+            }
+        }
+    },
+    "lr_scheduler": {
+        "LAMBDALR": {
+            "path": "torch.optim.lr_scheduler.LambdaLR",
+            "params": {
+                "lr_lambda": {
+                    "type": [
+                        "list"
+                    ],
+                    "optional": false
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "STEPLR": {
+            "path": "torch.optim.lr_scheduler.StepLR",
+            "params": {
+                "step_size": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "gamma": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "MULTISTEPLR": {
+            "path": "torch.optim.lr_scheduler.MultiStepLR",
+            "params": {
+                "step_size": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "gamma": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "EXPONENTIALLR": {
+            "path": "torch.optim.lr_scheduler.ExponentialLR",
+            "params": {
+                "gamma": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "COSINEANNEALINGLR": {
+            "path": "torch.optim.lr_scheduler.CosineAnnealingLR",
+            "params": {
+                "t_max": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": false
+                },
+                "eta_min": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "last_epoch": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": -1
+                }
+            }
+        },
+        "REDUCELRONPLATEAU": {
+            "path": "torch.optim.lr_scheduler.ReduceLROnPlateau",
+            "params": {
+                "mode": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "min"
+                },
+                "factor": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.1
+                },
+                "patience": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 10
+                },
+                "verbose": {
+                    "type": [
+                        "bool"
+                    ],
+                    "optional": true,
+                    "default": false
+                },
+                "threshold": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 0.0001
+                },
+                "threshold_mode": {
+                    "type": [
+                        "str"
+                    ],
+                    "optional": true,
+                    "default": "rel"
+                },
+                "cooldown": {
+                    "type": [
+                        "int"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "min_lr": {
+                    "type": [
+                        "float",
+                        "list"
+                    ],
+                    "optional": true,
+                    "default": 0
+                },
+                "eps": {
+                    "type": [
+                        "float"
+                    ],
+                    "optional": true,
+                    "default": 1e-8
+                }
+            }
+        }
+    }
+}
