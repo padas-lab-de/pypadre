@@ -16,6 +16,7 @@ from padre.datasets import formats
 
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
+from padre.backend.dual_backend import DualBackend
 from padre.ds_import import load_sklearn_toys
 from padre.ExperimentCreator import ExperimentCreator
 from padre.experiment import Experiment
@@ -252,6 +253,7 @@ class PadreApp:
     def __init__(self, http_repo, file_repo, printer=None):
         self._http_repo = http_repo
         self._file_repo = file_repo
+        self._dual_repo = DualBackend()
         self._print = printer
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
@@ -311,6 +313,6 @@ class PadreApp:
 
     @property
     def repository(self):
-        raise NotImplemented  # todo implement a joint repository where file is used to cache http
+        return self._dual_repo
 
 pypadre = PadreApp(http_client, file_cache)

@@ -38,8 +38,9 @@ class ExperimentUploader:
             data = json.dumps(data)
         response = self._http_client.do_post(url, **{"data": data})
         self.experiment_id = response.headers['Location'].split('/')[-1]
+        return response.headers['Location']
 
-    def upload_experiment(self, experiment):
+    def put_experiment(self, experiment):
         """
         Upload experiment to server
         :param experiment: Experiment instance
@@ -57,7 +58,8 @@ class ExperimentUploader:
              "hyperparameters": [experiment.hyperparameters()]}
         ]}
 
-        self.create_experiment(experiment_data)
+        return self.create_experiment(experiment_data)
+
 
 
 
