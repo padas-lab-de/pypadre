@@ -11,6 +11,7 @@ import importlib
 from padre.base import default_logger
 from padre.ds_import import load_sklearn_toys
 from padre.visitors.mappings import name_mappings
+from padre.visitors.mappings import supported_frameworks
 from padre.experiment import Experiment
 
 
@@ -39,6 +40,8 @@ class ExperimentCreator:
 
     _param_types_dict = dict()
 
+    _estimator_alternate_names = dict()
+
     _param_type_mappings = {
                             u'integer':int,
                             u'float':float,
@@ -62,6 +65,8 @@ class ExperimentCreator:
         self._parameters, self._param_implementation, self._param_types_dict = self.initialize_estimator_parameters_implementation()
 
         self._local_dataset = self.initialize_dataset_names()
+
+        self.populate_alternate_names()
 
     def typecast_variable(self, param, allowed_types):
         """
@@ -330,18 +335,32 @@ class ExperimentCreator:
         """
         from sklearn.pipeline import Pipeline
         estimators = []
+
+        if estimator_list is None:
+            return None
+
+        # If the params dict is not none, check whether any alternate estimator names are given and convert the
+        # alternate estimator names to actual estimator names
+        if param_value_dict is not None:
+            name_updated_params = self.convert_alternate_estimator_names(param_value_dict)
+
         for estimator_name in estimator_list:
-            if self._workflow_components.get(estimator_name) is None:
+            if self._workflow_components.get(estimator_name, None) is None and \
+                    self._estimator_alternate_names.get(str(estimator_name).upper(), None) is None:
                 default_logger.error(False, 'ExperimentCreator.create_test_pipleline',
                                      ''.join([estimator_name + ' not present in list']))
                 return None
 
-            # Deep copy of the estimator because the estimator object is mutable
-            estimator = self.get_estimator_object(estimator_name)
-            estimators.append((estimator_name, estimator))
+            actual_estimator_name = estimator_name
+            if self._estimator_alternate_names.get(str(estimator_name).upper(), None) is not None:
+                actual_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper())
+
+            # Copy of the estimator because the estimator object is mutable
+            estimator = self.get_estimator_object(actual_estimator_name)
+            estimators.append((actual_estimator_name, estimator))
             if param_value_dict is not None and \
-                    param_value_dict.get(estimator_name) is not None:
-                self.set_parameters(estimator, estimator_name, param_value_dict.get(estimator_name))
+                    name_updated_params.get(actual_estimator_name) is not None:
+                self.set_parameters(estimator, actual_estimator_name, name_updated_params.get(actual_estimator_name))
 
         # Check if the created estimators are valid
         if not self.validate_pipeline(estimators):
@@ -410,7 +429,7 @@ class ExperimentCreator:
                 if name_mappings.get(estimator).get('type', None) == 'Classification':
                     default_logger.warn(False, 'ExperimentCreator.create_experiment',
                                          ''.join(['Estimator ', estimator, ' cannot work on continuous data. '
-                                                                           'Experiment will be discarded']))
+                                                                           'Experiment ' + name + ' will be discarded.']))
                     return None
 
         # Experiment name should be unique
@@ -422,7 +441,7 @@ class ExperimentCreator:
             data_dict['backend'] = backend
             self._experiments[name] = data_dict
             if params is not None:
-                self._param_value_dict[name] = copy.deepcopy(params)
+                self._param_value_dict[name] = self.validate_parameters(params)
             default_logger.log('ExperimentCreator.create_experiment',
                                ''.join([name, ' created successfully!']))
 
@@ -474,7 +493,8 @@ class ExperimentCreator:
         """
         Gets the parameters corresponding to an estimator
 
-        :param estimator_name:
+        :param estimator_name: Name of the estimator whose params are to be retrieved
+
         :return: List of parameters available to that estimator
         """
         return self._parameters.get(estimator_name, None)
@@ -508,8 +528,12 @@ class ExperimentCreator:
             param_list_dict = name_mappings.get(estimator).get('hyper_parameters').get('model_parameters')
             for param in param_list_dict:
                 param_list.append(param.get('name'))
-                param_implementation_dict['.'.join([estimator, param.get('name')])] = \
-                    param.get('scikit-learn').get('path')
+                for framework in supported_frameworks:
+                    if param.get(framework, None) is not None:
+                        implementation = param.get(framework).get('path', None)
+                        if implementation is not None:
+                            param_implementation_dict['.'.join([estimator, param.get('name')])] = implementation
+
                 param_types_dict['.'.join([estimator, param.get('name')])] = \
                     param.get('kind_of_value')
             estimator_params[estimator] = copy.deepcopy(param_list)
@@ -548,7 +572,7 @@ class ExperimentCreator:
             dataset = self._experiments.get(experiment).get('dataset', None)
             if dataset is None:
                 default_logger.warn(False, 'Experiment_creator.execute_experiments',
-                                    'Dataset is not present for the experiment. Experiment is ignored')
+                                    'Dataset is not present for the experiment. Experiment ' + experiment + 'is ignored.')
                 continue
                 #default_logger.error(False, 'Experiment_creator.create_experiment',
                                      #''.join(['Dataset is missing for experiment:', experiment]))
@@ -612,6 +636,9 @@ class ExperimentCreator:
                 if not flag:
                     continue
 
+                message = 'Executing experiment ' + experiment + ' for dataset' + dataset
+                default_logger.log('ExperimentCreator.do_experiments', message)
+
                 ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
                                 description=desc,
                                 dataset=data,
@@ -622,6 +649,100 @@ class ExperimentCreator:
 
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
                 ex.grid_search(parameters=self._param_value_dict.get(experiment))
+
+    def populate_alternate_names(self):
+        """
+        This function populates the alternate names of estimators from name_mappings
+
+        :return: None
+        """
+
+        for estimator in name_mappings:
+            estimator_params = name_mappings.get(estimator)
+
+            other_names = estimator_params.get('other_names', None)
+
+            for name in other_names:
+                self._estimator_alternate_names[str(name).upper()] = estimator
+
+    def convert_alternate_estimator_names(self, params_dict):
+        """
+        This function converts the alternate parameter names to actual parameter names to pass to the experiment class
+
+        :param params_dict: A dictionary containing the parameters of the estimator
+
+        :return: A dictionary containing the parameter with the key as the actual estimator name
+        """
+
+        modified_params_dict = dict()
+
+        for estimator_name in params_dict:
+
+            curr_params = params_dict.get(estimator_name)
+
+            if self._workflow_components.get(estimator_name, None) is not None:
+                modified_params_dict[estimator_name] = copy.deepcopy(curr_params)
+
+            # User has used an alternate name of the estimator
+            elif self._workflow_components.get(estimator_name, None) is None and \
+                    self._estimator_alternate_names.get(str(estimator_name).upper(), None) is not None:
+
+                actual_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper(), None)
+                modified_params_dict[actual_estimator_name] = copy.deepcopy(curr_params)
+
+        return copy.deepcopy(modified_params_dict)
+
+    def parse_config_file(self, filename):
+        """
+        The function parses a JSON file which contains the necessary parameters for creating experiments
+
+        :param filename: Path of the JSON file
+
+        :return: True if successfully parsed
+                 False if file does not exist
+        """
+
+        import os
+        import json
+        from padre.app import pypadre
+
+        if not (os.path.exists(filename)):
+            default_logger.warn(False, 'ExperimentCreator.parse_config_file', f"File does not exist {filename}. Return")
+            return False
+
+        # Load the experiments structure from the file
+        with open(filename, 'r') as f:
+            experiments = json.loads(f.read())
+
+        for experiment in experiments:
+            # Iterate and obtain the parameters of all the experiments
+            exp_params = experiments.get(experiment)
+            if exp_params is None:
+                continue
+
+            name = exp_params.get('name', None)
+            description = exp_params.get('description', None)
+            pipeline = exp_params.get('workflow', None)
+            dataset = exp_params.get('dataset', None)
+            backend = exp_params.get('backend', 'default')
+            params = exp_params.get('params', None)
+
+            if backend == 'default':
+                backend = pypadre.file_repository.experiments
+
+            # Create the pipeline and if it is not possible move to next experiment
+            workflow = self.create_test_pipeline(pipeline)
+            if workflow is None:
+                default_logger.warn(False, 'ExperimentCreator.parse_config_file',
+                                    'Workflow  based workflow was not created')
+                continue
+
+            self.create_experiment(name=name, description=description,workflow=workflow, dataset=dataset,
+                                   backend=backend, params=params)
+
+        return True
+
+
 
     @property
     def experiments(self):

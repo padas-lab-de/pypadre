@@ -1,0 +1,30 @@
+{
+    "Sacred_Experiment_test": {
+        "name": "Sacred_Experiment_Test",
+        "description": "Testing of Sacred Config  using JSON files",
+        "dataset": "Iris",
+        "workflow": [
+            "principal component analysis"
+        ],
+        "backend": "default"
+    },
+    "Test Experiment 2": {
+        "name": "Test Experiment 2",
+        "description": "Testing of Sacred Config  using JSON files",
+        "dataset": "Iris",
+        "workflow": [
+            "principal component analysis"
+        ],
+        "backend": "default",
+        "params": {
+            "principal component analysis": {
+                "num_components": [
+                    1,
+                    2,
+                    3,
+                    4
+                ]
+            }
+        }
+    }
+}

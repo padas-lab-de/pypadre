@@ -102,19 +102,22 @@ def run(name=None, backend = None, change_name=True):
             params_ = copy.deepcopy(params_)
             hp = params_["kwargs"].pop("hyperparameters")
             exs = []
+            i = 0
             for config in generate_config(hp):
-                if change_name:
-                    # todo: do some template based labeling
-                    # todo: we might introduce experiment groups (as sub directory or via labeling) in order to avoid the need for changing names.
-                    # todo: we could also argue, that experiments are unique only within a single call fo _run or extend via UUID
-                    n = name_+"("+",".join([str(k)+":"+str(v) for k, v in config.items()])+")"
-                else:
-                    n =name_
-                ex = Experiment(name=n, **params_["kwargs"],
+                # if change_name:
+                #     # todo: do some template based labeling
+                #     # todo: we might introduce experiment groups (as sub directory or via labeling) in order to avoid the need for changing names.
+                #     # todo: we could also argue, that experiments are unique only within a single call fo _run or extend via UUID
+                #
+                #     n = name_+"("+",".join([str(k)+":"+str(v) for k, v in config.items()])+")"
+                # else:
+                #     n =name_
+                ex = Experiment(name=name_, **params_["kwargs"],
                                 workflow=params_["workflow"](**config),
                                 dataset=params_["datasets"]())
-                ex.run()
+                ex.run(append_runs=i > 0)
                 exs.append(ex)
+                i +=1
             return exs
 
         else:

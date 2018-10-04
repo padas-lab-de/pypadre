@@ -17,3 +17,11 @@ Experiment Creation from the Command Line Interface
 #. Execute the experiment using the commmand "**run**"
 #. Multiple experiments can be created in this fashion. To view the list of created experiments use the command "**experiment**"
 
+Experiment execution using JSON configuration files
+--------------------------------------------------------------
+
+Multiple experiments can be created using the JSON configuration files and run from the CLI
+Run the CLI command load_config_file --file_path.json
+The experiments present within the file are loaded and executed in a sequential manner
+All functionalities supported by the CLI is possible through the experimental configuration files.
+

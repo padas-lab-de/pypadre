@@ -2766,7 +2766,7 @@
       }
     },
     {
-      "name": "c-oja pas vector classification.",
+      "name": "c-oja pas vector classification",
       "other_names": [
         "SVC"
       ],
@@ -8087,7 +8087,7 @@
           {
             "name": "early_stopping",
             "kind_of_value": "boolean",
-            "optional": "Flase",
+            "optional": "False",
             "description": "Whether to use early stopping to terminate training when validation score is not improving. If set to true, it will automatically set aside 10% of training data as validation and terminate training when validation score is not improving by at least tol for two consecutive epochs.",
             "scikit-learn": {
               "default_value": "Flase",

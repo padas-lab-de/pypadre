@@ -1,0 +1,121 @@
+{
+    "layer_order": [
+        "conv1",
+        "relu1",
+        "pool1",
+        "conv2",
+        "relu2",
+        "pool2",
+        "fc1",
+        "relu3",
+        "fc2",
+        "relu4",
+        "fc3"
+    ],
+    "architecture": {
+        "conv1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 3,
+                "out_channels": 6,
+                "kernel_size": 5
+            }
+        },
+        "conv2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 6,
+                "out_channels": 16,
+                "kernel_size": 5,
+                "bias": true
+            }
+        },
+        "pool1": {
+            "type": "maxpool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            }
+        },
+        "pool2": {
+            "type": "maxpool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            }
+        },
+        "fc1": {
+            "type": "linear",
+            "params": {
+                "in_features": 400,
+                "out_features": 120,
+                "bias": true
+            }
+        },
+        "fc2": {
+            "type": "linear",
+            "params": {
+                "in_features": 120,
+                "out_features": 84,
+                "bias": true
+            }
+        },
+        "fc3": {
+            "type": "linear",
+            "params": {
+                "in_features": 84,
+                "out_features": 10,
+                "bias": true
+            }
+        },
+        "relu1": {
+            "type": "relu",
+            "params": {}
+        },
+        "relu2": {
+            "type": "relu",
+            "params": {}
+        },
+        "relu3": {
+            "type": "relu",
+            "params": {}
+        },
+        "relu4": {
+            "type": "relu",
+            "params": {}
+        }
+    },
+    "loss": {
+        "type": "CrossEntropyLoss",
+        "params": {
+            "dim": 1
+        }
+    },
+    "optimizer": {
+        "type": "SGD",
+        "params": {
+            "momentum": 0.9,
+            "dampening": 0,
+            "weight_decay": 0,
+            "Nesterov": false,
+            "lr": 0.001
+        }
+    },
+    "steps": 1000,
+    "batch_size": 100,
+    "transforms": {
+        "totensor": {},
+        "normalize": {
+            "mean": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "std": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        }
+    }
+}

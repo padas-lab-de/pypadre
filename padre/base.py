@@ -3,22 +3,64 @@ Modul containing basic padre datastructures
 """
 import json
 import sys
+from datetime import datetime
 
 
 class PadreLogger:
     """
     Base class for logging output, warnings and errors
     """
+    _file = None
+
     def warn(self, condition, source, message):
         if not condition:
             sys.stderr.write(str(source) + ":\t" + message + "\n")
+            if self._file is not None:
+
+                self._file.write("WARN:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
     def error(self, condition, source, message):
         if not condition:
+            if self._file is not None:
+                self._file.write("ERROR:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
+                self._file.close()
+                self._file = None
+
             raise ValueError(str(source)+":\t"+message)
 
     def log(self, source, message, padding=""):
+
+        if self._file is not None:
+            self._file.write("INFO:" + str(datetime.now())[:-3] + " " + padding+str(source) + ":\t" + message + "\n")
         sys.stdout.write(padding+str(source) + ":\t" + message + "\n")
+
+    def open_log_file(self, path=None):
+
+        import os
+
+        if path is None:
+            return None
+
+        if os.path.isdir(path):
+            if self._file is not None:
+                self._file.close()
+
+            self._file = open(os.path.join(path, "log.txt"), "a")
+
+        else:
+            if self._file is not None:
+                self._file.close()
+
+            self._file = None
+
+    def close_log_file(self):
+
+        if self._file is not None:
+            self._file.close()
+            self._file = None
+
+
+
 
 default_logger = PadreLogger()
 ""
