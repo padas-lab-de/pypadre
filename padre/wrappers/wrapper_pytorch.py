@@ -72,8 +72,8 @@ class WrapperPytorch:
     resume = False
 
     # For the hyperparameters.json file
-    optimizer_params = None
-    lr_scheduler_params = None
+    optimizer_params = dict()
+    lr_scheduler_params = dict()
     loss_params = dict()
     layer_order = []
 
@@ -152,6 +152,9 @@ class WrapperPytorch:
 
         if self.lr_scheduler is not None:
             self.lr_scheduler_params = copy.deepcopy(self.lr_scheduler.state_dict())
+        else:
+            self.lr_scheduler_params['step_size'] = self.steps
+            self.lr_scheduler_params['scheduler'] = False
 
     def set_params(self, params):
         '''
