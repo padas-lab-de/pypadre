@@ -46,6 +46,64 @@ def _create_dataset(bunch, type):
     dataset.set_data(*_create_dataset_data(bunch))
     return dataset
 
+def load_csv(path_dataset,path_target=None,target_features=[]):
+    dataset_path_list = path_dataset.split('/')
+    nameOfDataset = dataset_path_list[-1].split('.csv')[0]
+    data =pd.read_csv(path_dataset)
+    meta =dict()
+    meta["name"]=nameOfDataset
+
+    meta["description"]="imported by csv"
+    meta["originalSource"]=""
+    meta["creator"]=""
+    meta["openml_id"]=""
+    meta["version"]=""
+
+    dataset=Dataset(None, **meta)
+
+    #column_names = list(data.columns.values)
+    #n_feat = data.shape[1]
+    targets=None
+    if path_target != None:
+        target = pd.read_csv(path_dataset)
+        data=data.join(target,lsuffix="data",rsuffix="target")
+        targets=list(target.columns.values)
+    else:
+        targets=target_features
+
+
+        """
+        if list(data.columns.values).__contains__(target_feature):
+            targets=target_feature
+        else:
+            targets=[]"""
+
+    atts = []
+
+    for feature in data.columns.values:
+        atts.append(Attribute(feature,None, None, None,feature in targets,None,None,None))
+
+    dataset.set_data(data,atts)
+    return dataset
+
+def load_pandas_df(pandas_df,target_features=[]):
+    meta = dict()
+    meta["name"] = "pandas_imported_df"
+    meta["description"]="imported by pandas_df"
+    meta["originalSource"]=""
+    meta["creator"]=""
+    meta["openml_id"]=""
+    meta["version"]=""
+    dataset = Dataset(None, **meta)
+
+    atts = []
+
+    for feature in pandas_df.columns.values:
+        atts.append(Attribute(feature, None, None, None, feature in target_features, None, None, None))
+
+    dataset.set_data(pandas_df, atts)
+    return dataset
+
 
 def load_sklearn_toys():
     #returns an iterator loading different sklearn datasets
@@ -72,6 +130,42 @@ def storeDataset(dataset,path):
     file_backend = padre.backend.PadreFileBackend(path)
     if dataset.id not in file_backend.datasets.list_datasets():
         file_backend._dataset_repository.put_dataset(dataset)
+
+def __check_ds_meta(dataset_meta,check_key_value):
+    for key in check_key_value.keys():
+        try:
+            if dataset_meta[key] != check_key_value[key]:
+                return False
+        except KeyError:
+            return False
+    return True
+
+def get_did_from_ds_name(check_key_value,auth_token,max_hits=10):
+    hed = {'Authorization': 'Bearer ' + auth_token}
+
+    morePages=True
+    hit_list = []
+    page=0
+
+    while len(hit_list)<max_hits and morePages:
+        url = "http://localhost:8080/api/datasets?page=" + str(page) + "&size=9"
+        response = requests.get(url, headers=hed)
+        try:
+            content = json.loads(response.content,encoding="utf-8")
+
+            for dataset_meta in content["_embedded"]["datasets"]:
+                if(__check_ds_meta(dataset_meta,check_key_value)):
+
+                    hit_list.append(dataset_meta["uid"])
+        except KeyError as err:
+            print("invalid name!"+str(err))
+
+        page+=1
+        if content["page"]["totalPages"]<=page:
+            morePages=False
+
+    return hit_list
+
 
 
 

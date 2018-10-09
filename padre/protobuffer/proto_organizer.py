@@ -87,6 +87,7 @@ def send_Dataset(dataset,did,auth_token,path):
 
     pb_dataframe_meta = proto.DataFrameMeta()
     pb_dataframe_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
+    #print(pb_dataframe_meta)
     write_delimited_pb_msg(binary, pb_dataframe_meta)
     t=start_measure_time()
 
@@ -113,11 +114,11 @@ def send_Dataset(dataset,did,auth_token,path):
     for row in zip(*col_list):
         pb_row = proto.DataFrameRow()
         for entry in row:
-
+            #print(type(entry))
             set_cell(pb_row, entry)
         write_delimited_pb_msg(binary, pb_row)
 
-
+        
 
     print("time taken for writing dataset to file:",end=" ")
     end_measure_time(t)

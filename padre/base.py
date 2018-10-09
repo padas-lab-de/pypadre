@@ -74,7 +74,8 @@ class MetadataEntity:
         self._metadata = dict(metadata)
 
         if id_==None:
-            self._id=metadata["openml_id"]
+            if metadata.__contains__("openml_id"):
+                self._id=metadata["openml_id"]
         else:
             self._id = id_
 

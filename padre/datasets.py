@@ -10,6 +10,7 @@ from scipy import stats
 
 from padre.base import MetadataEntity
 from padre.utils import _const
+import pandas_profiling as pd_pf
 
 class _Formats(_const):
 
@@ -74,6 +75,13 @@ class NumpyContainer:
             return 0
         else:
             return len(self._attributes)
+
+
+    def profile(self,bins=10,check_correlation=True,correlation_threshold=0.9,
+                correlation_overrides=None,check_recoded=False):
+        return pd_pf.ProfileReport(pd.DataFrame(self.data),bins=bins,check_correlation=check_correlation,correlation_threshold=correlation_threshold,
+                correlation_overrides=correlation_overrides,check_recoded=check_recoded)
+
 
     def describe(self):
         ret = {"n_att" : len(self._attributes),
@@ -153,19 +161,22 @@ class PandasContainer:
   #          ret["stats"] = stats.describe(self._data, axis=0)
   #      return ret
 
+    def profile(self,bins=10,check_correlation=True,correlation_threshold=0.9,
+                correlation_overrides=None,check_recoded=False):
+        return pd_pf.ProfileReport(self.data,bins=bins,check_correlation=check_correlation,correlation_threshold=correlation_threshold,
+                correlation_overrides=correlation_overrides,check_recoded=check_recoded)
+
 
     def describe(self):
         ret = {"n_att" : len(self._attributes),
                "n_target" : len([a for a in self._attributes if a.is_target])}
-        if self._data is not None:
-            describe_data={}
-            for col in self._data.columns:
-                if isinstance(self._data[col][0],np.float64):
-                    describe_data[str(col)] = stats.describe(self._data[col].values, axis=0)
-            ret["status"]=describe_data
-
+        shallow_cp=self._data
+        for col in shallow_cp:
+            if isinstance(shallow_cp[col][0], str):
+                shallow_cp[col]=pd.factorize(shallow_cp[col])[0]
+                print(col)
+        ret["status"] = stats.describe(shallow_cp.values)
         return ret
-
 
 class AttributeOnlyContainer:
 
@@ -199,6 +210,7 @@ class AttributeOnlyContainer:
         else:
             return len(self._attributes)
 
+
     def describe(self):
         return {"n_att" : len(self._attributes),
                "n_target" : len([a for a in self._attributes if a.is_target]),
@@ -229,7 +241,7 @@ class Attribute(dict):
 
 
     def __str__(self):
-        return self.name + "(" + self.measurement_level + ")"
+        return self.name + "(" + str(self.measurement_level) + ")"
 
     def __repr__(self):
         return self.name + "(" + self.measurement_level + "/" + self.unit + ")"
@@ -322,6 +334,13 @@ class Dataset(MetadataEntity):
             return self._binary.num_attributes
         else:
             return 0
+
+    def profile(self, bins=10, check_correlation=True, correlation_threshold=0.9,
+                correlation_overrides=None, check_recoded=False):
+        if self.has_data():
+            return self._binary.profile(bins,check_correlation,correlation_threshold,correlation_overrides,check_recoded)
+        else:
+            return "No records available"
 
     def describe(self):
         if self.has_data():
