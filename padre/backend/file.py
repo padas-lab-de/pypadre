@@ -91,10 +91,12 @@ class ExperimentFileRepository:
     """
 
     def __init__(self, root_dir, data_repository):
+        from padre.base import default_logger
         self.root_dir = _get_path(root_dir, "")
         self._metadata_serializer = JSonSerializer
         self._binary_serializer = PickleSerializer
         self._data_repository = data_repository
+        default_logger.open_log_file(self.root_dir)
 
     def _dir(self, ex_id, run_id=None, split_num=None):
         r = [str(ex_id)+".ex"]
@@ -137,6 +139,7 @@ class ExperimentFileRepository:
         If false, any existing experiment will be removed
         :return:
         """
+        from padre.base import default_logger
         if experiment.id is None:  #  this is a new experiment
             if experiment.name is None or experiment.name == "":
                 experiment.id = uuid.uuid1()
@@ -157,6 +160,8 @@ class ExperimentFileRepository:
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment._workflow))
+
+        default_logger.open_log_file(dir)
 
     def get_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
@@ -206,11 +211,13 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
+        #Commented for pytorch integration
+
         with open(os.path.join(dir, "hyperparameter.json"), 'w') as f:
             params = experiment.hyperparameters()
-            #for key in params:
-                # This writes all data present within the params to the JSON file
+            # This writes all data present within the params to the JSON file
             f.write(self._metadata_serializer.serialise(params))
+
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment._workflow))

@@ -130,8 +130,11 @@ def get_parameters(ctx, experiment):
 @click.option('--backend', default=None, help='Backend of the experiment')
 @click.pass_context
 def create_experiment(ctx, name, description, dataset, workflow, backend):
-    estimator_list = (workflow.replace(", ",",")).split(sep=",")
-    workflow_obj = ctx.obj["pypadre"].experiment_creator.create_test_pipeline(estimator_list)
+    workflow_obj = None
+    if workflow is not None:
+        estimator_list = (workflow.replace(", ",",")).split(sep=",")
+        workflow_obj = ctx.obj["pypadre"].experiment_creator.create_test_pipeline(estimator_list)
+
     if backend is None:
         backend = pypadre.file_repository.experiments
     ctx.obj["pypadre"].experiment_creator.create_experiment(name, description, dataset, workflow_obj, backend)
@@ -160,6 +163,20 @@ def do_experiment(ctx, experiments, datasets):
 
         ctx.obj["pypadre"].experiment_creator.do_experiments(experiment_datasets_dict)
 
+
+@pypadre_cli.command(name="load_config_file")
+@click.option('--filename', default=None, help='Path of the JSON file that contains the experiment parameters')
+@click.pass_context
+def load_config_file(ctx, filename):
+
+    import os
+
+    if os.path.exists(filename):
+        ctx.obj["pypadre"].experiment_creator.parse_config_file(filename)
+        ctx.obj["pypadre"].experiment_creator.execute_experiments()
+
+    else:
+        print('File does not exist')
 
 
 
