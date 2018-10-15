@@ -712,7 +712,7 @@ class Splitter:
                 for i in range(self._n_folds):
                     # The test array can be seen as a non overlapping sub array of size n_te moving from start to end
                     n_te = i * int(n / self._n_folds)
-                    test = np.asarray(range(n_te, int(n / self._n_folds)))
+                    test = np.asarray(range(n_te, n_te + int(n / self._n_folds)))
 
                     # if the test array exceeds the end of the array wrap it around the beginning of the array
                     test = np.mod(test, n)
