@@ -710,14 +710,16 @@ class Splitter:
                     yield train, test, None
             elif self._strategy == "cv":
                 for i in range(self._n_folds):
+                    # The test array can be seen as a non overlapping sub array of size n_te moving from start to end
                     n_te = i * int(n / self._n_folds)
-                    if i == self._n_folds - 1:
-                        upper = []
-                        test = range(i * n_te, n)
-                    else:
-                        upper = list(range(-n + (i + 1) * n_te, 0, 1))
-                        test = range(i * n_te, (i + 1) * n_te)
-                    train, test = idx[list(range(i * n_te)) + upper], idx[test]
+                    test = np.asarray(range(n_te, int(n / self._n_folds)))
+
+                    # if the test array exceeds the end of the array wrap it around the beginning of the array
+                    test = np.mod(test, n)
+
+                    # The training array is the set difference of the complete array and the testing array
+                    train = np.asarray(list(set(idx) - set(test)))
+
                     if self._val_ratio > 0:  # create a validation set out of the test set
                         n_v = int(len(train) * self._val_ratio)
                         yield train[:n_v], test, train[n_v:]
