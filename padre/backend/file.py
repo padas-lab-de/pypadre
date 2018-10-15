@@ -11,7 +11,6 @@ import shutil
 import uuid
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
-from padre.base import result_logger
 from padre.datasets import Dataset, Attribute
 from padre.experiment import Experiment
 
@@ -264,9 +263,6 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
-        # Set the directory for logging
-        result_logger.set_log_directory(dir)
-
     def get_split(self, ex_id, run_id, split_id):
         """
         get the run with the particular id from the experiment.
@@ -274,12 +270,43 @@ class ExperimentFileRepository:
         :param run_id:
         :return:
         """
-        dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
+        dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
 
-        with open(os.path.join(dir, "metadata.json"), 'r') as f:
+        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
 
         return None
+
+    def put_results(self, experiment, run, split, results):
+        """
+        Write the results of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run_id: Run ID of the current experiment run
+        :param split_id: Split id
+        :param results: results to be written to the backend
+
+        :return: None
+        """
+
+        dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+        with open(os.path.join(dir_, "results.json"), 'w') as f:
+            f.write(self._metadata_serializer.serialise(results))
+
+    def put_metrics(self, experiment, run, split, metrics):
+        """
+        Writes the metrics of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run: Run Id of the experiment
+        :param split: Split ID
+        :param metrics: dictionary containing all the required metrics to be written to the backend
+
+        :return: None
+        """
+        dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+        with open(os.path.join(dir_, "metrics.json"), 'w') as f:
+            f.write(self._metadata_serializer.serialise(metrics))
 
     def _do_print(self):
         return True
