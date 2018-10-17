@@ -27,9 +27,27 @@ def main():
                                          backend=pypadre.file_repository.experiments,
                                          params=param_value_dict)
 
+    params_pca = {'num_components': [1, 2, 3, 4, 5, 6]}
+    params_svr = {'tolerance': [0.5, 1.0, 1.5],
+                  'poly_degree': [1, 2, 3]}
+    params_dict = {'SVR': params_svr, 'pca': params_pca}
+    workflow = experiment_creator.create_test_pipeline(['pca', 'SVR'])
+    params_dict = experiment_creator.convert_alternate_estimator_names(params_dict)
+    experiment_creator.create_experiment(name='Executor Test 3',
+                                         description='Grid search experiment with SVR',
+                                         dataset_list=['Diabetes', 'Boston_House_Prices'],
+                                         workflow=workflow,
+                                         backend=pypadre.file_repository.experiments,
+                                         params=params_dict
+                                         )
+
     experiments_list = experiment_creator.createExperimentList()
     experiments_executor = ExperimentExecutor(experiments=experiments_list)
-    experiments_executor.execute(local_run=True, threads=2)
+    import time
+    c1 = time.time()
+    experiments_executor.execute(local_run=True, threads=3)
+    c2 = time.time()
+    print('Execution time:{time_diff}'.format(time_diff=c2-c1))
 
 
 if __name__ == '__main__':

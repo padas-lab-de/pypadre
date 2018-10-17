@@ -16,13 +16,13 @@ class PadreLogger:
         if not condition:
             sys.stderr.write(str(source) + ":\t" + message + "\n")
             if self._file is not None:
-
+                pass
                 self._file.write("WARN:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
     def error(self, condition, source, message):
         if not condition:
             if self._file is not None:
-                self._file.write("ERROR:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
+                #._file.write("ERROR:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
                 self._file.close()
                 self._file = None
 

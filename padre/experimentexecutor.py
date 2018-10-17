@@ -34,6 +34,7 @@ def process_queue(q, executor, queueLock, threadID):
         if q.qsize() > 0:
             data = q.get()
             queueLock.release()
+            print('Executing experiment: {name} with thread: {threadID}'.format(name=data.get('name'), threadID=threadID))
             execute(executor, data)
         else:
             continue_process = False
@@ -129,7 +130,7 @@ class ExperimentExecutor:
                             strategy=strategy)
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
-            pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
+            #pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
             ex.grid_search(parameters=params)
 
     def runLocal(self, threadCount:int = 1):
@@ -196,6 +197,6 @@ def execute(executor, experiment_object):
                     strategy=strategy)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
-    pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
+    #pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.grid_search(parameters=params)
 
