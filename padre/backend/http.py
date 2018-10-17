@@ -22,7 +22,8 @@ from padre.datasets import Dataset, Attribute
 
 class PadreHTTPClient:
 
-    def __init__(self, base_url="http://localhost:8080/api", user="", passwd="", silent_codes=None
+    def __init__(self, base_url="http://localhost:8080/api", user="", passwd="", token=None
+                 , silent_codes=None
                  , default_header={'content-type': 'application/hal+json'}):
         if base_url.endswith("/"):
             self.base = base_url
@@ -37,9 +38,11 @@ class PadreHTTPClient:
             self.silent_codes = []
         else:
             self.silent_codes = silent_codes
-        self._access_token = self.get_access_token()
-        if self.has_token():
-            self._default_header['Authorization'] = self._access_token
+        if token is None:
+            self._access_token = self.get_access_token()
+        else:
+            self._access_token = token
+        self._default_header['Authorization'] = self._access_token
 
     def do_request(self, request, url, **body):
         """

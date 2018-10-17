@@ -100,6 +100,52 @@ def get_default_table():
     return table
 
 
+class PadreConfig:
+    def __init__(self, config_file = _PADRE_CFG_FILE):
+        self._config_file = config_file
+
+    def list(self):
+        config = configparser.ConfigParser()
+        config_list = []
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+            for section in config.sections():
+                data = dict()
+                data[section] = dict()
+                for (k, v) in config.items(section):
+                    data[section][k] = v
+                config_list.append(data)
+        return config_list
+
+    def set_section(self, data, section='HTTP'):
+        config = configparser.ConfigParser()
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+        for k, v in data.items():
+            config[section][k] = v
+        with open(self._config_file, 'w') as configfile:
+            config.write(configfile)
+
+    def set(self, key, value):
+        data = dict()
+        data[key] = value
+        self.set_section(data)
+
+    def authenticate(self, url, username=_DEFAULT_HTTP_CONFIG['user'],
+                     password=_DEFAULT_HTTP_CONFIG['passwd']):
+        import requests
+        import json
+        token = None
+        api = url
+        csrf = requests.get(url).cookies.get("XSRF-TOKEN")
+        url = api + "/oauth/token?=" + csrf
+        data = {'username': username, 'password': password, 'grant_type': 'password'}
+        response = requests.post(url, data)
+        if response.status_code == 200:
+            token = "Bearer " + json.loads(response.content)['access_token']
+        self.set('token', token)
+
+
 class DatasetApp:
     """
     Class providing commands for managing datasets.
@@ -253,13 +299,14 @@ class PadreApp:
     def __init__(self, http_repo, file_repo, printer=None):
         self._http_repo = http_repo
         self._file_repo = file_repo
-        self._dual_repo = DualBackend()
+        self._dual_repo = DualBackend(file_repo, http_repo)
         self._print = printer
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
         self._experiment_creator = ExperimentCreator()
         self._metrics_evaluator = CompareMetrics()
         self._metrics_reevaluator = ReevaluationMetrics()
+        self._config = PadreConfig()
 
 
     @property
@@ -281,6 +328,10 @@ class PadreApp:
     @property
     def metrics_reevaluator(self):
         return self._metrics_reevaluator
+
+    @property
+    def config(self):
+        return self._config
 
     def set_printer(self, printer):
         """
