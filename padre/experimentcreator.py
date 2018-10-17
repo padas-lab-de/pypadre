@@ -441,6 +441,7 @@ class ExperimentCreator:
                 self._experiments[name] = data_dict
                 if params is not None:
                     self._param_value_dict[name] = self.validate_parameters(params)
+                    data_dict['params'] = self.validate_parameters(params)
                 default_logger.log('ExperimentCreator.create_experiment',
                                    ''.join([name, ' created successfully!']))
 
