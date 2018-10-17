@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from anaconda_project.internal.test.multipart import MultipartEncoder
+from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
 import pandas as pd
