@@ -70,6 +70,7 @@ def main():
                                         backend=pypadre.file_repository.experiments)
 
     experiments_dict = experiment_helper.experiments
+
     # Run all the experiments in the list
     for experiment in experiments_dict:
         ex = Experiment(name=experiment,
@@ -77,10 +78,12 @@ def main():
                         dataset=experiments_dict.get(experiment).get('dataset', None),
                         workflow=experiments_dict.get(experiment).get('workflow', None),
                         backend=experiments_dict.get(experiment).get('backend', None),
-                        strategy=experiments_dict.get(experiment).get('strategy', 'random'))
+                        strategy=experiments_dict.get(experiment).get('strategy', 'random'),
+                        keep_splits=True)
         conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
         pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
         ex.grid_search(parameters=experiment_param_dict.get(experiment))  # run the experiment and report
+        pprint.pprint(ex.results)
 
 
 if __name__ == '__main__':

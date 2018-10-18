@@ -11,7 +11,6 @@ import shutil
 import uuid
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
-from padre.base import result_logger
 from padre.datasets import Dataset, Attribute
 from padre.experiment import Experiment
 
@@ -146,6 +145,9 @@ class ExperimentFileRepository:
             else:
                 experiment.id = experiment.name
         dir = os.path.join(self.root_dir, *self._dir(experiment.id))
+        if os.path.exists(dir) and not allow_overwrite:
+            raise ValueError("Experiment %s already exists." +
+                             "Overwriting not explicitly allowed. Set allow_overwrite=True")
         if os.path.exists(dir):
             if not append_runs:
                 shutil.rmtree(dir)
@@ -261,9 +263,6 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
-        # Set the directory for logging
-        result_logger.set_log_directory(dir)
-
     def get_split(self, ex_id, run_id, split_id):
         """
         get the run with the particular id from the experiment.
@@ -271,12 +270,43 @@ class ExperimentFileRepository:
         :param run_id:
         :return:
         """
-        dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
+        dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
 
-        with open(os.path.join(dir, "metadata.json"), 'r') as f:
+        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
 
         return None
+
+    def put_results(self, experiment, run, split, results):
+        """
+        Write the results of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run_id: Run ID of the current experiment run
+        :param split_id: Split id
+        :param results: results to be written to the backend
+
+        :return: None
+        """
+
+        dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+        with open(os.path.join(dir_, "results.json"), 'w') as f:
+            f.write(self._metadata_serializer.serialise(results))
+
+    def put_metrics(self, experiment, run, split, metrics):
+        """
+        Writes the metrics of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run: Run Id of the experiment
+        :param split: Split ID
+        :param metrics: dictionary containing all the required metrics to be written to the backend
+
+        :return: None
+        """
+        dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+        with open(os.path.join(dir_, "metrics.json"), 'w') as f:
+            f.write(self._metadata_serializer.serialise(metrics))
 
     def _do_print(self):
         return True
@@ -311,7 +341,7 @@ class DatasetFileRepository(object):
         return _dir_list(self.root_dir, search_id, search_metadata)
 
     def put_dataset(self, dataset):
-        _dir = _get_path(self.root_dir, dataset.id)
+        _dir = _get_path(self.root_dir, str(dataset.id))
         try:
             if dataset.has_data():
                 with open(os.path.join(_dir, "data.bin"), 'wb') as f:
@@ -338,15 +368,15 @@ class DatasetFileRepository(object):
 
         with open(os.path.join(_dir, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
-            attributes = metadata.pop("attributes")
-
-        ds = Dataset(id, metadata)
-        sorted(attributes, key=lambda a: a["index"])
-        assert sum([int(a["index"]) for a in attributes]) == len(attributes) * (
-            len(attributes) - 1) / 2  # check attribute correctness here
+        attributes = metadata.pop("attributes")
+        print(type(metadata))
+        ds = Dataset(id, **metadata)
+        #sorted(attributes, key=lambda a: a["index"])
+        #assert sum([int(a["index"]) for a in attributes]) == len(attributes) * (
+        #    len(attributes) - 1) / 2  # check attribute correctness here
         ds.set_data(None,
-                    [Attribute(a["name"], a["measurementLevel"], a["unit"], a["description"],
-                               a["defaultTargetAttribute"])
+                    [Attribute(a["name"], a["measurement_level"], a["unit"], a["description"],
+                               a["is_target"], a["data_class"], a["nominal_values"], a["number_missing_values"])
                      for a in attributes])
         if metadata_only:
             return ds
@@ -355,4 +385,4 @@ class DatasetFileRepository(object):
             with open(os.path.join(_dir, "data.bin"), 'rb') as f:
                 data = self._data_serializer.deserialize(f.read())
             ds.set_data(data, ds.attributes)
-
+            return ds
