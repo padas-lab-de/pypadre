@@ -41,11 +41,11 @@ class DualBackend:
             self._file_experiments.delete_experiments(experiment, search_metadata)
             self._http_experiments.delete_experiment(experiment)
 
-    def put_experiment(self, experiment, allow_overwrite=False):
+    def put_experiment(self, experiment, append_runs=False, allow_overwrite=False):
         if isinstance(experiment, Experiment):
             url = self._http_experiments.put_experiment(experiment)
             experiment.metadata["server_url"] = url
-            self._file_experiments.put_experiment(experiment, allow_overwrite)
+            self._file_experiments.put_experiment(experiment, append_runs)
         elif isinstance(experiment, str):
             experiment = self._file_experiments.get_experiment(experiment)
             self._http_experiments.put_experiment(experiment)
@@ -53,5 +53,17 @@ class DualBackend:
 
     def get_experiment(self, id_, load_workflow=True):
         return self._file_experiments.get_experiment(id_, load_workflow)
+
+    def put_run(self, experiment, run):
+        return self._file_experiments.put_run(experiment, run)
+
+    def put_split(self, experiment, run, split):
+        return self._file_experiments.put_split(experiment, run, split)
+
+    def put_result(self, experiment, run, split, results):
+        return self._file_experiments.put_results(experiment, run, split, results)
+
+    def put_metrics(self, experiment, run, split, metrics):
+        return self._file_experiments.put_metrics(experiment, run, split, metrics)
 
   # todo implement all functions currently needed by the experiment class (when the backend is set)

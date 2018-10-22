@@ -21,24 +21,29 @@ class ExperimentUploader:
         url = self._http_client.base + self._http_client.paths["datasets"]
         if isinstance(data, dict):
             data = json.dumps(data)
-        response = self._http_client.do_post(url, **{"data": data})
-        self.dataset_id = response.headers['Location'].split('/')[-1]
+        if self._http_client.has_token():
+            response = self._http_client.do_post(url, **{"data": data})
+            self.dataset_id = response.headers['Location'].split('/')[-1]
 
     def create_project(self, name="Test Project"):
         """Create project on server"""
         url = self._http_client.base + self._http_client.paths["projects"]
         data = {"name": name, "owner": self._http_client.user}
-        response = self._http_client.do_post(url, **{"data": json.dumps(data)})
-        self.project_id = response.headers['Location'].split('/')[-1]
+        if self._http_client.has_token():
+            response = self._http_client.do_post(url, **{"data": json.dumps(data)})
+            self.project_id = response.headers['Location'].split('/')[-1]
 
     def create_experiment(self, data):
         """Create experiment on server"""
         url = self._http_client.base + self._http_client.paths["experiments"]
+        location = ''
         if isinstance(data, dict):
             data = json.dumps(data)
-        response = self._http_client.do_post(url, **{"data": data})
-        self.experiment_id = response.headers['Location'].split('/')[-1]
-        return response.headers['Location']
+        if self._http_client.has_token():
+            response = self._http_client.do_post(url, **{"data": data})
+            self.experiment_id = response.headers['Location'].split('/')[-1]
+            location = response.headers['Location']
+        return location
 
     def put_experiment(self, experiment):
         """
