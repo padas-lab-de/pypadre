@@ -15,7 +15,7 @@ import requests as req
 import json
 import io
 
-from padre.backend.uploader import ExperimentUploader
+from padre.backend.experiment_uploader import ExperimentUploader
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
 

@@ -20,6 +20,9 @@ Welcome to PyPaDRE Documentation's documentation!
    visualisation
    high_level_interfaces
    development
+   dual_backend
+   config
+   experiment_uploader
 
 
 
