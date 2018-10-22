@@ -101,10 +101,40 @@ def get_default_table():
 
 
 class PadreConfig:
-    def __init__(self, config_file = _PADRE_CFG_FILE):
+    """
+    PadreConfig class covering functionality for viewing or updating default
+    configurations for PadreApp.
+    Configuration file is placed at ~/.padre.cfg
+
+    Expected values in config are following
+    ---------------------------------------
+    [HTTP]
+    user = username
+    passwd = user_password
+    base_url = http://localhost:8080/api
+    token = oauth_token
+
+    [FILE_CACHE]
+    root_dir = ~/.pypadre/
+    ---------------------------------------
+
+    Implemented functionality.
+
+    1- Get list of dicts containing key, value pairs for all sections in config
+    2- Get value for given key.
+    3- Set value for given key in config
+    4- Authenticate given user and update new token in the config
+    """
+    def __init__(self, config_file=_PADRE_CFG_FILE):
         self._config_file = config_file
 
     def list(self):
+        """
+        Get list of dicts containing key, value pairs for all sections in config
+
+        :return: List of dicts
+        :rtype: list
+        """
         config = configparser.ConfigParser()
         config_list = []
         if os.path.exists(self._config_file):
@@ -118,6 +148,13 @@ class PadreConfig:
         return config_list
 
     def set_section(self, data, section='HTTP'):
+        """
+        Set section in config for given list of (key, value) pairs
+
+        :param data: dict containing key, value pair
+        :type data: dict
+        :return: None
+        """
         config = configparser.ConfigParser()
         if os.path.exists(self._config_file):
             config.read(self._config_file)
@@ -126,13 +163,49 @@ class PadreConfig:
         with open(self._config_file, 'w') as configfile:
             config.write(configfile)
 
-    def set(self, key, value):
+    def set(self, key, value, section='HTTP'):
+        """
+        Set value for given key in config
+
+        :param key: Any key in config
+        :type key: str
+        :param value: Value to be set for given key
+        :type value: str
+        :param section: Section to be changed in config, default HTTP
+        :type section: str
+        """
         data = dict()
         data[key] = value
-        self.set_section(data)
+        self.set_section(data, section)
+
+    def get(self, key):
+        """
+        Get value for given key.
+        :param key: Any key in config for any section
+        :type key: str
+        :return: Found value or False
+        """
+        config = configparser.ConfigParser()
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+            for section in config.sections():
+                for k, v in config.items(section):
+                    if k == key:
+                        return v
+        return False
 
     def authenticate(self, url, username=_DEFAULT_HTTP_CONFIG['user'],
                      password=_DEFAULT_HTTP_CONFIG['passwd']):
+        """
+        Authenticate given user and update new token in the config.
+
+        :param url: url of the server
+        :type url: str
+        :param username: Given user or default user from config
+        :type username: str
+        :param password: Given password or default password from config
+        :type username: str
+        """
         import requests
         import json
         token = None
