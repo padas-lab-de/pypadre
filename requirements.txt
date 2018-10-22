@@ -4,6 +4,11 @@ numpy==1.13.3
 scipy==1.0.0
 click==6.7
 scikit_learn==0.19.1
+pandas-profiling==1.4.1
+tables==3.4.3
+liac-arff==2.2.1
+protobuf==3.5.2
+networkx==2.1
 beautifultable==0.5.2
 openml==0.7.0
 pandas==0.23.3
