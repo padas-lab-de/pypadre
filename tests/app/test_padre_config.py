@@ -34,3 +34,28 @@ class TestSetAndGet(unittest.TestCase):
     def tearDown(self):
         """Remove config file after test"""
         os.remove(self.path)
+
+
+class TestList(unittest.TestCase):
+    """Test PadreConfig.list() function"""
+    def setUp(self):
+        """Create config file for testing purpose"""
+        self.path = os.path.expanduser('~/.tests.cfg')
+        self.config = configparser.ConfigParser()
+        self.test_data = {'test_key': 'value 1', 'key2': 'value 2'}
+        self.config['TEST'] = self.test_data
+        self.config['TEST2'] = {'key3': 'value3'}
+        with open(self.path, 'w+') as configfile:
+            self.config.write(configfile)
+
+    def test_list(self):
+        """Test expected data returned from config list"""
+        padre_config = PadreConfig(self.path)
+        result_list = padre_config.list()
+        self.assertTrue(
+            any(d['TEST'] == self.test_data for d in result_list if 'TEST' in d),
+            'Expected data not found in config list')
+
+    def tearDown(self):
+        """Remove config file after test"""
+        os.remove(self.path)
