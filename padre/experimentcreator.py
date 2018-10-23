@@ -6,9 +6,9 @@ and enable the execution of multiple experiment sequentially. It also enables th
 on multiple datasets.
 """
 import ast
-import copy
 import importlib
 import numpy as np
+from copy import deepcopy
 from padre.base import default_logger
 from padre.ds_import import load_sklearn_toys
 from padre.visitors.mappings import name_mappings
@@ -155,15 +155,15 @@ class ExperimentCreator:
                 if val is not None:
                     converted_params.append(val)
 
-            curr_params[param_name] = copy.deepcopy(list(converted_params))
+            curr_params[param_name] = deepcopy(list(converted_params))
 
             # if it is a new parameter for the estimator
             if param_dict.get(estimator, None) is None:
-                param_dict[estimator] = copy.deepcopy(curr_params)
+                param_dict[estimator] = deepcopy(curr_params)
 
             else:
                 params_dict = param_dict.get(estimator)
-                params_dict.update(copy.deepcopy(curr_params))
+                params_dict.update(deepcopy(curr_params))
                 param_dict[estimator] = params_dict
 
         return param_dict
@@ -286,7 +286,7 @@ class ExperimentCreator:
                                             ''.join([param, ' not present in list for estimator:', estimator_name]))
 
                 if len(estimator_params) > 0:
-                    validated_param_dict[estimator_name] = copy.deepcopy(estimator_params)
+                    validated_param_dict[estimator_name] = deepcopy(estimator_params)
 
             else:
                 default_logger.warn(False, 'ExperimentCreator.validate_parameters',
@@ -393,7 +393,7 @@ class ExperimentCreator:
         module = importlib.import_module(import_path)
         class_ = getattr(module, class_name)
         obj = class_()
-        return copy.deepcopy(obj)
+        return deepcopy(obj)
 
     def create_experiment(self, name, description,
                           dataset_list=None, workflow=None,
@@ -536,9 +536,9 @@ class ExperimentCreator:
 
                 param_types_dict['.'.join([estimator, param.get('name')])] = \
                     param.get('kind_of_value')
-            estimator_params[estimator] = copy.deepcopy(param_list)
+            estimator_params[estimator] = deepcopy(param_list)
 
-        return estimator_params, copy.deepcopy(param_implementation_dict), copy.deepcopy(param_types_dict)
+        return estimator_params, deepcopy(param_implementation_dict), deepcopy(param_types_dict)
 
     def initialize_dataset_names(self):
         """
@@ -569,7 +569,7 @@ class ExperimentCreator:
             return
 
         for experiment in self._experiments:
-            dataset = copy.deepcopy(self._experiments.get(experiment).get('dataset', None))
+            dataset = deepcopy(self._experiments.get(experiment).get('dataset', None))
             if dataset is None:
                 default_logger.warn(False, 'Experiment_creator.execute_experiments',
                                     'Dataset is not present for the experiment. Experiment ' + experiment + 'is ignored.')
@@ -748,16 +748,16 @@ class ExperimentCreator:
             curr_params = params_dict.get(estimator_name)
 
             if self._workflow_components.get(estimator_name, None) is not None:
-                modified_params_dict[estimator_name] = copy.deepcopy(curr_params)
+                modified_params_dict[estimator_name] = deepcopy(curr_params)
 
             # User has used an alternate name of the estimator
             elif self._workflow_components.get(estimator_name, None) is None and \
                     self._estimator_alternate_names.get(str(estimator_name).upper(), None) is not None:
 
                 actual_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper(), None)
-                modified_params_dict[actual_estimator_name] = copy.deepcopy(curr_params)
+                modified_params_dict[actual_estimator_name] = deepcopy(curr_params)
 
-        return copy.deepcopy(modified_params_dict)
+        return deepcopy(modified_params_dict)
 
     def parse_config_file(self, filename):
         """
@@ -830,7 +830,7 @@ class ExperimentCreator:
 
             elif isinstance(dataset, list):
                 # TODO: Verify all datasets before copying
-                self._experiments[experiment]['dataset'] = copy.deepcopy(dataset)
+                self._experiments[experiment]['dataset'] = deepcopy(dataset)
 
     def createExperimentList(self):
         """
@@ -850,7 +850,7 @@ class ExperimentCreator:
                 experiment_dict['dataset'] = dataset[0]
                 experiment_dict['backend'] = experiment.get('backend')
                 experiment_dict['params'] = experiment.get('params')
-                experiments_list.append(copy.deepcopy(experiment_dict))
+                experiments_list.append(deepcopy(experiment_dict))
 
             elif len(dataset) > 1:
                 datasets = dataset
@@ -861,9 +861,9 @@ class ExperimentCreator:
                     experiment_dict['dataset'] = dataset
                     experiment_dict['backend'] = experiment.get('backend')
                     experiment_dict['params'] = experiment.get('params')
-                    experiments_list.append(copy.deepcopy(experiment_dict))
+                    experiments_list.append(deepcopy(experiment_dict))
 
-        return copy.deepcopy(experiments_list)
+        return deepcopy(experiments_list)
 
     @property
     def experiments(self):

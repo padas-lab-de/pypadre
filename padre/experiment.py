@@ -499,7 +499,7 @@ class SKLearnWorkflow:
     def compute_confusion_matrix(self, Predicted=None,
                                  Truth=None):
         """
-        This function computes the confusionmatrix of a classification result.
+        This function computes the confusion matrix of a classification result.
         This was done as a general purpose implementation of the confusion_matrix
         :param Predicted: The predicted values of the confusion matrix
         :param Truth: The truth values of the confusion matrix
@@ -1110,7 +1110,15 @@ class Experiment(MetadataEntity, _LoggerMixin):
         from copy import deepcopy
 
         if parameters is None:
+
+            # Commenting for testing parallel execution
             self.run()
+            '''
+            x = self._dataset.features()
+            y = self._dataset.targets()
+            y = y.reshape(y.shape[0])
+            self._workflow._pipeline.fit(x, y)
+            '''
             return
 
         # Generate every possible combination of the provided hyper parameters.
@@ -1143,6 +1151,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
                 estimator.set_params(**{split_params[1]: element[idx]})
 
+            # Code commented for testing parallelization
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
 
@@ -1150,6 +1159,13 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 self._runs.append(r)
                 self._results.append(deepcopy(r.results))
             self._last_run = r
+
+            '''
+            x = self._dataset.features()
+            y = self._dataset.targets()
+            y = y.reshape(y.shape[0])
+            self._workflow._pipeline.fit(x, y)
+            '''
 
         self.log_stop_experiment(self)
 
@@ -1181,12 +1197,18 @@ class Experiment(MetadataEntity, _LoggerMixin):
             return "Experiment<" + ";".join(s) + ">"
 
     def traverse_dict(self, dictionary=None):
-        # This function traverses a Nested dictionary structure such as the
-        # parameter dictionary obtained from hyperparameters()
-        # The aim of this function is to convert the param objects to
-        # JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
-        # is used to store the base values. This function changes the type to basic JSON
-        # serializable data types.
+        """
+        This function traverses a Nested dictionary structure such as the
+        parameter dictionary obtained from hyperparameters()
+        The aim of this function is to convert the param objects to
+        JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
+        is used to store the base values. This function changes the type to basic JSON
+        serializable data types.
+
+        :param dictionary: The dictionary containing all the parameters of the pipeline
+
+        :return: A JSON serializable object containing the parameter tree
+        """
 
         if dictionary is None:
             return
