@@ -65,6 +65,41 @@ class ExperimentUploader:
 
         return self.create_experiment(experiment_data)
 
+    def delete_experiment(self, ex):
+        """
+        Delete experiment from the server.
+
+        :param ex: Id of the experiment or name of the experiment
+        :type ex: str
+
+        # todo: Implement delete by experiment name
+        """
+        if ex.isdigit() and self._http_client.has_token():
+            url = self._http_client.base + self._http_client.paths['experiment'](ex)
+            return self._http_client.do_delete(url, **{})
+
+    def get_experiment(self, ex):
+        """
+        Downloads the experiment given by ex, where ex is a string with the id or url of the
+        experiment. The experiment is downloaded from the server and stored in the local file store
+        if the server version is newer than the local version or no local version exists.
+        The function returns an experiment class, which is loaded from file.
+
+        :param ex: Id or url of the experiment
+        :return:
+        # todo: Return experiment instance according to above documentation
+        """
+        if self._http_client.has_token():
+            if not ex.isdigit():  # url of the experiment
+                url = self._http_client.base + ex
+            else:
+                url = self._http_client.base + self._http_client.paths['experiment'](ex)
+            response = json.loads(self._http_client.do_get(url, **{}).content)
+
+            return response
+        return False
+
+
 
 
 

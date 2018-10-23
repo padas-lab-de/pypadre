@@ -231,6 +231,7 @@ PadreHTTPClient.paths = {
     "padre-api": "http://padre-api:@localhost:8080",
     "datasets": "/datasets",
     "experiments": "/experiments",
+    "experiment": lambda id: "/experiments/" + id + "/",
     "projects": "projects/",
     "dataset": lambda id: "/datasets/" + id + "/",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',

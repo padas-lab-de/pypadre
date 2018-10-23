@@ -130,7 +130,7 @@ class ExperimentFileRepository:
 
 
 
-    def put_experiment(self, experiment, append_runs=False):
+    def put_experiment(self, experiment, append_runs=False, allow_overwrite=True):
         """
         Stores an experiment to the file. Only metadata, hyperparameter and the workflow is stored.
         :param experiment:

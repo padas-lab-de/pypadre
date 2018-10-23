@@ -106,10 +106,7 @@ class DualBackend:
 
     def get_experiment(self, ex, load_workflow=True):
         """
-        Downloads the experiment given by ex, where ex is a string with the id or url of the
-        experiment. The experiment is downloaded from the server and stored in the local file store
-        if the server version is newer than the local version or no local version exists.
-        The function returns an experiment class, which is loaded from file.
+        Get experiment from server if not found then find it from local file system
 
         :param ex: id or url of the experiment
         :param load_workflow:
@@ -117,6 +114,9 @@ class DualBackend:
 
         todo: Implement for http backend
         """
+        result = self._http_experiments.get_experiment(ex)
+        if isinstance(result, Experiment):
+            return result
         return self._file_experiments.get_experiment(ex, load_workflow)
 
     def put_run(self, experiment, run):
@@ -125,7 +125,7 @@ class DualBackend:
     def put_split(self, experiment, run, split):
         return self._file_experiments.put_split(experiment, run, split)
 
-    def put_result(self, experiment, run, split, results):
+    def put_results(self, experiment, run, split, results):
         return self._file_experiments.put_results(experiment, run, split, results)
 
     def put_metrics(self, experiment, run, split, metrics):
