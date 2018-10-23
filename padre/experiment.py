@@ -1110,15 +1110,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         from copy import deepcopy
 
         if parameters is None:
-
-            # Commenting for testing parallel execution
             self.run()
-            '''
-            x = self._dataset.features()
-            y = self._dataset.targets()
-            y = y.reshape(y.shape[0])
-            self._workflow._pipeline.fit(x, y)
-            '''
             return
 
         # Generate every possible combination of the provided hyper parameters.
@@ -1151,7 +1143,6 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
                 estimator.set_params(**{split_params[1]: element[idx]})
 
-            # Code commented for testing parallelization
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
 
@@ -1159,13 +1150,6 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 self._runs.append(r)
                 self._results.append(deepcopy(r.results))
             self._last_run = r
-
-            '''
-            x = self._dataset.features()
-            y = self._dataset.targets()
-            y = y.reshape(y.shape[0])
-            self._workflow._pipeline.fit(x, y)
-            '''
 
         self.log_stop_experiment(self)
 

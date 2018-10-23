@@ -12,7 +12,6 @@ from padre.ds_import import load_sklearn_toys
 import threading
 import time
 from copy import deepcopy
-from padre.base import default_logger
 
 
 class ExecutionThread (threading.Thread):
@@ -27,28 +26,6 @@ class ExecutionThread (threading.Thread):
 
     def run(self):
         process_queue(self.q, self.queueLock, self.threadID)
-        '''
-        # Running experiment without using a function
-        import pprint
-        idx = self.threadID
-        while idx < len(self.global_queue):
-            experiment_obj = self.global_queue[idx]
-            name = experiment_obj.get('name')
-            ex = experiment_obj.get('experiment', None)
-            params = experiment_obj.get('params', None)
-            print('Executing experiment: {name} with thread: {threadID}'.format(name=name, threadID=self.threadID))
-            c1 = time.time()
-            #conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
-            #pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-            ex.grid_search(parameters=params)
-            c2 = time.time()
-            print('Completed experiment: {name} with thread: {threadID}. Execution time: {time_diff}'.format(name=name,
-                                                                                                             threadID=self.threadID,
-                                                                                                             time_diff=c2 - c1))
-            idx += self.threadCount
-
-        print('Thread exiting: {threadID}'.format(threadID=self.threadID))
-        '''
 
 def process_queue(q,  queueLock, threadID):
     import pprint
@@ -59,23 +36,20 @@ def process_queue(q,  queueLock, threadID):
             dict_object = q.get()
             ex = dict_object.get('experiment', None)
             params = dict_object.get('params', None)
-            dataset = dict_object.get('dataset')
-            workflow = dict_object.get('workflow')
             name = dict_object.get('name')
             queueLock.release()
 
             print('Executing experiment: {name} with thread: {threadID}'.format(name=name, threadID=threadID))
             c1 = time.time()
-            #run_experiment(ex, None)
-            #run_workflow(workflow, dataset)
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
-
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
             ex.grid_search(parameters=params)
             c2 = time.time()
             print('Completed experiment: {name} with thread: {threadID}. Execution time: {time_diff}'.format(name=name,
-                                                                                                             threadID=threadID, time_diff=c2-c1))
-            #queueLock.release()
+                                                                                                             threadID=
+                                                                                                             threadID,
+                                                                                                             time_diff=
+                                                                                                             c2-c1))
 
         else:
             continue_process = False
@@ -202,7 +176,6 @@ class ExperimentExecutor:
 
     def runLocal(self, threadCount:int = 1):
         from multiprocessing import Queue
-        from multiprocessing.dummy import Pool as ThreadPool
 
 
         # Create the parallel execution queue of experiments
@@ -258,67 +231,6 @@ class ExperimentExecutor:
         # Wait for all threads to complete
         for t in threads:
             t.join()
-
-        '''
-        # Method using ThreadPool
-        pool = ThreadPool(threadCount)
-        execution_array = []
-        for experiment_dict in self._experiments:
-            name = experiment_dict.get('name')
-            desc = experiment_dict.get('desc')
-            dataset = self.get_local_dataset(experiment_dict.get('dataset'))
-            workflow = experiment_dict.get('workflow')
-            backend = experiment_dict.get('backend')
-            strategy = experiment_dict.get('strategy', 'random')
-            params = experiment_dict.get('params')
-            ex = Experiment(name=name,
-                            description=desc,
-                            dataset=dataset,
-                            workflow=workflow,
-                            backend=backend,
-                            strategy=strategy)
-            queue_dict = dict()
-            queue_dict['name'] = name
-            queue_dict['experiment'] = ex
-            queue_dict['params'] = params
-            queue_dict['workflow'] = workflow
-            queue_dict['dataset'] = dataset
-            execution_array.append(deepcopy(queue_dict))
-
-        results = pool.map(run, execution_array)
-        pool.close()
-        pool.join()
-        '''
-
-        '''
-        # Using the concurrent.futures method
-        import concurrent.futures
-        execution_array = []
-        for experiment_dict in self._experiments:
-            name = experiment_dict.get('name')
-            desc = experiment_dict.get('desc')
-            dataset = self.get_local_dataset(experiment_dict.get('dataset'))
-            workflow = experiment_dict.get('workflow')
-            backend = experiment_dict.get('backend')
-            strategy = experiment_dict.get('strategy', 'random')
-            params = experiment_dict.get('params')
-            ex = Experiment(name=name,
-                            description=desc,
-                            dataset=dataset,
-                            workflow=workflow,
-                            backend=backend,
-                            strategy=strategy)
-            queue_dict = dict()
-            queue_dict['name'] = name
-            queue_dict['experiment'] = ex
-            queue_dict['params'] = params
-            queue_dict['workflow'] = workflow
-            queue_dict['dataset'] = dataset
-            execution_array.append(deepcopy(queue_dict))
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=threadCount) as executor:
-            executor.map(run, execution_array)
-        '''
 
     def runOnServerSequential(self):
         print('Running on server sequentially')
