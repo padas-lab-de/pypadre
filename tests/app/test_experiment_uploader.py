@@ -6,7 +6,9 @@ import json
 import unittest
 
 from mock import MagicMock, patch
+
 from padre.backend.experiment_uploader import ExperimentUploader
+from padre.backend.http import PadreHTTPClient
 
 
 class TestCreateDataSet(unittest.TestCase):
@@ -65,7 +67,7 @@ class TestPutExperiment(unittest.TestCase):
     """
 
     def setUp(self):
-        """Initializing for create_dataset test.
+        """Initializing for put_experiment test.
 
         All non related function calls and http calls will be mocked for this purpose.
         """
@@ -103,6 +105,40 @@ class TestPutExperiment(unittest.TestCase):
         self.assertEqual(self.test_experiment_url,
                          result,
                          'Put experiment does not return url of newly created experiment')
+
+    def tearDown(self):
+        pass
+
+
+class TestDeleteExperiment(unittest.TestCase):
+    """Test experiment_uploader.ExperimentUploader.delete_experiment
+
+    All unnecessary function calls and http calls are mocked
+    """
+
+    def setUp(self):
+        """Initializing for delete_experiment test.
+
+        All non related function calls and http calls will be mocked for this purpose.
+        """
+        self.test_experiment_id = '3'
+        self.http_client = PadreHTTPClient(user='test', passwd='test')
+        self.http_client.has_token = MagicMock(return_value=True)
+        self.http_client.do_delete = MagicMock()
+
+    @patch('padre.backend.experiment_uploader.ExperimentUploader.create_project')
+    def test_delete_experiment(self, mock_project):
+        """Test ExperimentUploader.delete_experiment function.
+
+        Scenario: do_delete should be called with correct experiment url.
+        """
+        obj = ExperimentUploader(self.http_client)
+        obj.delete_experiment(self.test_experiment_id)
+        delete_url = self.http_client.base + '/experiments/' + self.test_experiment_id + '/'
+
+        self.assertEqual(delete_url,
+                         self.http_client.do_delete.call_args_list[0][0][0],
+                         'Delete experiment not calling do delete with correct url')
 
     def tearDown(self):
         pass
