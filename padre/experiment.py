@@ -37,7 +37,7 @@ from time import time
 import numpy as np
 
 import padre.visitors.parameter
-from padre.base import MetadataEntity, default_logger, result_logger
+from padre.base import MetadataEntity, default_logger
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
 
@@ -237,7 +237,7 @@ class _LoggerMixin:
         else:
             return ""
 
-    def log_start_experiment(self, experiment, append_runs:bool =False):
+    def log_start_experiment(self, experiment, append_runs: bool =False):
         if self.has_backend():
             self._backend.put_experiment(experiment, append_runs=append_runs)
         self.log_event(experiment, exp_events.start, phase=phases.experiment)
@@ -260,6 +260,9 @@ class _LoggerMixin:
         self.log_event(split, exp_events.start, phase=phases.split)
 
     def log_stop_split(self, split):
+        if self.has_backend():
+            self._backend.put_results(self.run.experiment, self.run, split, split.run._workflow.results)
+            self._backend.put_metrics(self.run.experiment, self.run, split, split.run._workflow.metrics)
         self.log_event(split, exp_events.stop, phase=phases.split)
 
     def log_event(self, source, kind=None, **parameters):
@@ -374,12 +377,17 @@ class SKLearnWorkflow:
     Workflows are used for abstracting from the underlying machine learning framework.
     """
 
+    _results = dict()
+    _metrics = dict()
+
     def __init__(self, pipeline, step_wise=False):
         # check for final component to determine final results
         # if step wise is true, log intermediate results. Otherwise, log only final results.
         # distingusish between training and fitting in classification.
         self._pipeline = pipeline
         self._step_wise = step_wise
+        self._results = dict()
+        self._metrics = dict()
 
     def fit(self, ctx):
         # todo split as parameter just for logging is not very good design. Maybe builder pattern would be better?
@@ -404,6 +412,8 @@ class SKLearnWorkflow:
                     ctx.log_score(ctx, keys=["validation score"], values=[score])
 
     def infer(self, ctx, train_idx, test_idx):
+        from copy import deepcopy
+
         if self._step_wise:
             # step wise means going through every component individually and log their results / timing
             raise NotImplemented()
@@ -454,7 +464,8 @@ class SKLearnWorkflow:
                     metrics.update(self.compute_regression_metrics(predicted=y_predicted, truth=y))
                     results['type'] = 'regression'
 
-                result_logger.log_metrics(metrics=metrics)
+                self._metrics = deepcopy(metrics)
+
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y, )
                     ctx.log_score(ctx, keys=["test score"], values=[score])
@@ -463,7 +474,8 @@ class SKLearnWorkflow:
                 results['train_idx'] = train_idx
                 results['test_idx'] = test_idx
 
-                result_logger.log_result(results)
+                self._results = deepcopy(results)
+
 
     def is_inferencer(self):
         return getattr(self._pipeline, "predict", None)
@@ -476,6 +488,14 @@ class SKLearnWorkflow:
 
     def configuration(self):
         return SciKitVisitor(self._pipeline)
+
+    @property
+    def results(self):
+        return self._results
+
+    @property
+    def metrics(self):
+        return self._metrics
 
     def compute_confusion_matrix(self, Predicted=None,
                                  Truth=None):
@@ -517,7 +537,10 @@ class SKLearnWorkflow:
         This function calculates the classification metrics like precision,
         recall, f-measure, accuracy etc
         TODO: Implement weighted sum of averaging metrics
+
         :param confusion_matrix: The confusion matrix of the classification
+        :param option: Micro averaged or macro averaged
+
         :return: Classification metrics as a dictionary
         """
         import copy
@@ -531,7 +554,7 @@ class SKLearnWorkflow:
         tp = 0
         column_sum = np.sum(confusion_matrix, axis=0)
         row_sum = np.sum(confusion_matrix, axis=1)
-        for idx in range(0,len(confusion_matrix)):
+        for idx in range(0, len(confusion_matrix)):
             tp = tp + confusion_matrix[idx][idx]
             # Removes the 0/0 error
             precision[idx] = np.divide(confusion_matrix[idx][idx], column_sum[idx] + int(column_sum[idx] == 0))
@@ -539,7 +562,7 @@ class SKLearnWorkflow:
             if recall[idx] == 0 or precision[idx] == 0:
                 f1_measure[idx] = 0
             else:
-                f1_measure[idx] = 2 / (1.0/ recall[idx] + 1.0 / precision[idx])
+                f1_measure[idx] = 2 / (1.0 / recall[idx] + 1.0 / precision[idx])
 
         accuracy = tp / np.sum(confusion_matrix)
         if option == 'macro':
@@ -562,8 +585,16 @@ class SKLearnWorkflow:
 
         return copy.deepcopy(classification_metrics)
 
-    def compute_regression_metrics(self, predicted=None,
-                                    truth=None):
+    def compute_regression_metrics(self, predicted=None, truth=None):
+        """
+        The function computes the regression metrics of results
+
+        :param predicted: The predicted values
+
+        :param truth: The truth values
+
+        :return: Dictionary containing the computed metrics
+        """
         metrics_dict = dict()
         error = truth - predicted
         metrics_dict['mean_error'] = np.mean(error)
@@ -572,7 +603,6 @@ class SKLearnWorkflow:
         metrics_dict['max_absolute_error'] = np.max(abs(error))
         metrics_dict['min_absolute_error'] = np.min(abs(error))
         return metrics_dict
-
 
 
 class Splitter:
@@ -681,14 +711,16 @@ class Splitter:
                     yield train, test, None
             elif self._strategy == "cv":
                 for i in range(self._n_folds):
+                    # The test array can be seen as a non overlapping sub array of size n_te moving from start to end
                     n_te = i * int(n / self._n_folds)
-                    if i == self._n_folds - 1:
-                        upper = []
-                        test = range(i * n_te, n)
-                    else:
-                        upper = list(range(-n + (i + 1) * n_te, 0, 1))
-                        test = range(i * n_te, (i + 1) * n_te)
-                    train, test = idx[list(range(i * n_te)) + upper], idx[test]
+                    test = np.asarray(range(n_te, n_te + int(n / self._n_folds)))
+
+                    # if the test array exceeds the end of the array wrap it around the beginning of the array
+                    test = np.mod(test, n)
+
+                    # The training array is the set difference of the complete array and the testing array
+                    train = np.asarray(list(set(idx) - set(test)))
+
                     if self._val_ratio > 0:  # create a validation set out of the test set
                         n_v = int(len(train) * self._val_ratio)
                         yield train[:n_v], test, train[n_v:]
@@ -840,6 +872,8 @@ class Run(MetadataEntity, _LoggerMixin):
     According to the experiment setup the pipeline/workflow will be executed
     """
 
+    _results = []
+
     def __init__(self, experiment, workflow, **options):
         self._experiment = experiment
         self._workflow = workflow
@@ -847,10 +881,12 @@ class Run(MetadataEntity, _LoggerMixin):
         self._stdout = experiment.stdout
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
+        self._results = []
         self._id = options.pop("run_id", None)
         super().__init__(self._id, **options)
 
     def do_splits(self):
+        from copy import deepcopy
         self.log_start_run(self)
         # instantiate the splitter here based on the splitting configuration in options
         splitting = Splitter(self._experiment.dataset, **self._metadata)
@@ -859,11 +895,16 @@ class Run(MetadataEntity, _LoggerMixin):
             sp.execute()
             if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
+                self._results.append(deepcopy(self._experiment.workflow.results))
         self.log_stop_run(self)
 
     @property
     def experiment(self):
         return self._experiment
+
+    @property
+    def results(self):
+        return self._results
 
     def __str__(self):
         s = []
@@ -949,6 +990,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
         self._set_workflow(workflow)
         self._last_run = None
+        self._results = []
         super().__init__(options.pop("ex_id", None), **options)
 
         self._fill_sys_info()
@@ -1039,6 +1081,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         Otherwise, the experiment will be deleted
         :return:
         """
+        from copy import deepcopy
 
         # Update metadata with version details of packages used in the workflow
         self.update_experiment_metadata_with_workflow()
@@ -1054,6 +1097,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         r.do_splits()
         if self._keep_runs or self._backend is None:
             self._runs.append(r)
+            self._results.append(deepcopy(r.results))
         self._last_run = r
         self.log_stop_experiment(self)
 
@@ -1064,6 +1108,8 @@ class Experiment(MetadataEntity, _LoggerMixin):
         the second level key is the parameter name, and the value is a list of possible parameters
         :return: None
         """
+        from copy import deepcopy
+
         if parameters is None:
             self.run()
             return
@@ -1100,9 +1146,12 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
-            if self._keep_runs:
+
+            if self._keep_runs or self._backend is None:
                 self._runs.append(r)
+                self._results.append(deepcopy(r.results))
             self._last_run = r
+
         self.log_stop_experiment(self)
 
     @property
@@ -1116,6 +1165,10 @@ class Experiment(MetadataEntity, _LoggerMixin):
     @property
     def last_run(self):
         return self._last_run
+
+    @property
+    def results(self):
+        return self._results
 
     def __str__(self):
         s = []
@@ -1167,7 +1220,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         modules = list()
         module_version_info = dict()
 
-        estimators =  self._workflow._pipeline.named_steps
+        estimators = self._workflow._pipeline.named_steps
         # Iterate through the entire pipeline and find the unique modules
         for estimator in estimators:
             obj = estimators.get(estimator, None)
@@ -1188,9 +1241,9 @@ class Experiment(MetadataEntity, _LoggerMixin):
 
         # Obtain the version information of all the modules present in the list
         for module in modules:
-            module_ =  importlib.import_module(module)
+            module_ = importlib.import_module(module)
             if hasattr(module_, "__version__"):
-                module_version_info[module] =  module_.__version__
+                module_version_info[module] = module_.__version__
 
         self.metadata['versions'] = module_version_info
 

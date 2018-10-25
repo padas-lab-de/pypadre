@@ -31,7 +31,7 @@ if __name__ == '__main__':
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
                     workflow=create_test_pipeline(),
-                    backend=pypadre.file_repository.experiments)
+                    backend=pypadre.file_repository.experiments, keep_splits=True, strategy="cv")
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.run()  # run the experiment and report
