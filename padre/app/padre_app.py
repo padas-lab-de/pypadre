@@ -125,8 +125,9 @@ class PadreConfig:
     3- Set value for given key in config
     4- Authenticate given user and update new token in the config
     """
-    def __init__(self, config_file=_PADRE_CFG_FILE):
+    def __init__(self, http_repo, config_file=_PADRE_CFG_FILE):
         self._config_file = config_file
+        self._http_repo = http_repo
 
     def list(self):
         """
@@ -194,29 +195,23 @@ class PadreConfig:
                         return v
         return False
 
-    def authenticate(self, url, username=_DEFAULT_HTTP_CONFIG['user'],
-                     password=_DEFAULT_HTTP_CONFIG['passwd']):
+    def authenticate(self, url=None, user=None, passwd=None):
         """
         Authenticate given user and update new token in the config.
 
         :param url: url of the server
         :type url: str
-        :param username: Given user or default user from config
-        :type username: str
-        :param password: Given password or default password from config
-        :type username: str
+        :param user: Given user
+        :type user: str
+        :param passwd: Given password
+        :type passwd: str
         """
-        import requests
-        import json
-        token = None
-        api = url
-        csrf = requests.get(url).cookies.get("XSRF-TOKEN")
-        url = api + "/oauth/token?=" + csrf
-        data = {'username': username, 'password': password, 'grant_type': 'password'}
-        response = requests.post(url, data)
-        if response.status_code == 200:
-            token = "Bearer " + json.loads(response.content)['access_token']
+        token = self.http.get_token(url, user, passwd)
         self.set('token', token)
+
+    @property
+    def http(self):
+        return self._http_repo
 
 
 class DatasetApp:
@@ -379,7 +374,7 @@ class PadreApp:
         self._experiment_creator = ExperimentCreator()
         self._metrics_evaluator = CompareMetrics()
         self._metrics_reevaluator = ReevaluationMetrics()
-        self._config = PadreConfig()
+        self._config = PadreConfig(http_repo)
 
 
     @property

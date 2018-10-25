@@ -197,21 +197,33 @@ class PadreHTTPClient:
         else:
             return PadreHTTPClient.paths[kind](id)
 
-    def get_access_token(self):
-        """Get access token"""
+    def get_access_token(self, url=None, user=None, passwd=None):
+        """Get access token.
+
+        First get csrf token then use csrf to get oauth token.
+
+        :param url: Url of the server
+        :param user: User name on server
+        :param passwd: Password for given user
+        :returns: Bearer token
+        :rtype: str
+        """
         token = None
         data = {
-            "username": self.user,
-            "password": self.passwd,
+            "username": user if user else self.user,
+            "password": passwd if passwd else self.passwd,
             "grant_type": "password"
         }
-        api = PadreHTTPClient.paths["padre-api"]
+        api = url if url else PadreHTTPClient.paths["padre-api"]
         try:
             csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
         except req.exceptions.ConnectionError:
             return token
-        url = api + "/oauth/token?=" + csrf_token
-        response = req.post(url, data)
+        url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
+        response = self.do_post(url,
+                                **{'data': data,
+                                   'headers': {'content-type': 'application/x-www-form-urlencoded'}
+                                   })
         if response.status_code == 200:
             token = "Bearer " + json.loads(response.content)['access_token']
         return token
@@ -233,6 +245,7 @@ PadreHTTPClient.paths = {
     "experiments": "/experiments",
     "experiment": lambda id: "/experiments/" + id + "/",
     "projects": "projects/",
+    "oauth-token": lambda csrf_token: "/oauth/token?=" + csrf_token,
     "dataset": lambda id: "/datasets/" + id + "/",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',
 }
