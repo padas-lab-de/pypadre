@@ -13,7 +13,9 @@ import json
 import requests
 import padre.protobuffer.proto_organizer as proto
 import padre.backend.file
-
+import padre.graph
+import networkx as nx
+import os.path
 
 
 def _split_DESCR(s):
@@ -213,7 +215,7 @@ def sendTop100DatasetsToServer_old(path,auth_token):
 
     """
     path100=path+"/datasets/config/top100datasetIDs.txt"
-    import os.path
+
     data="18,12,22,23,28,60,46,32,36,14,1112,1114,1120,1489,1494,1497,1501,1067,1068,300,1049,1050,1053,182,4135,4134,1487,1466,1471,1475,6,4534,4538,38,3,1504,23512,24,1493,44,554,11,1038,29,151,15,40981,40499,42,1590,307,16,37,6332,1476,1479,458,1480,334,335,333,1515,188,1461,1046,1063,1467,1459,1464,50,1478,377,54,375,451,40496,1462,1485,1510,40668,1468,40536,1486,23380,23381,470,469,20,312,1492,1491,31"
     if(os.path.exists(path100)):
         file = open(path100, "r")
@@ -318,7 +320,7 @@ def sendDatasetWorker(path,auth_token,id_list,worker):
         proto.end_measure_time(t2)
         #print("Time to fetch and send all datasets to server:", end=" ")
 
-def requestServerDataset(did,auth_token):
+def requestServerDataset(did,auth_token,url="http://localhost:8080"):
     """Downloads a dataset and the matching meta-data from the server and converts it to a padre.Dataset()
 
     Args:
@@ -332,8 +334,7 @@ def requestServerDataset(did,auth_token):
     t=proto.start_measure_time()
 
     hed = {'Authorization': 'Bearer ' + auth_token}
-    url = "http://localhost:8080/api/datasets/"+str(did)
-    response = requests.get(url, headers=hed)
+    response = requests.get(url+"/api/datasets/"+str(did), headers=hed)
 
     k=response.content.decode("utf-8")
     response_meta=json.loads(k)
@@ -364,7 +365,7 @@ def requestServerDataset(did,auth_token):
 
 
 
-    df_data = proto.get_Server_Dataframe(did,auth_token)
+    df_data = proto.get_Server_Dataframe(did,auth_token,url=url)
     #df_data = pd.DataFrame()
 
     attribute_name_list = []
@@ -394,7 +395,7 @@ def requestServerDataset(did,auth_token):
 
 
 
-def createServerDataset(dataset,path,auth_token):
+def createServerDataset(dataset,path,auth_token,url="http://localhost:8080"):
     """Creates a dataset on the server and transferees its' content. It returns a
     String, that stands for the id the Dataset on the server side.
 
@@ -441,21 +442,21 @@ def createServerDataset(dataset,path,auth_token):
     data["version"] = dataset.metadata["version"]
 
 
-
-    url="http://localhost:8080/api/datasets"
-
-    response=requests.post(url,json=data,headers=hed)
-    #print(response.headers)
+    response=requests.post(url+"/api/datasets",json=data,headers=hed)
+    print(response.headers)
 
 
     did=str((response.headers["Location"]).split("/")[-1])
-    proto.send_Dataset(dataset,did,auth_token,path)
+    proto.send_Dataset(dataset,did,auth_token,path,url=url)
 
     print("Time to send dataset " + str(dataset.id) + " to server:", end=" ")
     proto.end_measure_time(t)
     response.close()
     requests.session().close()
     return did
+
+def add_snap_csv(source_col_number,target_col_number,edge_attribute_dict,node_attribute_dict,filepath):
+    return nx.read_edgelist(filepath,create_using=nx.Graph())
 
 
 

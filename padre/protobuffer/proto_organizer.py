@@ -67,7 +67,7 @@ def write_delimited_pb_msg(binary, pb_msg):
 
 
 
-def send_Dataset(dataset,did,auth_token,path):
+def send_Dataset(dataset,did,auth_token,path,url="http://localhost:8080"):
     """Sends the dataset to the server in form of protobuffer.
 
     Args:
@@ -82,10 +82,10 @@ def send_Dataset(dataset,did,auth_token,path):
     pd_dataframe = dataset.data
 
     hed = {'Authorization': 'Bearer ' + auth_token}
-    url = "http://localhost:8080/api/datasets/" + str(did) + "/binaries"
+    url = url+"/api/datasets/" + str(did) + "/binaries"
 
 
-    pb_dataframe_meta = proto.DataFrameMeta()
+    pb_dataframe_meta = proto.Meta()
     pb_dataframe_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
     #print(pb_dataframe_meta)
     write_delimited_pb_msg(binary, pb_dataframe_meta)
@@ -112,7 +112,7 @@ def send_Dataset(dataset,did,auth_token,path):
     for col_name in pd_dataframe.columns.values.tolist():
         col_list.append(pd_dataframe[col_name])
     for row in zip(*col_list):
-        pb_row = proto.DataFrameRow()
+        pb_row = proto.DataRow()
         for entry in row:
             #print(type(entry))
             set_cell(pb_row, entry)
@@ -148,7 +148,7 @@ def send_Dataset(dataset,did,auth_token,path):
     requests.session().close()
 
 
-def get_Server_Dataframe(did,auth_token):
+def get_Server_Dataframe(did,auth_token,url="http://localhost:8080"):
     """Fetches the requested Dataset from the Server. Returns the Dataset as padre.Dataset().
 
     Args:
@@ -160,24 +160,26 @@ def get_Server_Dataframe(did,auth_token):
     """
 
     hed = {'Authorization': 'Bearer ' + auth_token}
-    url = "http://localhost:8080/api/datasets/" + str(did)+"/binaries"
+    url = url+"/api/datasets/" + str(did)+"/binaries"
     response = requests.get(url, headers=hed)
-
+    print(response.content)
+    print(response)
     pb_data=response.content
+    #pb_data=open("sendproto59.protobinV1","rb").read()
     response.close()
     requests.session().close()
 
     response=None
     t = start_measure_time()
     # read and build metadata
-    pb_dataframe_meta = proto.DataFrameMeta()
+    pb_dataframe_meta = proto.Meta()
     pb_parse_pos = read_delimited_pb_msg(pb_data, 0, pb_dataframe_meta)
 
     # read and build row and cell values
     row_count = 0
     df_lines=[]
     while pb_parse_pos < len(pb_data):
-        pb_dataframe_row = proto.DataFrameRow()
+        pb_dataframe_row = proto.DataRow()
         pb_parse_pos = read_delimited_pb_msg(pb_data, pb_parse_pos, pb_dataframe_row)
         #use patternmatching to get the data of the decoded protobuffer
         data=(str(pb_dataframe_row).split("cells {\n  ")[1:])
