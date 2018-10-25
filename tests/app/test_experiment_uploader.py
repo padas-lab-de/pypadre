@@ -116,11 +116,13 @@ class TestDeleteExperiment(unittest.TestCase):
     All unnecessary function calls and http calls are mocked
     """
 
-    def setUp(self):
+    @patch('padre.backend.http.PadreHTTPClient.get_access_token')
+    def setUp(self, mock_token):
         """Initializing for delete_experiment test.
 
         All non related function calls and http calls will be mocked for this purpose.
         """
+        mock_token.return_value = None
         self.test_experiment_id = '3'
         self.http_client = PadreHTTPClient(user='test', passwd='test')
         self.http_client.has_token = MagicMock(return_value=True)

@@ -206,7 +206,7 @@ class PadreConfig:
         :param passwd: Given password
         :type passwd: str
         """
-        token = self.http.get_token(url, user, passwd)
+        token = self.http.get_access_token(url, user, passwd)
         self.set('token', token)
 
     @property

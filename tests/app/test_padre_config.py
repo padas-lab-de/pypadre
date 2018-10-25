@@ -7,6 +7,7 @@ import unittest
 import uuid
 
 import configparser
+from mock import Mock
 
 from padre.app.padre_app import PadreConfig
 
@@ -24,7 +25,7 @@ class TestSetAndGet(unittest.TestCase):
 
     def test_set_and_get(self):
         """Test set and get functions"""
-        padre_config = PadreConfig(self.path)
+        padre_config = PadreConfig(Mock(), self.path)
         test_key = 'test_key'
         test_value = str(uuid.uuid4())
         padre_config.set(test_key, test_value, 'TEST')
@@ -50,7 +51,7 @@ class TestList(unittest.TestCase):
 
     def test_list(self):
         """Test expected data returned from config list"""
-        padre_config = PadreConfig(self.path)
+        padre_config = PadreConfig(Mock(), self.path)
         result_list = padre_config.list()
         self.assertTrue(
             any(d['TEST'] == self.test_data for d in result_list if 'TEST' in d),
