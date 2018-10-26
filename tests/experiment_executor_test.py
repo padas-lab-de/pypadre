@@ -3,6 +3,7 @@ from padre.experimentcreator import ExperimentCreator
 from padre.app import pypadre
 
 def main():
+    from copy import deepcopy
     experiment_creator = ExperimentCreator()
 
     # FIRST TEST EXPERIMENT WITH MULTIPLE DATASETS
@@ -11,7 +12,7 @@ def main():
     workflow = experiment_creator.create_test_pipeline(['isomap embedding'])
     experiment_creator.create_experiment(name='Executor Test 1',
                                          description='This is the first executor search test experiment',
-                                         dataset_list=['Diabetes', 'Boston_House_Prices'],
+                                         dataset_list=['Diabetes', 'Boston_House_Prices', 'Iris'],
                                          workflow=workflow,
                                          backend=pypadre.file_repository.experiments,
                                          params=param_value_dict)
@@ -28,7 +29,7 @@ def main():
                                          params=param_value_dict)
 
     # THIRD TEST EXPERIMENT WITH MULTIPLE DATASETS
-    params_pca = {'num_components': [1, 2, 3, 4, 5, 6]}
+    params_pca = {'num_components': [2, 3, 4, 5, 6]}
     params_svr = {'tolerance': [0.5, 1.0, 1.5],
                   'poly_degree': [1, 2, 3]}
     params_dict = {'SVR': params_svr, 'pca': params_pca}
@@ -36,7 +37,7 @@ def main():
     params_dict = experiment_creator.convert_alternate_estimator_names(params_dict)
     experiment_creator.create_experiment(name='Executor Test 3',
                                          description='Grid search experiment with SVR',
-                                         dataset_list=['Digits', 'Boston_House_Prices'],
+                                         dataset_list=['Boston_House_Prices', 'Diabetes', 'Digits'],
                                          workflow=workflow,
                                          backend=pypadre.file_repository.experiments,
                                          params=params_dict
@@ -46,7 +47,7 @@ def main():
     experiments_executor = ExperimentExecutor(experiments=experiments_list)
     import time
     c1 = time.time()
-    experiments_executor.execute(local_run=True, threads=10)
+    experiments_executor.execute(local_run=True, threads=1)
     c2 = time.time()
     print('Execution time:{time_diff}'.format(time_diff=c2-c1))
 

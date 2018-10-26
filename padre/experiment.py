@@ -413,7 +413,6 @@ class SKLearnWorkflow:
 
     def infer(self, ctx, train_idx, test_idx):
         from copy import deepcopy
-
         if self._step_wise:
             # step wise means going through every component individually and log their results / timing
             raise NotImplemented()
@@ -1107,6 +1106,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         the second level key is the parameter name, and the value is a list of possible parameters
         :return: None
         """
+
         from copy import deepcopy
 
         if parameters is None:

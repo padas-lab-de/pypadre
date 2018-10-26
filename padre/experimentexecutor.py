@@ -12,20 +12,23 @@ from padre.ds_import import load_sklearn_toys
 import threading
 import time
 from copy import deepcopy
+from sklearn.externals.joblib import Parallel, delayed
 
+
+EXPERIMENT_EXECUTION_QUEUE = []
 
 class ExecutionThread (threading.Thread):
 
-    def __init__(self, threadID, q, threadCount, queueLock, global_queue):
+    def __init__(self, threadID, q, threadCount, queueLock):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.q = q
         self.queueLock = queueLock
         self.threadCount = threadCount
-        self.global_queue = global_queue
 
     def run(self):
         process_queue(self.q, self.queueLock, self.threadID)
+
 
 def process_queue(q,  queueLock, threadID):
     import pprint
@@ -33,37 +36,59 @@ def process_queue(q,  queueLock, threadID):
     while continue_process:
         queueLock.acquire()
         if q.qsize() > 0:
-            dict_object = q.get()
-            ex = dict_object.get('experiment', None)
-            params = dict_object.get('params', None)
-            name = dict_object.get('name')
+            idx = q.get()
             queueLock.release()
 
+            dict_object = EXPERIMENT_EXECUTION_QUEUE[idx]
+
+            ex = deepcopy(dict_object.get('experiment', None))
+            params = deepcopy(dict_object.get('params', None))
+            name = deepcopy(dict_object.get('name'))
             print('Executing experiment: {name} with thread: {threadID}'.format(name=name, threadID=threadID))
             c1 = time.time()
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
             ex.grid_search(parameters=params)
             c2 = time.time()
-            print('Completed experiment: {name} with thread: {threadID}. Execution time: {time_diff}'.format(name=name,
-                                                                                                             threadID=
-                                                                                                             threadID,
-                                                                                                             time_diff=
-                                                                                                             c2-c1))
+            print('Completed experiment: {name} with thread: {threadID}. '
+                  'Execution time: {time_diff}'.format(name=name, threadID=threadID, time_diff=c2-c1))
+
+            #queueLock.release()
 
         else:
             continue_process = False
             queueLock.release()
 
+
 def run_experiment(experiment, params):
     conf = experiment.configuration()
     experiment.grid_search(parameters=params)
+
 
 def run_workflow(workflow, dataset):
     x = dataset.features()
     y = dataset.targets()
     y = y.reshape(y.shape[0])
-    workflow.fit(x, y)
+    return workflow.fit(x, y)
+
+
+def run_idx(idx):
+    import pprint
+
+    dict_object = EXPERIMENT_EXECUTION_QUEUE[idx]
+
+    ex = dict_object.get('experiment', None)
+    params = dict_object.get('params', None)
+    name = dict_object.get('name')
+    print('Executing experiment: {name}'.format(name=name))
+    c1 = time.time()
+    conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
+    pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
+    ex.grid_search(parameters=params)
+    c2 = time.time()
+    print('Completed experiment: {name}. '
+          'Execution time: {time_diff}'.format(name=name, time_diff=c2 - c1))
+
 
 def run(experiment_object):
     c1 = time.time()
@@ -74,7 +99,6 @@ def run(experiment_object):
     c2 = time.time()
     print('Completed experiment: {name}. Execution time: {time_diff}'.format(name=name,
                                                                                                      time_diff=c2 - c1))
-
 
 
 class ExperimentExecutor:
@@ -149,6 +173,11 @@ class ExperimentExecutor:
             print('Running experiments parallelly on the server')
 
     def standardExecution(self):
+        """
+        This function executes the experiments sequentially and on a single thread
+
+        :return: None
+        """
         import pprint
         for experiment_dict in self._experiments:
             name = experiment_dict.get('name')
@@ -175,19 +204,27 @@ class ExperimentExecutor:
             print('Completed experiment: {name} with execution time: {time_diff}'.format(name=name, time_diff=c2-c1))
 
     def runLocal(self, threadCount:int = 1):
-        from multiprocessing import Queue
+        """
+        This method executes the different experiments in parallel based on the thread count parameter
 
+        :param threadCount: Number of jobs to be run in parallel
+
+        :return: None
+        """
+        from multiprocessing import Queue
 
         # Create the parallel execution queue of experiments
         experiment_queue = Queue(len(self._experiments))
 
         # Create a threading lock object
-        queueLock = threading.Lock()
-
-        global_queue = []
+        queueLock = threading.RLock()
 
         # Fill the Queue with the experiments
         queueLock.acquire()
+        for idx in range(len(self._experiments)):
+            experiment_queue.put(idx)
+        queueLock.release()
+
         for experiment_dict in self._experiments:
             name = experiment_dict.get('name')
             desc = experiment_dict.get('desc')
@@ -206,18 +243,20 @@ class ExperimentExecutor:
             queue_dict['name'] = name
             queue_dict['experiment'] = ex
             queue_dict['params'] = params
-            queue_dict['workflow'] = workflow
-            queue_dict['dataset'] = dataset
-            experiment_queue.put(deepcopy(queue_dict))
-            global_queue.append(deepcopy(queue_dict))
-        queueLock.release()
+            EXPERIMENT_EXECUTION_QUEUE.append(deepcopy(queue_dict))
 
+        array_idx = range(0, len(self._experiments))
+        jobs = (delayed(run_idx)(idx) for idx in array_idx)
+        parallel = Parallel(n_jobs=threadCount)
+        results = parallel(jobs)
+
+        '''
         # Create a list to store the threads and an ID starting from 1
         threads = []
         threadID = 0
 
         for tName in range(threadCount):
-            thread = ExecutionThread(threadID, experiment_queue,threadCount=threadCount, queueLock=queueLock, global_queue = global_queue)
+            thread = ExecutionThread(threadID, experiment_queue,threadCount=threadCount, queueLock=queueLock)
             thread.start()
             threads.append(thread)
             threadID += 1
@@ -231,14 +270,23 @@ class ExperimentExecutor:
         # Wait for all threads to complete
         for t in threads:
             t.join()
+        '''
 
     def runOnServerSequential(self):
+        """
+        This method will run the experiment sequentially  on the server
+
+        :return:
+        """
         print('Running on server sequentially')
 
     def runOnServerParallel(self):
+        """
+        This method will distribute the experiment across multiple threads on a server
+
+        :return:
+        """
         print('Running on server parallelly')
 
-    def _put_to_queue(self):
-        print('Add an experiment to the queue until the queue reaches the max size')
 
 
