@@ -92,7 +92,7 @@ class TestAuthenticate(unittest.TestCase):
                               'Expected args not matches in get_access_token call')
 
     @patch('padre.backend.http.PadreHTTPClient.get_access_token')
-    def test_authenticate_01(self, mock_token):
+    def test_authenticate_02(self, mock_token):
         """Test PadreConfig.authenticate function for expected token value.
 
         Scenario: New token is correctly updated in config file
