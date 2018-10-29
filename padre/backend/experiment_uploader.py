@@ -13,8 +13,9 @@ class ExperimentUploader:
         self._http_client = http_client
         self.dataset_id = None
         self.experiment_id = None
-        self.project_id = None
-        self.create_project(project_name)
+        self.project_id = self.get_id_by_name(project_name, self._http_client.paths["projects"])
+        if self.project_id is None:
+            self.project_id = self.create_project(project_name)
 
     def create_dataset(self, data):
         """Create data set"""
@@ -25,9 +26,20 @@ class ExperimentUploader:
             response = self._http_client.do_post(url, **{"data": data})
             self.dataset_id = response.headers['Location'].split('/')[-1]
 
+    def get_id_by_name(self, name, entity):
+        """Get entity id by name"""
+        id_ = None
+        url = self.get_base_url()  + entity + "?name=" + name
+        if self._http_client.has_token():
+            response = json.loads(self._http_client.do_get(url, **{}).content)
+            if "_embedded" in response:
+                id_ = response["_embedded"][entity[1:]][0]["uid"]
+        return id_
+
+
     def create_project(self, name="Test Project"):
         """Create project on server"""
-        url = self._http_client.base + self._http_client.paths["projects"]
+        url = self.get_base_url() + self._http_client.paths["projects"]
         data = {"name": name, "owner": self._http_client.user}
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
@@ -35,7 +47,7 @@ class ExperimentUploader:
 
     def create_experiment(self, data):
         """Create experiment on server"""
-        url = self._http_client.base + self._http_client.paths["experiments"]
+        url = self.get_base_url() + self._http_client.paths["experiments"]
         location = ''
         if isinstance(data, dict):
             data = json.dumps(data)
@@ -53,7 +65,9 @@ class ExperimentUploader:
         :return: None
         """
         dataset_dict = experiment.dataset.metadata
-        self.create_dataset(dataset_dict)
+        self.dataset_id = self.get_id_by_name(dataset_dict["name"], self._http_client.paths["datasets"])
+        if self.dataset_id is None:
+            self.create_dataset(dataset_dict)
 
         experiment_data = experiment.metadata
         experiment_data["projectId"] = self.project_id
@@ -75,7 +89,7 @@ class ExperimentUploader:
         # todo: Implement delete by experiment name
         """
         if ex.isdigit() and self._http_client.has_token():
-            url = self._http_client.base + self._http_client.paths['experiment'](ex)
+            url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             return self._http_client.do_delete(url, **{})
 
     def get_experiment(self, ex):
@@ -93,11 +107,18 @@ class ExperimentUploader:
             if not ex.isdigit():  # url of the experiment
                 url = self._http_client.base + ex
             else:
-                url = self._http_client.base + self._http_client.paths['experiment'](ex)
+                url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             response = json.loads(self._http_client.do_get(url, **{}).content)
 
             return response
         return False
+
+    def get_base_url(self):
+        url = self._http_client.base
+        if url[-1] == "/":
+            url = url[0:-1]
+        return url
+
 
 
 

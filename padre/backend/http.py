@@ -244,7 +244,7 @@ PadreHTTPClient.paths = {
     "datasets": "/datasets",
     "experiments": "/experiments",
     "experiment": lambda id: "/experiments/" + id + "/",
-    "projects": "projects/",
+    "projects": "/projects",
     "oauth-token": lambda csrf_token: "/oauth/token?=" + csrf_token,
     "dataset": lambda id: "/datasets/" + id + "/",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',
