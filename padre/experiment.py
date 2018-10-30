@@ -1181,7 +1181,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         backend = 'default'
         workflow = list(self.workflow._pipeline.named_steps.keys())
 
-        copmlete_experiment_dict = dict()
+        complete_experiment_dict = dict()
 
         experiment_dict = dict()
         experiment_dict['name'] = name
@@ -1209,9 +1209,9 @@ class Experiment(MetadataEntity, _LoggerMixin):
             # Only those parameters that are passed to the grid search need to be filled
             experiment_dict['params'] = params
 
-        copmlete_experiment_dict[name] = deepcopy(experiment_dict)
+        complete_experiment_dict[name] = deepcopy(experiment_dict)
 
-        return copmlete_experiment_dict
+        return complete_experiment_dict
 
 
 
