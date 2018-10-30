@@ -989,6 +989,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._set_workflow(workflow)
         self._last_run = None
         self._results = []
+        self._experiment_configuration = None
         super().__init__(options.pop("ex_id", None), **options)
 
         self._fill_sys_info()
@@ -1032,6 +1033,10 @@ class Experiment(MetadataEntity, _LoggerMixin):
     @property
     def workflow(self):
         return self._workflow
+
+    @property
+    def experiment_configuration(self):
+        return self._experiment_configuration
 
     @workflow.setter
     def workflow(self, w):
@@ -1110,16 +1115,18 @@ class Experiment(MetadataEntity, _LoggerMixin):
         from copy import deepcopy
 
         if parameters is None:
+            self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
             self.run()
+            self._backend.put_experiment_configuration(self)
             return
+
+        # Update metadata with version details of packages used in the workflow
+        self.update_experiment_metadata_with_workflow()
 
         # Generate every possible combination of the provided hyper parameters.
         workflow = self._workflow
         master_list = []
         params_list = []
-
-        # Update metadata with version details of packages used in the workflow
-        self.update_experiment_metadata_with_workflow()
 
         self.log_start_experiment(self)
         for estimator in parameters:
@@ -1128,6 +1135,9 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 master_list.append(param_dict.get(params))
                 params_list.append(''.join([estimator, '.', params]))
         grid = itertools.product(*master_list)
+
+        self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
+        self._backend.put_experiment_configuration(self)
 
         # For each tuple in the combination create a run
         for element in grid:
@@ -1152,6 +1162,59 @@ class Experiment(MetadataEntity, _LoggerMixin):
             self._last_run = r
 
         self.log_stop_experiment(self)
+
+    def create_experiment_configuration_dict(self, params=None, single_run=False):
+        """
+        This function creates a dictionary that can be written as a JSON file for replicating the experiments.
+
+        :param params: The parameters for the estimators that make up the grid
+        :param single_run: If the execution is done for a single run
+
+        :return: Experiment dictionary containing the pipeline, backend, parameters etc
+        """
+        from copy import deepcopy
+
+        name = self.name
+        description = self.metadata.get('description', None)
+        strategy = self.metadata.get('strategy', None)
+        dataset = self.dataset.name
+        backend = 'default'
+        workflow = list(self.workflow._pipeline.named_steps.keys())
+
+        copmlete_experiment_dict = dict()
+
+        experiment_dict = dict()
+        experiment_dict['name'] = name
+        experiment_dict['description'] = description
+        experiment_dict['strategy'] = strategy
+        experiment_dict['dataset'] = dataset
+        experiment_dict['backend'] = backend
+        experiment_dict['workflow'] = workflow
+
+        if single_run is True:
+            estimator_dict = dict()
+            # All the parameters of the estimators need to be filled into the params dictionary
+            estimators = self.workflow._pipeline.named_steps
+            for estimator in estimators:
+                params = estimators.get(estimator).get_params()
+                param_dict = dict()
+                for param in params:
+                    param_dict[param] = params.get(param)
+
+                estimator_dict[estimator] = deepcopy(param_dict)
+
+            experiment_dict['params'] = estimator_dict
+
+        else:
+            # Only those parameters that are passed to the grid search need to be filled
+            experiment_dict['params'] = params
+
+        copmlete_experiment_dict[name] = deepcopy(experiment_dict)
+
+        return copmlete_experiment_dict
+
+
+
 
     @property
     def runs(self):

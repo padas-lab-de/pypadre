@@ -189,6 +189,18 @@ class ExperimentFileRepository:
         # todo: impelement filter on metadata
         return _dir_list(os.path.join(self.root_dir, *self._dir(experiment_id)), search_id, ".run")
 
+    def put_experiment_configuration(self, experiment):
+        """
+        Writes the experiment details as a json file
+
+        :param experiment: the experiment to be written to the disk
+
+        :return:
+        """
+        if experiment.experiment_configuration is not None:
+            with open(os.path.join(self.root_dir, *self._dir(experiment.id), "experiment.json"), 'w') as f:
+                f.write(self._metadata_serializer.serialise(experiment.experiment_configuration))
+
     def put_run(self, experiment, run):
         """
         Stores a run of an experiment to the file repository.

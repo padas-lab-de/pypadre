@@ -856,7 +856,7 @@ class ExperimentCreator:
                 datasets = dataset
                 for dataset in datasets:
                     experiment_dict['name'] = ''.join([experiment_name, '(', dataset, ')'])
-                    experiment_dict['description'] = ''.join([experiment.get('description'), 'with dataset ', dataset])
+                    experiment_dict['description'] = ''.join([experiment.get('description'), ' with dataset ', dataset])
                     experiment_dict['workflow'] = experiment.get('workflow')
                     experiment_dict['dataset'] = dataset
                     experiment_dict['backend'] = experiment.get('backend')

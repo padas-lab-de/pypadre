@@ -181,7 +181,7 @@ class ExperimentExecutor:
         import pprint
         for experiment_dict in self._experiments:
             name = experiment_dict.get('name')
-            desc = experiment_dict.get('desc')
+            desc = experiment_dict.get('description')
             dataset = self.get_local_dataset(experiment_dict.get('dataset'))
             workflow = experiment_dict.get('workflow')
             backend = experiment_dict.get('backend')
