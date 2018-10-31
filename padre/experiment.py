@@ -1132,7 +1132,11 @@ class Experiment(MetadataEntity, _LoggerMixin):
         for estimator in parameters:
             param_dict = parameters.get(estimator)
             for params in param_dict:
+                # Append only the parameters to create a master list
                 master_list.append(param_dict.get(params))
+
+                # Append the estimator name followed by the parameter to create a ordered list.
+                # Ordering of estimator.parameter corresponds to the value in the resultant grid tuple
                 params_list.append(''.join([estimator, '.', params]))
         grid = itertools.product(*master_list)
 
