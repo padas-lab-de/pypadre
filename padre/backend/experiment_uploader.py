@@ -6,44 +6,68 @@ import json
 
 class ExperimentUploader:
     """Experiment uploader to upload data to server"""
-    def __init__(self, http_client, project_name="Test project"):
+    def __init__(self, http_client, project_name="Default project"):
         """
         This initializes the Uploader class for given experiment.
         """
         self._http_client = http_client
         self.dataset_id = None
         self.experiment_id = None
-        self.project_id = self.get_id_by_name(project_name, self._http_client.paths["projects"])
-        if self.project_id is None:
-            self.project_id = self.create_project(project_name)
+        self.project_id = self.get_or_create_project(project_name)
+
+    def get_or_create_project(self, name):
+        id_ = self.get_id_by_name(name, self._http_client.paths["projects"])
+        if id_ is None:
+            id_ = self.create_project(name)
+        return id_
+
+    def get_or_create_dataset(self, data):
+        id_ = self.get_id_by_name(data["name"], self._http_client.paths["datasets"])
+        if id_ is None:
+            id_ = self.create_dataset(data)
+        return id_
 
     def create_dataset(self, data):
-        """Create data set"""
-        url = self._http_client.base + self._http_client.paths["datasets"]
+        """Create data set
+
+        :param data: All the metadata of dataset
+        :returns: Id of the new dataset
+        """
+        url = self.get_base_url() + self._http_client.paths["datasets"]
         if isinstance(data, dict):
             data = json.dumps(data)
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": data})
-            self.dataset_id = response.headers['Location'].split('/')[-1]
+            return response.headers['Location'].split('/')[-1]
+        return None
 
     def get_id_by_name(self, name, entity):
-        """Get entity id by name"""
+        """Get entity id by name
+
+        :param name: Instance name of the entity to be searched on server
+        :param entity: Name of entity e-g /projects, /datasets
+        :returns: id of instance or None
+        """
         id_ = None
-        url = self.get_base_url()  + entity + "?name=" + name
+        url = self.get_base_url() + entity + "?name=" + name
         if self._http_client.has_token():
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 id_ = response["_embedded"][entity[1:]][0]["uid"]
         return id_
 
+    def create_project(self, name):
+        """Create project on server
 
-    def create_project(self, name="Test Project"):
-        """Create project on server"""
+        :param name: Name of the project
+        :returns: Id of the instance or None
+        """
         url = self.get_base_url() + self._http_client.paths["projects"]
         data = {"name": name, "owner": self._http_client.user}
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
-            self.project_id = response.headers['Location'].split('/')[-1]
+            return response.headers['Location'].split('/')[-1]
+        return None
 
     def create_experiment(self, data):
         """Create experiment on server"""
@@ -65,9 +89,7 @@ class ExperimentUploader:
         :return: None
         """
         dataset_dict = experiment.dataset.metadata
-        self.dataset_id = self.get_id_by_name(dataset_dict["name"], self._http_client.paths["datasets"])
-        if self.dataset_id is None:
-            self.create_dataset(dataset_dict)
+        self.dataset_id = self.get_or_create_dataset(dataset_dict)
 
         experiment_data = experiment.metadata
         experiment_data["projectId"] = self.project_id

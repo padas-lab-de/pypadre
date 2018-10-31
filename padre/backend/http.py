@@ -38,10 +38,10 @@ class PadreHTTPClient:
             self.silent_codes = []
         else:
             self.silent_codes = silent_codes
-        if token is None:
-            self._access_token = self.get_access_token()
-        else:
+        if token:
             self._access_token = token
+        else:
+            self._access_token = self.get_access_token()
         self._default_header['Authorization'] = self._access_token
 
     def do_request(self, request, url, **body):
@@ -217,13 +217,15 @@ class PadreHTTPClient:
         api = url if url else PadreHTTPClient.paths["padre-api"]
         try:
             csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
-        except req.exceptions.ConnectionError:
+            url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
+            response = self.do_post(url,
+                                    **{'data': data,
+                                       'headers': {'content-type': 'application/x-www-form-urlencoded'}
+                                       })
+        except req.exceptions.RequestException as e:
+            print(str(e))  # todo: Handle failed calls properly
             return token
-        url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
-        response = self.do_post(url,
-                                **{'data': data,
-                                   'headers': {'content-type': 'application/x-www-form-urlencoded'}
-                                   })
+
         if response.status_code == 200:
             token = "Bearer " + json.loads(response.content)['access_token']
         return token

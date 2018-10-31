@@ -39,9 +39,9 @@ class TestCreateDataSet(unittest.TestCase):
         mock_get_id.return_value = None
         obj = ExperimentUploader(self.http_client)
         mock_project.return_value = True
-        obj.create_dataset(self.test_dataset_data)
+        response = obj.create_dataset(self.test_dataset_data)
         self.assertEqual(self.test_dataset_id,
-                         obj.dataset_id,
+                         response,
                          'Data set not created successfully')
 
     @patch('padre.backend.experiment_uploader.ExperimentUploader.get_id_by_name')

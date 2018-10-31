@@ -124,7 +124,10 @@ class TestGetAccessToken02(unittest.TestCase):
         mock_token.return_value = None
         self.test_object = PadreHTTPClient(*('test url', 'user', 'pass'))
         self.test_object.do_get = MagicMock()
-        self.test_object.do_get.side_effect = MagicMock(side_effect=ConnectionError('Error'))
+        e = ConnectionError('Error')
+        e.response = MagicMock()
+        e.response.text = ""
+        self.test_object.do_get.side_effect = MagicMock(side_effect=e)
 
     def test_access_token_05(self):
         """
