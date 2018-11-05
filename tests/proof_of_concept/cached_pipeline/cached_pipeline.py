@@ -181,18 +181,27 @@ def main():
     experiment_creator = ExperimentCreator()
     # FIRST TEST EXPERIMENT WITH MULTIPLE DATASETS
     params = {'n_components': [2, 3, 4, 5, 6, 7]}
-    params_svr = {'C': [0.5, 1.0, 1.5],
-                  'degree': [1, 2, 3]}
+    params_svr = {'C': [0.5, 0.7, 0.8, 0.9, 1.0, 1.5],
+                  'degree': [1, 2, 3, 4, 5, 6]}
     param_value_dict = {'principal component analysis': params, 'epsilon-support vector regression':params_svr}
     workflow = experiment_creator.create_test_pipeline(['PCA', 'SVR'])
     dataset = experiment_creator.get_local_dataset('Diabetes')
+
+    import time
+    c1 = time.time()
     normal_fit(workflow=workflow, features=dataset.features(),
                targets=np.reshape(dataset.targets(), [dataset.targets().shape[0]]),
                parameters=param_value_dict)
+    c2 = time.time()
+    print('Execution time for normal workflow:{time_diff}'.format(time_diff=c2 - c1))
 
+    c1 = time.time()
     optimized_workflow(workflow=workflow, features=dataset.features(),
                        targets=np.reshape(dataset.targets(), [dataset.targets().shape[0]]),
                        parameters=param_value_dict)
+    c2 = time.time()
+    print('Execution time for optimized workflow:{time_diff}'.format(time_diff=c2 - c1))
+
     return
 
 
