@@ -135,6 +135,22 @@ class ExperimentUploader:
             return response
         return False
 
+    def put_run(self, experiment, run):
+        run_data = dict()
+        run_data["hyperparameterValues"] = {"components": [
+            {"description": "",
+             "hyperparameters": [experiment.hyperparameters()]}
+        ]}
+        run_data["experimentId"] = experiment.metadata["server_url"].split("/")[-1]
+        url = self.get_base_url() + self._http_client.paths["runs"]
+        if self._http_client.has_token():
+            try:
+                response = self._http_client.do_post(url, **{"data": run_data})
+            except Exception as e:
+                print(e)
+
+
+
     def get_base_url(self):
         url = self._http_client.base
         if url[-1] == "/":

@@ -120,7 +120,8 @@ class DualBackend:
         return self._file_experiments.get_experiment(ex, load_workflow)
 
     def put_run(self, experiment, run):
-        return self._file_experiments.put_run(experiment, run)
+        self._file_experiments.put_run(experiment, run)
+        self._http_experiments.put_run(experiment, run)
 
     def put_split(self, experiment, run, split):
         return self._file_experiments.put_split(experiment, run, split)
