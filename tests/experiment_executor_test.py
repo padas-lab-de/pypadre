@@ -43,6 +43,8 @@ def main():
                                          params=params_dict
                                          )
 
+    experiment_creator.parse_config_file('experiment.json')
+
     experiments_list = experiment_creator.createExperimentList()
     experiments_executor = ExperimentExecutor(experiments=experiments_list)
     import time

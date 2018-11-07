@@ -819,7 +819,7 @@ class ExperimentCreator:
                                     'Workflow  based workflow was not created')
                 continue
 
-            self.create_experiment(name=name, description=description,workflow=workflow, dataset=dataset,
+            self.create_experiment(name=name, description=description,workflow=workflow, dataset_list=dataset,
                                    backend=backend, params=params)
 
         return True
