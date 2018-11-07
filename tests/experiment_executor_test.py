@@ -30,7 +30,7 @@ def main():
 
     # THIRD TEST EXPERIMENT WITH MULTIPLE DATASETS
     params_pca = {'num_components': [2, 3, 4, 5, 6]}
-    params_svr = {'tolerance': [0.5, 1.0, 1.5],
+    params_svr = {'C': [0.5, 1.0, 1.5],
                   'poly_degree': [1, 2, 3]}
     params_dict = {'SVR': params_svr, 'pca': params_pca}
     workflow = experiment_creator.create_test_pipeline(['pca', 'SVR'])

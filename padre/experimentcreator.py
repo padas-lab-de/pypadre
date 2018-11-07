@@ -273,14 +273,29 @@ class ExperimentCreator:
         for estimator_name in param_value_dict:
             # Check whether the estimator is available
             if self._workflow_components.get(estimator_name) is not None:
-
                 # Check whether the params are available for the estimator
                 parameters = param_value_dict.get(estimator_name)
+
+                # If there are no parameters, then continue
+                if parameters is None:
+                    continue
+
+                # The actual parameter names differ from the implementation names.
+                # This function offers the flexibility of implementing the actual parameter names or their paths
+                actual_parameter_names = []
+                for param_name in self._parameters.get(estimator_name):
+                    actual_parameter_names.append(
+                        self._param_implementation.get('.'.join([estimator_name, param_name])))
+
                 estimator_params = dict()
                 for param in parameters:
                     if param in self._parameters.get(estimator_name):
                         actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
                         estimator_params[actual_param_name] = parameters.get(param)
+
+                    elif param in actual_parameter_names:
+                        estimator_params[param] = parameters.get(param)
+
                     else:
                         default_logger.warn(False, 'ExperimentCreator.validate_parameters',
                                             ''.join([param, ' not present in list for estimator:', estimator_name]))
