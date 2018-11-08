@@ -3,7 +3,7 @@ import pprint
 
 from padre.experiment import Experiment
 
-from padre.ExperimentCreator import ExperimentCreator
+from padre.experimentcreator import ExperimentCreator
 
 def main():
     from padre.app import pypadre
@@ -17,7 +17,7 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['isomap embedding'])
     experiment_helper.create_experiment(name='Grid_search_experiment_1',
                                         description='This is the first grid search test experiment',
-                                        dataset=experiment_helper.get_local_dataset('Boston_House_Prices'),
+                                        dataset_list='Boston_House_Prices',
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
 
@@ -31,7 +31,7 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['pca', 'isomap embedding'])
     experiment_helper.create_experiment(name='Grid_search_experiment_2',
                                         description='This is the second grid search test experiment',
-                                        dataset=experiment_helper.get_local_dataset('Boston_House_Prices'),
+                                        dataset_list='Boston_House_Prices',
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
     params_svc = {'C': [0.5, 1.0, 1.5],
@@ -42,7 +42,7 @@ def main():
     experiment_param_dict['Grid_search_experiment_3'] = experiment_helper.convert_alternate_estimator_names(params_)
     experiment_helper.create_experiment(name='Grid_search_experiment_3',
                                         description='Grid search experiment with SVC',
-                                        dataset=experiment_helper.get_local_dataset('Iris'),
+                                        dataset_list='Iris',
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments
                                         )
@@ -54,7 +54,7 @@ def main():
     experiment_param_dict['Grid_search_experiment_4'] = experiment_helper.convert_alternate_estimator_names(params_dict_svr)
     experiment_helper.create_experiment(name='Grid_search_experiment_4',
                                         description='Grid search experiment with SVR',
-                                        dataset=experiment_helper.get_local_dataset('Diabetes'),
+                                        dataset_list='Diabetes',
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments
                                         )
@@ -65,25 +65,12 @@ def main():
     experiment_param_dict['Grid_search_experiment_5'] = experiment_helper.convert_alternate_estimator_names(params_dict_logistic)
     experiment_helper.create_experiment(name='Grid_search_experiment_5',
                                         description='Grid search experiment with logistic regression',
-                                        dataset=experiment_helper.get_local_dataset('Diabetes'),
+                                        dataset_list='Diabetes',
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
 
-    experiments_dict = experiment_helper.experiments
-
     # Run all the experiments in the list
-    for experiment in experiments_dict:
-        ex = Experiment(name=experiment,
-                        description=experiments_dict.get(experiment).get('description'),
-                        dataset=experiments_dict.get(experiment).get('dataset', None),
-                        workflow=experiments_dict.get(experiment).get('workflow', None),
-                        backend=experiments_dict.get(experiment).get('backend', None),
-                        strategy=experiments_dict.get(experiment).get('strategy', 'random'),
-                        keep_splits=True)
-        conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
-        pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-        ex.grid_search(parameters=experiment_param_dict.get(experiment))  # run the experiment and report
-        pprint.pprint(ex.results)
+    experiment_helper.execute_experiments()
 
 
 if __name__ == '__main__':

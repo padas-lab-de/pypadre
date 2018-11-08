@@ -584,6 +584,7 @@ class ExperimentCreator:
             return
 
         for experiment in self._experiments:
+            flag = True
             dataset = deepcopy(self._experiments.get(experiment).get('dataset', None))
             if dataset is None:
                 default_logger.warn(False, 'Experiment_creator.execute_experiments',
@@ -593,7 +594,7 @@ class ExperimentCreator:
             if len(dataset) == 1:
 
                 # Get the data from the dataset name
-                data = self.get_local_dataset(dataset)
+                data = self.get_local_dataset(dataset[0])
 
                 # Classifiers cannot work on continuous data and rejected as experiments.
                 if not np.all(np.mod(data.targets(), 1) == 0):
@@ -605,7 +606,11 @@ class ExperimentCreator:
                                                 ''.join(
                                                     ['Estimator ', estimator, ' cannot work on continuous data.'
                                                                               'This dataset will be disregarded']))
-                            continue
+                            break
+
+                # If the pipeline consists of classification estimators working on continous data return
+                if not flag:
+                    continue
 
                 # If there is only one dataset defined for the experiment execute the experiment with the dataset
                 ex = Experiment(name=experiment,

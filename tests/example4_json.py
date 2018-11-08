@@ -1,5 +1,6 @@
-from padre.ExperimentCreator import ExperimentCreator
+from padre.experimentcreator import ExperimentCreator
 import os
+
 
 def main():
     experiment_creator = ExperimentCreator()

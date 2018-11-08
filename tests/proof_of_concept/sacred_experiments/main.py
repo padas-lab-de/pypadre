@@ -1,5 +1,5 @@
 from sacred import Experiment
-from padre.ExperimentCreator import ExperimentCreator
+from padre.experimentcreator import ExperimentCreator
 from padre.app import pypadre
 
 ex = Experiment('PyPaDRe')
