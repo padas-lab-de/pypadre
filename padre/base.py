@@ -59,8 +59,15 @@ class PadreLogger:
             self._file.close()
             self._file = None
 
+    def log_start_experiment(self, experiment):
+        """
+        This function handles the start of an experiment.
 
+        :param experiment: Experiment object to be logged
 
+        :return:
+        """
+        pass
 
 default_logger = PadreLogger()
 ""
