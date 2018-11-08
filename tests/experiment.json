@@ -1,5 +1,5 @@
 {
-    "JSON FILE TEST": {
+    "JSON FILE TEST EXPERIMENT": {
         "name": "JSON FILE TEST EXPERIMENT",
         "description": "Grid search experiment with SVR with dataset Boston_House_Prices",
         "strategy": "random",
