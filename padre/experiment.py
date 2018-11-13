@@ -37,7 +37,7 @@ from time import time
 import numpy as np
 
 import padre.visitors.parameter
-from padre.base import MetadataEntity, default_logger
+from padre.base import MetadataEntity, default_logger, timer_priorities, default_timer
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
 
@@ -59,165 +59,6 @@ def _is_sklearn_pipeline(pipeline):
     """
     # we do checks via strings, not isinstance in order to avoid a dependency on sklearn
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
-
-
-class _timer_priorities(_const):
-    """
-    Constant class detailing the different priorites possible for a timer.
-    """
-    NO_LOGGING = 0
-    HIGH_PRIORITY = 1
-    MED_PRIORITY = 2
-    LOW_PRIORITY = 3
-
-
-class _timer_defaults(_const):
-    """
-    Constant class detailing the different default values for a timer.
-    """
-    DEFAULT_PRIORITY = 3
-    DEFAULT_TIMER_DESCRIPTION = None
-    DEFAULT_TIMER_NAME = 'default_timer'
-    DEFAULT_TIME = 0.0
-
-
-timer_priorities = _timer_priorities
-timer_defaults = _timer_defaults
-
-
-class TimeKeeper:
-    """
-    This class creates a dictionary of timers.
-    It has a log timer function that would log each timer passed to it.
-    If the timer name is already present in the dictionary, the timer is
-    popped out and the execution time is calculated. Multiple timers can be kept
-    track of this way.
-    Priorities of the timers are also defined
-    The timer is logged only if the priority of the timer is equal to or higher than the
-    priority defined while initializing.
-    Priorities Available.
-    NO_LOGGING: None of the timers are logged.
-    HIGH_PRIORITY: Only timers having high priority are logged.
-    MED_PRIORITY: Only timers with medium or higher priority are logged.
-    LOW_PRIORITY: All timers are logged.
-    """
-
-    def __init__(self, priority):
-        """
-        This initializes the TimeKeeper class.
-        :param priority: The current logging priority
-        """
-        self._timers = dict()
-        self._priority = priority
-
-    def __del__(self):
-        """
-        This is the destructor function of the TimeKeeper class.
-        The purpose of the destructor is to check whether any timers are left in the TimeKeeper class at
-        the end of execution.
-        :return: None
-        """
-        if len(self._timers) > 0:
-            print("Error: The following Timers still present in the list")
-            for key in self._timers:
-                print(key)
-
-    def log_timer(self, timer_name=timer_defaults.DEFAULT_TIMER_NAME,
-                  priority=timer_defaults.DEFAULT_PRIORITY,
-                  description=timer_defaults.DEFAULT_TIMER_DESCRIPTION):
-        """
-
-        :param timer_name: Name of the unique timer. If timer is already present,
-        the timer would be popped out and duration recorded.
-        :param priority: priority of the timer.
-        :param description: The string description of what the timer measures.
-        :return: Description of the the timer and its duration.
-        """
-        # If there is no timer by the name, add the timer to the dictionary
-        # Else pop out the timer, and check whether the priority of the timer is
-        # equal to or higher than the priority of the program.
-        # If it is, then print the description and timer
-        if self._timers.get(timer_name) is None:
-            new_timer = TimerContents(priority=priority,
-                                      description=description,
-                                      curr_time=time())
-            self._timers[timer_name] = new_timer
-
-        else:
-            old_timer = self._timers.pop(timer_name, None)
-            if old_timer.get_timer_priority() <= self._priority:
-                return old_timer.get_description(), time() - old_timer.get_time()
-
-    def start_timer(self, timer_name=timer_defaults.DEFAULT_TIMER_NAME,
-                    priority=timer_defaults.DEFAULT_PRIORITY,
-                    description=timer_defaults.DEFAULT_TIMER_DESCRIPTION):
-        """
-        Starts a unique timer with the key as timer_name
-        :param timer_name: Unique name of the timer
-        :param priority: Priority of the timer
-        :param description: Describes the purpose of the timer
-        :return: None
-        """
-        if self._timers.get(timer_name) is None:
-            new_timer = TimerContents(priority=priority,
-                                      description=description,
-                                      curr_time=time())
-            self._timers[timer_name] = new_timer
-
-    def stop_timer(self, timer_name):
-        """
-        Stops a timer and measures its duration
-        :param timer_name:
-        :return: Description of the timer and its duration
-                 None if a timer with its unique name is not present
-        """
-        if timer_name is None:
-            return None
-
-        old_timer = self._timers.pop(timer_name, None)
-        if old_timer.priority <= self._priority:
-            return old_timer.description, time() - old_timer.time
-
-
-class TimerContents:
-    """
-    This class contains the contents to be displayed and calculated,
-    using the TimeKeeper Class.
-    The class stores three values and there are three get attributes
-    corresponding to each value. There is no set attribute and the values are
-    initialized during object creation itself.
-    """
-
-    def __init__(self, priority=timer_defaults.DEFAULT_PRIORITY,
-                 description=timer_defaults.DEFAULT_TIMER_DESCRIPTION,
-                 curr_time=timer_defaults.DEFAULT_TIME):
-        """
-        The initialization of the Timer class. All the arguments are given default values
-        which are present in timer_defaults.
-        :param priority: The priority of the timer.
-        :param description: The description of the timer.
-        :param curr_time: The time to start logging.
-        """
-        self._timer_desc = description
-        self._timer_priority = priority
-        self._time = curr_time
-
-    @property
-    def description(self):
-        return self._timer_desc
-
-    @property
-    def time(self):
-        return self._time
-
-    @property
-    def priority(self):
-        return self._timer_priority
-
-
-# TODO: A better way of using the default timer
-# A static object shared throughout the instances of _LoggerMixin
-default_timer = TimeKeeper(timer_defaults.DEFAULT_PRIORITY)
 
 
 class _LoggerMixin:
@@ -395,21 +236,21 @@ class SKLearnWorkflow:
             raise NotImplemented()
         else:
             # do logging here
-            ctx.log_event(ctx, kind=exp_events.start, phase="sklearn." + phases.fitting)
+            default_logger.log_event(ctx, kind=exp_events.start, phase="sklearn." + phases.fitting)
             y = ctx.train_targets.reshape((len(ctx.train_targets),))
             self._pipeline.fit(ctx.train_features, y)
-            ctx.log_event(ctx, kind=exp_events.stop, phase="sklearn." + phases.fitting)
+            default_logger.log_event(ctx, kind=exp_events.stop, phase="sklearn." + phases.fitting)
             if self.is_scorer():
-                ctx.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.trainset")
+                default_logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.trainset")
                 score = self._pipeline.score(ctx.train_features, y)
-                ctx.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.trainset")
-                ctx.log_score(ctx, keys=["training score"], values=[score])
+                default_logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.trainset")
+                default_logger.log_score(ctx, keys=["training score"], values=[score])
                 if ctx.has_valset():
                     y = ctx.val_targets.reshape((len(ctx.val_targets),))
-                    ctx.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.valset")
+                    default_logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.valset")
                     score = self._pipeline.score(ctx.val_features, y)
-                    ctx.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.valset")
-                    ctx.log_score(ctx, keys=["validation score"], values=[score])
+                    default_logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.valset")
+                    default_logger.log_score(ctx, keys=["validation score"], values=[score])
 
     def infer(self, ctx, train_idx, test_idx):
         from copy import deepcopy
@@ -428,7 +269,7 @@ class SKLearnWorkflow:
                 results = {'predicted': y_predicted.tolist(),
                            'truth': y.tolist()}
 
-                ctx.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
+                default_logger.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
                                probabilities=None, scores=None,
                                transforms=None, clustering=None)
                 metrics = dict()
@@ -444,7 +285,7 @@ class SKLearnWorkflow:
                 if 'predict_proba' in dir(self._pipeline.steps[-1][1]) and np.all(np.mod(y_predicted, 1) == 0) and \
                         compute_probabilities:
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
-                    ctx.log_result(ctx, mode="probabilities", pred=y_predicted,
+                    default_logger.log_result(ctx, mode="probabilities", pred=y_predicted,
                                    truth=y, probabilities=y_predicted_probabilities,
                                    scores=None, transforms=None, clustering=None)
                     results['probabilities'] = y_predicted_probabilities.tolist()
@@ -467,7 +308,7 @@ class SKLearnWorkflow:
 
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y, )
-                    ctx.log_score(ctx, keys=["test score"], values=[score])
+                    default_logger.log_score(ctx, keys=["test score"], values=[score])
 
                 results['dataset'] = ctx.dataset.name
                 results['train_idx'] = train_idx
@@ -731,7 +572,7 @@ class Splitter:
         return splitting_iterator()
 
 
-class Split(MetadataEntity, _LoggerMixin):
+class Split(MetadataEntity):
     """
     A split is a single part of a run and the actual excution over parts of the dataset.
     According to the experiment setup the pipeline/workflow will be executed
@@ -740,8 +581,8 @@ class Split(MetadataEntity, _LoggerMixin):
     def __init__(self, run, num, train_idx, val_idx, test_idx, **options):
         self._run = run
         self._num = num
-        self._backend = run.backend
-        self._stdout = run.stdout
+        #self._backend = run.backend
+        #self._stdout = run.stdout
         self._train_idx = train_idx
         self._val_idx = val_idx
         self._test_idx = test_idx
@@ -759,17 +600,17 @@ class Split(MetadataEntity, _LoggerMixin):
         return self._run
 
     def execute(self):
-        self.log_start_split(self)
+        default_logger.log_start_split(self)
         # log run start here.
         workflow = self._run.experiment.workflow
-        self.log_event(self, exp_events.start, phase=phases.fitting)
+        default_logger.log_event(self, exp_events.start, phase=phases.fitting)
         workflow.fit(self)
-        self.log_event(self, exp_events.stop, phase=phases.fitting)
+        default_logger.log_event(self, exp_events.stop, phase=phases.fitting)
         if workflow.is_inferencer() and self.has_testset():
-            self.log_event(self, exp_events.start, phase=phases.inferencing)
+            default_logger.log_event(self, exp_events.start, phase=phases.inferencing)
             workflow.infer(self, self.train_idx.tolist(), self.test_idx.tolist())
-            self.log_event(self, exp_events.stop, phase=phases.inferencing)
-        self.log_stop_split(self)
+            default_logger.log_event(self, exp_events.stop, phase=phases.inferencing)
+        default_logger.log_stop_split(self)
 
     def has_testset(self):
         return self._test_idx is not None and len(self._test_idx) > 0
@@ -865,7 +706,7 @@ class Split(MetadataEntity, _LoggerMixin):
             return "Split<" + ";".join(s) + ">"
 
 
-class Run(MetadataEntity, _LoggerMixin):
+class Run(MetadataEntity):
     """
     A run is a single instantiation of an experiment with a definitive set of parameters.
     According to the experiment setup the pipeline/workflow will be executed
@@ -877,7 +718,7 @@ class Run(MetadataEntity, _LoggerMixin):
         self._experiment = experiment
         self._workflow = workflow
         self._backend = experiment.backend
-        self._stdout = experiment.stdout
+        #self._stdout = experiment.stdout
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._results = []
@@ -886,7 +727,8 @@ class Run(MetadataEntity, _LoggerMixin):
 
     def do_splits(self):
         from copy import deepcopy
-        self.log_start_run(self)
+        #self.log_start_run(self)
+        default_logger.log_start_run(self)
         # instantiate the splitter here based on the splitting configuration in options
         splitting = Splitter(self._experiment.dataset, **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
@@ -895,7 +737,8 @@ class Run(MetadataEntity, _LoggerMixin):
             if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
                 self._results.append(deepcopy(self._experiment.workflow.results))
-        self.log_stop_run(self)
+        #self.log_stop_run(self)
+        default_logger.log_stop_run(self)
 
     @property
     def experiment(self):
@@ -917,7 +760,7 @@ class Run(MetadataEntity, _LoggerMixin):
             return "Run<" + ";".join(s) + ">"
 
 
-class Experiment(MetadataEntity, _LoggerMixin):
+class Experiment(MetadataEntity):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -991,6 +834,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         self._last_run = None
         self._results = []
         self._experiment_configuration = None
+        default_logger.backend = self._backend
         super().__init__(options.pop("ex_id", None), **options)
 
         self._fill_sys_info()
@@ -1094,7 +938,8 @@ class Experiment(MetadataEntity, _LoggerMixin):
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
-        self.log_start_experiment(self, append_runs)
+        #self.log_start_experiment(self, append_runs)
+        default_logger.log_start_experiment(self, append_runs)
 
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
@@ -1103,7 +948,8 @@ class Experiment(MetadataEntity, _LoggerMixin):
             self._runs.append(r)
             self._results.append(deepcopy(r.results))
         self._last_run = r
-        self.log_stop_experiment(self)
+        #self.log_stop_experiment(self)
+        default_logger.log_stop_experiment(self)
 
     def grid_search(self, parameters=None):
         """
@@ -1129,7 +975,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
         master_list = []
         params_list = []
 
-        self.log_start_experiment(self)
+        default_logger.log_start_experiment(self)
         for estimator in parameters:
             param_dict = parameters.get(estimator)
             for params in param_dict:
@@ -1166,7 +1012,7 @@ class Experiment(MetadataEntity, _LoggerMixin):
                 self._results.append(deepcopy(r.results))
             self._last_run = r
 
-        self.log_stop_experiment(self)
+        default_logger.log_stop_experiment(self)
 
     def create_experiment_configuration_dict(self, params=None, single_run=False):
         """
