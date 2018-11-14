@@ -12,7 +12,7 @@ class DualBackend:
     Implement all functions from file and http backends here and then function calls will be
     delegated to appropriate backend.
     """
-    def __init__(self, file_backend, http_backend, std_out = True):
+    def __init__(self, file_backend, http_backend, std_out=True):
         self._file_backend = file_backend
         self._http_backend = http_backend
         self._http_experiments = http_backend.experiments

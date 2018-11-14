@@ -22,6 +22,7 @@ from padre.experimentcreator import ExperimentCreator
 from padre.experiment import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
+from padre.base import default_logger
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -87,6 +88,8 @@ def save_padre_config(config, config_file = _PADRE_CFG_FILE):
 default_config = load_padre_config()
 http_client = PadreHTTPClient(**default_config["HTTP"])
 file_cache = PadreFileBackend(**default_config["FILE_CACHE"])
+default_logger_file_cache = PadreFileBackend(**default_config["FILE_CACHE"])
+default_logger_http_client = PadreHTTPClient(**default_config["HTTP"])
 
 def _wheel_char(n_max):
     chars = ["/", "-", "\\", "|", "/", "-", "\\", "|"]
@@ -434,5 +437,7 @@ class PadreApp:
     def repository(self):
         return self._dual_repo
 
+default_logger_dual_repo = DualBackend(default_logger_file_cache, default_logger_http_client)
+default_logger.backend = default_logger_dual_repo
 
 pypadre = PadreApp(http_client, file_cache)

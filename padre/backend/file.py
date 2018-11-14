@@ -13,7 +13,6 @@ import uuid
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
 from padre.datasets import Dataset, Attribute
 from padre.experiment import Experiment
-from datetime import datetime
 
 
 def _get_path(root_dir, name, create=True):
@@ -93,13 +92,11 @@ class ExperimentFileRepository:
     _file = None
 
     def __init__(self, root_dir, data_repository):
-        from padre.base import default_logger
         self.root_dir = _get_path(root_dir, "")
         self._metadata_serializer = JSonSerializer
         self._binary_serializer = PickleSerializer
         self._data_repository = data_repository
         self._file = None
-        #default_logger.open_log_file(self.root_dir)
 
     def __del__(self):
         """
@@ -348,8 +345,10 @@ class ExperimentFileRepository:
 
         :return:
         """
-        if self._file is not None:
-            self._file.write(message + "\n")
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write(message + "\n")
 
 
 

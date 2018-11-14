@@ -674,7 +674,6 @@ class ExperimentCreator:
                         pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
                         ex.grid_search(parameters=self._param_value_dict.get(experiment))
 
-
     def do_experiments(self, experiment_datasets=None):
         """
         This function runs the same experiment over multiple datasets
@@ -723,7 +722,7 @@ class ExperimentCreator:
                 if not flag:
                     continue
 
-                message = 'Executing experiment ' + experiment + ' for dataset' + dataset
+                message = 'Executing experiment ' + experiment + ' for dataset ' + dataset
                 default_logger.log('ExperimentCreator.do_experiments', message)
 
                 ex = Experiment(name=''.join([experiment, '(', dataset, ')']),

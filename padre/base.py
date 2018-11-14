@@ -59,13 +59,13 @@ class PadreLogger:
         if not condition:
             sys.stderr.write(str(source) + ":\t" + message + "\n")
             if self.has_backend():
-                self.backend.log("WARN:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
+                self.backend.log("WARN: " + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
     def error(self, condition, source, message):
         if not condition:
             sys.stderr.write(str(source) + ":\t" + message + "\n")
             if self.has_backend():
-                self.backend.log("ERROR:" + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
+                self.backend.log("ERROR: " + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
             raise ValueError(str(source)+":\t"+message)
 
