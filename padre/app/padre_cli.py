@@ -48,8 +48,7 @@ def pypadre_cli(ctx, config_file, base_url):
 @click.pass_context
 def get_config_param(ctx, param):
     """
-    Get given param from config file. if param is token and token is not found in
-    config then first authenticate by using credentials from config and then get param.
+    Get given param from config file.
     """
     result = ctx.obj["pypadre"].config.get(param)
     print(result)
@@ -82,8 +81,8 @@ def list_config_params(ctx):
 @click.pass_context
 def authenticate(ctx, url, user, passwd):
     """
-    Get given param from config file. if param is token and token is not found in
-    config then first authenticate by using credentials from config and then get param.
+    To generate new token in config. Authenticate with given credentials, in case credentials
+    are not provided default credentials will be used.
     """
     ctx.obj["pypadre"].config.authenticate(url, user, passwd)
 
