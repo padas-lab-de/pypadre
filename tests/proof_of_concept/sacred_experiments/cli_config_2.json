@@ -4,7 +4,7 @@
         "description": "Testing of Sacred Config  using JSON files",
         "dataset": "Iris",
         "workflow": [
-            "principal component analysis"
+            "principal component analysis", "SVC"
         ],
         "backend": "default"
     },

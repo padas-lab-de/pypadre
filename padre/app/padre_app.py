@@ -16,8 +16,9 @@ from padre.datasets import formats
 
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
-import padre.ds_import
-from padre.ExperimentCreator import ExperimentCreator
+from padre.backend.dual_backend import DualBackend
+from padre.ds_import import load_sklearn_toys
+from padre.experimentcreator import ExperimentCreator
 from padre.experiment import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
@@ -34,8 +35,8 @@ else:
 
 _DEFAULT_HTTP_CONFIG = {
         "base_url": _BASE_URL,
-        "user": "",
-        "passwd": ""
+        "user": "hmafnan",
+        "passwd": "test"
     }
 
 
@@ -99,6 +100,120 @@ def get_default_table():
     return table
 
 
+class PadreConfig:
+    """
+    PadreConfig class covering functionality for viewing or updating default
+    configurations for PadreApp.
+    Configuration file is placed at ~/.padre.cfg
+
+    Expected values in config are following
+    ---------------------------------------
+    [HTTP]
+    user = username
+    passwd = user_password
+    base_url = http://localhost:8080/api
+    token = oauth_token
+
+    [FILE_CACHE]
+    root_dir = ~/.pypadre/
+    ---------------------------------------
+
+    Implemented functionality.
+
+    1- Get list of dicts containing key, value pairs for all sections in config
+    2- Get value for given key.
+    3- Set value for given key in config
+    4- Authenticate given user and update new token in the config
+    """
+    def __init__(self, http_repo, config_file=_PADRE_CFG_FILE):
+        self._config_file = config_file
+        self._http_repo = http_repo
+
+    def list(self):
+        """
+        Get list of dicts containing key, value pairs for all sections in config
+
+        :return: List of dicts
+        :rtype: list
+        """
+        config = configparser.ConfigParser()
+        config_list = []
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+            for section in config.sections():
+                data = dict()
+                data[section] = dict()
+                for (k, v) in config.items(section):
+                    data[section][k] = v
+                config_list.append(data)
+        return config_list
+
+    def set_section(self, data, section='HTTP'):
+        """
+        Set section in config for given list of (key, value) pairs
+
+        :param data: dict containing key, value pair
+        :type data: dict
+        :return: None
+        """
+        config = configparser.ConfigParser()
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+        for k, v in data.items():
+            config[section][k] = v
+        with open(self._config_file, 'w') as configfile:
+            config.write(configfile)
+
+    def set(self, key, value, section='HTTP'):
+        """
+        Set value for given key in config
+
+        :param key: Any key in config
+        :type key: str
+        :param value: Value to be set for given key
+        :type value: str
+        :param section: Section to be changed in config, default HTTP
+        :type section: str
+        """
+        data = dict()
+        data[key] = value
+        self.set_section(data, section)
+
+    def get(self, key):
+        """
+        Get value for given key.
+        :param key: Any key in config for any section
+        :type key: str
+        :return: Found value or False
+        """
+        config = configparser.ConfigParser()
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+            for section in config.sections():
+                for k, v in config.items(section):
+                    if k == key:
+                        return v
+        return False
+
+    def authenticate(self, url=None, user=None, passwd=None):
+        """
+        Authenticate given user and update new token in the config.
+
+        :param url: url of the server
+        :type url: str
+        :param user: Given user
+        :type user: str
+        :param passwd: Given password
+        :type passwd: str
+        """
+        token = self.http.get_access_token(url, user, passwd)
+        self.set('token', token)
+
+    @property
+    def http(self):
+        return self._http_repo
+
+
 class DatasetApp:
     """
     Class providing commands for managing datasets.
@@ -115,9 +230,9 @@ class DatasetApp:
             ch_it = _wheel_char(9999999999)
             self._print("Loading.....")
             for ds in datasets:
-                #print(next(ch_it), end="")
+                print(next(ch_it), end="")
                 table.append_row([str(x) for x in [ds.id, ds.name, ds.type, ds.num_attributes, ds.metadata["createdAt"]]])
-            #self._print(table)
+            self._print(table)
         return datasets
 
     def do_default_imports(self, sklearn=True):
@@ -259,12 +374,14 @@ class PadreApp:
     def __init__(self, http_repo, file_repo, printer=None):
         self._http_repo = http_repo
         self._file_repo = file_repo
+        self._dual_repo = DualBackend(file_repo, http_repo)
         self._print = printer
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
         self._experiment_creator = ExperimentCreator()
         self._metrics_evaluator = CompareMetrics()
         self._metrics_reevaluator = ReevaluationMetrics()
+        self._config = PadreConfig(http_repo)
 
 
     @property
@@ -286,6 +403,10 @@ class PadreApp:
     @property
     def metrics_reevaluator(self):
         return self._metrics_reevaluator
+
+    @property
+    def config(self):
+        return self._config
 
     def set_printer(self, printer):
         """
@@ -318,6 +439,7 @@ class PadreApp:
 
     @property
     def repository(self):
-        raise NotImplemented  # todo implement a joint repository where file is used to cache http
+        return self._dual_repo
+
 
 pypadre = PadreApp(http_client, file_cache)

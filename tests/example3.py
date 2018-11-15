@@ -1,11 +1,9 @@
 """
 This file will be used to test the functionalities of the ExperimentCreator class and the metrics class
 """
-from padre.ds_import import load_sklearn_toys
-from padre.experiment import Experiment
 from padre.app import pypadre
-import copy
-from padre.ExperimentCreator import ExperimentCreator
+from padre.experimentcreator import ExperimentCreator
+
 
 def main():
     experiment_helper = ExperimentCreator()
@@ -18,7 +16,7 @@ def main():
     print(experiment_helper.get_param_values('Test Experiment PCA Linear'))
     experiment_helper.create_experiment(name='Test Experiment PCA Linear',
                                         description='Test Experiment with pca and linear regression',
-                                        dataset=None,
+                                        dataset_list=None,
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
 
@@ -28,7 +26,7 @@ def main():
     experiment_helper.set_param_values('Test Experiment PCA Logistic', params_dict_logistic)
     experiment_helper.create_experiment(name='Test Experiment PCA Logistic',
                                         description='Test Experiment with pca and logistic regression',
-                                        dataset='Boston_House_Prices',
+                                        dataset_list='Boston_House_Prices',
                                         workflow=workflow,
                                         backend=pypadre.file_repository.experiments)
     experiment_helper.execute_experiments()
