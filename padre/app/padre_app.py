@@ -16,7 +16,7 @@ from padre.datasets import formats
 
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
-from padre.ds_import import load_sklearn_toys
+import padre.ds_import
 from padre.ExperimentCreator import ExperimentCreator
 from padre.experiment import Experiment
 from padre.metrics import ReevaluationMetrics
@@ -115,14 +115,14 @@ class DatasetApp:
             ch_it = _wheel_char(9999999999)
             self._print("Loading.....")
             for ds in datasets:
-                print(next(ch_it), end="")
+                #print(next(ch_it), end="")
                 table.append_row([str(x) for x in [ds.id, ds.name, ds.type, ds.num_attributes, ds.metadata["createdAt"]]])
-            self._print(table)
+            #self._print(table)
         return datasets
 
     def do_default_imports(self, sklearn=True):
         if sklearn:
-            for ds in load_sklearn_toys():
+            for ds in padre.ds_import.load_sklearn_toys():
                self.do_import(ds)
 
     def _print(self, output):
@@ -135,6 +135,13 @@ class DatasetApp:
         if self.has_printer():
             self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
         self._parent.http_repository.upload_dataset(ds, True)
+
+    def upload_scratchdatasets(self,alsoGraphs=True,amount=99999):
+        padre.ds_import.sendTop100DatasetsToServer\
+            (os.path.expanduser('~/.pypadre'),"8dc6f615-1231-419f-9593-cebc7c62ad77",3)
+
+
+
 
     def get_dataset(self, dataset_id, binary=True, format=formats.numpy,
             force_download=True, cache_it=False):

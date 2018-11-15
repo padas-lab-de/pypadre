@@ -11,11 +11,13 @@ from scipy import stats
 from padre.base import MetadataEntity
 from padre.utils import _const
 import pandas_profiling as pd_pf
+import networkx as nx
 
 class _Formats(_const):
 
     numpy = "numpy"
     pandas = "pandas"
+    graph = "graph"
 
 formats = _Formats()
 
@@ -89,6 +91,95 @@ class NumpyContainer:
         if self._data is not None:
             ret["stats"] = stats.describe(self._data, axis=0)
         return ret
+
+
+class GraphContainer:
+
+    def __init__(self, data, attributes=None):
+        # todo rework binary data into delegate pattern.
+        self._shape = data.shape
+        #pd.DataFrame
+        if attributes is None:
+            self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
+            self._features = data
+            self._data = data
+            self._targets_idx = None
+            self._features_idx = np.arange(self._shape[1])
+        else:
+            if len(attributes) != data.shape[1]:
+                raise ValueError("Incorrect number of attributes."
+                                 " Data has %d columns, provided attributes %d."
+                                 % (data.shape[1], len(attributes)))
+            self._data = data
+            self._attributes = attributes
+            self._targets_idx = np.array([idx for idx, a in enumerate(attributes) if a.is_target])
+            self._features_idx = np.array([idx for idx, a in enumerate(attributes) if not a.is_target])
+            assert set(self._features_idx).isdisjoint(set(self._targets_idx)) and \
+                   set(self._features_idx).union(set(self._targets_idx)) == set([idx for idx in range(len(attributes))])
+            #TODO assert rework
+
+    @property
+    def attributes(self):
+        return self._attributes
+
+    @property
+    def features(self):
+        if self._attributes is None:
+            return self._data
+        else:
+            removekeys = []
+            for att in self._attributes:
+                if(att.is_target):
+                    removekeys.append(att.name)
+            return self._data.drop(removekeys,axis=1)
+
+    @property
+    def targets(self):
+        if self._targets_idx is None:
+            return None
+        else:
+            removekeys = []
+            for att in self._attributes:
+                if (not att.is_target):
+                    removekeys.append(att.name)
+            return self._data.drop(removekeys, axis=1)
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def shape(self):
+        return self._shape
+
+
+    @property
+    def num_attributes(self):
+        return self._data.shape[1]
+
+  #      ret = {"n_att" : len(self._attributes),
+  #             "n_target" : len([a for a in self._attributes if a.is_target])}
+  #      if self._data is not None:
+  #          ret["stats"] = stats.describe(self._data, axis=0)
+  #      return ret
+
+    def profile(self,bins=10,check_correlation=True,correlation_threshold=0.9,
+                correlation_overrides=None,check_recoded=False):
+        return pd_pf.ProfileReport(self.data,bins=bins,check_correlation=check_correlation,correlation_threshold=correlation_threshold,
+                correlation_overrides=correlation_overrides,check_recoded=check_recoded)
+
+
+    def describe(self):
+        ret = {"n_att" : len(self._attributes),
+               "n_target" : len([a for a in self._attributes if a.is_target])}
+        shallow_cp=self._data
+        for col in shallow_cp:
+            if isinstance(shallow_cp[col][0], str):
+                shallow_cp[col]=pd.factorize(shallow_cp[col])[0]
+                print(col)
+        ret["status"] = stats.describe(shallow_cp.values)
+        return ret
+
 
 
 class PandasContainer:
@@ -365,6 +456,9 @@ class Dataset(MetadataEntity):
         elif isinstance(data, np.ndarray):
             self._binary = NumpyContainer(data, attributes)
             self._binary_format = formats.numpy
+        elif isinstance(data,nx.Graph):
+            self._binary = GraphContainer(data, attributes)
+            self._binary_format = formats.graph
         else:
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
 

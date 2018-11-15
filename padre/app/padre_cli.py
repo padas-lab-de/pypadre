@@ -76,6 +76,23 @@ def dataset(ctx, dataset_id, binary, format):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
     ctx.obj["pypadre"].datasets.get_dataset(dataset_id, binary, format)
 
+@pypadre_cli.command(name="oml_dataset")
+@click.argument('dataset_id')
+@click.pass_context
+def dataset(ctx, dataset_id):
+    """downloads the dataset with the given id. id can be either a number or a valid url"""
+    ctx.obj["pypadre"].datasets.get_openml_dataset(dataset_id)
+
+
+
+@pypadre_cli.command(name="upload_scratchdata")
+@click.argument('dataset_id')
+@click.pass_context
+def dataset(ctx, dataset_id):
+    """downloads the dataset with the given id. id can be either a number or a valid url"""
+    ctx.obj["pypadre"].datasets.upload_scratchdatasets(True,99999)
+
+
 #################################
 ####### EXPERIMENT FUNCTIONS ##########
 #################################

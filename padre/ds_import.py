@@ -1,6 +1,8 @@
 """
 Modul containing import methods from different packages / repositories.
 """
+import tempfile
+
 import sklearn.datasets as ds
 import numpy as np
 from .datasets import Dataset, Attribute
@@ -243,7 +245,7 @@ def sendTop100DatasetsToServer_old(path,auth_token):
         i=i+1
 
 
-def sendTop100DatasetsToServer(path,auth_token,worker=1):
+def sendTop100DatasetsToServer(path,auth_token,server_url="http://localhost:8080",worker=1):
     from multiprocessing import Process
     """Takes a list of the Top-100 Datasets and downloads all of them from open-ml and uploads them to the Server.
         Those Datasets are not cached locally. The list of Datasets is available under
@@ -261,11 +263,14 @@ def sendTop100DatasetsToServer(path,auth_token,worker=1):
 
     path100=path+"/datasets/config/top100datasetIDs.txt"
 
-    data="18,12,22,23,28,60,46,32,36,14,1112,1114,1120,1489,1494,1497,1501,1067,1068,300,1049,1050,1053,182,4135,4134," \
-         "1487,1466,1471,1475,6,4534,4538,38,3,1504,23512,24,1493,44,554,11,1038,29,151,15,40981,40499,42,1590,307,16," \
-         "37,6332,1476,1479,458,1480,334,335,333,1515,188,1461,1046,1063,1467,1459,1464,50,1478,377,54,375,451,40496," \
-         "1462,1485,1510,40668,1468,40536,1486,23380,23381,470,469,20,312,1492,1491,31"
-    if(os.path.exists(path100)):
+    data="11,12,14,15,16,18,20,3,6,32,36,38,22,23,24,28,29,42,44,46,54,60,182,188,151,300,312,307,375,377,333,334,335," \
+         "451,458,469,470,554,1046,1049,1050,1038,1114,1120,1063,1067,1068,1053,1459,1471,1479,1480,1466,1467,1486," \
+         "1489,1504,4135,23380,1461,1476,1475,1492,1491,1485,1468,1501,1462,1487,1494,1493,1478,1590,1112,1515,1510," \
+         "1497,23381,4538,23512,4134,6332,4534,1464,37,31,50,40536,40496,40668,40499,40981"
+    if(path is None):
+        data=data
+
+    elif(os.path.exists(path100)):
         file = open(path100, "r")
         with open(path100, "r") as file:
             data=file.read()
@@ -294,7 +299,7 @@ def sendTop100DatasetsToServer(path,auth_token,worker=1):
     print(id_list)
     plist=[]
     for i in range(worker):
-        p=Process(target=sendDatasetWorker,args=(path,auth_token,workerDatasets[i],i))
+        p=Process(target=sendDatasetWorker,args=(path,auth_token,workerDatasets[i],i,server_url))
         p.start()
         plist.append(p)
         #p.join()
@@ -305,15 +310,16 @@ def sendTop100DatasetsToServer(path,auth_token,worker=1):
     #
     #proto.end_measure_time(t)
 
-def sendDatasetWorker(path,auth_token,id_list,worker):
+def sendDatasetWorker(path,auth_token,id_list,worker,server_url):
     i=0
     for id in id_list:
         t2 = proto.start_measure_time()
         amount = str(len(id_list))
         print("Progress: (" + str(i) + "/" + amount + ") id of next dataset:" + str(id))
         ds = load_openML_dataset("/" + id, path)
-        did = createServerDataset(ds, path, auth_token)
-        proto.send_Dataset(ds, did, auth_token, path)
+        did=createServerDataset(ds,auth_token,server_url)
+        #did = createServerDataset(ds, path, auth_token)
+        #proto.send_Dataset(ds, did, auth_token, path)
         # datasets.append(load_openML_dataset_new("/" + id))
         i = i + 1
         print("Time for dataset " + str(i) + " to fetch and send to server:", end=" ")
@@ -366,17 +372,25 @@ def requestServerDataset(did,auth_token,url="http://localhost:8080"):
 
 
     df_data = proto.get_Server_Dataframe(did,auth_token,url=url)
+
+
+
+
+
     #df_data = pd.DataFrame()
 
     attribute_name_list = []
     attribute_list = []
     #print(response_meta["attributes"])
     for att in response_meta["attributes"]:
-        attribute_list.append(Attribute(att["name"],att["measurementLevel"], att["unit"],att["description"],att["defaultTargetAttribute"]))
-        if att["defaultTargetAttribute"]:
-            meta["default_target_attribute"]=att["name"]
-        attribute_name_list.append(att["name"])
-        print(att["measurementLevel"])
+        if att["name"] != "INVALID_COLUMN":
+            attribute_list.append(Attribute(att["name"],att["measurementLevel"], att["unit"],att["description"],att["defaultTargetAttribute"]))
+            if att["defaultTargetAttribute"]:
+                meta["default_target_attribute"]=att["name"]
+            attribute_name_list.append(att["name"])
+            print(att["measurementLevel"])
+        else:
+            attribute_name_list.append(att["name"])
 
     dataset = Dataset(None, **meta)
 #    atts = []
@@ -388,6 +402,11 @@ def requestServerDataset(did,auth_token,url="http://localhost:8080"):
 #                      None))
 
     df_data.columns = attribute_name_list
+
+    if("INVALID_COLUMN" in list(df_data.columns.values)):
+        df_data=df_data.drop(["INVALID_COLUMN"],axis=1)
+        print(df_data)
+
     dataset.set_data(df_data, attribute_list)
     print("Time to load dataset "+did+" from server:",end=" ")
     proto.end_measure_time(t)
@@ -395,7 +414,7 @@ def requestServerDataset(did,auth_token,url="http://localhost:8080"):
 
 
 
-def createServerDataset(dataset,path,auth_token,url="http://localhost:8080"):
+def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
     """Creates a dataset on the server and transferees its' content. It returns a
     String, that stands for the id the Dataset on the server side.
 
@@ -408,6 +427,10 @@ def createServerDataset(dataset,path,auth_token,url="http://localhost:8080"):
 
     """
     t=proto.start_measure_time()
+
+    binary= tempfile.TemporaryFile(mode='w+b')
+
+    proto_enlarged=padre.protobuffer.proto_organizer.createProtobuffer(dataset,binary)
 
     hed = {'Authorization': 'Bearer ' + auth_token}
 
@@ -424,6 +447,8 @@ def createServerDataset(dataset,path,auth_token,url="http://localhost:8080"):
         col["unit"]=attribute.unit
         attributes.append(col)
         attributeNum+=1
+    if proto_enlarged:
+        attributes.append({"name":"INVALID_COLUMN"})
 
     data={}
     data["attributes"]=attributes
@@ -447,8 +472,9 @@ def createServerDataset(dataset,path,auth_token,url="http://localhost:8080"):
 
 
     did=str((response.headers["Location"]).split("/")[-1])
-    proto.send_Dataset(dataset,did,auth_token,path,url=url)
-
+    binary.seek(0)
+    proto.send_Dataset(dataset,did,auth_token,binary,url=url)
+    binary.close()
     print("Time to send dataset " + str(dataset.id) + " to server:", end=" ")
     proto.end_measure_time(t)
     response.close()
@@ -460,12 +486,12 @@ def add_snap_csv(source_col_number,target_col_number,edge_attribute_dict,node_at
 
 
 
-def load_openML_dataset(url,path,apikey="1f8766e1615225a727bdea12ad4c72fa"):
+def load_openML_dataset(url,destpath=os.path.expanduser('~/.pypadre'),apikey="1f8766e1615225a727bdea12ad4c72fa"):
     """Downloads a dataset from the given open-ml url or takes it from the cache. Transforms it to a padre.Dataset
 
     Args:
         param1 (str): url of the open-ml dataset
-        param2 (str): path of padre directory
+        param2 (str): path of padre directory. If None, the directory of openml will be in a temporary directory.
         param3 (str): apikey of open-ml for login
 
     Returns:
@@ -473,7 +499,12 @@ def load_openML_dataset(url,path,apikey="1f8766e1615225a727bdea12ad4c72fa"):
 
     """
     # apikey is from useraccount markush.473@gmail.com
-    path=path+'/datasets/temp/openml'
+    import shutil
+    if destpath is None:
+        path=tempfile.mkdtemp()
+
+    else:
+        path=destpath+'/datasets/temp/openml'
     #apikey is from useraccount markush.473@gmail.com
     #raw_data = arff.load(open(os.path.expanduser('~/.openml/cache')+'/org/openml/www/datasets/14/dataset.arff',encoding='utf-8'))
     dataset_id=url.split("/")[-1]
@@ -566,6 +597,9 @@ def load_openML_dataset(url,path,apikey="1f8766e1615225a727bdea12ad4c72fa"):
 
     if os.path.isfile(path):
         import shutil
+        shutil.rmtree(path)
+
+    if destpath is None:
         shutil.rmtree(path)
 
     return dataset

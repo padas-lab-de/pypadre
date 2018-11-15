@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import tempfile
+
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
@@ -66,30 +68,24 @@ def write_delimited_pb_msg(binary, pb_msg):
     binary.write(length_varint + pb_msg_serialized)
 
 
-
-def send_Dataset(dataset,did,auth_token,path,url="http://localhost:8080"):
-    """Sends the dataset to the server in form of protobuffer.
-
-    Args:
-        dataset (padre.Dataset()): The Dataset whose content should be transferred to the server.
-        did (str): The did of the dataset at the server, that should be filled with the protobuffer-messages.
-        auth_token (str): The Token for identification.
-        path (str): path of the pypadre directory
-    """
-    path=path+ "/datasets/temp/sendproto"+did+".protobinV1"
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    binary = open(path, "wb")
+def createProtobuffer(dataset,binary):
+    #did=ident
+    #path = path + "/datasets/temp/sendproto" + did + ".protobinV1"
+    #os.makedirs(os.path.dirname(path), exist_ok=True)
+    #binary = tempfile.TemporaryFile(mode='w+b')
+    #binary = open(path, "wb")
     pd_dataframe = dataset.data
-
-    hed = {'Authorization': 'Bearer ' + auth_token}
-    url = url+"/api/datasets/" + str(did) + "/binaries"
 
 
     pb_dataframe_meta = proto.Meta()
     pb_dataframe_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
-    #print(pb_dataframe_meta)
+
+    # pb_dataframe_meta.headers[:] = ["jsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasdjsadlfjasldkfjalksdjfalsdflasdlfköaskdjflaksdjfklöasd"
+    #                                for header in pd_dataframe.columns.values]
+
+    # print(pb_dataframe_meta)
     write_delimited_pb_msg(binary, pb_dataframe_meta)
-    t=start_measure_time()
+    t = start_measure_time()
 
     # add rows and cell values
 
@@ -105,12 +101,13 @@ def send_Dataset(dataset,did,auth_token,path,url="http://localhost:8080"):
             set_cell(pb_row, df_cell)
 
         write_delimited_pb_msg(binary, pb_row)
-    
+
     """
 
-    col_list=[]
+    col_list = []
     for col_name in pd_dataframe.columns.values.tolist():
         col_list.append(pd_dataframe[col_name])
+
     for row in zip(*col_list):
         pb_row = proto.DataRow()
         for entry in row:
@@ -118,14 +115,57 @@ def send_Dataset(dataset,did,auth_token,path,url="http://localhost:8080"):
             set_cell(pb_row, entry)
         write_delimited_pb_msg(binary, pb_row)
 
-        
 
-    print("time taken for writing dataset to file:",end=" ")
+    proto_enlarged=False
+    file_size=binary.tell()
+    if(file_size<10000):
+        proto_enlarged=True
+        binary.seek(0)
+
+        pb_dataframe_meta = proto.Meta()
+        header_entries = list(pd_dataframe)
+        header_entries.append("INVALID_COLUMN")
+        pb_dataframe_meta.headers[:] = [str(header) for header in header_entries]
+
+        # print(pb_dataframe_meta)
+        write_delimited_pb_msg(binary, pb_dataframe_meta)
+        t = start_measure_time()
+
+        row_value = int((1200-(file_size/11)) / pd_dataframe.shape[0]) * "INVALID"
+        col_list.append(pd.Series([row_value for i in range(pd_dataframe.shape[0])]))
+        pb_row = proto.DataRow()
+        for row in zip(*col_list):
+            pb_row = proto.DataRow()
+            for entry in row:
+                # print(type(entry))
+                set_cell(pb_row, entry)
+            write_delimited_pb_msg(binary, pb_row)
+
+    print("time taken for writing dataset to file:", end=" ")
     end_measure_time(t)
-    #sending saved file
+    # sending saved file
+
+    return proto_enlarged
 
 
-    m=MultipartEncoder(fields={"field0": ("fname", open(path,"rb"),"application/x.padre.dataset.v1+protobuf")})
+def send_Dataset(dataset,did,auth_token,binary,url="http://localhost:8080"):
+    """Sends the dataset to the server in form of protobuffer.
+
+    Args:
+        dataset (padre.Dataset()): The Dataset whose content should be transferred to the server.
+        did (str): The did of the dataset at the server, that should be filled with the protobuffer-messages.
+        auth_token (str): The Token for identification.
+        path (str): path of the pypadre directory
+    """
+    #path=path+ "/datasets/temp/sendproto"+ident+".protobinV1"
+    #binary = open(path, "wb")
+
+
+    hed = {'Authorization': 'Bearer ' + auth_token}
+    url = url+"/api/datasets/" + str(did) + "/binaries"
+
+
+    m=MultipartEncoder(fields={"field0": ("fname", binary,"application/x.padre.dataset.v1+protobuf")})
     hed["Content-Type"]=m.content_type
     try:
         r = requests.post(url, data=m, headers=hed)
@@ -146,6 +186,8 @@ def send_Dataset(dataset,did,auth_token,path,url="http://localhost:8080"):
     print(r.content)
     r.close()
     requests.session().close()
+
+
 
 
 def get_Server_Dataframe(did,auth_token,url="http://localhost:8080"):

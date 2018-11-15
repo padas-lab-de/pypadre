@@ -58,7 +58,7 @@ def pandas_to_networkx(df, source, target, create_using, node_attributes=[], edg
 
 
 
-class GraphDataset:
+class GraphContainer:
 
 
 
