@@ -38,7 +38,7 @@ class PadreHTTPClient:
             self.silent_codes = []
         else:
             self.silent_codes = silent_codes
-        if token:
+        if self.is_token_valid(token):
             self._access_token = token
         else:
             self._access_token = self.get_access_token()
@@ -234,6 +234,23 @@ class PadreHTTPClient:
         if self._access_token is not None:
             return True
         return False
+
+    def is_token_valid(self, token):
+        """
+        Check if given token is valid
+        :param token:
+        :return:
+        """
+        result = False
+        if token is None:
+            return result
+        try:
+            response = self.do_get(self.base + "users/me", **{"headers": {"Authorization": token}})
+        except req.exceptions.HTTPError as e:
+            return result
+        if response.status_code == 200:
+            result = True
+        return result
 
     @property
     def experiments(self):

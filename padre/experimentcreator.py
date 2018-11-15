@@ -6,8 +6,9 @@ and enable the execution of multiple experiment sequentially. It also enables th
 on multiple datasets.
 """
 import ast
-import copy
 import importlib
+import numpy as np
+from copy import deepcopy
 from padre.base import default_logger
 from padre.ds_import import load_sklearn_toys
 from padre.visitors.mappings import name_mappings
@@ -53,6 +54,8 @@ class ExperimentCreator:
 
     # All the locally available datasets are mapped to this list.
     _local_dataset = []
+
+    # All the datasets to be executed for the experiment are stored here
 
     def __init__(self):
         """
@@ -152,15 +155,15 @@ class ExperimentCreator:
                 if val is not None:
                     converted_params.append(val)
 
-            curr_params[param_name] = copy.deepcopy(list(converted_params))
+            curr_params[param_name] = deepcopy(list(converted_params))
 
             # if it is a new parameter for the estimator
             if param_dict.get(estimator, None) is None:
-                param_dict[estimator] = copy.deepcopy(curr_params)
+                param_dict[estimator] = deepcopy(curr_params)
 
             else:
                 params_dict = param_dict.get(estimator)
-                params_dict.update(copy.deepcopy(curr_params))
+                params_dict.update(deepcopy(curr_params))
                 param_dict[estimator] = params_dict
 
         return param_dict
@@ -195,6 +198,9 @@ class ExperimentCreator:
         if param_dict is None:
             default_logger.warn(False, 'ExperimentCreator.set_param_values', 'Missing dictionary argument')
             return None
+
+        # Convert the names of the parameters to the actual described names in the mapping file
+        param_dict = self.convert_alternate_estimator_names(params_dict=param_dict)
 
         self._param_value_dict[experiment_name] = self.validate_parameters(param_dict)
 
@@ -267,20 +273,35 @@ class ExperimentCreator:
         for estimator_name in param_value_dict:
             # Check whether the estimator is available
             if self._workflow_components.get(estimator_name) is not None:
-
                 # Check whether the params are available for the estimator
                 parameters = param_value_dict.get(estimator_name)
+
+                # If there are no parameters, then continue
+                if parameters is None:
+                    continue
+
+                # The actual parameter names differ from the implementation names.
+                # This function offers the flexibility of implementing the actual parameter names or their paths
+                actual_parameter_names = []
+                for param_name in self._parameters.get(estimator_name):
+                    actual_parameter_names.append(
+                        self._param_implementation.get('.'.join([estimator_name, param_name])))
+
                 estimator_params = dict()
                 for param in parameters:
                     if param in self._parameters.get(estimator_name):
                         actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
                         estimator_params[actual_param_name] = parameters.get(param)
+
+                    elif param in actual_parameter_names:
+                        estimator_params[param] = parameters.get(param)
+
                     else:
                         default_logger.warn(False, 'ExperimentCreator.validate_parameters',
                                             ''.join([param, ' not present in list for estimator:', estimator_name]))
 
                 if len(estimator_params) > 0:
-                    validated_param_dict[estimator_name] = copy.deepcopy(estimator_params)
+                    validated_param_dict[estimator_name] = deepcopy(estimator_params)
 
             else:
                 default_logger.warn(False, 'ExperimentCreator.validate_parameters',
@@ -387,17 +408,17 @@ class ExperimentCreator:
         module = importlib.import_module(import_path)
         class_ = getattr(module, class_name)
         obj = class_()
-        return copy.deepcopy(obj)
+        return deepcopy(obj)
 
     def create_experiment(self, name, description,
-                          dataset=None, workflow=None,
+                          dataset_list=None, workflow=None,
                           backend=None, params=None):
         """
         This function adds an experiment to the dictionary.
 
         :param name: Name of the experiment. It should be unique for this set of experiments
         :param description: The description of the experiment
-        :param dataset: The dataset to be used for the experiment
+        :param dataset_list: The names of the datasets to be used for the experiment
         :param workflow: The scikit pipeline to be used for the experiment.
         :param backend: The backend of the experiment
         :param params: Parameters for the estimator, optional.
@@ -420,37 +441,31 @@ class ExperimentCreator:
             return None
 
         # If the name of the dataset is passed, the get the local dataset and replace it
-        if isinstance(dataset, str):
-            dataset = self.get_local_dataset(dataset)
+        if isinstance(dataset_list, str) or isinstance(dataset_list, list):
+            if isinstance(dataset_list, str):
+                dataset_list = [dataset_list]
+            # TODO: Check whether a classification pipeline is assigned to a regression dataset
 
-        # Classifiers cannot work on continuous data and rejected as experiments.
-        if dataset is not None and not np.all(np.mod(dataset.targets(), 1) == 0):
-            for estimator in workflow.named_steps:
-                if name_mappings.get(estimator).get('type', None) == 'Classification':
-                    default_logger.warn(False, 'ExperimentCreator.create_experiment',
-                                         ''.join(['Estimator ', estimator, ' cannot work on continuous data. '
-                                                                           'Experiment ' + name + ' will be discarded.']))
-                    return None
+            # Experiment name should be unique
+            if self._experiments.get(name, None) is None:
+                data_dict = dict()
+                data_dict['description'] = description
+                data_dict['dataset'] = dataset_list
+                data_dict['workflow'] = workflow
+                data_dict['backend'] = backend
+                self._experiments[name] = data_dict
+                if params is not None:
+                    self._param_value_dict[name] = self.validate_parameters(params)
+                    data_dict['params'] = self.validate_parameters(params)
+                default_logger.log('ExperimentCreator.create_experiment',
+                                   ''.join([name, ' created successfully!']))
 
-        # Experiment name should be unique
-        if self._experiments.get(name, None) is None:
-            data_dict = dict()
-            data_dict['description'] = description
-            data_dict['dataset'] = dataset
-            data_dict['workflow'] = workflow
-            data_dict['backend'] = backend
-            self._experiments[name] = data_dict
-            if params is not None:
-                self._param_value_dict[name] = self.validate_parameters(params)
-            default_logger.log('ExperimentCreator.create_experiment',
-                               ''.join([name, ' created successfully!']))
-
-        else:
-            default_logger.error(False, 'ExperimentCreator.create_experiment', 'Error creating experiment')
-            if self._experiments.get(name, None) is not None:
-                default_logger.error(False, 'ExperimentCreator.create_experiment',
-                                     ''.join(['Experiment name: ', name,
-                                              ' already present. Experiment name should be unique']))
+            else:
+                default_logger.error(False, 'ExperimentCreator.create_experiment', 'Error creating experiment')
+                if self._experiments.get(name, None) is not None:
+                    default_logger.error(False, 'ExperimentCreator.create_experiment',
+                                         ''.join(['Experiment name: ', name,
+                                                  ' already present. Experiment name should be unique']))
 
     def get_local_dataset(self, name=None):
         """
@@ -536,9 +551,9 @@ class ExperimentCreator:
 
                 param_types_dict['.'.join([estimator, param.get('name')])] = \
                     param.get('kind_of_value')
-            estimator_params[estimator] = copy.deepcopy(param_list)
+            estimator_params[estimator] = deepcopy(param_list)
 
-        return estimator_params, copy.deepcopy(param_implementation_dict), copy.deepcopy(param_types_dict)
+        return estimator_params, deepcopy(param_implementation_dict), deepcopy(param_types_dict)
 
     def initialize_dataset_names(self):
         """
@@ -569,24 +584,96 @@ class ExperimentCreator:
             return
 
         for experiment in self._experiments:
-            dataset = self._experiments.get(experiment).get('dataset', None)
+            flag = True
+            dataset = deepcopy(self._experiments.get(experiment).get('dataset', None))
             if dataset is None:
                 default_logger.warn(False, 'Experiment_creator.execute_experiments',
                                     'Dataset is not present for the experiment. Experiment ' + experiment + 'is ignored.')
                 continue
-                #default_logger.error(False, 'Experiment_creator.create_experiment',
-                                     #''.join(['Dataset is missing for experiment:', experiment]))
 
-            ex = Experiment(name=experiment,
-                            description=self._experiments.get(experiment).get('description'),
-                            dataset=dataset,
-                            workflow=self._experiments.get(experiment).get('workflow', None),
-                            backend=self._experiments.get(experiment).get('backend', None),
-                            strategy=self._experiments.get(experiment).get('strategy', 'random'))
+            if len(dataset) == 1:
 
-            conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
-            pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-            ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                # Get the data from the dataset name
+                data = self.get_local_dataset(dataset[0])
+
+                # Classifiers cannot work on continuous data and rejected as experiments.
+                if not np.all(np.mod(data.targets(), 1) == 0):
+                    workflow = self._experiments.get(experiment).get('workflow', None)
+                    for estimator in workflow.named_steps:
+                        if name_mappings.get(estimator).get('type', None) == 'Classification':
+                            flag = False
+                            default_logger.warn(False, 'ExperimentCreator.do_experiments',
+                                                ''.join(
+                                                    ['Estimator ', estimator, ' cannot work on continuous data.'
+                                                                              'This dataset will be disregarded']))
+                            break
+
+                # If the pipeline consists of classification estimators working on continous data return
+                if not flag:
+                    continue
+
+                # If there is only one dataset defined for the experiment execute the experiment with the dataset
+                ex = Experiment(name=experiment,
+                                description=self._experiments.get(experiment).get('description'),
+                                dataset=data,
+                                workflow=self._experiments.get(experiment).get('workflow', None),
+                                backend=self._experiments.get(experiment).get('backend', None),
+                                strategy=self._experiments.get(experiment).get('strategy', 'random'))
+
+                conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
+                pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
+                ex.grid_search(parameters=self._param_value_dict.get(experiment))
+
+            else:
+                # If there are multiple datasets defined for the experiment execute the experiment for each dataset
+                datasets = dataset
+                for dataset in datasets:
+
+                    # If such an experiment does not exist, discard
+                    if self._experiments.get(experiment, None) is None:
+                        continue
+
+                    # If the dataset does not exist, discard
+                    if datasets is None:
+                        continue
+
+                    for dataset in datasets:
+                        flag = True
+                        desc = ''.join([self._experiments.get(experiment).get('description'), 'with dataset ', dataset])
+                        data = self.get_local_dataset(dataset)
+
+                        if data is None:
+                            continue
+
+                        # Classifiers cannot work on continuous data and rejected as experiments.
+                        if not np.all(np.mod(data.targets(), 1) == 0):
+                            workflow = self._experiments.get(experiment).get('workflow', None)
+                            for estimator in workflow.named_steps:
+                                if name_mappings.get(estimator).get('type', None) == 'Classification':
+                                    flag = False
+                                    default_logger.warn(False, 'ExperimentCreator.do_experiments',
+                                                        ''.join(
+                                                            ['Estimator ', estimator, ' cannot work on continuous data.'
+                                                                                      'This dataset will be disregarded']))
+
+                        # If a classification estimator tries to work on continous data disregard it
+                        if not flag:
+                            continue
+
+                        message = 'Executing experiment ' + experiment + ' for dataset' + dataset
+                        default_logger.log('ExperimentCreator.do_experiments', message)
+
+                        ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
+                                        description=desc,
+                                        dataset=data,
+                                        workflow=self._experiments.get(experiment).get('workflow', None),
+                                        backend=self._experiments.get(experiment).get('backend', None),
+                                        strategy=self._experiments.get(experiment).get('strategy', 'random'))
+                        conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
+
+                        pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
+                        ex.grid_search(parameters=self._param_value_dict.get(experiment))
+
 
     def do_experiments(self, experiment_datasets=None):
         """
@@ -681,16 +768,16 @@ class ExperimentCreator:
             curr_params = params_dict.get(estimator_name)
 
             if self._workflow_components.get(estimator_name, None) is not None:
-                modified_params_dict[estimator_name] = copy.deepcopy(curr_params)
+                modified_params_dict[estimator_name] = deepcopy(curr_params)
 
             # User has used an alternate name of the estimator
             elif self._workflow_components.get(estimator_name, None) is None and \
                     self._estimator_alternate_names.get(str(estimator_name).upper(), None) is not None:
 
                 actual_estimator_name = self._estimator_alternate_names.get(str(estimator_name).upper(), None)
-                modified_params_dict[actual_estimator_name] = copy.deepcopy(curr_params)
+                modified_params_dict[actual_estimator_name] = deepcopy(curr_params)
 
-        return copy.deepcopy(modified_params_dict)
+        return deepcopy(modified_params_dict)
 
     def parse_config_file(self, filename):
         """
@@ -737,12 +824,66 @@ class ExperimentCreator:
                                     'Workflow  based workflow was not created')
                 continue
 
-            self.create_experiment(name=name, description=description,workflow=workflow, dataset=dataset,
+            self.create_experiment(name=name, description=description,workflow=workflow, dataset_list=dataset,
                                    backend=backend, params=params)
 
         return True
 
+    def setExperimentDatasets(self, params):
+        """
+        This function sets datasets for the corresponding experiment
 
+        :param params: A dictionary containing experiment names
+        and the corresponding datasets to be used for that experiment
+
+        :return: None
+        """
+
+        for experiment in params:
+            if self._experiments.get(experiment) is None:
+                continue
+
+            dataset = params.get(experiment)
+
+            if isinstance(dataset, str):
+                self._experiments[experiment] = [dataset]
+
+            elif isinstance(dataset, list):
+                # TODO: Verify all datasets before copying
+                self._experiments[experiment]['dataset'] = deepcopy(dataset)
+
+    def createExperimentList(self):
+        """
+        This function creates a list of experiments that can be executed by an external function
+
+        :return: A list of dictionaries containing all the experiments to be executed
+        """
+        experiments_list = []
+        for experiment_name in self._experiments:
+            experiment_dict = dict()
+            experiment = self._experiments.get(experiment_name)
+            dataset = experiment.get('dataset')
+            if len(dataset) == 1:
+                experiment_dict['name'] = experiment_name
+                experiment_dict['description'] = experiment.get('description')
+                experiment_dict['workflow'] = experiment.get('workflow')
+                experiment_dict['dataset'] = dataset[0]
+                experiment_dict['backend'] = experiment.get('backend')
+                experiment_dict['params'] = experiment.get('params')
+                experiments_list.append(deepcopy(experiment_dict))
+
+            elif len(dataset) > 1:
+                datasets = dataset
+                for dataset in datasets:
+                    experiment_dict['name'] = ''.join([experiment_name, '(', dataset, ')'])
+                    experiment_dict['description'] = ''.join([experiment.get('description'), ' with dataset ', dataset])
+                    experiment_dict['workflow'] = experiment.get('workflow')
+                    experiment_dict['dataset'] = dataset
+                    experiment_dict['backend'] = experiment.get('backend')
+                    experiment_dict['params'] = experiment.get('params')
+                    experiments_list.append(deepcopy(experiment_dict))
+
+        return deepcopy(experiments_list)
 
     @property
     def experiments(self):

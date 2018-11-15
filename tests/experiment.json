@@ -1,0 +1,36 @@
+{
+    "JSON FILE TEST EXPERIMENT": {
+        "name": "JSON FILE TEST EXPERIMENT",
+        "description": "Grid search experiment with SVR with dataset Boston_House_Prices",
+        "strategy": "random",
+        "dataset": "Boston_House_Prices",
+        "backend": "default",
+        "workflow": [
+            "principal component analysis",
+            "epsilon-support vector regression"
+        ],
+        "params": {
+            "epsilon-support vector regression": {
+                "C": [
+                    0.5,
+                    1,
+                    1.5
+                ],
+                "degree": [
+                    1,
+                    2,
+                    3
+                ]
+            },
+            "principal component analysis": {
+                "n_components": [
+                    2,
+                    3,
+                    4,
+                    5,
+                    6
+                ]
+            }
+        }
+    }
+}

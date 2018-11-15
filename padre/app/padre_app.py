@@ -18,7 +18,7 @@ from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.backend.dual_backend import DualBackend
 from padre.ds_import import load_sklearn_toys
-from padre.ExperimentCreator import ExperimentCreator
+from padre.experimentcreator import ExperimentCreator
 from padre.experiment import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
@@ -433,5 +433,6 @@ class PadreApp:
     @property
     def repository(self):
         return self._dual_repo
+
 
 pypadre = PadreApp(http_client, file_cache)

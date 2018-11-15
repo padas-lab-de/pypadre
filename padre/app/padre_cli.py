@@ -43,6 +43,50 @@ def pypadre_cli(ctx, config_file, base_url):
     }
 
 
+@pypadre_cli.command(name="get_config_param")
+@click.option('--param', default=None, help='Get value of given param')
+@click.pass_context
+def get_config_param(ctx, param):
+    """
+    Get given param from config file.
+    """
+    result = ctx.obj["pypadre"].config.get(param)
+    print(result)
+
+
+@pypadre_cli.command(name="set_config_param")
+@click.option('--param', nargs=2, default=None, help='key value pair as tuple')
+@click.pass_context
+def set_config_param(ctx, param):
+    """
+    Sets key, value in config. param must be a tuple
+    """
+    ctx.obj["pypadre"].config.set(param[0], param[1])
+
+
+@pypadre_cli.command(name="list_config_params")
+@click.pass_context
+def list_config_params(ctx):
+    """
+    List all values in config
+    """
+    result = ctx.obj["pypadre"].config.list()
+    print(result)
+
+
+@pypadre_cli.command(name="authenticate")
+@click.option('--url', default=None, help='Url of server api')
+@click.option('--user', default=None, help='User on server')
+@click.option('--passwd', default=None, help='Password for given user')
+@click.pass_context
+def authenticate(ctx, url, user, passwd):
+    """
+    To generate new token in config. Authenticate with given credentials, in case credentials
+    are not provided default credentials will be used.
+    """
+    ctx.obj["pypadre"].config.authenticate(url, user, passwd)
+
+
 #################################
 ####### DATASETS FUNCTIONS ##########
 #################################

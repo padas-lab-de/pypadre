@@ -15,6 +15,7 @@ Welcome to PyPaDRE Documentation's documentation!
    design_principles
    setup_experiments
    experiment_creator
+   experiment_executor
    metrics
    storage_details
    visualisation
