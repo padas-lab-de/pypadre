@@ -40,3 +40,20 @@ Implemented functionality
 #. Get value for given key.
 #. Set value for given key in config
 #. Authenticate given user and update new token in the config
+
+
+Using config through CLI
+------------------------------------
+
+#. Use **get_config_param** command to get value of given param
+
+   * param: name of attribute
+#. Use **set_config_param** command to set value of given param
+
+   * param: must me be a tuple of key value pair
+#. Use **get_config_params** command to get list of all params
+#. Use **authenticate** to set new token in config. If no params are provided default settings will be used
+
+   * url: Url of server api default None
+   * user: User name on server default None
+   * passwd: Password for given user default None
