@@ -61,120 +61,6 @@ def _is_sklearn_pipeline(pipeline):
     # we do checks via strings, not isinstance in order to avoid a dependency on sklearn
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
-
-class _LoggerMixin:
-    """
-    Mixin that provides function for logging and storing events in the backend.
-    """
-
-    _backend = None
-    _stdout = False
-    _events = {}
-
-    def _padding(self, source):
-        if isinstance(source, Split):
-            return "\t\t"
-        elif isinstance(source, Run):
-            return "\t"
-        else:
-            return ""
-
-    def log_start_experiment(self, experiment, append_runs: bool =False):
-        if self.has_backend():
-            self._backend.put_experiment(experiment, append_runs=append_runs)
-        self.log_event(experiment, exp_events.start, phase=phases.experiment)
-
-    def log_stop_experiment(self, experiment):
-        self.log_event(experiment, exp_events.stop, phase=phases.experiment)
-        default_logger.close_log_file()
-
-    def log_start_run(self, run):
-        if self.has_backend():
-            self._backend.put_run(run.experiment, run)
-        self.log_event(run, exp_events.start, phase=phases.run)
-
-    def log_stop_run(self, run):
-        self.log_event(run, exp_events.stop, phase=phases.run)
-
-    def log_start_split(self, split):
-        if self.has_backend():
-            self._backend.put_split(split.run.experiment, split.run, split)
-        self.log_event(split, exp_events.start, phase=phases.split)
-
-    def log_stop_split(self, split):
-        if self.has_backend():
-            self._backend.put_results(self.run.experiment, self.run, split, split.run._workflow.results)
-            self._backend.put_metrics(self.run.experiment, self.run, split, split.run._workflow.metrics)
-        self.log_event(split, exp_events.stop, phase=phases.split)
-
-    def log_event(self, source, kind=None, **parameters):
-        # todo signature not yet fixed. might change. unclear as of now
-        if kind == exp_events.start and source is not None:
-            # self._events[source] = time()
-            # Create a unique id for the timer.
-            # Currently creating it by self._id + phase parameter
-            # TODO: A better way for creating identifiers for each phase
-            # TODO: Pass description of time too if needed
-            timer_name = str(self._id)
-            timer_description = ''
-            phase = parameters.get('phase', None)
-            if phase is not None:
-                timer_name = timer_name + str(phase)
-
-            timer_description = parameters.get('description', None)
-            default_timer.start_timer(timer_name, timer_priorities.HIGH_PRIORITY, timer_description)
-        elif kind == exp_events.stop and source is not None:
-            # if source in self._events:
-            # parameters["duration"] = time() - self._events[source]
-            # Creation of unique identifier to get back the time duration
-            timer_name = str(self._id)
-            phase = parameters.get('phase', None)
-            if phase is not None:
-                timer_name = timer_name + str(phase)
-            description, duration = default_timer.stop_timer(timer_name)
-            if description is not None:
-                parameters['description'] = description
-            parameters['duration'] = duration
-
-        if self._stdout:
-            default_logger.log(source, "%s: %s" % (str(kind),
-                                                   "\t".join([str(k) + "=" + str(v) for k, v in parameters.items()])),
-                               self._padding(source))
-
-    def log_score(self, source, **parameters):
-        # todo signature not yet fixed. might change. unclear as of now
-        if self._stdout:
-            default_logger.log(source, "%s" % ("\t".join([str(k) + "=" + str(v) for k, v in parameters.items()]))
-                               , self._padding(source))
-
-    def log_stats(self, source, **parameters):
-        # todo signature not yet fixed. might change. unclear as of now
-        if self._stdout:
-            default_logger.log(source, "%s" % ("\t".join([str(k) + "=" + str(v) for k, v in parameters.items()])),
-                               self._padding(source))
-
-    def log_result(self, source, **parameters):
-        # todo signature not yet fixed. might change. unclear as of now
-        if self._stdout:
-            default_logger.log(source, "%s" % ("\t".join([str(k) + "=" + str(v) for k, v in parameters.items()])),
-                               self._padding(source))
-
-    def has_backend(self):
-        return self._backend is not None
-
-    @property
-    def backend(self):
-        return self._backend
-
-    @property
-    def stdout(self):
-        return self._stdout
-
-    @backend.setter
-    def backend(self, backend):
-        self._backend = backend
-
-
 ####################################################################################################################
 #  API Functions
 ####################################################################################################################
@@ -516,7 +402,7 @@ class Splitter:
                 self._stratified = False
         self._splitting_fn = options.pop("fn", None)
         if self._strategy == "function":
-            default_logger.error(self._splitting_fn is not None, self,
+            logger.error(self._splitting_fn is not None, self,
                                  f"Splitting strategy {self._strategy} requires a function provided via paraneter 'fn'")
 
     def splits(self):
