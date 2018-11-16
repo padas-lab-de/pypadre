@@ -95,8 +95,9 @@ class ExperimentUploader:
         experiment_data["projectId"] = self.project_id
         experiment_data["datasetId"] = self.dataset_id
         experiment_data["pipeline"] = {"components": [
-            {"description": "",
-             "hyperparameters": [experiment.hyperparameters()]}
+            {"description": experiment.metadata["description"],
+             "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
+             "name": experiment.metadata["name"]}
         ]}
 
         return self.create_experiment(experiment_data)
@@ -139,21 +140,66 @@ class ExperimentUploader:
         run_data = dict()
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
-             "hyperparameters": [experiment.hyperparameters()]
+             "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
+             "name": experiment.metadata["name"]
              }
         }]
         run_data["experimentId"] = experiment.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["runs"]
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(run_data)})
-
-
+            self.run_id = self.get_id(response)
 
     def get_base_url(self):
         url = self._http_client.base
         if url[-1] == "/":
             url = url[0:-1]
         return url
+
+    def get_id(self, http_response):
+        return http_response.headers['Location'].split('/')[-1]
+
+    def build_hyperparameters_list(self, obj):
+        """
+        Build a list formatted hyperparamters as a dict for each parameter type.
+        Passed obj dict can be as
+        {"Step_0": {"hyper_parameters": {"models_parameters": ..., "optimisation_parameters": ...}}}
+
+        :param obj: Dict containing experiment.hyperparamters()
+        :type obj: dict
+        :return: List of formatted hyperparameters
+        :rtype: list
+        """
+        hyperparameters_list = []
+        for k, v in obj.items():
+            params = v["hyper_parameters"]
+            for param_kind, attr_dict in params.items():
+                for attr_name in attr_dict.keys():
+                    data = dict()
+                    data["description"] = attr_name
+                    data["kind"] = self.to_upper(param_kind)
+                    data["url"] = "dummy-padre.com/"
+                    data["type"] = "Enumeration"
+                    hyperparameters_list.append(data)
+        return hyperparameters_list
+
+    def to_upper(self, param):
+        """
+        Convert hyperparameter kind to compatible ParameterKind on server.
+
+        :param param: hyperparameter kind
+        :type param: str
+        :return: Parameter type
+        :rtype: str
+        """
+        params = {
+            "model_parameters": "ModelParameter",
+            "optimisation_parameters": "OptimizationParameter",
+            "runtime_training_parameters": "RuntimeTrainingParameter",
+            "runtime_testing_parameters": "RuntimeTestingParameter",
+            "execution_parameters": "ExecutionParameter"
+        }
+        return params[param]
 
 
 
