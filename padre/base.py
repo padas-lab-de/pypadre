@@ -142,8 +142,8 @@ class PadreLogger:
         :return:
         """
         if self.has_backend():
-            self._backend.put_results(split.run.experiment, split.run, split, split.run._workflow.results)
-            self._backend.put_metrics(split.run.experiment, split.run, split, split.run._workflow.metrics)
+            self._backend.put_results(split.run.experiment, split.run, split, split.run.workflow.results)
+            self._backend.put_metrics(split.run.experiment, split.run, split, split.run.workflow.metrics)
             self.log_event(split, exp_events.stop, phase=phases.split)
 
     def log_event(self, source, kind=None, **parameters):

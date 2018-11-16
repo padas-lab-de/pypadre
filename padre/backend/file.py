@@ -174,7 +174,7 @@ class ExperimentFileRepository:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
-            f.write(self._binary_serializer.serialise(experiment._workflow))
+            f.write(self._binary_serializer.serialise(experiment.workflow))
 
     def get_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
@@ -245,7 +245,7 @@ class ExperimentFileRepository:
 
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
-            f.write(self._binary_serializer.serialise(experiment._workflow))
+            f.write(self._binary_serializer.serialise(experiment.workflow))
 
     def get_run(self, ex_id, run_id):
         """

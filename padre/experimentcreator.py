@@ -637,42 +637,41 @@ class ExperimentCreator:
                     if datasets is None:
                         continue
 
-                    for dataset in datasets:
-                        flag = True
-                        desc = ''.join([self._experiments.get(experiment).get('description'), 'with dataset ', dataset])
-                        data = self.get_local_dataset(dataset)
+                    flag = True
+                    desc = ''.join([self._experiments.get(experiment).get('description'), 'with dataset ', dataset])
+                    data = self.get_local_dataset(dataset)
 
-                        if data is None:
-                            continue
+                    if data is None:
+                        continue
 
-                        # Classifiers cannot work on continuous data and rejected as experiments.
-                        if not np.all(np.mod(data.targets(), 1) == 0):
-                            workflow = self._experiments.get(experiment).get('workflow', None)
-                            for estimator in workflow.named_steps:
-                                if name_mappings.get(estimator).get('type', None) == 'Classification':
-                                    flag = False
-                                    default_logger.warn(False, 'ExperimentCreator.do_experiments',
-                                                        ''.join(
-                                                            ['Estimator ', estimator, ' cannot work on continuous data.'
-                                                                                      'This dataset will be disregarded']))
+                    # Classifiers cannot work on continuous data and rejected as experiments.
+                    if not np.all(np.mod(data.targets(), 1) == 0):
+                        workflow = self._experiments.get(experiment).get('workflow', None)
+                        for estimator in workflow.named_steps:
+                            if name_mappings.get(estimator).get('type', None) == 'Classification':
+                                flag = False
+                                default_logger.warn(False, 'ExperimentCreator.execute_experiments',
+                                                    ''.join(
+                                                        ['Estimator ', estimator, ' cannot work on continuous data.'
+                                                                                  'This dataset will be disregarded']))
 
-                        # If a classification estimator tries to work on continous data disregard it
-                        if not flag:
-                            continue
+                    # If a classification estimator tries to work on continous data disregard it
+                    if not flag:
+                        continue
 
-                        message = 'Executing experiment ' + experiment + ' for dataset' + dataset
-                        default_logger.log('ExperimentCreator.do_experiments', message)
+                    message = 'Executing experiment ' + experiment + ' for dataset' + dataset
+                    default_logger.log('ExperimentCreator.do_experiments', message)
 
-                        ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
-                                        description=desc,
-                                        dataset=data,
-                                        workflow=self._experiments.get(experiment).get('workflow', None),
-                                        backend=self._experiments.get(experiment).get('backend', None),
-                                        strategy=self._experiments.get(experiment).get('strategy', 'random'))
-                        conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
+                    ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
+                                    description=desc,
+                                    dataset=data,
+                                    workflow=self._experiments.get(experiment).get('workflow', None),
+                                    backend=self._experiments.get(experiment).get('backend', None),
+                                    strategy=self._experiments.get(experiment).get('strategy', 'random'))
+                    conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
-                        pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                        ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                    pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
+                    ex.grid_search(parameters=self._param_value_dict.get(experiment))
 
     def do_experiments(self, experiment_datasets=None):
         """

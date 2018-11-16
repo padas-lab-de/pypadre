@@ -337,6 +337,10 @@ class SKLearnWorkflow:
     def metrics(self):
         return self._metrics
 
+    @property
+    def pipeline(self):
+        return self._pipeline
+
     def compute_confusion_matrix(self, Predicted=None,
                                  Truth=None):
         """
@@ -750,6 +754,10 @@ class Run(MetadataEntity):
     def results(self):
         return self._results
 
+    @property
+    def workflow(self):
+        return self._workflow
+
     def __str__(self):
         s = []
         if self.id is not None:
@@ -993,8 +1001,18 @@ class Experiment(MetadataEntity):
         self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
         self._backend.put_experiment_configuration(self)
 
+        # Get the total number of iterations
+        grid_size = 1
+        for idx in range(0, len(master_list)):
+            grid_size *= len(master_list[idx])
+
+        # Starting index
+        curr_executing_index = 1
+
         # For each tuple in the combination create a run
         for element in grid:
+
+            self.logger.log(self, "Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
@@ -1014,6 +1032,8 @@ class Experiment(MetadataEntity):
                 self._runs.append(r)
                 self._results.append(deepcopy(r.results))
             self._last_run = r
+
+            curr_executing_index += 1
 
         self.logger.log_stop_experiment(self)
 
