@@ -107,6 +107,7 @@ class SKLearnWorkflow:
 
     _results = dict()
     _metrics = dict()
+    _hyperparameters = None
 
     def __init__(self, pipeline, step_wise=False):
         # check for final component to determine final results
@@ -116,6 +117,7 @@ class SKLearnWorkflow:
         self._step_wise = step_wise
         self._results = dict()
         self._metrics = dict()
+        self._hyperparameters = dict()
 
     def fit(self, ctx):
         # todo split as parameter just for logging is not very good design. Maybe builder pattern would be better?
@@ -202,6 +204,19 @@ class SKLearnWorkflow:
                 results['test_idx'] = test_idx
 
                 self._results = deepcopy(results)
+                estimator_parameters = ctx.run.experiment.hyperparameters()
+
+                # Save the hyperparameters to the workflow hyperparameters variable
+                for curr_estimator in estimator_parameters:
+                    parameters = estimator_parameters.get(curr_estimator).get('hyper_parameters').get(
+                        'model_parameters')
+                    param_value_dict = dict()
+                    for curr_param in parameters:
+                        param_value_dict[curr_param] = parameters.get(curr_param).get('value')
+
+                    estimator_name = estimator_parameters.get(curr_estimator).get('algorithm').get('value')
+                    self._hyperparameters[estimator_name] = deepcopy(param_value_dict)
+
 
     def is_inferencer(self):
         return getattr(self._pipeline, "predict", None)
@@ -222,6 +237,10 @@ class SKLearnWorkflow:
     @property
     def metrics(self):
         return self._metrics
+
+    @property
+    def hyperparameters(self):
+        return self._hyperparameters
 
     @property
     def pipeline(self):
@@ -604,6 +623,7 @@ class Run(MetadataEntity):
     """
 
     _results = []
+    _hyperparameters = []
 
     def __init__(self, experiment, workflow, **options):
         self._experiment = experiment
@@ -614,6 +634,7 @@ class Run(MetadataEntity):
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._results = []
+        self._hyperparameters = []
         self._id = options.pop("run_id", None)
         super().__init__(self._id, **options)
 
@@ -629,6 +650,7 @@ class Run(MetadataEntity):
             if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
                 self._results.append(deepcopy(self._experiment.workflow.results))
+                self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
         #self.log_stop_run(self)
         self.logger.log_stop_run(self)
 
@@ -639,6 +661,10 @@ class Run(MetadataEntity):
     @property
     def results(self):
         return self._results
+
+    @property
+    def hyperparameters(self):
+        return self._hyperparameters
 
     @property
     def workflow(self):
@@ -731,6 +757,7 @@ class Experiment(MetadataEntity):
         self._set_workflow(workflow)
         self._last_run = None
         self._results = []
+        self._hyperparameters = []
         self._experiment_configuration = None
         super().__init__(options.pop("ex_id", None), **options)
 
@@ -844,6 +871,7 @@ class Experiment(MetadataEntity):
         if self._keep_runs or self._backend is None:
             self._runs.append(r)
             self._results.append(deepcopy(r.results))
+            self._hyperparameters = (deepcopy(r.hyperparameters))
         self._last_run = r
         #self.log_stop_experiment(self)
         self.logger.log_stop_experiment(self)
@@ -906,7 +934,7 @@ class Experiment(MetadataEntity):
 
                 if estimator is None:
                     self.logger.warn(False, self,
-                                        f"Estimator {split_params[0]} is not present in the pipeline")
+                                     f"Estimator {split_params[0]} is not present in the pipeline")
                     break
 
                 estimator.set_params(**{split_params[1]: element[idx]})
@@ -917,6 +945,7 @@ class Experiment(MetadataEntity):
             if self._keep_runs or self._backend is None:
                 self._runs.append(r)
                 self._results.append(deepcopy(r.results))
+                self._hyperparameters.append(deepcopy(r.hyperparameters))
             self._last_run = r
 
             curr_executing_index += 1
@@ -991,6 +1020,10 @@ class Experiment(MetadataEntity):
     @property
     def results(self):
         return self._results
+
+    @property
+    def hyperparameters_combinations(self):
+        return self._hyperparameters
 
     def __str__(self):
         s = []
