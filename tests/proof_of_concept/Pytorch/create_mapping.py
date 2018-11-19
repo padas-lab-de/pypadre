@@ -10,6 +10,12 @@ model_parameters = "model_parameters"
 optimization_parameters = "optimization_parameters"
 execution_parameters = "execution_parameters" \
                        ""
+metadata = 'metadata'
+author = 'author'
+library = 'library'
+library_version = 'library_version'
+mapping_version = 'mapping_version'
+
 name = "name"
 other_names = "other_names"
 wikidata_id = "wikidata_id"
@@ -243,13 +249,21 @@ hyperparameters_dict[execution_parameters] = execution_parameters_list
 
 pytorch_dict[hyper_parameters] = hyperparameters_dict
 
-algorithms_list = []
+metadata_dict = dict()
+metadata_dict[author] = 'Michael Granitzer'
+metadata_dict[library] = 'pytorch'
+metadata_dict[library_version] = '0.4.0'
+metadata_dict[mapping_version] = '0.1'
+
+
+algorithms_list = list()
 algorithms_list.append(pytorch_dict)
 
 algorithms_dict = dict()
 algorithms_dict[algorithms] = algorithms_list
+algorithms_dict[metadata] = metadata_dict
 
 cwd = os.getcwd()
 print(cwd)
-with open('torch.json', 'w') as fp:
+with open('pytorch.json', 'w') as fp:
     json.dump(algorithms_dict, fp)
