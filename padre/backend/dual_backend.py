@@ -120,14 +120,20 @@ class DualBackend:
         return self._file_experiments.get_experiment(ex, load_workflow)
 
     def put_run(self, experiment, run):
+        server_url = self._http_experiments.put_run(experiment, run)
+        run.metadata["server_url"] = server_url
         self._file_experiments.put_run(experiment, run)
-        self._http_experiments.put_run(experiment, run)
+
 
     def put_split(self, experiment, run, split):
-        return self._file_experiments.put_split(experiment, run, split)
+        server_url = self._http_experiments.put_split(experiment, run, split)
+        split.metadata["server_url"] = server_url
+        self._file_experiments.put_split(experiment, run, split)
+
 
     def put_results(self, experiment, run, split, results):
-        return self._file_experiments.put_results(experiment, run, split, results)
+        self._http_experiments.put_results(experiment, run, split, results)
+        self._file_experiments.put_results(experiment, run, split, results)
 
     def put_metrics(self, experiment, run, split, metrics):
         return self._file_experiments.put_metrics(experiment, run, split, metrics)

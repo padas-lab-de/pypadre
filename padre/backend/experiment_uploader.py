@@ -137,6 +137,7 @@ class ExperimentUploader:
         return False
 
     def put_run(self, experiment, run):
+        location = ""
         run_data = dict()
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
@@ -148,7 +149,23 @@ class ExperimentUploader:
         url = self.get_base_url() + self._http_client.paths["runs"]
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(run_data)})
-            self.run_id = self.get_id(response)
+            location = response.headers["location"]
+        return location
+
+    def put_split(self, experiment, run, split):
+        location = ""
+        data = dict()
+        url = self.get_base_url() + self._http_client.paths["run-splits"]
+        data["runId"] = run.metadata["server_url"].split("/")[-1]
+        data["split"] = split.name
+        if self._http_client.has_token():
+            response = self._http_client.do_post(url, **{"data": json.dumps(data)})
+            location = response.headers["location"]
+        return location
+
+    def put_results(self, experiment, run, split, results):
+        pass
+
 
     def get_base_url(self):
         url = self._http_client.base
@@ -161,7 +178,7 @@ class ExperimentUploader:
 
     def build_hyperparameters_list(self, obj):
         """
-        Build a list formatted hyperparamters as a dict for each parameter type.
+        Build a list of formatted hyperparamters as a dict for each parameter type.
         Passed obj dict can be as
         {"Step_0": {"hyper_parameters": {"models_parameters": ..., "optimisation_parameters": ...}}}
 
@@ -177,13 +194,13 @@ class ExperimentUploader:
                 for attr_name in attr_dict.keys():
                     data = dict()
                     data["description"] = attr_name
-                    data["kind"] = self.to_upper(param_kind)
+                    data["kind"] = self.map_to_parameter_kind(param_kind)
                     data["url"] = "dummy-padre.com/"
                     data["type"] = "Enumeration"
                     hyperparameters_list.append(data)
         return hyperparameters_list
 
-    def to_upper(self, param):
+    def map_to_parameter_kind(self, param):
         """
         Convert hyperparameter kind to compatible ParameterKind on server.
 
