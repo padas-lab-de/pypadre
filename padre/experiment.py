@@ -624,6 +624,7 @@ class Run(MetadataEntity):
 
     _results = []
     _hyperparameters = []
+    _split_ids = None
 
     def __init__(self, experiment, workflow, **options):
         self._experiment = experiment
@@ -636,6 +637,7 @@ class Run(MetadataEntity):
         self._results = []
         self._hyperparameters = []
         self._id = options.pop("run_id", None)
+        self._split_ids = []
         super().__init__(self._id, **options)
 
     def do_splits(self):
@@ -647,6 +649,7 @@ class Run(MetadataEntity):
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
             sp = Split(self, split, train_idx, val_idx, test_idx, **self._metadata)
             sp.execute()
+            self._split_ids.append(str(sp.id)+'.split')
             if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
                 self._results.append(deepcopy(self._experiment.workflow.results))
@@ -669,6 +672,10 @@ class Run(MetadataEntity):
     @property
     def workflow(self):
         return self._workflow
+
+    @property
+    def split_ids(self):
+        return self._split_ids
 
     def __str__(self):
         s = []
@@ -753,6 +760,7 @@ class Experiment(MetadataEntity):
         self._stdout = options.get("stdout", True)
         self._keep_runs = options.get("keep_runs", False) or options.get("keep_splits", False)
         self._runs = []
+        self._run_split_dict = dict()
         self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
         self._set_workflow(workflow)
         self._last_run = None
@@ -782,6 +790,10 @@ class Experiment(MetadataEntity):
             self._workflow = SKLearnWorkflow(w, self._sk_learn_stepwise)
         else:
             self._workflow = w
+
+    @property
+    def run_split_dict(self):
+        return self._run_split_dict
 
     @property
     def dataset(self):
@@ -941,7 +953,7 @@ class Experiment(MetadataEntity):
 
             r = Run(self, workflow, **dict(self._metadata))
             r.do_splits()
-
+            self._run_split_dict[str(r.id)+'.run'] = r.split_ids
             if self._keep_runs or self._backend is None:
                 self._runs.append(r)
                 self._results.append(deepcopy(r.results))
