@@ -29,6 +29,7 @@ todo: we can put a user specific context in the `my_config_dict` which can be th
 """
 import itertools
 import platform
+from collections import OrderedDict
 # todo overthink the logger architecture. Maybe the storage should be handled with the exxperiment, and not within
 # a particular logger class. so the Experiment could be used to access splits later on and to reproduce
 # individual steps.
@@ -635,6 +636,7 @@ class Run(MetadataEntity):
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._results = []
+        self._metrics = []
         self._hyperparameters = []
         self._id = options.pop("run_id", None)
         self._split_ids = []
@@ -652,8 +654,9 @@ class Run(MetadataEntity):
             self._split_ids.append(str(sp.id)+'.split')
             if self._keep_splits or self._backend is None:
                 self._splits.append(sp)
-                self._results.append(deepcopy(self._experiment.workflow.results))
-                self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
+            self._results.append(deepcopy(self._experiment.workflow.results))
+            self._metrics.append(deepcopy(self._experiment.workflow.metrics))
+            self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
         #self.log_stop_run(self)
         self.logger.log_stop_run(self)
 
@@ -664,6 +667,10 @@ class Run(MetadataEntity):
     @property
     def results(self):
         return self._results
+
+    @property
+    def metrics(self):
+        return self._metrics
 
     @property
     def hyperparameters(self):
@@ -760,11 +767,12 @@ class Experiment(MetadataEntity):
         self._stdout = options.get("stdout", True)
         self._keep_runs = options.get("keep_runs", False) or options.get("keep_splits", False)
         self._runs = []
-        self._run_split_dict = dict()
+        self._run_split_dict = OrderedDict()
         self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
         self._set_workflow(workflow)
         self._last_run = None
         self._results = []
+        self._metrics = []
         self._hyperparameters = []
         self._experiment_configuration = None
         super().__init__(options.pop("ex_id", None), **options)
@@ -882,8 +890,9 @@ class Experiment(MetadataEntity):
         r.do_splits()
         if self._keep_runs or self._backend is None:
             self._runs.append(r)
-            self._results.append(deepcopy(r.results))
-            self._hyperparameters = (deepcopy(r.hyperparameters))
+        self._results.append(deepcopy(r.results))
+        self._metrics.append(deepcopy(r.metrics))
+        self._hyperparameters = (deepcopy(r.hyperparameters))
         self._last_run = r
         #self.log_stop_experiment(self)
         self.logger.log_stop_experiment(self)
@@ -956,9 +965,11 @@ class Experiment(MetadataEntity):
             self._run_split_dict[str(r.id)+'.run'] = r.split_ids
             if self._keep_runs or self._backend is None:
                 self._runs.append(r)
-                self._results.append(deepcopy(r.results))
-                self._hyperparameters.append(deepcopy(r.hyperparameters))
+
+            self._results.append(deepcopy(r.results))
+            self._metrics.append(deepcopy(r.metrics))
             self._last_run = r
+            self._hyperparameters.append(deepcopy(r.hyperparameters))
 
             curr_executing_index += 1
 
@@ -1032,6 +1043,10 @@ class Experiment(MetadataEntity):
     @property
     def results(self):
         return self._results
+
+    @property
+    def metrics(self):
+        return self._metrics
 
     @property
     def hyperparameters_combinations(self):

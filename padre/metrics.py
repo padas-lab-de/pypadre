@@ -509,16 +509,15 @@ class CompareMetrics:
         # in that experiment
         for curr_experiment in self._experiments:
 
-            run_dir_list = self.get_immediate_subdirectories(curr_experiment)
-
             # Aggregate all the hyper parameters in all the run files
-            for run_dir in run_dir_list:
-                params = self.get_params(run_dir)
+            idx = 0
+            for run_dir in list(curr_experiment.run_split_dict.keys()):
+                params = curr_experiment.hyperparameters_combinations[idx][0]
+                if len(params) == 0:
+                    continue
                 run_id = run_dir[:-4].split(sep='/')[-1]
                 self._curr_listed_estimators[run_id] = params
-
-            for run in curr_experiment:
-                pass
+                idx += 1
 
             for run_id in self._curr_listed_estimators:
                 estimator_group = self._curr_listed_estimators.get(run_id)
@@ -594,7 +593,7 @@ class CompareMetrics:
         if self._experiments is not None:
             self.get_unique_estimators_parameter_names_from_experiments()
 
-    def read_split_metrics(self):
+    def read_split_metrics_from_directories(self):
         """
         Reads the metrics.json file from each of the runs
         Creates a dictionary with the key as the run_id,
@@ -625,6 +624,42 @@ class CompareMetrics:
                     self._run_split_dict[run_id] = splits.union({key})
 
         self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
+
+    def read_split_metrics_from_experiments(self):
+        """
+        Reads the metrics.json file from each of the experiment runs
+        Creates a dictionary with the key as the run_id,
+        and values as split_ids within a run.
+
+        :return: None
+        """
+        for curr_experiment in self._experiments:
+            runs = list(curr_experiment.run_split_dict.keys())
+            for curr_run in list(curr_experiment.run_split_dict.keys()):
+                splits = curr_experiment.run_split_dict.get(curr_run, None)
+                for split_id in splits:
+
+                    # read the json file into memory
+                    key = split_id[:-6]
+                    run_idx = runs.index(curr_run)
+                    split_idx = splits.index(split_id)
+                    self._metrics[key] = curr_experiment.metrics[run_idx][split_idx]
+                    run_id = curr_run[:-4]
+                    splits = self._run_split_dict.get(run_id, None)
+                    if splits is None:
+                        self._run_split_dict[run_id] = frozenset({key})
+                    else:
+                        self._run_split_dict[run_id] = splits.union({key})
+
+        self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
+
+    def read_split_metrics(self):
+        if self._dir_path is not None:
+            self.read_split_metrics_from_directories()
+
+        if self._experiments is not None:
+            self.read_split_metrics_from_experiments()
+
 
     def compute_results(self):
         """
@@ -889,14 +924,17 @@ class CompareMetrics:
         This function combines all the other read and aggregate functions for ease of use
         :return:
         """
+
+        df = None
         print(self.get_experiment_directores())
         self.read_run_directories()
         # From the run directory names, obtain the estimators and the parameters
         self.get_unique_estimators_parameter_names()
         # Read the JSON file objects from the .split folders
         self.read_split_metrics()
-        # Display the results using Pandas data frame
-        self.display_results()
+        # Get the results using Pandas data frame
+        df = self.display_results()
+        return df
 
 
 

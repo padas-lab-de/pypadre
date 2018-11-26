@@ -15,7 +15,7 @@ def main():
         return
     dir_list.append(dir_path)
     metrics = CompareMetrics(dir_path=dir_list)
-    metrics.show_metrics()
+    print(metrics.show_metrics())
 
     recompute_metrics = ReevaluationMetrics(dir_list)
     dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
