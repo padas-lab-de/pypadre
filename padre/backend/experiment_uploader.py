@@ -2,6 +2,9 @@
 Logic to upload experiment data to server goes here
 """
 import json
+from requests_toolbelt import MultipartEncoder
+import requests as req
+import uuid
 
 
 class ExperimentUploader:
@@ -88,12 +91,32 @@ class ExperimentUploader:
         :type experiment: <class 'padre.experiment.Experiment'>
         :return: None
         """
+
         dataset_dict = experiment.dataset.metadata
         self.dataset_id = self.get_or_create_dataset(dataset_dict)
-
-        experiment_data = experiment.metadata
-        experiment_data["projectId"] = self.project_id
-        experiment_data["datasetId"] = self.dataset_id
+        experiment_data = dict()
+        experiment_data["name"] = experiment.metadata["name"]
+        experiment_data["description"] = experiment.metadata["description"]
+        experiment_data["algorithm"] = "http://padre.de/algorithm/1"
+        experiment_data["executable"] = "http://padre.de/executable/1"
+        experiment_data["sourceCode"] = "http://padre.de/executable/1"
+        experiment_data["published"] = True
+        experiment_data["uuid"] = str(uuid.uuid4())
+        experiment_data["uid"] = 0
+        experiment_data["links"] = [
+    {
+      "deprecation": "string",
+      "href": "string",
+      "hreflang": "string",
+      "media": "string",
+      "rel": "string",
+      "templated": "true",
+      "title": "string",
+      "type": "string"
+    }
+  ]
+        experiment_data["projectId"] = int(self.project_id)
+        experiment_data["datasetId"] = int(self.dataset_id)
         experiment_data["pipeline"] = {"components": [
             {"description": experiment.metadata["description"],
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
@@ -139,6 +162,8 @@ class ExperimentUploader:
     def put_run(self, experiment, run):
         location = ""
         run_data = dict()
+        run_data["clientAddress"] = "http://localhost:8080"
+        run_data["uid"] = str(uuid.uuid4())
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
@@ -155,7 +180,9 @@ class ExperimentUploader:
     def put_split(self, experiment, run, split):
         location = ""
         data = dict()
-        url = self.get_base_url() + self._http_client.paths["run-splits"]
+        url = self.get_base_url() + "/splits"
+        data["uid"] = str(uuid.uuid4())
+        data["clientAddress"] = "http://localhost:8080"
         data["runId"] = run.metadata["server_url"].split("/")[-1]
         data["split"] = split.name
         if self._http_client.has_token():
@@ -164,6 +191,26 @@ class ExperimentUploader:
         return location
 
     def put_results(self, experiment, run, split, results):
+        rs_id = split.metadata["server_url"].split("/")[-1]
+        r_id = run.metadata["server_url"].split("/")[-1]
+        url = self.get_base_url() + "/runSplits/" + rs_id + "/result"
+        url = self.get_base_url() + "/experiments/"+experiment.metadata["server_url"].split("/")[-1]+"/runs/"+r_id+"/splits/"+rs_id+"/results"
+
+        file_path = "/home/afnan/projects/Temp_Data/pb.protobinV1"
+        m = MultipartEncoder(fields={
+            "field0": ("fname",
+                       open(file_path, "rb"),
+                       "application/x.padre.regression.v1+protobuf")})
+
+        h = {"Content-Type": m.content_type,
+             "Authorization": self._http_client._access_token}
+        d = {"data": m,
+             "headers": h
+             }
+        #response = self._http_client.do_post(url, **d)
+        #import io
+        #response = req.post(url, headers=h, files={"file": open(file_path, "rb").read()})
+        response = req.post(url, headers=h, data=m)
         pass
 
 
@@ -196,7 +243,7 @@ class ExperimentUploader:
                     data["description"] = attr_name
                     data["kind"] = self.map_to_parameter_kind(param_kind)
                     data["url"] = "dummy-padre.com/"
-                    data["type"] = "Enumeration"
+                    data["type"] = "RealNumber"
                     hyperparameters_list.append(data)
         return hyperparameters_list
 
