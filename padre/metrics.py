@@ -519,6 +519,9 @@ class CompareMetrics:
                 self._curr_listed_estimators[run_id] = params
                 idx += 1
 
+            if len(self._curr_listed_estimators) == 0:
+                continue
+
             for run_id in self._curr_listed_estimators:
                 estimator_group = self._curr_listed_estimators.get(run_id)
                 for estimator in estimator_group:
@@ -853,12 +856,16 @@ class CompareMetrics:
 
             # For all splits in a run
             for split in self._run_split_dict.get(run):
+
+                metrics = self._metrics.get(split)
+                if len(metrics) == 0:
+                    continue
+
                 # run_id split_id dataset
                 data_row = dict()
                 data_row['run'] = run
                 data_row['split'] = split
 
-                metrics = self._metrics.get(split)
                 data_row['dataset'] = metrics.get('dataset', 'NA')
 
                 # Unique estimators are present in keys
@@ -902,6 +909,12 @@ class CompareMetrics:
             for metric in classification_metrics:
                 if df.get(metric, None) is not None:
                     df[metric] = df[metric].astype(float)
+
+        # Remove empty columns in the data frame
+        for name in df.columns:
+            if all(df.get(name) == '-'):
+                df = df.drop(name, axis=1)
+                print('Dropped Column' + name)
 
         return df
 

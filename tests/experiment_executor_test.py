@@ -7,7 +7,7 @@ def main():
     from padre.base import default_logger
     default_logger.log(ExperimentExecutor, message='Experiment Executor Starting')
     experiment_creator = ExperimentCreator()
-    '''
+
 
     # FIRST TEST EXPERIMENT WITH MULTIPLE DATASETS
     params = {'num_neighbours': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'num_components': [2, 3, 4, 5, 6, 7]}
@@ -30,7 +30,6 @@ def main():
                                          workflow=workflow,
                                          backend=pypadre.file_repository.experiments,
                                          params=param_value_dict)
-    '''
 
     # THIRD TEST EXPERIMENT WITH MULTIPLE DATASETS
     params_pca = {'num_components': [2, 3, 4, 5, 6]}
@@ -47,7 +46,7 @@ def main():
                                          params=params_dict
                                          )
 
-    # experiment_creator.parse_config_file('experiment.json')
+    experiment_creator.parse_config_file('experiment.json')
 
     experiments_list = experiment_creator.createExperimentList()
     experiments_executor = ExperimentExecutor(experiments=experiments_list)
