@@ -632,7 +632,6 @@ class Run(MetadataEntity):
         self._workflow = workflow
         self._backend = experiment.backend
         self.logger = experiment.logger
-        #self._stdout = experiment.stdout
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._results = []
@@ -644,11 +643,15 @@ class Run(MetadataEntity):
 
     def do_splits(self):
         from copy import deepcopy
-        #self.log_start_run(self)
         self.logger.log_start_run(self)
         # instantiate the splitter here based on the splitting configuration in options
         splitting = Splitter(self._experiment.dataset, self.logger,  **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
+
+            self.logger.error\
+                ((self._experiment.validate.validate(train_idx, test_idx, val_idx, self._experiment.dataset)),
+                 'Run.do_splits', 'Dataset Validation Failed')
+
             sp = Split(self, split, train_idx, val_idx, test_idx, **self._metadata)
             sp.execute()
             self._split_ids.append(str(sp.id)+'.split')
@@ -657,7 +660,6 @@ class Run(MetadataEntity):
             self._results.append(deepcopy(self._experiment.workflow.results))
             self._metrics.append(deepcopy(self._experiment.workflow.metrics))
             self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
-        #self.log_stop_run(self)
         self.logger.log_stop_run(self)
 
     @property
@@ -771,11 +773,15 @@ class Experiment(MetadataEntity):
         self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
         self._set_workflow(workflow)
         self._last_run = None
+        self._validation_obj = options.get('validation', None)
         self._results = []
         self._metrics = []
         self._hyperparameters = []
         self._experiment_configuration = None
         super().__init__(options.pop("ex_id", None), **options)
+
+        if self._validation_obj is None:
+            self._validation_obj = ValidateTrainTestSplits()
 
         self._fill_sys_info()
 
@@ -822,6 +828,10 @@ class Experiment(MetadataEntity):
     @property
     def workflow(self):
         return self._workflow
+
+    @property
+    def validate(self):
+        return self._validation_obj
 
     @property
     def experiment_configuration(self):
@@ -882,7 +892,6 @@ class Experiment(MetadataEntity):
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
-        #self.log_start_experiment(self, append_runs)
         self.logger.log_start_experiment(self, append_runs)
 
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
@@ -894,7 +903,6 @@ class Experiment(MetadataEntity):
         self._metrics.append(deepcopy(r.metrics))
         self._hyperparameters = (deepcopy(r.hyperparameters))
         self._last_run = r
-        #self.log_stop_experiment(self)
         self.logger.log_stop_experiment(self)
 
     def grid_search(self, parameters=None):
@@ -991,7 +999,7 @@ class Experiment(MetadataEntity):
         strategy = self.metadata.get('strategy', None)
         dataset = self.dataset.name
         backend = 'default'
-        workflow = list(self.workflow._pipeline.named_steps.keys())
+        workflow = list(self.workflow.pipeline.named_steps.keys())
 
         complete_experiment_dict = dict()
 
@@ -1128,4 +1136,39 @@ class Experiment(MetadataEntity):
                 module_version_info[module] = module_.__version__
 
         self.metadata['versions'] = module_version_info
+
+
+class ValidateTrainTestSplits:
+    """
+    This class does a basic validation on the training and testing split.
+    It checks whether there are overlapping indices in the train, test or validation data
+    """
+
+    def validate(self, train_idx, test_idx, val_idx, dataset):
+        """
+        Validates the dataset split of training, testing and validation
+        :param train_idx: The training indices
+        :param test_idx: The testing indices
+        :param val_idx: The validation indices
+        :param dataset: The dataset matrix
+        :return: Bool, True: Successful Validation False: Validation failed
+        """
+
+        if dataset is None:
+            return False
+
+        if train_idx is None or test_idx is None:
+            return False
+
+        if len(set(train_idx).intersection(set(test_idx))) > 0:
+            return False
+
+        if val_idx is not None and len(set(train_idx).intersection(set(val_idx))) > 0:
+            return False
+
+        if val_idx is not None and len(set(val_idx).intersection(set(test_idx))) > 0:
+            return False
+
+        return True
+
 

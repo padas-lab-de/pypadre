@@ -663,7 +663,6 @@ class CompareMetrics:
         if self._experiments is not None:
             self.read_split_metrics_from_experiments()
 
-
     def compute_results(self):
         """
         Computes the collected data as a Pandas data frame.
