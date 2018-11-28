@@ -914,7 +914,6 @@ class CompareMetrics:
         for name in df.columns:
             if all(df.get(name) == '-'):
                 df = df.drop(name, axis=1)
-                print('Dropped Column' + name)
 
         return df
 
