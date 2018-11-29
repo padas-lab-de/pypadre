@@ -3,7 +3,9 @@ Logic to upload experiment data to server goes here
 """
 import json
 from requests_toolbelt import MultipartEncoder
+from padre.backend.serialiser import PickleSerializer
 import requests as req
+import io
 import uuid
 
 
@@ -14,6 +16,7 @@ class ExperimentUploader:
         This initializes the Uploader class for given experiment.
         """
         self._http_client = http_client
+        self._binary_serializer = PickleSerializer
         self.dataset_id = None
         self.experiment_id = None
         self.project_id = self.get_or_create_project(project_name)
@@ -115,8 +118,8 @@ class ExperimentUploader:
       "type": "string"
     }
   ]
-        experiment_data["projectId"] = int(self.project_id)
-        experiment_data["datasetId"] = int(self.dataset_id)
+        experiment_data["projectId"] = self.project_id
+        experiment_data["datasetId"] = self.dataset_id
         experiment_data["pipeline"] = {"components": [
             {"description": experiment.metadata["description"],
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
@@ -161,8 +164,9 @@ class ExperimentUploader:
 
     def put_run(self, experiment, run):
         location = ""
+        experiment_id = experiment.metadata["server_url"].split("/")[-1]
         run_data = dict()
-        run_data["clientAddress"] = "http://localhost:8080"
+        run_data["clientAddress"] = self.get_base_url()
         run_data["uid"] = str(uuid.uuid4())
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
@@ -170,11 +174,20 @@ class ExperimentUploader:
              "name": experiment.metadata["name"]
              }
         }]
-        run_data["experimentId"] = experiment.metadata["server_url"].split("/")[-1]
+        run_data["experimentId"] = experiment_id
         url = self.get_base_url() + self._http_client.paths["runs"]
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(run_data)})
             location = response.headers["location"]
+            run_id = location.split("/")[-1]
+            run_model_url = self.get_base_url() + self._http_client.paths["run-models"](experiment_id, run_id)
+            binary = self._binary_serializer.serialise(experiment._workflow)
+            data = MultipartEncoder(fields={
+                "file": ("fname",
+                           io.BytesIO(binary),
+                           "application/octet-stream")})
+            headers = {"Content-Type": data.content_type}
+            self._http_client.do_post(run_model_url, **{"data": data, "headers": headers})
         return location
 
     def put_split(self, experiment, run, split):
@@ -193,8 +206,8 @@ class ExperimentUploader:
     def put_results(self, experiment, run, split, results):
         rs_id = split.metadata["server_url"].split("/")[-1]
         r_id = run.metadata["server_url"].split("/")[-1]
-        url = self.get_base_url() + "/runSplits/" + rs_id + "/result"
-        url = self.get_base_url() + "/experiments/"+experiment.metadata["server_url"].split("/")[-1]+"/runs/"+r_id+"/splits/"+rs_id+"/results"
+        e_id = experiment.metadata["server_url"].split("/")[-1]
+        url = self.get_base_url() + "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results"
 
         file_path = "/home/afnan/projects/Temp_Data/pb.protobinV1"
         m = MultipartEncoder(fields={

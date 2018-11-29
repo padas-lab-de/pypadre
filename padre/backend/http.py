@@ -34,6 +34,7 @@ class PadreHTTPClient:
         self.last_status = None
         self._data_serializer = PickleSerializer
         self._default_header = default_header
+        self._access_token = None
         if silent_codes is None:
             self.silent_codes = []
         else:
@@ -59,6 +60,8 @@ class PadreHTTPClient:
         else:
             if "headers" not in body:
                 body["headers"] = self._default_header
+            if "Authorization" not in body["headers"]:
+                body["headers"]["Authorization"] = self._access_token
             r = request(url, **body)
         self.last_status = r.status_code
         r.raise_for_status()
@@ -265,6 +268,7 @@ PadreHTTPClient.paths = {
     "experiment": lambda id: "/experiments/" + id + "/",
     "projects": "/projects",
     "runs": "/runs",
+    "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
     "run-splits": "/runSplits",
     "oauth-token": lambda csrf_token: "/oauth/token?=" + csrf_token,
     "dataset": lambda id: "/datasets/" + id + "/",
