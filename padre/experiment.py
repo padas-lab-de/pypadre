@@ -780,7 +780,7 @@ class Experiment(MetadataEntity):
         self._experiment_configuration = None
         super().__init__(options.pop("ex_id", None), **options)
 
-        if self._validation_obj is None:
+        if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):
             self._validation_obj = ValidateTrainTestSplits()
 
         self._fill_sys_info()
