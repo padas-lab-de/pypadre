@@ -1,12 +1,16 @@
 """
 Logic to upload experiment data to server goes here
 """
-import json
-from requests_toolbelt import MultipartEncoder
-from padre.backend.serialiser import PickleSerializer
-import requests as req
 import io
+import json
+import os
 import uuid
+
+from requests_toolbelt import MultipartEncoder
+from google.protobuf.internal.encoder import _VarintBytes
+from resultV1_pb2 import Meta as proto
+
+from padre.backend.serialiser import PickleSerializer
 
 
 class ExperimentUploader:
@@ -193,38 +197,29 @@ class ExperimentUploader:
     def put_split(self, experiment, run, split):
         location = ""
         data = dict()
-        url = self.get_base_url() + "/splits"
+        r_id = run.metadata["server_url"].split("/")[-1]
+        url = self.get_base_url() + self._http_client.paths["splits"]
         data["uid"] = str(uuid.uuid4())
-        data["clientAddress"] = "http://localhost:8080"
-        data["runId"] = run.metadata["server_url"].split("/")[-1]
-        data["split"] = split.name
+        data["clientAddress"] = self.get_base_url()
+        data["runId"] = r_id
+        data["split"] = split.name  # Split by encoding
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
         return location
 
-    def put_results(self, experiment, run, split, results):
+    def put_results(self, experiment, run, split, results, root_dir="/temp/"):
         rs_id = split.metadata["server_url"].split("/")[-1]
         r_id = run.metadata["server_url"].split("/")[-1]
         e_id = experiment.metadata["server_url"].split("/")[-1]
-        url = self.get_base_url() + "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results"
+        url = self.get_base_url() + self._http_client.paths["results"](e_id, r_id, rs_id)
 
-        file_path = "/home/afnan/projects/Temp_Data/pb.protobinV1"
-        m = MultipartEncoder(fields={
-            "field0": ("fname",
-                       open(file_path, "rb"),
-                       "application/x.padre.regression.v1+protobuf")})
+        file_path = self.make_proto(results, root_dir)
+        m = MultipartEncoder(
+            fields={"field0": ("fname", open(file_path, "rb"), self.get_content_type(results["type"]))})
 
-        h = {"Content-Type": m.content_type,
-             "Authorization": self._http_client._access_token}
-        d = {"data": m,
-             "headers": h
-             }
-        #response = self._http_client.do_post(url, **d)
-        #import io
-        #response = req.post(url, headers=h, files={"file": open(file_path, "rb").read()})
-        response = req.post(url, headers=h, data=m)
-        pass
+        response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+        return response
 
 
     def get_base_url(self):
@@ -277,6 +272,43 @@ class ExperimentUploader:
             "execution_parameters": "ExecutionParameter"
         }
         return params[param]
+
+    def make_proto(self, results, root_dir):
+        path = root_dir + "/temp/pb.protobinV1"
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        file = open(path, "wb")
+        for i, test_id in enumerate(results["test_idx"]):
+            pb_meta = proto.ResultEntry()
+            pb_meta.index = test_id
+            result_prediction = results["predicted"][i]
+            result_truth = results["truth"][i]
+            self.add_value(pb_meta.prediction.add(), result_prediction)
+            self.add_value(pb_meta.truth.add(), result_truth)
+
+            if "probabilities" in results:
+                result_probabilities = results["probabilities"][i]
+                for p in result_probabilities:
+                    self.add_value(pb_meta.score.add(), p)
+
+            serialize = pb_meta.SerializeToString()
+            file.write(_VarintBytes(len(serialize)))
+            file.write(serialize)
+        file.close()
+        return path
+
+
+    def add_value(self, pb_instance, value):
+        if type(value) == float:
+            pb_instance.float_t = value
+        elif type(value) == int:
+            pb_instance.int32_t = value
+
+    def get_content_type(self, type):
+        if type == "regression":
+            return "application/x.padre.regression.v1+protobuf"
+        elif type == "classification":
+            return "application/x.padre.classification.v1+protobuf"
+
 
 
 
