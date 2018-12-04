@@ -160,8 +160,8 @@ class SKLearnWorkflow:
                            'truth': y.tolist()}
 
                 ctx.logger.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
-                                       probabilities=None, scores=None,
-                                       transforms=None, clustering=None)
+                                      probabilities=None, scores=None,
+                                      transforms=None, clustering=None)
                 metrics = dict()
                 metrics['dataset'] = ctx.dataset.name
 

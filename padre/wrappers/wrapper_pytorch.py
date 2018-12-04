@@ -240,7 +240,6 @@ class WrapperPytorch:
 
         :return: None
         """
-        import numpy as np
 
         self.probabilities = None
 
@@ -371,7 +370,6 @@ class WrapperPytorch:
                 output[start_idx:end_idx,:] = mini_batch_output
                 start_idx = start_idx + batch_size
 
-
         if mini_batch_output.shape[1] > 1 and self.top_shape > 1:
             self.probabilities = output
             output = np.argmax(output, axis=1)
@@ -390,7 +388,6 @@ class WrapperPytorch:
             probabilities = self.probabilities
 
         return probabilities
-
 
     def create_model(self, shape):
 
