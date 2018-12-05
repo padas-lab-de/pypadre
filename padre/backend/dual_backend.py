@@ -134,6 +134,15 @@ class DualBackend:
         self._http_experiments.put_metrics(experiment, run, split, metrics)
         self._file_experiments.put_metrics(experiment, run, split, metrics)
 
+    def put_experiment_configuration(self, experiment):
+        """
+        Writes the experiment configuration to the backend
+        :param experiment: The experiment to be written to the backend
+        :return:
+        """
+        self._file_experiments.put_experiment_configuration(experiment=experiment)
+        self._http_experiments.put_experiment_configuration(experiment=experiment)
+
     def log(self, message):
         if self._stdout:
             sys.stdout.write(message)

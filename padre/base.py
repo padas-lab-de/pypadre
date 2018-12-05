@@ -173,6 +173,15 @@ class PadreLogger:
                              "\t\t" + str(source) + ":\t" + "%s" % ("\t".join([str(k) + "=" + str(v)
                                                                                for k, v in parameters.items()])) + "\n")
 
+    def put_experiment_configuration(self, experiment):
+        """
+        Writes the experiment configuration to the backend
+        :param experiment:
+        :return:
+        """
+        if self._backend:
+            self._backend.put_experiment_configuration(experiment=experiment)
+
     def _padding(self, source):
 
         if source.__str__().lower().find('split') > -1:

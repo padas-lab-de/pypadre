@@ -150,6 +150,14 @@ class ExperimentUploader:
             url = url[0:-1]
         return url
 
+    def put_experiment_configuration(self, experiment):
+        """
+        Writes the experiment configuration to the HTTP Client
+        :param experiment: Experiment to be written
+        :return:
+        """
+        pass
+
 
 
 

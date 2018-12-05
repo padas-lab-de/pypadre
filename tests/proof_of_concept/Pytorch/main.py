@@ -34,7 +34,7 @@ def main():
                     dataset=ds,
                     workflow=workflow,
                     backend=pypadre.file_repository.experiments)
-    ex.run()
+    ex.grid_search()
     '''
     Sample network dictionary creation
     
@@ -104,8 +104,6 @@ def main():
         json.dump(network, fp)
     
     '''
-
-
 
 if __name__ == '__main__':
     main()
