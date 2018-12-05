@@ -338,6 +338,8 @@ class WrapperPytorch:
         # Run the model for the steps specified in the parameters
         step = 0
 
+        self.on_start_epoch()
+
         # Load the model if resume is true and the file exists
         if self.resume is True and os.path.isfile(self.pre_trained_model_path):
             state = torch.load(self.pre_trained_model_path)
