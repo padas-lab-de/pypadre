@@ -132,7 +132,7 @@ class DualBackend:
 
 
     def put_results(self, experiment, run, split, results):
-        self._http_experiments.put_results(experiment, run, split, results, self._file_backend.root_dir)
+        self._http_experiments.put_results(experiment, run, split, results)
         self._file_experiments.put_results(experiment, run, split, results)
 
     def put_metrics(self, experiment, run, split, metrics):

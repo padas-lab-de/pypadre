@@ -3,7 +3,7 @@ Logic to upload experiment data to server goes here
 """
 import io
 import json
-import os
+import tempfile
 import uuid
 
 from requests_toolbelt import MultipartEncoder
@@ -110,18 +110,16 @@ class ExperimentUploader:
         experiment_data["published"] = True
         experiment_data["uuid"] = str(uuid.uuid4())
         experiment_data["uid"] = 0
-        experiment_data["links"] = [
-    {
-      "deprecation": "string",
-      "href": "string",
-      "hreflang": "string",
-      "media": "string",
-      "rel": "string",
-      "templated": "true",
-      "title": "string",
-      "type": "string"
-    }
-  ]
+        experiment_data["links"] = [{
+              "deprecation": "string",
+              "href": "string",
+              "hreflang": "string",
+              "media": "string",
+              "rel": "string",
+              "templated": "true",
+              "title": "string",
+              "type": "string"
+            }]
         experiment_data["projectId"] = self.project_id
         experiment_data["datasetId"] = self.dataset_id
         experiment_data["pipeline"] = {"components": [
@@ -129,7 +127,6 @@ class ExperimentUploader:
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
              "name": experiment.metadata["name"]}
         ]}
-
         return self.create_experiment(experiment_data)
 
     def delete_experiment(self, ex):
@@ -167,6 +164,15 @@ class ExperimentUploader:
         return False
 
     def put_run(self, experiment, run):
+        """
+        Put run information on server and also upload workflow for this new run on the server as binary.
+
+        :param experiment:
+        :type experiment: <class 'padre.experiment.Experiment'>
+        :param run:
+        :type run: <class 'padre.experiment.Run'>
+        :return: Return url of run at the server.
+        """
         location = ""
         experiment_id = experiment.metadata["server_url"].split("/")[-1]
         run_data = dict()
@@ -195,6 +201,17 @@ class ExperimentUploader:
         return location
 
     def put_split(self, experiment, run, split):
+        """
+        Put split information on the server.
+
+        :param experiment:
+        :type experiment: <class 'padre.experiment.Experiment'>
+        :param run:
+        :type run: <class 'padre.experiment.Run'>
+        :param split:
+        :type split: <class 'padre.experiment.Split'>
+        :return: Return url of run-split at server
+        """
         location = ""
         data = dict()
         r_id = run.metadata["server_url"].split("/")[-1]
@@ -208,19 +225,32 @@ class ExperimentUploader:
             location = response.headers["location"]
         return location
 
-    def put_results(self, experiment, run, split, results, root_dir="/temp/"):
+    def put_results(self, experiment, run, split, results):
+        """
+        Write results on temporary file-like object as protobuf and put it to the server.
+
+        :param experiment:
+        :type experiment: <class 'padre.experiment.Experiment'>
+        :param run:
+        :type run: <class 'padre.experiment.Run'>
+        :param split:
+        :type split: <class 'padre.experiment.Split'>
+        :param results:
+        :type results: <class 'dict'>
+        :return: Returns http response
+        :rtype: <class 'requests.models.Response'>
+        """
         rs_id = split.metadata["server_url"].split("/")[-1]
         r_id = run.metadata["server_url"].split("/")[-1]
         e_id = experiment.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["results"](e_id, r_id, rs_id)
 
-        file_path = self.make_proto(results, root_dir)
-        m = MultipartEncoder(
-            fields={"field0": ("fname", open(file_path, "rb"), self.get_content_type(results["type"]))})
-
-        response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+        with tempfile.TemporaryFile() as temp_file:
+            file = self.make_proto(results, temp_file)
+            m = MultipartEncoder(
+                fields={"field0": ("fname", file, self.get_content_type(results["type"]))})
+            response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
         return response
-
 
     def get_base_url(self):
         url = self._http_client.base
@@ -273,10 +303,17 @@ class ExperimentUploader:
         }
         return params[param]
 
-    def make_proto(self, results, root_dir):
-        path = root_dir + "/temp/pb.protobinV1"
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        file = open(path, "wb")
+    def make_proto(self, results, file):
+        """
+        Make compatible protobuf object from results and write it on given file object
+
+        :param results: Dictionary containing results of run-split
+        :type results: <class 'dict'>
+        :param file: file like object
+        :type file: <class '_io.BufferedRandom'>
+        :return: Protobuf written on file like object
+        :rtype: <class '_io.BufferedRandom'>
+        """
         for i, test_id in enumerate(results["test_idx"]):
             pb_meta = proto.ResultEntry()
             pb_meta.index = test_id
@@ -293,20 +330,38 @@ class ExperimentUploader:
             serialize = pb_meta.SerializeToString()
             file.write(_VarintBytes(len(serialize)))
             file.write(serialize)
-        file.close()
-        return path
+            file.flush()
+        file.seek(0)
+        return file
 
 
     def add_value(self, pb_instance, value):
+        """
+        Add float or int attribute in the protobuf Value
+
+        :param pb_instance: protobuf instance of type Value
+        :type pb_instance: <class 'resultV1_pb2.Value'>
+        :param value: Single value of each parameter
+        :type value: <class 'float'> or <class 'int'> etc
+        :return: None
+        """
         if type(value) == float:
             pb_instance.float_t = value
         elif type(value) == int:
             pb_instance.int32_t = value
 
-    def get_content_type(self, type):
-        if type == "regression":
+    def get_content_type(self, experiment_type):
+        """
+        Get compatible content type for results to upload
+
+        :param experiment_type: regression, classification, transformation or dataset
+        :type experiment_type: str
+        :return: Content Type
+        :rtype: str
+        """
+        if experiment_type == "regression":
             return "application/x.padre.regression.v1+protobuf"
-        elif type == "classification":
+        elif experiment_type == "classification":
             return "application/x.padre.classification.v1+protobuf"
 
 
