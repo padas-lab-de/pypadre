@@ -8,7 +8,7 @@ import uuid
 
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
-from resultV1_pb2 import Meta as proto
+from padre.protobuffer.protobuf import resultV1_pb2 as proto
 
 from padre.backend.serialiser import PickleSerializer
 
