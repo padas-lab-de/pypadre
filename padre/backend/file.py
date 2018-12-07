@@ -52,6 +52,7 @@ class PadreFileBackend(object):
         self._experiment_repository = ExperimentFileRepository(os.path.join(root_dir, "experiments"),
                                                                self._dataset_repository)
 
+
     @property
     def datasets(self):
         return self._dataset_repository
@@ -88,14 +89,23 @@ class ExperimentFileRepository:
     So logically they would belong to the splits.
     However, for convenience reasons they are aggregated at the run level.
     """
+    _file = None
 
     def __init__(self, root_dir, data_repository):
-        from padre.base import default_logger
         self.root_dir = _get_path(root_dir, "")
         self._metadata_serializer = JSonSerializer
         self._binary_serializer = PickleSerializer
         self._data_repository = data_repository
-        default_logger.open_log_file(self.root_dir)
+        self._file = None
+
+    def __del__(self):
+        """
+        Destructor that closes the opened log file at the end of the experiments
+        :return:
+        """
+        if self._file is not None:
+            self._file.close()
+            self._file = None
 
     def _dir(self, ex_id, run_id=None, split_num=None):
         r = [str(ex_id)+".ex"]
@@ -129,7 +139,6 @@ class ExperimentFileRepository:
             shutil.rmtree(_get_path(self.root_dir, d, False))
 
 
-
     def put_experiment(self, experiment, append_runs=False, allow_overwrite=True):
         """
         Stores an experiment to the file. Only metadata, hyperparameter and the workflow is stored.
@@ -154,13 +163,18 @@ class ExperimentFileRepository:
                 os.mkdir(dir)
         else:
             os.mkdir(dir)
+
+        # Create the log file for the experiment here
+        if self._file is not None:
+            self._file.close()
+            self._file = None
+        self._file = open(os.path.join(dir, "log.txt"), "a")
+
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
-            f.write(self._binary_serializer.serialise(experiment._workflow))
-
-        default_logger.open_log_file(dir)
+            f.write(self._binary_serializer.serialise(experiment.workflow))
 
     def get_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
@@ -231,7 +245,7 @@ class ExperimentFileRepository:
 
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
-            f.write(self._binary_serializer.serialise(experiment._workflow))
+            f.write(self._binary_serializer.serialise(experiment.workflow))
 
     def get_run(self, ex_id, run_id):
         """
@@ -322,6 +336,19 @@ class ExperimentFileRepository:
 
     def _do_print(self):
         return True
+
+    def log(self, message):
+        """
+        This function logs all the messages to a file backend
+
+        :param message: Message to be written to a file
+
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write(message + "\n")
 
 
 

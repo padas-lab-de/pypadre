@@ -252,8 +252,9 @@ class CompareMetrics:
     """
 
     _dir_path = []
+    _experiments = None
 
-    def __init__(self, dir_path=None, file_path=None):
+    def __init__(self, dir_path=None, file_path=None, experiments_list = None):
         """
         The constructor that initializes the object with all the required paths.
 
@@ -267,6 +268,9 @@ class CompareMetrics:
 
         if file_path is not None:
             self._file_path = copy.deepcopy(file_path)
+
+        if experiments_list is not None:
+            self._experiments = experiments_list
 
         self._run_dir = []
         # This dictionary contains the metrics read from all the metrics.json file
@@ -401,7 +405,7 @@ class CompareMetrics:
 
         return hyperparameters
 
-    def get_unique_estimators_parameter_names(self):
+    def get_unique_estimators_parameter_names_from_directories(self):
         """
         Gets all the unique estimators and their parameter names from the saved run directories.
 
@@ -489,7 +493,110 @@ class CompareMetrics:
                             else:
                                 self._param_values_run_id[key] = self._param_values_run_id.get(key).union({run})
 
-    def read_split_metrics(self):
+    def get_unique_estimators_parameter_names_from_experiments(self):
+        """
+        Gets all the unique estimators and their parameter names from the experiments list
+
+        :return: None
+        """
+
+        # This dictionary contains the default values for each estimator,
+        # so that only those parameters that are different across estimators
+        # need to be displayed
+        estimator_default_values = dict()
+
+        # Get a single run directory from the experiment to identify the parameters that vary
+        # in that experiment
+        for curr_experiment in self._experiments:
+
+            # Aggregate all the hyper parameters in all the run files
+            idx = 0
+            for run_dir in list(curr_experiment.run_split_dict.keys()):
+                params = curr_experiment.hyperparameters_combinations[idx][0]
+                if len(params) == 0:
+                    continue
+                run_id = run_dir[:-4].split(sep='/')[-1]
+                self._curr_listed_estimators[run_id] = params
+                idx += 1
+
+            if len(self._curr_listed_estimators) == 0:
+                continue
+
+            for run_id in self._curr_listed_estimators:
+                estimator_group = self._curr_listed_estimators.get(run_id)
+                for estimator in estimator_group:
+                    # if the estimator hasn't been seen before, add it to the list
+                    if self._unique_estimators.get(estimator, None) is None:
+                        # Add the run_id for for the estimator to the dictionary
+                        self._run_estimators[estimator] = [run_id]
+                        estimator_default_values[estimator] = estimator_group.get(estimator)
+                        curr_estimator = estimator_group.get(estimator)
+                        # Set the value of each parameter as default
+                        param_list = dict()
+                        for param in curr_estimator:
+                            param_value = frozenset({curr_estimator.get(param)})
+                            param_list[param] = param_value
+                        self._unique_estimators[estimator] = copy.deepcopy(param_list)
+
+                    else:
+                        # Check whether all the values or same or different.
+                        # If any param is different add it to the list of differing params
+                        # Append the run_id to to list
+                        self._run_estimators[estimator].append(run_id)
+                        params = estimator_group.get(estimator)
+                        default_params = estimator_default_values.get(estimator)
+                        for param in params:
+                            if default_params.get(param) != params.get(param):
+                                param_set = self._unique_estimators.get(estimator).get(param)
+                                param_set = param_set.union({params.get(param)})
+                                self._unique_estimators[estimator][param] = param_set
+                                # Add the run id to the dictionary having estimator.param_name.param_value
+                                key = '.'.join([estimator, param, str(params.get(param))])
+                                if self._param_values_run_id.get(key, None) is None:
+                                    self._param_values_run_id[key] = frozenset({run_id})
+                                else:
+                                    run_ids = self._param_values_run_id.get(key)
+                                    run_ids = run_ids.union({run_id})
+                                    self._param_values_run_id[key] = run_ids
+
+        for estimator in self._unique_estimators:
+            for param in self._unique_estimators.get(estimator):
+                # If len > 1, multiple parameters present, so add it to the list
+                if len(self._unique_estimators.get(estimator).get(param)) > 1:
+                    params = self._unique_param_names.get(estimator, None)
+                    if params is None:
+                        self._unique_param_names[estimator] = frozenset({param})
+                    else:
+                        self._unique_param_names[estimator] = params.union({param})
+                    # The run-id of the runs containing the default params will not be present in
+                    # the self._unique_param_values_run_id, so that has to be added to the frozen set
+                    # Get the default value of the parameter
+                    val = estimator_default_values.get(estimator).get(param)
+
+                    # Check whether if a run_id has the default value and
+                    # if it has add it to self._param_values_run_id
+                    for run in self._run_estimators.get(estimator):
+                        run_params = self._curr_listed_estimators.get(run)
+                        if run_params.get(estimator).get(param) == val:
+                            key = '.'.join([estimator, param, str(val)])
+                            if self._param_values_run_id.get(key, None) is None:
+                                self._param_values_run_id[key] = frozenset({run})
+                            else:
+                                self._param_values_run_id[key] = self._param_values_run_id.get(key).union({run})
+
+    def get_unique_estimators_parameter_names(self):
+        """
+
+        :return:
+        """
+
+        if self._dir_path is not None:
+            self.get_unique_estimators_parameter_names_from_directories()
+
+        if self._experiments is not None:
+            self.get_unique_estimators_parameter_names_from_experiments()
+
+    def read_split_metrics_from_directories(self):
         """
         Reads the metrics.json file from each of the runs
         Creates a dictionary with the key as the run_id,
@@ -520,6 +627,41 @@ class CompareMetrics:
                     self._run_split_dict[run_id] = splits.union({key})
 
         self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
+
+    def read_split_metrics_from_experiments(self):
+        """
+        Reads the metrics.json file from each of the experiment runs
+        Creates a dictionary with the key as the run_id,
+        and values as split_ids within a run.
+
+        :return: None
+        """
+        for curr_experiment in self._experiments:
+            runs = list(curr_experiment.run_split_dict.keys())
+            for curr_run in list(curr_experiment.run_split_dict.keys()):
+                splits = curr_experiment.run_split_dict.get(curr_run, None)
+                for split_id in splits:
+
+                    # read the json file into memory
+                    key = split_id[:-6]
+                    run_idx = runs.index(curr_run)
+                    split_idx = splits.index(split_id)
+                    self._metrics[key] = curr_experiment.metrics[run_idx][split_idx]
+                    run_id = curr_run[:-4]
+                    splits = self._run_split_dict.get(run_id, None)
+                    if splits is None:
+                        self._run_split_dict[run_id] = frozenset({key})
+                    else:
+                        self._run_split_dict[run_id] = splits.union({key})
+
+        self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
+
+    def read_split_metrics(self):
+        if self._dir_path is not None:
+            self.read_split_metrics_from_directories()
+
+        if self._experiments is not None:
+            self.read_split_metrics_from_experiments()
 
     def compute_results(self):
         """
@@ -713,12 +855,16 @@ class CompareMetrics:
 
             # For all splits in a run
             for split in self._run_split_dict.get(run):
+
+                metrics = self._metrics.get(split)
+                if len(metrics) == 0:
+                    continue
+
                 # run_id split_id dataset
                 data_row = dict()
                 data_row['run'] = run
                 data_row['split'] = split
 
-                metrics = self._metrics.get(split)
                 data_row['dataset'] = metrics.get('dataset', 'NA')
 
                 # Unique estimators are present in keys
@@ -763,6 +909,11 @@ class CompareMetrics:
                 if df.get(metric, None) is not None:
                     df[metric] = df[metric].astype(float)
 
+        # Remove empty columns in the data frame
+        for name in df.columns:
+            if all(df.get(name) == '-'):
+                df = df.drop(name, axis=1)
+
         return df
 
     def get_experiment_directores(self):
@@ -778,6 +929,23 @@ class CompareMetrics:
 
         experiments_list = self.get_immediate_subdirectories(experiment_root_dir)
         return experiments_list
+
+    def show_metrics(self):
+        """
+        This function combines all the other read and aggregate functions for ease of use
+        :return:
+        """
+
+        df = None
+        print(self.get_experiment_directores())
+        self.read_run_directories()
+        # From the run directory names, obtain the estimators and the parameters
+        self.get_unique_estimators_parameter_names()
+        # Read the JSON file objects from the .split folders
+        self.read_split_metrics()
+        # Get the results using Pandas data frame
+        df = self.display_results()
+        return df
 
 
 

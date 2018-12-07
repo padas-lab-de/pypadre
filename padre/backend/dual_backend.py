@@ -1,4 +1,5 @@
 from padre.experiment import Experiment
+import sys
 
 
 class DualBackend:
@@ -12,12 +13,13 @@ class DualBackend:
     Implement all functions from file and http backends here and then function calls will be
     delegated to appropriate backend.
     """
-    def __init__(self, file_backend, http_backend):
+    def __init__(self, file_backend, http_backend, std_out=True):
         self._file_backend = file_backend
         self._http_backend = http_backend
         self._http_experiments = http_backend.experiments
         self._file_datasets = file_backend.datasets
         self._file_experiments = file_backend.experiments
+        self._stdout = std_out
 
     def list_datasets(self, search_id=None, search_metadata=None):
         """List data sets from both file backend and http backend."""
@@ -124,21 +126,27 @@ class DualBackend:
         run.metadata["server_url"] = server_url
         self._file_experiments.put_run(experiment, run)
 
-
     def put_split(self, experiment, run, split):
         server_url = self._http_experiments.put_split(experiment, run, split)
         split.metadata["server_url"] = server_url
         self._file_experiments.put_split(experiment, run, split)
-
 
     def put_results(self, experiment, run, split, results):
         self._http_experiments.put_results(experiment, run, split, results)
         self._file_experiments.put_results(experiment, run, split, results)
 
     def put_metrics(self, experiment, run, split, metrics):
-        return self._file_experiments.put_metrics(experiment, run, split, metrics)
+        self._http_experiments.put_metrics(experiment, run, split, metrics)
+        self._file_experiments.put_metrics(experiment, run, split, metrics)
+
+    def log(self, message):
+        if self._stdout:
+            sys.stdout.write(message)
+
+        self._http_experiments.log(message)
+        self._file_experiments.log(message)
 
     def put_experiment_configuration(self, experiment):
         return self._file_experiments.put_experiment_configuration(experiment)
 
-  # todo implement all functions currently needed by the experiment class (when the backend is set)
+# todo implement all functions currently needed by the experiment class (when the backend is set)

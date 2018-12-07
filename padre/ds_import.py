@@ -66,7 +66,8 @@ def load_csv(path_dataset,path_target=None,target_features=[]):
     #column_names = list(data.columns.values)
     #n_feat = data.shape[1]
     targets=None
-    if path_target != None:
+
+    if path_target is not None:
         target = pd.read_csv(path_dataset)
         data=data.join(target,lsuffix="data",rsuffix="target")
         targets=list(target.columns.values)
@@ -414,7 +415,7 @@ def createServerDataset(dataset,path,auth_token,url="http://localhost:8080"):
     attributes=[]
     attributeNum=0
     for attribute in dataset.attributes:
-        col={}
+        col = dict()
         col["defaultTargetAttribute"]=attribute.is_target
         col["description"]=attribute.description
         col["index"]=attributeNum
@@ -425,7 +426,7 @@ def createServerDataset(dataset,path,auth_token,url="http://localhost:8080"):
         attributes.append(col)
         attributeNum+=1
 
-    data={}
+    data = dict()
     data["attributes"]=attributes
     data["description"]=dataset.metadata["description"]
     data["links"]=" "

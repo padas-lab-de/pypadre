@@ -253,6 +253,12 @@ class ExperimentUploader:
                 response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
         return response
 
+    def put_metrics(self, experiment, run, split, metrics):
+        pass
+
+    def log(self, message):
+        pass
+
     def get_base_url(self):
         url = self._http_client.base
         if url[-1] == "/":
