@@ -2,9 +2,12 @@ from padre.experimentexecutor import ExperimentExecutor
 from padre.experimentcreator import ExperimentCreator
 from padre.app import pypadre
 
+
 def main():
-    from copy import deepcopy
+    from padre.base import default_logger
+    default_logger.log(ExperimentExecutor, message='Experiment Executor Starting')
     experiment_creator = ExperimentCreator()
+
 
     # FIRST TEST EXPERIMENT WITH MULTIPLE DATASETS
     params = {'num_neighbours': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'num_components': [2, 3, 4, 5, 6, 7]}
@@ -52,6 +55,10 @@ def main():
     experiments_executor.execute(local_run=True, threads=1)
     c2 = time.time()
     print('Execution time:{time_diff}'.format(time_diff=c2-c1))
+
+    from padre.metrics import CompareMetrics
+    metrics = CompareMetrics(experiments_list=experiments_executor.experiments)
+    print(metrics.show_metrics())
 
 
 if __name__ == '__main__':

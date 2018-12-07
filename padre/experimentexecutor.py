@@ -25,6 +25,7 @@ class ExecutionThread (threading.Thread):
         self.q = q
         self.queueLock = queueLock
         self.threadCount = threadCount
+        self._experiments = []
 
     def run(self):
         process_queue(self.q, self.queueLock, self.threadID)
@@ -113,6 +114,7 @@ class ExperimentExecutor:
 
     def __init__(self, **options):
         self._experiments = options.get('experiments', None)
+        self._experiment_objects = []
         self._local_dataset = self.initialize_dataset_names()
 
     def initialize_dataset_names(self):
@@ -200,6 +202,7 @@ class ExperimentExecutor:
 
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
             ex.grid_search(parameters=params)
+            self._experiment_objects.append(ex)
             c2 = time.time()
             print('Completed experiment: {name} with execution time: {time_diff}'.format(name=name, time_diff=c2-c1))
 
@@ -287,6 +290,10 @@ class ExperimentExecutor:
         :return:
         """
         print('Running on server parallelly')
+
+    @property
+    def experiments(self):
+        return self._experiment_objects
 
 
 

@@ -135,6 +135,15 @@ class ExperimentUploader:
             return response
         return False
 
+    def put_metrics(self, experiment, run, split, metrics):
+        pass
+
+    def put_results(self, experiment, run, split, results):
+        pass
+
+    def log(self, message):
+        pass
+
     def get_base_url(self):
         url = self._http_client.base
         if url[-1] == "/":

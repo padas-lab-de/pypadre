@@ -12,7 +12,8 @@ def main():
     params_linear_pca = {'num_components': [4, 5, 6, 7, 10]}
     params_dict_linear = {'principal component analysis': params_linear_pca}
     experiment_helper.set_param_values('Test Experiment PCA Linear',
-                                       'principal component analysis.num_components:[4, 5, 6, 7, 10]|principal component analysis.whiten:[False, True]')
+                                       'principal component analysis.num_components:[4, 5, 6, 7, 10]|'
+                                       'principal component analysis.whiten:[False, True]')
     print(experiment_helper.get_param_values('Test Experiment PCA Linear'))
     experiment_helper.create_experiment(name='Test Experiment PCA Linear',
                                         description='Test Experiment with pca and linear regression',
@@ -37,6 +38,8 @@ def main():
     experiment_datasets = {experiment[0]: datasets,
                            experiment[1]: datasets_logistic}
     experiment_helper.do_experiments(experiment_datasets)
+
+
 
 
 if __name__ == '__main__':

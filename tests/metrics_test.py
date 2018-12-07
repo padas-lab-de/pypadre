@@ -14,17 +14,8 @@ def main():
     if len(dir_path) == 0:
         return
     dir_list.append(dir_path)
-    #dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
-    #dir_list.append(dir_path)
     metrics = CompareMetrics(dir_path=dir_list)
-    metrics.get_experiment_directores()
-    metrics.read_run_directories()
-    # From the run directory names, obtain the estimators and the parameters
-    metrics.get_unique_estimators_parameter_names()
-    # Read the JSON file objects from the .split folders
-    metrics.read_split_metrics()
-    # Display the results using Pandas data frame
-    metrics.display_results()
+    print(metrics.show_metrics())
 
     recompute_metrics = ReevaluationMetrics(dir_list)
     dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Experiment Directory")
