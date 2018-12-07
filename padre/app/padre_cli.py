@@ -129,12 +129,28 @@ def dataset(ctx, dataset_id):
 
 
 
-@pypadre_cli.command(name="upload_scratchdata")
-@click.argument('dataset_id')
+@pypadre_cli.command(name="upload_scratchdata_multi")
 @click.pass_context
-def dataset(ctx, dataset_id):
-    """downloads the dataset with the given id. id can be either a number or a valid url"""
-    ctx.obj["pypadre"].datasets.upload_scratchdatasets(True,99999)
+def dataset(ctx):
+    """uploads sklearn toy-datasets, top 100 Datasets form OpenML and some Graphs
+    Takes about 1 hour
+    Requires about 7GB of Ram"""
+
+    auth_token=ctx.obj["pypadre"].config.get("token")
+
+    ctx.obj["pypadre"].datasets.upload_scratchdatasets(auth_token,max_threads=8,upload_graphs=True)
+
+
+@pypadre_cli.command(name="upload_scratchdata_single")
+@click.pass_context
+def dataset(ctx):
+    """uploads sklearn toy-datasets, top 100 Datasets form OpenML and some Graphs
+    Takes several hours
+    Requires up to 7GB of Ram"""
+
+    auth_token = ctx.obj["pypadre"].config.get("token")
+
+    ctx.obj["pypadre"].datasets.upload_scratchdatasets(auth_token, max_threads=1, upload_graphs=True)
 
 
 #################################
