@@ -138,4 +138,7 @@ class DualBackend:
     def put_metrics(self, experiment, run, split, metrics):
         return self._file_experiments.put_metrics(experiment, run, split, metrics)
 
+    def put_experiment_configuration(self, experiment):
+        return self._file_experiments.put_experiment_configuration(experiment)
+
   # todo implement all functions currently needed by the experiment class (when the backend is set)

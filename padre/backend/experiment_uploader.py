@@ -244,12 +244,13 @@ class ExperimentUploader:
         r_id = run.metadata["server_url"].split("/")[-1]
         e_id = experiment.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["results"](e_id, r_id, rs_id)
-
-        with tempfile.TemporaryFile() as temp_file:
-            file = self.make_proto(results, temp_file)
-            m = MultipartEncoder(
-                fields={"field0": ("fname", file, self.get_content_type(results["type"]))})
-            response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+        response = None
+        if bool(results):
+            with tempfile.TemporaryFile() as temp_file:
+                file = self.make_proto(results, temp_file)
+                m = MultipartEncoder(
+                    fields={"field0": ("fname", file, self.get_content_type(results["type"]))})
+                response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
         return response
 
     def get_base_url(self):
