@@ -1,11 +1,28 @@
-from padre.wrappers.wrapper_pytorch import WrapperPytorch
+from padre.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
 from padre.ds_import import load_sklearn_toys
-from sklearn.pipeline import  Pipeline
+from sklearn.pipeline import Pipeline
 from sklearn import datasets
 import torch
-import numpy as np
 from padre.experiment import Experiment, Splitter
 from padre.app import pypadre
+
+
+class TestCallbacks(CallBack):
+    def on_compute_loss(loss):
+        print('Function on compute loss. Loss = {loss}'.format(loss=loss))
+
+    def on_epoch_end(obj):
+        print('Epoch ended')
+
+    def on_epoch_start(obj):
+        print('Epoch started')
+
+    def on_iteration_start(obj):
+        print('Iteration started')
+
+    def on_iteration_end(obj):
+        print('Iteration ended')
+
 
 def main():
     layers = []
@@ -24,6 +41,7 @@ def main():
     obj = WrapperPytorch(params=params)
     estimators = [('clf', obj)]
     workflow = Pipeline(estimators)
+    obj.set_callbacks([TestCallbacks])
     iris = datasets.load_iris()
     x = iris.data[:, :3]
     y = iris.target

@@ -52,7 +52,7 @@ class TestLayer(Module):
 
 class CallBack(ABC):
 
-    def on_epoch_start(self, obj):
+    def on_epoch_start(obj):
         """
         Callback function that executes at the starting of an epoch
         :param obj:
@@ -60,7 +60,7 @@ class CallBack(ABC):
         """
         pass
 
-    def on_epoch_end(self, obj):
+    def on_epoch_end(obj):
         """
         Callback function that executes at the end of the epoch
         :param obj:
@@ -68,7 +68,7 @@ class CallBack(ABC):
         """
         pass
 
-    def on_iteration_start(self, obj):
+    def on_iteration_start(obj):
         """
         Callback function that executes at the start of an iteration
         :param obj:
@@ -76,7 +76,7 @@ class CallBack(ABC):
         """
         pass
 
-    def on_iteration_end(self, obj):
+    def on_iteration_end(obj):
         """
         Call back function at the end of an iteration
         :param obj:
@@ -84,10 +84,10 @@ class CallBack(ABC):
         """
         pass
 
-    def on_compute_loss(self, obj):
+    def on_compute_loss(loss):
         """
         Call back function after computing the loss value
-        :param obj:
+        :param loss: The loss value for the current iteration
         :return:
         """
         pass
@@ -354,6 +354,7 @@ class WrapperPytorch:
                 permutation = torch.randperm(x.size()[0])
                 self.lr_scheduler.step()
                 self.on_start_epoch()
+                epoch_completed = False
 
             self.on_start_iteration()
 
@@ -832,7 +833,7 @@ class WrapperPytorch:
         :return:
         """
         for callback in self._callbacklist:
-            callback.on_iteration_end(self)
+            callback.on_epoch_end(self)
 
     def on_compute_loss(self, loss):
         """
