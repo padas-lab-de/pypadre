@@ -103,8 +103,11 @@ class TestPutExperiment(unittest.TestCase):
         ex = MagicMock()
         ex.dataset = MagicMock()
         ex.dataset.metadata = {'name': 'test name'}
-        ex.metadata = {'name': 'test experiment'}
-        ex.hyperparameters = MagicMock(return_value={'param1': 'value1'})
+        ex.metadata = {'name': 'test experiment', 'description': 'test description'}
+        ex.hyperparameters = MagicMock(return_value=
+                                       {'param1':
+                                            {'hyper_parameters': {'model_parameters': {'First Type': 'Type name'}}}
+                                        })
 
         result = obj.put_experiment(ex)
         self.assertEqual(self.test_experiment_url,
