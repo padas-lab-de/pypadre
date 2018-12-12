@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import tempfile
+
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
@@ -7,15 +9,6 @@ import padre.protobuffer.protobuf.datasetV1_pb2 as proto
 import time
 import requests
 import os
-
-def start_measure_time():
-    return time.process_time()
-
-
-def end_measure_time(t):
-    elapsed_time = time.process_time() - t
-    print("... %.3f sec" % elapsed_time)
-
 
 def set_cell(pb_row, df_cell):
     pb_cell = pb_row.cells.add()
@@ -47,7 +40,6 @@ def read_delimited_pb_msg(binary, msg_pos, pb_msg):
 
     """
     msg_len, parse_pos = decoder._DecodeVarint(binary, msg_pos)
-    #print(msg_len)
     parse_pos_end = parse_pos+msg_len
     pb_msg_binary = binary[parse_pos:parse_pos_end]
     pb_msg.ParseFromString(pb_msg_binary)
@@ -66,30 +58,12 @@ def write_delimited_pb_msg(binary, pb_msg):
     binary.write(length_varint + pb_msg_serialized)
 
 
+def createProtobuffer(dataset,binary):
 
-def send_Dataset(dataset,did,auth_token,path,url="http://localhost:8080"):
-    """Sends the dataset to the server in form of protobuffer.
-
-    Args:
-        dataset (padre.Dataset()): The Dataset whose content should be transferred to the server.
-        did (str): The did of the dataset at the server, that should be filled with the protobuffer-messages.
-        auth_token (str): The Token for identification.
-        path (str): path of the pypadre directory
-    """
-    path=path+ "/datasets/temp/sendproto"+did+".protobinV1"
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    binary = open(path, "wb")
-    pd_dataframe = dataset.data
-
-    hed = {'Authorization': 'Bearer ' + auth_token}
-    url = url+"/api/datasets/" + str(did) + "/binaries"
-
-
+    pd_dataframe = dataset.pandas_repr()
     pb_dataframe_meta = proto.Meta()
     pb_dataframe_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
-    #print(pb_dataframe_meta)
     write_delimited_pb_msg(binary, pb_dataframe_meta)
-    t=start_measure_time()
 
     # add rows and cell values
 
@@ -105,45 +79,79 @@ def send_Dataset(dataset,did,auth_token,path,url="http://localhost:8080"):
             set_cell(pb_row, df_cell)
 
         write_delimited_pb_msg(binary, pb_row)
-    
-    """
 
-    col_list=[]
+    """
+    #alternative start
+    col_list = []
     for col_name in pd_dataframe.columns.values.tolist():
         col_list.append(pd_dataframe[col_name])
+
     for row in zip(*col_list):
         pb_row = proto.DataRow()
         for entry in row:
-            #print(type(entry))
             set_cell(pb_row, entry)
         write_delimited_pb_msg(binary, pb_row)
+    #alternative end
 
-        
+    proto_enlarged=False
+    file_size=binary.tell()
+    if(file_size<10000):
+        proto_enlarged=True
+        binary.seek(0)
 
-    print("time taken for writing dataset to file:",end=" ")
-    end_measure_time(t)
-    #sending saved file
+        pb_dataframe_meta = proto.Meta()
+        header_entries = list(pd_dataframe)
+        header_entries.append("INVALID_COLUMN")
+        pb_dataframe_meta.headers[:] = [str(header) for header in header_entries]
+        write_delimited_pb_msg(binary, pb_dataframe_meta)
+        row_value = int((1200-(file_size/11)) / pd_dataframe.shape[0]) * "INVALID"
+        col_list.append(pd.Series([row_value for i in range(pd_dataframe.shape[0])]))
+        pb_row = proto.DataRow()
+
+        for row in zip(*col_list):
+            pb_row = proto.DataRow()
+            for entry in row:
+                set_cell(pb_row, entry)
+            write_delimited_pb_msg(binary, pb_row)
+    return proto_enlarged
 
 
-    m=MultipartEncoder(fields={"field0": ("fname", open(path,"rb"),"application/x.padre.dataset.v1+protobuf")})
+def send_Dataset(dataset,did,auth_token,binary,url="http://localhost:8080"):
+    """Sends the protobuffer file to the server.
+
+    Args:
+        dataset (padre.Dataset()): The Dataset whose content should be transferred to the server.
+        did (str): The did of the dataset at the server, that should be filled with the protobuffer-messages.
+        auth_token (str): The Token for identification.
+        path (str): path of the pypadre directory
+    """
+
+    hed = {'Authorization': auth_token}
+    url = url+"/api/datasets/" + str(did) + "/binaries"
+
+    m=MultipartEncoder(fields={"field0": ("fname", binary,"application/x.padre.dataset.v1+protobuf")})
     hed["Content-Type"]=m.content_type
     try:
         r = requests.post(url, data=m, headers=hed)
     except requests.ConnectionError:
-        r.close()
         requests.session().close()
         try:
+            print("Unsuccessful upload of protobuffer of Dataset: "+did)
+            print("statuscode:" + str(r.status_code))
+            print("header: " +str(r.headers))
+            print("content: "+ str(r.content))
+            print("Doing retry!")
             r = requests.post(url, data=m, headers=hed)
         except requests.ConnectionError:
-            print("Unsuccessful upload of filedata of Dataset: "+did)
-            r.close()
+            print("Unsuccessful upload of protobuffer of Dataset: "+did)
+            print("statuscode:" + str(r.status_code))
+            print("header: " +str(r.headers))
+            print("content: "+ str(r.content))
             requests.session().close()
 
-
-
-    print(r.request.headers)
-    print("responese:")
-    print(r.content)
+    if str(r.status_code) != "201":
+        print("upload of dataset failed! name:" + str(dataset.name))
+        print("statuscode:"+str(r.status_code))
     r.close()
     requests.session().close()
 
@@ -159,18 +167,13 @@ def get_Server_Dataframe(did,auth_token,url="http://localhost:8080"):
         padre.Dataset() A dataset containing with the requested data.
     """
 
-    hed = {'Authorization': 'Bearer ' + auth_token}
+    hed = {'Authorization': auth_token}
     url = url+"/api/datasets/" + str(did)+"/binaries"
     response = requests.get(url, headers=hed)
-    print(response.content)
-    print(response)
     pb_data=response.content
-    #pb_data=open("sendproto59.protobinV1","rb").read()
     response.close()
     requests.session().close()
-
     response=None
-    t = start_measure_time()
     # read and build metadata
     pb_dataframe_meta = proto.Meta()
     pb_parse_pos = read_delimited_pb_msg(pb_data, 0, pb_dataframe_meta)
@@ -199,20 +202,7 @@ def get_Server_Dataframe(did,auth_token,url="http://localhost:8080"):
                 else:
                     df_line.append(False)
         df_lines.append(df_line)
-        """
-        if(row_count==0):
-            df = pd.DataFrame([df_line])
-        else:
-            df.loc[row_count] = df_line
-
-            """
-            #df.append([df_line])
         row_count += 1
 
     df = pd.DataFrame(df_lines)
-
-    print('Row count: ' + str(row_count),end=" ")
-    print("time taken for building protobuffer")
-    end_measure_time(t)
-
     return df

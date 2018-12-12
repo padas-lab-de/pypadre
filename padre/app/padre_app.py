@@ -17,7 +17,7 @@ from padre.datasets import formats
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.backend.dual_backend import DualBackend
-from padre.ds_import import load_sklearn_toys
+import padre.ds_import
 from padre.experimentcreator import ExperimentCreator
 from padre.experiment import Experiment
 from padre.metrics import ReevaluationMetrics
@@ -240,7 +240,7 @@ class DatasetApp:
 
     def do_default_imports(self, sklearn=True):
         if sklearn:
-            for ds in load_sklearn_toys():
+            for ds in padre.ds_import.load_sklearn_toys():
                self.do_import(ds)
 
     def _print(self, output):
@@ -253,6 +253,21 @@ class DatasetApp:
         if self.has_printer():
             self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
         self._parent.http_repository.upload_dataset(ds, True)
+
+    def upload_scratchdatasets(self,auth_token,max_threads=8,upload_graphs=True):
+        if(max_threads<1 or max_threads>50):
+            max_threads=2
+        if("api"in _BASE_URL):
+            url=_BASE_URL.strip("/api")
+        else:
+            url=_BASE_URL
+        padre.ds_import.sendTop100Datasets_multi(auth_token,url,max_threads)
+        print("All openml datasets are uploaded!")
+        if(upload_graphs):
+            padre.ds_import.send_top_graphs(auth_token,url,max_threads>=3)
+
+
+
 
     def get_dataset(self, dataset_id, binary=True, format=formats.numpy,
             force_download=True, cache_it=False):
