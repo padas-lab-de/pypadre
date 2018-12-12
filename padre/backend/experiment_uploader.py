@@ -341,7 +341,6 @@ class ExperimentUploader:
         file.seek(0)
         return file
 
-
     def add_value(self, pb_instance, value):
         """
         Add float or int attribute in the protobuf Value
