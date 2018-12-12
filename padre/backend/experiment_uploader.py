@@ -5,6 +5,7 @@ import io
 import json
 import tempfile
 import uuid
+from itertools import groupby
 
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
@@ -219,7 +220,7 @@ class ExperimentUploader:
         data["uid"] = str(uuid.uuid4())
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
-        data["split"] = split.name  # Split by encoding
+        data["split"] = self.make_split(split)  # Split by encoding
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
@@ -369,6 +370,41 @@ class ExperimentUploader:
             return "application/x.padre.regression.v1+protobuf"
         elif experiment_type == "classification":
             return "application/x.padre.classification.v1+protobuf"
+
+    def make_split(self, split):
+        train_idx = split.train_idx
+        test_idx  = split.test_idx
+
+        train_idx.sort()
+        test_idx.sort()
+
+        train_bool_list = [False] * (train_idx[-1] + 1)
+        for x in train_idx:
+            train_bool_list[x] = True
+
+        result = "tr:"
+        for b, g in groupby(train_bool_list):
+            l = str(len(list(g)))
+            if b:
+                result += "t" + l
+            else:
+                result += "f" + l
+
+        test_bool_list = [False] * (test_idx[-1] + 1)
+        for x in test_idx:
+            test_bool_list[x] = True
+
+        result += ",tt:"
+        for b, g in groupby(test_bool_list):
+            l = str(len(list(g)))
+            if b:
+                result += "t" + l
+            else:
+                result += "f" + l
+
+        return result[0:255]
+
+
 
 
 
