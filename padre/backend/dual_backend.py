@@ -1,6 +1,7 @@
 from padre.experiment import Experiment
 import sys
 
+
 class DualBackend:
     """
     For realising transparent file and http backend this class is implemented that
@@ -121,13 +122,17 @@ class DualBackend:
         return self._file_experiments.get_experiment(ex, load_workflow)
 
     def put_run(self, experiment, run):
-        return self._file_experiments.put_run(experiment, run)
+        server_url = self._http_experiments.put_run(experiment, run)
+        run.metadata["server_url"] = server_url
+        self._file_experiments.put_run(experiment, run)
 
     def put_split(self, experiment, run, split):
-        return self._file_experiments.put_split(experiment, run, split)
+        server_url = self._http_experiments.put_split(experiment, run, split)
+        split.metadata["server_url"] = server_url
+        self._file_experiments.put_split(experiment, run, split)
 
     def put_results(self, experiment, run, split, results):
-        self._http_experiments.put_metrics(experiment, run, split, results)
+        self._http_experiments.put_results(experiment, run, split, results)
         self._file_experiments.put_results(experiment, run, split, results)
 
     def put_metrics(self, experiment, run, split, metrics):
@@ -141,5 +146,7 @@ class DualBackend:
         self._http_experiments.log(message)
         self._file_experiments.log(message)
 
+    def put_experiment_configuration(self, experiment):
+        return self._file_experiments.put_experiment_configuration(experiment)
 
 # todo implement all functions currently needed by the experiment class (when the backend is set)
