@@ -51,40 +51,45 @@ class TestLayer(Module):
 
 
 class CallBack(ABC):
+    """
+    This class is the abstract base class for all the callbacks of the PyTorch Wrapper
+    All the possible callback functions have been implemented in this class.
+    The user can inherit this class and overwrite the required callback methods.
+    """
 
-    def on_epoch_start(obj):
+    def on_epoch_start(self, obj):
         """
         Callback function that executes at the starting of an epoch
-        :param obj:
+        :param obj: The PyCharm Wrapper Object is passed here
         :return:
         """
         pass
 
-    def on_epoch_end(obj):
+    def on_epoch_end(self, obj):
         """
         Callback function that executes at the end of the epoch
-        :param obj:
+        :param obj: The PyCharm Wrapper Object is passed here
         :return:
         """
         pass
 
-    def on_iteration_start(obj):
+    def on_iteration_start(self, obj):
         """
         Callback function that executes at the start of an iteration
-        :param obj:
+        :param obj: The PyCharm Wrapper Object is passed here
         :return:
         """
         pass
 
-    def on_iteration_end(obj):
+    def on_iteration_end(self, obj):
         """
         Call back function at the end of an iteration
-        :param obj:
+        :param obj: The PyCharm Wrapper Object is passed here
         :return:
         """
         pass
 
-    def on_compute_loss(loss):
+    def on_compute_loss(self, loss):
         """
         Call back function after computing the loss value
         :param loss: The loss value for the current iteration
@@ -800,7 +805,7 @@ class WrapperPytorch:
         :return:
         """
         for callback in callback_list:
-            if issubclass(callback, CallBack):
+            if isinstance(callback, CallBack):
                 self._callbacklist.append(callback)
 
     def on_start_iteration(self):
@@ -824,8 +829,9 @@ class WrapperPytorch:
         Function to be called when an epoch starts
         :return:
         """
+        obj = self
         for callback in self._callbacklist:
-            callback.on_epoch_start(self)
+            callback.on_epoch_start(obj)
 
     def on_end_epoch(self):
         """

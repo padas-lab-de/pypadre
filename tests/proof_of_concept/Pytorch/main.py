@@ -8,19 +8,19 @@ from padre.app import pypadre
 
 
 class TestCallbacks(CallBack):
-    def on_compute_loss(loss):
+    def on_compute_loss(self, loss):
         print('Function on compute loss. Loss = {loss}'.format(loss=loss))
 
-    def on_epoch_end(obj):
+    def on_epoch_end(self, obj):
         print('Epoch ended')
 
-    def on_epoch_start(obj):
+    def on_epoch_start(self, obj):
         print('Epoch started')
 
-    def on_iteration_start(obj):
+    def on_iteration_start(self, obj):
         print('Iteration started')
 
-    def on_iteration_end(obj):
+    def on_iteration_end(self, obj):
         print('Iteration ended')
 
 
@@ -41,7 +41,7 @@ def main():
     obj = WrapperPytorch(params=params)
     estimators = [('clf', obj)]
     workflow = Pipeline(estimators)
-    obj.set_callbacks([TestCallbacks])
+    obj.set_callbacks([TestCallbacks()])
     iris = datasets.load_iris()
     x = iris.data[:, :3]
     y = iris.target
