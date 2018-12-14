@@ -423,7 +423,7 @@ class Splitter:
         self._splitting_fn = options.pop("fn", None)
         if self._strategy == "function":
             logger.error(self._splitting_fn is not None, self,
-                                 f"Splitting strategy {self._strategy} requires a function provided via paraneter 'fn'")
+                                 f"Splitting strategy {self._strategy} requires a function provided via parameter 'fn'")
 
     def splits(self):
         """

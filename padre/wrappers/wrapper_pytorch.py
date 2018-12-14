@@ -126,6 +126,8 @@ class WrapperPytorch:
 
     resume = False
 
+    _continue_execution = False
+
     # For the hyperparameters.json file
     optimizer_params = dict()
     lr_scheduler_params = dict()
@@ -352,7 +354,9 @@ class WrapperPytorch:
             self.model.load_state_dict(state['model'])
             step = state['step']
 
-        while step < self.steps:
+        self._continue_execution = True
+
+        while step < self.steps and self._continue_execution:
 
             if epoch_completed is True:
                 self.on_end_epoch()
@@ -856,3 +860,14 @@ class WrapperPytorch:
         :return: Dictionary of parameters
         """
         return self.params
+
+    @property
+    def continue_execution(self):
+        """
+        Gets the continue execution flag.
+        This flag can be used for early stopping of execution based on callbacks
+        :return: Boolean flag
+        """
+        return self._continue_execution
+
+
