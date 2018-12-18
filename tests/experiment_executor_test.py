@@ -8,7 +8,6 @@ def main():
     default_logger.log(ExperimentExecutor, message='Experiment Executor Starting')
     experiment_creator = ExperimentCreator()
 
-
     # FIRST TEST EXPERIMENT WITH MULTIPLE DATASETS
     params = {'num_neighbours': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'num_components': [2, 3, 4, 5, 6, 7]}
     param_value_dict = {'isomap embedding': params}

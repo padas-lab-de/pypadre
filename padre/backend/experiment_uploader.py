@@ -128,6 +128,7 @@ class ExperimentUploader:
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
              "name": experiment.metadata["name"]}
         ]}
+
         return self.create_experiment(experiment_data)
 
     def delete_experiment(self, ex):
@@ -412,6 +413,14 @@ class ExperimentUploader:
 
 
 
+
+    def put_experiment_configuration(self, experiment):
+        """
+        Writes the experiment configuration to the HTTP Client
+        :param experiment: Experiment to be written
+        :return:
+        """
+        pass
 
 
 

@@ -160,8 +160,8 @@ class SKLearnWorkflow:
                            'truth': y.tolist()}
 
                 ctx.logger.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
-                                       probabilities=None, scores=None,
-                                       transforms=None, clustering=None)
+                                      probabilities=None, scores=None,
+                                      transforms=None, clustering=None)
                 metrics = dict()
                 metrics['dataset'] = ctx.dataset.name
 
@@ -423,7 +423,7 @@ class Splitter:
         self._splitting_fn = options.pop("fn", None)
         if self._strategy == "function":
             logger.error(self._splitting_fn is not None, self,
-                                 f"Splitting strategy {self._strategy} requires a function provided via paraneter 'fn'")
+                                 f"Splitting strategy {self._strategy} requires a function provided via parameter 'fn'")
 
     def splits(self):
         """
@@ -918,7 +918,7 @@ class Experiment(MetadataEntity):
         if parameters is None:
             self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
             self.run()
-            self._backend.put_experiment_configuration(self)
+            self.logger.put_experiment_configuration(self)
             return
 
         # Update metadata with version details of packages used in the workflow
@@ -942,7 +942,7 @@ class Experiment(MetadataEntity):
         grid = itertools.product(*master_list)
 
         self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
-        self._backend.put_experiment_configuration(self)
+        self.logger.put_experiment_configuration(self)
 
         # Get the total number of iterations
         grid_size = 1
@@ -1014,7 +1014,7 @@ class Experiment(MetadataEntity):
         if single_run is True:
             estimator_dict = dict()
             # All the parameters of the estimators need to be filled into the params dictionary
-            estimators = self.workflow._pipeline.named_steps
+            estimators = self.workflow.pipeline.named_steps
             for estimator in estimators:
                 params = estimators.get(estimator).get_params()
                 param_dict = dict()

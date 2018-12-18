@@ -7,6 +7,8 @@ import importlib
 import os
 import torchvision
 from torch.nn import Module
+from abc import ABC, abstractmethod
+
 # TODO: Look into ReduceLROnPlateau LR Policy
 # TODO: Implement Vision Layers
 # TODO: Implement Dataparallel layers
@@ -16,7 +18,9 @@ from torch.nn import Module
 # TODO: Implement Recurrent Layers
 
 __version__ = '0.0.0'
-__doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method to use the layers of the PyTorch library in a Scikit-learn pipeline"
+__doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method to " \
+          "use the layers of the PyTorch library in a Scikit-learn pipeline"
+
 
 class Flatten(Module):
     """
@@ -28,10 +32,12 @@ class Flatten(Module):
         :param input: A multidimensional array
         :return: A two dimensional array with the first dimension same
         """
-        #print ('Flatten Input size:' + str(input.size()))
-        #temp = input.view(input.size()[0], -1)
-        #print('Flatten Output Size:' + str(temp.size()))
-        #return temp
+        '''
+        print ('Flatten Input size:' + str(input.size()))
+        temp = input.view(input.size()[0], -1)
+        print('Flatten Output Size:' + str(temp.size()))
+        return temp
+        '''
         return input.view(input.size()[0], -1)
 
 
@@ -44,8 +50,57 @@ class TestLayer(Module):
         return input
 
 
+class CallBack(ABC):
+    """
+    This class is the abstract base class for all the callbacks of the PyTorch Wrapper
+    All the possible callback functions have been implemented in this class.
+    The user can inherit this class and overwrite the required callback methods.
+    """
+
+    def on_epoch_start(self, obj):
+        """
+        Callback function that executes at the starting of an epoch
+        :param obj: The PyCharm Wrapper Object is passed here
+        :return:
+        """
+        pass
+
+    def on_epoch_end(self, obj):
+        """
+        Callback function that executes at the end of the epoch
+        :param obj: The PyCharm Wrapper Object is passed here
+        :return:
+        """
+        pass
+
+    def on_iteration_start(self, obj):
+        """
+        Callback function that executes at the start of an iteration
+        :param obj: The PyCharm Wrapper Object is passed here
+        :return:
+        """
+        pass
+
+    def on_iteration_end(self, obj):
+        """
+        Call back function at the end of an iteration
+        :param obj: The PyCharm Wrapper Object is passed here
+        :return:
+        """
+        pass
+
+    def on_compute_loss(self, loss):
+        """
+        Call back function after computing the loss value
+        :param loss: The loss value for the current iteration
+        :return:
+        """
+        pass
+
+
 class WrapperPytorch:
-    __doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method to use the layers of the PyTorch library in a Scikit-learn pipeline"
+    __doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method " \
+              "to use the layers of the PyTorch library in a Scikit-learn pipeline"
     # The different dictionaries containing information about the objects, its parameters etc
     layers_dict = None
     transforms_dict = None
@@ -71,6 +126,8 @@ class WrapperPytorch:
 
     resume = False
 
+    _continue_execution = False
+
     # For the hyperparameters.json file
     optimizer_params = dict()
     lr_scheduler_params = dict()
@@ -78,6 +135,9 @@ class WrapperPytorch:
     layer_order = []
 
     pre_trained_model_path = None
+
+    # Callback list
+    _callbacklist = []
 
     def __init__(self, params=None):
         """
@@ -240,7 +300,6 @@ class WrapperPytorch:
 
         :return: None
         """
-        import numpy as np
 
         self.probabilities = None
 
@@ -286,6 +345,8 @@ class WrapperPytorch:
         # Run the model for the steps specified in the parameters
         step = 0
 
+        self.on_start_epoch()
+
         # Load the model if resume is true and the file exists
         if self.resume is True and os.path.isfile(self.pre_trained_model_path):
             state = torch.load(self.pre_trained_model_path)
@@ -293,11 +354,18 @@ class WrapperPytorch:
             self.model.load_state_dict(state['model'])
             step = state['step']
 
-        while step < self.steps:
+        self._continue_execution = True
+
+        while step < self.steps and self._continue_execution:
 
             if epoch_completed is True:
+                self.on_end_epoch()
                 permutation = torch.randperm(x.size()[0])
                 self.lr_scheduler.step()
+                self.on_start_epoch()
+                epoch_completed = False
+
+            self.on_start_iteration()
 
             indices = permutation[start_idx: start_idx + batch_size]
 
@@ -313,6 +381,7 @@ class WrapperPytorch:
 
             y_pred = self.model(x_mini_batch)
             loss = self.loss(y_pred, y_mini_batch)
+            self.on_compute_loss(loss=loss)
             print(step+1, loss.item())
             self.optimizer.zero_grad()
             loss.backward()
@@ -328,6 +397,7 @@ class WrapperPytorch:
                 torch.save(state, save_file_name)
 
             step = step + 1
+            self.on_end_iteration()
 
         prefix = self.model_prefix
         save_file_name = "_".join([prefix, "model", str(step)])
@@ -371,7 +441,6 @@ class WrapperPytorch:
                 output[start_idx:end_idx,:] = mini_batch_output
                 start_idx = start_idx + batch_size
 
-
         if mini_batch_output.shape[1] > 1 and self.top_shape > 1:
             self.probabilities = output
             output = np.argmax(output, axis=1)
@@ -382,15 +451,17 @@ class WrapperPytorch:
         return output
 
     def predict_proba(self, x):
+        """
+        Returns the prediction probabilities.
+        :param x: Input feature vectors
+        :return:
+        """
+        probabilities =np.zeros(shape=(len(x), self.top_shape))
 
-        if self.probabilities is None:
-            probabilites = np.zeros(shape=(len(x), self.top_shape))
-
-        else:
+        if self.probabilities is not None:
             probabilities = self.probabilities
 
         return probabilities
-
 
     def create_model(self, shape):
 
@@ -659,7 +730,7 @@ class WrapperPytorch:
         """
         This function creates the necessary transforms to be applied on the data
 
-        :param transforms: The transforms and the corresponding parameters
+        :param transformers: The transforms and the corresponding parameters
         :param transform_order: The order in which data transforms should be done
 
         :return: A transform object if successful, else None
@@ -730,4 +801,73 @@ class WrapperPytorch:
             return False
 
         return True
+
+    def set_callbacks(self, callback_list):
+        """
+        This function sets all the callback functions that need to be executed during training
+        :param callback_list: List of functions
+        :return:
+        """
+        for callback in callback_list:
+            if isinstance(callback, CallBack):
+                self._callbacklist.append(callback)
+
+    def on_start_iteration(self):
+        """
+        Function to be called on every iteration start
+        :return:
+        """
+        for callback in self._callbacklist:
+            callback.on_iteration_start(self)
+
+    def on_end_iteration(self):
+        """
+        Function to be called when an iteration ends
+        :return:
+        """
+        for callback in self._callbacklist:
+            callback.on_iteration_end(self)
+
+    def on_start_epoch(self):
+        """
+        Function to be called when an epoch starts
+        :return:
+        """
+        obj = self
+        for callback in self._callbacklist:
+            callback.on_epoch_start(obj)
+
+    def on_end_epoch(self):
+        """
+        Function to be called when an epoch ends
+        :return:
+        """
+        for callback in self._callbacklist:
+            callback.on_epoch_end(self)
+
+    def on_compute_loss(self, loss):
+        """
+        Function to be called after computing the loss
+        :param loss: The computed loss value
+        :return:
+        """
+        for callback in self._callbacklist:
+            callback.on_compute_loss(loss)
+
+    def get_params(self):
+        """
+        Returns all the necessary parameters of the wrapper.
+        :return: Dictionary of parameters
+        """
+        return self.params
+
+    @property
+    def continue_execution(self):
+        """
+        Gets the continue execution flag.
+        This flag can be used for early stopping of execution based on callbacks
+        :return: Boolean flag
+        """
+        return self._continue_execution
+
 
