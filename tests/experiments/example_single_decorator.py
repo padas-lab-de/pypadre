@@ -33,5 +33,7 @@ if __name__ == '__main__':
     ex = pypadre.experiments.run(decorated=True)
     ex = run("Test")  # run the experiment and report
     print("Runs stored on disk via padre app")
-    for idx2, run in enumerate(pypadre.experiments.list_runs(ex.name)):
-        print("\tRun: %s" % str(run))
+    for e in ex:
+      print ("ex: %s"%str(e.name))
+      for idx2, run in enumerate(pypadre.experiments.list_runs(e.name)):
+            print("\tRun: %s" % str(run))

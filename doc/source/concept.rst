@@ -129,12 +129,28 @@ Components follow some implementation details and provide `fit`, `infer` and con
 TODO: describe more details.
 
 
+
 Experiment Evaluation
 ---------------------
 
+Experiments should store the following results
 
-Storage
--------
+- **Raw Results** currently consisting of regression targets, classification scores (thresholded), classification
+probabilities, transformations (e.g. embeddings).Results are stored per instance (per split).
+
+- **Aggregated Results** are calculated from raw results. This includes precision, recall, f1 etc.
+
+Evaluation should include standard measures and statistics, but also instance based analysis.
+
+Evaluation results will be released on static pages (and thus archived via zenodo).
+
+
+Resarch Assets Management
+-------------------------
+
+Beyond experiment support, the plattform should also help to manage research assets, like papers, software, projects
+research questions etc.
+
 
 
 Metasearch and Automated Machine Learning

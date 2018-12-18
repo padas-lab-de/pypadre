@@ -377,7 +377,6 @@ class ExperimentApp:
             return ex
 
 
-
 class PadreApp:
 
     # todo improve printing. Configure a proper printer or find a good ascii printing package

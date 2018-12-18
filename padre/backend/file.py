@@ -147,7 +147,7 @@ class ExperimentFileRepository:
         If false, any existing experiment will be removed
         :return:
         """
-        from padre.base import default_logger
+
         if experiment.id is None:  #  this is a new experiment
             if experiment.name is None or experiment.name == "":
                 experiment.id = uuid.uuid1()
@@ -157,6 +157,12 @@ class ExperimentFileRepository:
         if os.path.exists(dir) and not allow_overwrite:
             raise ValueError("Experiment %s already exists." +
                              "Overwriting not explicitly allowed. Set allow_overwrite=True")
+
+        # Create the log file for the experiment here
+        if self._file is not None:
+            self._file.close()
+            self._file = None
+
         if os.path.exists(dir):
             if not append_runs:
                 shutil.rmtree(dir)
@@ -164,10 +170,6 @@ class ExperimentFileRepository:
         else:
             os.mkdir(dir)
 
-        # Create the log file for the experiment here
-        if self._file is not None:
-            self._file.close()
-            self._file = None
         self._file = open(os.path.join(dir, "log.txt"), "a")
 
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
@@ -280,7 +282,7 @@ class ExperimentFileRepository:
         :return:
         """
         if split.id is None:  # this is a new experiment
-            split.id = str(split.number)+":"+str(uuid.uuid1())
+            split.id = str(split.number)+"_"+str(uuid.uuid1())
 
         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
         if os.path.exists(dir):
