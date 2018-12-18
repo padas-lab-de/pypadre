@@ -1,0 +1,1 @@
+{"name": "Sacred_Experiment_Test", "description": "Testing of Sacred Config  using JSON files", "dataset": "Boston_House_Prices", "pipeline": ["linear regression"]}

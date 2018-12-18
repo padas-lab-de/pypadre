@@ -5,7 +5,6 @@ Command Line Interface for PADRE.
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
 import click
 import padre.app.padre_app as app
-from padre.app.padre_app import PythonLiteralOption
 from padre.app import pypadre
 
 
@@ -44,6 +43,50 @@ def pypadre_cli(ctx, config_file, base_url):
     }
 
 
+@pypadre_cli.command(name="get_config_param")
+@click.option('--param', default=None, help='Get value of given param')
+@click.pass_context
+def get_config_param(ctx, param):
+    """
+    Get given param from config file.
+    """
+    result = ctx.obj["pypadre"].config.get(param)
+    print(result)
+
+
+@pypadre_cli.command(name="set_config_param")
+@click.option('--param', nargs=2, default=None, help='key value pair as tuple')
+@click.pass_context
+def set_config_param(ctx, param):
+    """
+    Sets key, value in config. param must be a tuple
+    """
+    ctx.obj["pypadre"].config.set(param[0], param[1])
+
+
+@pypadre_cli.command(name="list_config_params")
+@click.pass_context
+def list_config_params(ctx):
+    """
+    List all values in config
+    """
+    result = ctx.obj["pypadre"].config.list()
+    print(result)
+
+
+@pypadre_cli.command(name="authenticate")
+@click.option('--url', default=None, help='Url of server api')
+@click.option('--user', default=None, help='User on server')
+@click.option('--passwd', default=None, help='Password for given user')
+@click.pass_context
+def authenticate(ctx, url, user, passwd):
+    """
+    To generate new token in config. Authenticate with given credentials, in case credentials
+    are not provided default credentials will be used.
+    """
+    ctx.obj["pypadre"].config.authenticate(url, user, passwd)
+
+
 #################################
 ####### DATASETS FUNCTIONS ##########
 #################################
@@ -76,6 +119,39 @@ def do_import(ctx, sklearn):
 def dataset(ctx, dataset_id, binary, format):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
     ctx.obj["pypadre"].datasets.get_dataset(dataset_id, binary, format)
+
+@pypadre_cli.command(name="oml_dataset")
+@click.argument('dataset_id')
+@click.pass_context
+def dataset(ctx, dataset_id):
+    """downloads the dataset with the given id. id can be either a number or a valid url"""
+    ctx.obj["pypadre"].datasets.get_openml_dataset(dataset_id)
+
+
+
+@pypadre_cli.command(name="upload_scratchdata_multi")
+@click.pass_context
+def dataset(ctx):
+    """uploads sklearn toy-datasets, top 100 Datasets form OpenML and some Graphs
+    Takes about 1 hour
+    Requires about 7GB of Ram"""
+
+    auth_token=ctx.obj["pypadre"].config.get("token")
+
+    ctx.obj["pypadre"].datasets.upload_scratchdatasets(auth_token,max_threads=8,upload_graphs=True)
+
+
+@pypadre_cli.command(name="upload_scratchdata_single")
+@click.pass_context
+def dataset(ctx):
+    """uploads sklearn toy-datasets, top 100 Datasets form OpenML and some Graphs
+    Takes several hours
+    Requires up to 7GB of Ram"""
+
+    auth_token = ctx.obj["pypadre"].config.get("token")
+
+    ctx.obj["pypadre"].datasets.upload_scratchdatasets(auth_token, max_threads=1, upload_graphs=True)
+
 
 #################################
 ####### EXPERIMENT FUNCTIONS ##########
@@ -165,6 +241,20 @@ def do_experiment(ctx, experiments, datasets):
         ctx.obj["pypadre"].experiment_creator.do_experiments(experiment_datasets_dict)
 
 
+@pypadre_cli.command(name="load_config_file")
+@click.option('--filename', default=None, help='Path of the JSON file that contains the experiment parameters')
+@click.pass_context
+def load_config_file(ctx, filename):
+
+    import os
+
+    if os.path.exists(filename):
+        ctx.obj["pypadre"].experiment_creator.parse_config_file(filename)
+        ctx.obj["pypadre"].experiment_creator.execute_experiments()
+
+    else:
+        print('File does not exist')
+
 
 
 #################################
@@ -173,8 +263,8 @@ def do_experiment(ctx, experiments, datasets):
 
 @pypadre_cli.command(name="compare_metrics")
 @click.option('--path', default=None, help='Path of the experiment whose runs are to be compared')
-@click.option('--query', cls=PythonLiteralOption, default="all", help="Results to be displayed based on the runs")
-@click.option('--metrics',cls=PythonLiteralOption, default=None, help='Metrics to be displayed')
+@click.option('--query', default="all", help="Results to be displayed based on the runs")
+@click.option('--metrics', default=None, help='Metrics to be displayed')
 @click.pass_context
 def compare_runs(ctx, path, query, metrics):
     metrics_list = None
@@ -215,7 +305,7 @@ def get_available_estimators(ctx):
 
 
 @pypadre_cli.command(name="list_estimator_params")
-@click.option('--estimator_name', cls=PythonLiteralOption, default=None, help='Params of this estimator will be displayed')
+@click.option('--estimator_name', default=None, help='Params of this estimator will be displayed')
 @click.option('--selected_params', default=None, help='List the values of only these parameters')
 @click.option('--return_all_values', default=None,
               help='Returns all the parameter values for the estimator including the default values')

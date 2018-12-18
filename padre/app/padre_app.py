@@ -16,11 +16,13 @@ from padre.datasets import formats
 
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
-from padre.ds_import import load_sklearn_toys
-from padre.ExperimentCreator import ExperimentCreator
+from padre.backend.dual_backend import DualBackend
+import padre.ds_import
+from padre.experimentcreator import ExperimentCreator
 from padre.experiment import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
+from padre.base import default_logger
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -34,8 +36,8 @@ else:
 
 _DEFAULT_HTTP_CONFIG = {
         "base_url": _BASE_URL,
-        "user": "",
-        "passwd": ""
+        "user": "hmafnan",
+        "passwd": "test"
     }
 
 
@@ -86,6 +88,8 @@ def save_padre_config(config, config_file = _PADRE_CFG_FILE):
 default_config = load_padre_config()
 http_client = PadreHTTPClient(**default_config["HTTP"])
 file_cache = PadreFileBackend(**default_config["FILE_CACHE"])
+default_logger_file_cache = PadreFileBackend(**default_config["FILE_CACHE"])
+default_logger_http_client = PadreHTTPClient(**default_config["HTTP"])
 
 def _wheel_char(n_max):
     chars = ["/", "-", "\\", "|", "/", "-", "\\", "|"]
@@ -97,6 +101,120 @@ def get_default_table():
     table = BeautifulTable(max_width=150, default_alignment=Alignment.ALIGN_LEFT)
     table.row_seperator_char = ""
     return table
+
+
+class PadreConfig:
+    """
+    PadreConfig class covering functionality for viewing or updating default
+    configurations for PadreApp.
+    Configuration file is placed at ~/.padre.cfg
+
+    Expected values in config are following
+    ---------------------------------------
+    [HTTP]
+    user = username
+    passwd = user_password
+    base_url = http://localhost:8080/api
+    token = oauth_token
+
+    [FILE_CACHE]
+    root_dir = ~/.pypadre/
+    ---------------------------------------
+
+    Implemented functionality.
+
+    1- Get list of dicts containing key, value pairs for all sections in config
+    2- Get value for given key.
+    3- Set value for given key in config
+    4- Authenticate given user and update new token in the config
+    """
+    def __init__(self, http_repo, config_file=_PADRE_CFG_FILE):
+        self._config_file = config_file
+        self._http_repo = http_repo
+
+    def list(self):
+        """
+        Get list of dicts containing key, value pairs for all sections in config
+
+        :return: List of dicts
+        :rtype: list
+        """
+        config = configparser.ConfigParser()
+        config_list = []
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+            for section in config.sections():
+                data = dict()
+                data[section] = dict()
+                for (k, v) in config.items(section):
+                    data[section][k] = v
+                config_list.append(data)
+        return config_list
+
+    def set_section(self, data, section='HTTP'):
+        """
+        Set section in config for given list of (key, value) pairs
+
+        :param data: dict containing key, value pair
+        :type data: dict
+        :return: None
+        """
+        config = configparser.ConfigParser()
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+        for k, v in data.items():
+            config[section][k] = v
+        with open(self._config_file, 'w') as configfile:
+            config.write(configfile)
+
+    def set(self, key, value, section='HTTP'):
+        """
+        Set value for given key in config
+
+        :param key: Any key in config
+        :type key: str
+        :param value: Value to be set for given key
+        :type value: str
+        :param section: Section to be changed in config, default HTTP
+        :type section: str
+        """
+        data = dict()
+        data[key] = value
+        self.set_section(data, section)
+
+    def get(self, key):
+        """
+        Get value for given key.
+        :param key: Any key in config for any section
+        :type key: str
+        :return: Found value or False
+        """
+        config = configparser.ConfigParser()
+        if os.path.exists(self._config_file):
+            config.read(self._config_file)
+            for section in config.sections():
+                for k, v in config.items(section):
+                    if k == key:
+                        return v
+        return False
+
+    def authenticate(self, url=None, user=None, passwd=None):
+        """
+        Authenticate given user and update new token in the config.
+
+        :param url: url of the server
+        :type url: str
+        :param user: Given user
+        :type user: str
+        :param passwd: Given password
+        :type passwd: str
+        """
+        token = self.http.get_access_token(url, user, passwd)
+        self.set('token', token)
+
+    @property
+    def http(self):
+        return self._http_repo
 
 
 class DatasetApp:
@@ -122,7 +240,7 @@ class DatasetApp:
 
     def do_default_imports(self, sklearn=True):
         if sklearn:
-            for ds in load_sklearn_toys():
+            for ds in padre.ds_import.load_sklearn_toys():
                self.do_import(ds)
 
     def _print(self, output):
@@ -135,6 +253,21 @@ class DatasetApp:
         if self.has_printer():
             self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
         self._parent.http_repository.upload_dataset(ds, True)
+
+    def upload_scratchdatasets(self,auth_token,max_threads=8,upload_graphs=True):
+        if(max_threads<1 or max_threads>50):
+            max_threads=2
+        if("api"in _BASE_URL):
+            url=_BASE_URL.strip("/api")
+        else:
+            url=_BASE_URL
+        padre.ds_import.sendTop100Datasets_multi(auth_token,url,max_threads)
+        print("All openml datasets are uploaded!")
+        if(upload_graphs):
+            padre.ds_import.send_top_graphs(auth_token,url,max_threads>=3)
+
+
+
 
     def get_dataset(self, dataset_id, binary=True, format=formats.numpy,
             force_download=True, cache_it=False):
@@ -252,12 +385,14 @@ class PadreApp:
     def __init__(self, http_repo, file_repo, printer=None):
         self._http_repo = http_repo
         self._file_repo = file_repo
+        self._dual_repo = DualBackend(file_repo, http_repo)
         self._print = printer
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
         self._experiment_creator = ExperimentCreator()
         self._metrics_evaluator = CompareMetrics()
         self._metrics_reevaluator = ReevaluationMetrics()
+        self._config = PadreConfig(http_repo)
 
 
     @property
@@ -279,6 +414,10 @@ class PadreApp:
     @property
     def metrics_reevaluator(self):
         return self._metrics_reevaluator
+
+    @property
+    def config(self):
+        return self._config
 
     def set_printer(self, printer):
         """
@@ -311,6 +450,9 @@ class PadreApp:
 
     @property
     def repository(self):
-        raise NotImplemented  # todo implement a joint repository where file is used to cache http
+        return self._dual_repo
+
+default_logger_dual_repo = DualBackend(default_logger_file_cache, default_logger_http_client)
+default_logger.backend = default_logger_dual_repo
 
 pypadre = PadreApp(http_client, file_cache)

@@ -11,7 +11,6 @@ import shutil
 import uuid
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
-from padre.base import result_logger
 from padre.datasets import Dataset, Attribute
 from padre.experiment import Experiment
 
@@ -53,6 +52,7 @@ class PadreFileBackend(object):
         self._experiment_repository = ExperimentFileRepository(os.path.join(root_dir, "experiments"),
                                                                self._dataset_repository)
 
+
     @property
     def datasets(self):
         return self._dataset_repository
@@ -89,14 +89,23 @@ class ExperimentFileRepository:
     So logically they would belong to the splits.
     However, for convenience reasons they are aggregated at the run level.
     """
+    _file = None
 
     def __init__(self, root_dir, data_repository):
-        from padre.base import default_logger
         self.root_dir = _get_path(root_dir, "")
         self._metadata_serializer = JSonSerializer
         self._binary_serializer = PickleSerializer
         self._data_repository = data_repository
-        default_logger.open_log_file(self.root_dir)
+        self._file = None
+
+    def __del__(self):
+        """
+        Destructor that closes the opened log file at the end of the experiments
+        :return:
+        """
+        if self._file is not None:
+            self._file.close()
+            self._file = None
 
     def _dir(self, ex_id, run_id=None, split_num=None):
         r = [str(ex_id)+".ex"]
@@ -130,8 +139,7 @@ class ExperimentFileRepository:
             shutil.rmtree(_get_path(self.root_dir, d, False))
 
 
-
-    def put_experiment(self, experiment, append_runs=False):
+    def put_experiment(self, experiment, append_runs=False, allow_overwrite=True):
         """
         Stores an experiment to the file. Only metadata, hyperparameter and the workflow is stored.
         :param experiment:
@@ -146,19 +154,27 @@ class ExperimentFileRepository:
             else:
                 experiment.id = experiment.name
         dir = os.path.join(self.root_dir, *self._dir(experiment.id))
+        if os.path.exists(dir) and not allow_overwrite:
+            raise ValueError("Experiment %s already exists." +
+                             "Overwriting not explicitly allowed. Set allow_overwrite=True")
         if os.path.exists(dir):
             if not append_runs:
                 shutil.rmtree(dir)
                 os.mkdir(dir)
         else:
             os.mkdir(dir)
+
+        # Create the log file for the experiment here
+        if self._file is not None:
+            self._file.close()
+            self._file = None
+        self._file = open(os.path.join(dir, "log.txt"), "a")
+
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
-            f.write(self._binary_serializer.serialise(experiment._workflow))
-
-        default_logger.open_log_file(dir)
+            f.write(self._binary_serializer.serialise(experiment.workflow))
 
     def get_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
@@ -190,6 +206,18 @@ class ExperimentFileRepository:
         # todo: impelement filter on metadata
         return _dir_list(os.path.join(self.root_dir, *self._dir(experiment_id)), search_id, ".run")
 
+    def put_experiment_configuration(self, experiment):
+        """
+        Writes the experiment details as a json file
+
+        :param experiment: the experiment to be written to the disk
+
+        :return:
+        """
+        if experiment.experiment_configuration is not None:
+            with open(os.path.join(self.root_dir, *self._dir(experiment.id), "experiment.json"), 'w') as f:
+                f.write(self._metadata_serializer.serialise(experiment.experiment_configuration))
+
     def put_run(self, experiment, run):
         """
         Stores a run of an experiment to the file repository.
@@ -208,14 +236,16 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
+        #Commented for pytorch integration
+
         with open(os.path.join(dir, "hyperparameter.json"), 'w') as f:
             params = experiment.hyperparameters()
-            #for key in params:
-                # This writes all data present within the params to the JSON file
+            # This writes all data present within the params to the JSON file
             f.write(self._metadata_serializer.serialise(params))
 
+
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
-            f.write(self._binary_serializer.serialise(experiment._workflow))
+            f.write(self._binary_serializer.serialise(experiment.workflow))
 
     def get_run(self, ex_id, run_id):
         """
@@ -259,9 +289,6 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
-        # Set the directory for logging
-        result_logger.set_log_directory(dir)
-
     def get_split(self, ex_id, run_id, split_id):
         """
         get the run with the particular id from the experiment.
@@ -269,15 +296,59 @@ class ExperimentFileRepository:
         :param run_id:
         :return:
         """
-        dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
+        dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
 
-        with open(os.path.join(dir, "metadata.json"), 'r') as f:
+        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
 
         return None
 
+    def put_results(self, experiment, run, split, results):
+        """
+        Write the results of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run_id: Run ID of the current experiment run
+        :param split_id: Split id
+        :param results: results to be written to the backend
+
+        :return: None
+        """
+
+        dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+        with open(os.path.join(dir_, "results.json"), 'w') as f:
+            f.write(self._metadata_serializer.serialise(results))
+
+    def put_metrics(self, experiment, run, split, metrics):
+        """
+        Writes the metrics of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run: Run Id of the experiment
+        :param split: Split ID
+        :param metrics: dictionary containing all the required metrics to be written to the backend
+
+        :return: None
+        """
+        dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+        with open(os.path.join(dir_, "metrics.json"), 'w') as f:
+            f.write(self._metadata_serializer.serialise(metrics))
+
     def _do_print(self):
         return True
+
+    def log(self, message):
+        """
+        This function logs all the messages to a file backend
+
+        :param message: Message to be written to a file
+
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write(message + "\n")
 
 
 
@@ -309,7 +380,7 @@ class DatasetFileRepository(object):
         return _dir_list(self.root_dir, search_id, search_metadata)
 
     def put_dataset(self, dataset):
-        _dir = _get_path(self.root_dir, dataset.id)
+        _dir = _get_path(self.root_dir, str(dataset.id))
         try:
             if dataset.has_data():
                 with open(os.path.join(_dir, "data.bin"), 'wb') as f:
@@ -336,15 +407,15 @@ class DatasetFileRepository(object):
 
         with open(os.path.join(_dir, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
-            attributes = metadata.pop("attributes")
-
-        ds = Dataset(id, metadata)
-        sorted(attributes, key=lambda a: a["index"])
-        assert sum([int(a["index"]) for a in attributes]) == len(attributes) * (
-            len(attributes) - 1) / 2  # check attribute correctness here
+        attributes = metadata.pop("attributes")
+        print(type(metadata))
+        ds = Dataset(id, **metadata)
+        #sorted(attributes, key=lambda a: a["index"])
+        #assert sum([int(a["index"]) for a in attributes]) == len(attributes) * (
+        #    len(attributes) - 1) / 2  # check attribute correctness here
         ds.set_data(None,
-                    [Attribute(a["name"], a["measurementLevel"], a["unit"], a["description"],
-                               a["defaultTargetAttribute"])
+                    [Attribute(a["name"], a["measurement_level"], a["unit"], a["description"],
+                               a["is_target"], a["data_class"], a["nominal_values"], a["number_missing_values"])
                      for a in attributes])
         if metadata_only:
             return ds
@@ -353,4 +424,4 @@ class DatasetFileRepository(object):
             with open(os.path.join(_dir, "data.bin"), 'rb') as f:
                 data = self._data_serializer.deserialize(f.read())
             ds.set_data(data, ds.attributes)
-
+            return ds

@@ -15,13 +15,15 @@ import requests as req
 import json
 import io
 
+from padre.backend.experiment_uploader import ExperimentUploader
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
 
 
 class PadreHTTPClient:
 
-    def __init__(self, base_url="http://localhost:8080/api", user="", passwd="", silent_codes=None
+    def __init__(self, base_url="http://localhost:8080/api", user="", passwd="", token=None
+                 , silent_codes=None
                  , default_header={'content-type': 'application/hal+json'}):
         if base_url.endswith("/"):
             self.base = base_url
@@ -32,10 +34,16 @@ class PadreHTTPClient:
         self.last_status = None
         self._data_serializer = PickleSerializer
         self._default_header = default_header
+        self._access_token = None
         if silent_codes is None:
             self.silent_codes = []
         else:
             self.silent_codes = silent_codes
+        if self.is_token_valid(token):
+            self._access_token = token
+        else:
+            self._access_token = self.get_access_token()
+        self._default_header['Authorization'] = self._access_token
 
     def do_request(self, request, url, **body):
         """
@@ -52,6 +60,8 @@ class PadreHTTPClient:
         else:
             if "headers" not in body:
                 body["headers"] = self._default_header
+            if "Authorization" not in body["headers"]:
+                body["headers"]["Authorization"] = self._access_token
             r = request(url, **body)
         self.last_status = r.status_code
         r.raise_for_status()
@@ -190,10 +200,79 @@ class PadreHTTPClient:
         else:
             return PadreHTTPClient.paths[kind](id)
 
+    def get_access_token(self, url=None, user=None, passwd=None):
+        """Get access token.
+
+        First get csrf token then use csrf to get oauth token.
+
+        :param url: Url of the server
+        :param user: User name on server
+        :param passwd: Password for given user
+        :returns: Bearer token
+        :rtype: str
+        """
+        token = None
+        data = {
+            "username": user if user else self.user,
+            "password": passwd if passwd else self.passwd,
+            "grant_type": "password"
+        }
+        api = url if url else PadreHTTPClient.paths["padre-api"]
+        try:
+            csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
+            url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
+            response = self.do_post(url,
+                                    **{'data': data,
+                                       'headers': {'content-type': 'application/x-www-form-urlencoded'}
+                                       })
+        except req.exceptions.RequestException as e:
+            print(str(e))  # todo: Handle failed calls properly
+            return token
+
+        if response.status_code == 200:
+            token = "Bearer " + json.loads(response.content)['access_token']
+        return token
+
+    def has_token(self):
+        if self._access_token is not None:
+            return True
+        return False
+
+    def is_token_valid(self, token):
+        """
+        Check if given token is valid
+        :param token:
+        :return:
+        """
+        result = False
+        if token is None:
+            return result
+        try:
+            response = self.do_get(self.base + "users/me", **{"headers": {"Authorization": token}})
+        except req.exceptions.HTTPError as e:
+            return result
+        if response.status_code == 200:
+            result = True
+        return result
+
+    @property
+    def experiments(self):
+        return ExperimentUploader(self)
+
 
 
 PadreHTTPClient.paths = {
+    "padre-api": "http://padre-api:@localhost:8080",
     "datasets": "/datasets",
+    "experiments": "/experiments",
+    "experiment": lambda id: "/experiments/" + id + "/",
+    "projects": "/projects",
+    "results": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results",
+    "runs": "/runs",
+    "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
+    "run-splits": "/runSplits",
+    "oauth-token": lambda csrf_token: "/oauth/token?=" + csrf_token,
+    "splits": "/splits",
     "dataset": lambda id: "/datasets/" + id + "/",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',
 }

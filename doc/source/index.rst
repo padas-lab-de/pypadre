@@ -15,11 +15,15 @@ Welcome to PyPaDRE Documentation's documentation!
    design_principles
    setup_experiments
    experiment_creator
+   experiment_executor
    metrics
    storage_details
    visualisation
    high_level_interfaces
    development
+   dual_backend
+   config
+   experiment_uploader
 
 
 
