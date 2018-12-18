@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # call run without pypadre app backend
     ex = run("Test")
     print("Runs retained in memory ")
-    for r in ex.runs:
+    for r in ex:
         print(r)
     # call via pipadre backend
     ex = pypadre.experiments.run(decorated=True)
