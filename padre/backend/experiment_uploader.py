@@ -220,7 +220,7 @@ class ExperimentUploader:
         data["uid"] = str(uuid.uuid4())
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
-        data["split"] = self.make_split(split)  # Split by encoding
+        data["split"] = self.encode_split(split)
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
@@ -371,7 +371,13 @@ class ExperimentUploader:
         elif experiment_type == "classification":
             return "application/x.padre.classification.v1+protobuf"
 
-    def make_split(self, split):
+    def encode_split(self, split):
+        """Encode the train and test sets into boolean representation of run length encoding.
+
+        :param split: Split instance
+        :type split: <class 'padre.experiment.Split'>
+        :returns: String as run length encoding
+        """
         train_idx = split.train_idx
         test_idx  = split.test_idx
 
@@ -382,7 +388,7 @@ class ExperimentUploader:
         for x in train_idx:
             train_bool_list[x] = True
 
-        result = "tr:"
+        result = "train:"
         for b, g in groupby(train_bool_list):
             l = str(len(list(g)))
             if b:
@@ -394,7 +400,7 @@ class ExperimentUploader:
         for x in test_idx:
             test_bool_list[x] = True
 
-        result += ",tt:"
+        result += ",test:"
         for b, g in groupby(test_bool_list):
             l = str(len(list(g)))
             if b:
@@ -402,7 +408,7 @@ class ExperimentUploader:
             else:
                 result += "f" + l
 
-        return result[0:255]
+        return result
 
 
 
