@@ -35,12 +35,11 @@ if __name__ == '__main__':
                     backend=pypadre.repository, keep_splits=True, strategy="cv")
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-    ex.run()  # run the experiment and report
+    ex.grid_search()  # run the experiment and report
     print("========Available experiments=========")
     for idx, ex in enumerate(pypadre.experiments.list_experiments()):
         print("%d: %s" % (idx, str(ex)))
         for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
             print("\tRun: %s"%str(run))
 
-
-    #ex.report_results() # last step, but we can also look that up on the server
+    # ex.report_results() # last step, but we can also look that up on the server
