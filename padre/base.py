@@ -84,6 +84,7 @@ class PadreLogger:
         :return:
         """
         if self._backend is not None:
+            # Todo a bug happens here
             self._backend.put_experiment(experiment, append_runs=append_runs)
             self.log_event(experiment, exp_events.start, phase=phases.experiment)
 
