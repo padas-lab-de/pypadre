@@ -176,6 +176,7 @@ class PadreConfig:
 
     @property
     def http_backend_config(self):
+        # TODO: only return the necessayr parameters to avoid instantiation error
         return self._config["HTTP BACKEND"]
 
     @property
@@ -184,6 +185,7 @@ class PadreConfig:
 
     @property
     def local_backend_config(self):
+        # TODO: only return the necessayr parameters to avoid instantiation error
         return self._config["LOCAL BACKEND"]
 
     def load(self) -> None:

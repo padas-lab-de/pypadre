@@ -18,11 +18,12 @@ import io
 from padre.backend.experiment_uploader import ExperimentUploader
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
-
+import logging
+logger = logging.getLogger('pypadre')
 
 class PadreHTTPClient:
 
-    def __init__(self, base_url="http://localhost:8080/api", user="", passwd="", token=None
+    def __init__(self, base_url="http://localhost:8080/api", user="", token=None
                  , silent_codes=None
                  , default_header={'content-type': 'application/hal+json'}):
         if base_url.endswith("/"):
@@ -30,7 +31,6 @@ class PadreHTTPClient:
         else:
             self.base = base_url + "/"
         self.user = user
-        self.passwd = passwd
         self.last_status = None
         self._data_serializer = PickleSerializer
         self._default_header = default_header
@@ -39,10 +39,19 @@ class PadreHTTPClient:
             self.silent_codes = []
         else:
             self.silent_codes = silent_codes
-        if self.is_token_valid(token):
-            self._access_token = token
+        self._access_token = token
+        if self._access_token is not None:
+            self._default_header['Authorization'] = self._access_token
         else:
-            self._access_token = self.get_access_token()
+            logger.warning("Authentication token is NONE. You need to authentication for user %s "
+                           "with your current password (or set a new user)")
+
+    def authenticate(self, passwd="", user= None):
+        if user is not None:
+            self.user = user
+        if self._access_token is None \
+                or not self.is_token_valid(self._access_token):
+            self._access_token = self.get_access_token(passwd)
         self._default_header['Authorization'] = self._access_token
 
     def do_request(self, request, url, **body):
@@ -200,24 +209,21 @@ class PadreHTTPClient:
         else:
             return PadreHTTPClient.paths[kind](id)
 
-    def get_access_token(self, url=None, user=None, passwd=None):
+    def get_access_token(self,  passwd=None):
         """Get access token.
 
         First get csrf token then use csrf to get oauth token.
 
-        :param url: Url of the server
-        :param user: User name on server
-        :param passwd: Password for given user
         :returns: Bearer token
         :rtype: str
         """
         token = None
         data = {
-            "username": user if user else self.user,
-            "password": passwd if passwd else self.passwd,
+            "username": self.user,
+            "password": passwd,
             "grant_type": "password"
         }
-        api = url if url else PadreHTTPClient.paths["padre-api"]
+        api = PadreHTTPClient.paths["padre-api"]
         try:
             csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
             url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
