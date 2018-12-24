@@ -4,9 +4,7 @@ Command Line Interface for PADRE.
 """
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
 import click
-import padre.app.padre_app as app
-from padre.app import pypadre
-
+from padre.app import pypadre, PadreApp, PadreConfig
 
 #################################
 #######      MAIN      ##########
@@ -22,24 +20,19 @@ from padre.app import pypadre
 @click.pass_context
 def pypadre_cli(ctx, config_file, base_url):
     """
-    padre command line interface.
+    setup padre command line interface using the provided config file
 
     Default config file: ~/.padre.cfg
     """
     # load default config
-    config = app.default_config.copy()
+    config = PadreConfig(config_file)
     # override defaults
     if base_url is not None:
-        config["HTTP"]["base_url"] = base_url
-    # create app objects
-    _http = app.http_client
-    _file = app.file_cache
+        config["HTTP BACKEND"]["base_url"] = base_url
     # create context object
     ctx.obj = {
         'config-file': config_file,
-        'API': config["HTTP"],
-        'http-client': _http,
-        'pypadre': app.PadreApp(_http, _file, click.echo)
+        'pypadre': PadreApp(config, click.echo)
     }
 
 
@@ -213,7 +206,7 @@ def create_experiment(ctx, name, description, dataset, workflow, backend):
         workflow_obj = ctx.obj["pypadre"].experiment_creator.create_test_pipeline(estimator_list)
 
     if backend is None:
-        backend = pypadre.file_repository.experiments
+        backend = pypadre.local_backend.experiments
     ctx.obj["pypadre"].experiment_creator.create_experiment(name, description, dataset, workflow_obj, backend)
 
 

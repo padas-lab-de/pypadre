@@ -16,7 +16,7 @@ def main():
                                          description='This is the first executor search test experiment',
                                          dataset_list=['Diabetes', 'Boston_House_Prices', 'Iris'],
                                          workflow=workflow,
-                                         backend=pypadre.file_repository.experiments,
+                                         backend=pypadre.local_backend.experiments,
                                          params=param_value_dict)
 
     # SECOND TEST EXPERIMENT WITH SINGLE DATASET
@@ -27,7 +27,7 @@ def main():
                                          description='This is the second executor search test experiment',
                                          dataset_list=['Iris'],
                                          workflow=workflow,
-                                         backend=pypadre.file_repository.experiments,
+                                         backend=pypadre.local_backend.experiments,
                                          params=param_value_dict)
 
     # THIRD TEST EXPERIMENT WITH MULTIPLE DATASETS
@@ -41,7 +41,7 @@ def main():
                                          description='Grid search experiment with SVR',
                                          dataset_list=['Boston_House_Prices', 'Diabetes', 'Digits'],
                                          workflow=workflow,
-                                         backend=pypadre.file_repository.experiments,
+                                         backend=pypadre.local_backend.experiments,
                                          params=params_dict
                                          )
 

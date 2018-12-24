@@ -51,7 +51,7 @@ def main():
                     description="Testing Torch via SKLearn Pipeline",
                     dataset=ds,
                     workflow=workflow,
-                    backend=pypadre.file_repository.experiments)
+                    backend=pypadre.local_backend.experiments)
     ex.grid_search()
     '''
     Sample network dictionary creation

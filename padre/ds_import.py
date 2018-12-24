@@ -388,7 +388,6 @@ def _sendDatasetWorker(auth_token,id_list,worker,server_url):
     """
     i=0
     for id in id_list:
-
         amount = str(len(id_list))
         print("Worker: "+str(worker)+" Progress: (" + str(i) + "/" + amount + ") id of next dataset:" + str(id))
         ds = load_openML_dataset("/" + id, destpath=None)

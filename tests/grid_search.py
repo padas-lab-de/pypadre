@@ -19,7 +19,7 @@ def main():
                                         description='This is the first grid search test experiment',
                                         dataset_list='Boston_House_Prices',
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     experiment_param_dict['Grid_search_experiment_1'] = experiment_helper.convert_alternate_estimator_names(param_value_dict)
 
@@ -33,7 +33,7 @@ def main():
                                         description='This is the second grid search test experiment',
                                         dataset_list='Boston_House_Prices',
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
     params_svc = {'C': [0.5, 1.0, 1.5],
                   'degree': [1,2,3,4],
                   'probability': [True]}
@@ -44,7 +44,7 @@ def main():
                                         description='Grid search experiment with SVC',
                                         dataset_list='Iris',
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments
+                                        backend=pypadre.local_backend.experiments
                                         )
     params_pca = {'n_components': [1, 2, 3, 4, 5, 6]}
     params_svr = {'C': [0.5, 1.0, 1.5],
@@ -56,7 +56,7 @@ def main():
                                         description='Grid search experiment with SVR',
                                         dataset_list='Diabetes',
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments
+                                        backend=pypadre.local_backend.experiments
                                         )
 
     workflow = experiment_helper.create_test_pipeline(['pca', 'MaxEnt'])
@@ -67,7 +67,7 @@ def main():
                                         description='Grid search experiment with logistic regression',
                                         dataset_list='Diabetes',
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Run all the experiments in the list
     experiment_helper.execute_experiments()

@@ -254,13 +254,13 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['SVC'])
     experiment_helper.create_experiment(name='Experiment1', description='This is the first test experiment',
                                         dataset=experiment_helper.get_local_dataset('Breast_Cancer'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Create another experiment which has a transformation and logistic regression
     workflow = experiment_helper.create_test_pipeline(['pca', 'logistic'])
     experiment_helper.create_experiment(name='Experiment2', description='This is the second test experiment',
                                         dataset=experiment_helper.get_local_dataset('Iris'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Experiment using SVD in the pipeline
     # Setting parameters for estimator 'LSA'/Truncated SVD
@@ -269,13 +269,13 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['LSA'], param_value_dict)
     experiment_helper.create_experiment(name='Experiment3', description='This is the third test experiment',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Testing isometric mapping with default values
     workflow = experiment_helper.create_test_pipeline((['isomap']))
     experiment_helper.create_experiment(name='Experiment4', description='This is the fourth test experiment',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Testing setting parameters to isometric mapping
     params = {'n_neighbors': 10, 'n_components': 5}
@@ -285,19 +285,19 @@ def main():
                                         description='This is the fifth test experiment',
                                         dataset=experiment_helper.get_local_dataset('Boston_House_Prices'),
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Testing the combination of PCA and Local Linear Embedding
     workflow = experiment_helper.create_test_pipeline(['pca','lle'])
     experiment_helper.create_experiment(name='Experiment6', description='This is the sixth test experiment',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Testing Support Vector Regression on the Diabetes dataset
     workflow = experiment_helper.create_test_pipeline(['SVR'])
     experiment_helper.create_experiment(name='Experiment7', description='This is the seventh test experiment',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Testing missing parameters/error cases when initializing the Experiment class
     # The aim of this is that, while running the experiment it should never crash
@@ -305,25 +305,25 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['LSA'])
     experiment_helper.create_experiment(name=None, description='This is the third test experiment',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Missing description
     workflow = experiment_helper.create_test_pipeline(['LSA'])
     experiment_helper.create_experiment(name='Error2', description=None,
                                         dataset=experiment_helper.get_local_dataset('Diabetes'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Missing dataset
     workflow = experiment_helper.create_test_pipeline(['LSA'])
     experiment_helper.create_experiment(name='Error3', description='This experiment is missing the dataset',
                                         dataset=experiment_helper.get_local_dataset('Missing_dataset'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Missing workflow
     workflow = experiment_helper.create_test_pipeline(['Wrong_classifier'])
     experiment_helper.create_experiment(name='Error4 ', description='This experiment is missing a workflow',
                                         dataset=experiment_helper.get_local_dataset('Diabetes'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Missing backend
     workflow = experiment_helper.create_test_pipeline(['LSA'])
@@ -335,7 +335,7 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['SVC'])
     experiment_helper.create_experiment(name='Error6', description='This experiment has a classifier/dataset mismatch',
                                         dataset=experiment_helper.get_local_dataset('Boston_House_Prices'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     # Applying a linear regressor and classifier
     # Runtime exception when logistic regression is combined with SVC
@@ -343,7 +343,7 @@ def main():
     workflow = experiment_helper.create_test_pipeline(['logistic', 'SVC'])
     experiment_helper.create_experiment(name='Error7', description='This experiment has a regressor and classifier',
                                         dataset=experiment_helper.get_local_dataset('Iris'), workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     experiments_dict = experiment_helper.experiments
     # Run all the experiments in the list

@@ -813,7 +813,7 @@ class ExperimentCreator:
             params = exp_params.get('params', None)
 
             if backend == 'default':
-                backend = pypadre.file_repository.experiments
+                backend = pypadre.local_backend.experiments
 
             # Create the pipeline and if it is not possible move to next experiment
             workflow = self.create_test_pipeline(pipeline)

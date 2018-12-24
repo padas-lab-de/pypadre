@@ -1,5 +1,16 @@
 """
 Padre app as single point of interaction.
+
+Defaults:
+
+- The default configuration is provided under `.padre.cfg` in the user home directory
+
+
+Architecture of the module
+++++++++++++++++++++++++++
+
+- `PadreConfig` wraps the configuration for the app. It can read/write the config from a file (if provided)
+
 """
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
@@ -34,12 +45,6 @@ if "PADRE_CFG_FILE" in os.environ:
 else:
     _PADRE_CFG_FILE = os.path.expanduser('~/.padre.cfg')
 
-_DEFAULT_HTTP_CONFIG = {
-        "base_url": _BASE_URL,
-        "user": "hmafnan",
-        "passwd": "test"
-    }
-
 
 def _sub_list(l, start=-1, count=9999999999999):
     start = max(start, 0)
@@ -50,52 +55,27 @@ def _sub_list(l, start=-1, count=9999999999999):
         return l[start:stop]
 
 
-def load_padre_config(config_file = _PADRE_CFG_FILE):
-    """
-    loads a padre configuration from the given file or from the standard file ~/.padre.cfg if no file is provided
-    :param config_file: filename of config file
-    :return: config accessable as dictionary
-    """
-    config = configparser.ConfigParser()
-    if os.path.exists(config_file):
-        config.read(config_file)
-        return dict(config._sections)
-    else:
-        return {
-            "HTTP": _DEFAULT_HTTP_CONFIG,
-            "FILE_CACHE": {
-                "root_dir": os.path.expanduser("~/.pypadre/")
-            }
-        }
-
-def save_padre_config(config, config_file = _PADRE_CFG_FILE):
-    """
-    saves the given config file which should contain the config in a dict like structure. If the config is None,
-    the default configuration will be written to the file
-    :param config: dict like structure with config or None,
-    :param config_file: filename of config file.
-    :return:
-    """
-    if config is None:
-        config = default_config
-    pconfig = configparser.ConfigParser()
-    for k, v in config.items():
-        pconfig[k] = v
-    with open(config_file, "w") as cfile:
-        config.write(cfile)
-
-
-default_config = load_padre_config()
-http_client = PadreHTTPClient(**default_config["HTTP"])
-file_cache = PadreFileBackend(**default_config["FILE_CACHE"])
-default_logger_file_cache = PadreFileBackend(**default_config["FILE_CACHE"])
-default_logger_http_client = PadreHTTPClient(**default_config["HTTP"])
-
 def _wheel_char(n_max):
     chars = ["/", "-", "\\", "|", "/", "-", "\\", "|"]
     for i in range(n_max):
         yield "\r" + chars[i % len(chars)]
 
+def dict_merge(dct, merge_dct):
+    """ Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
+    updating only top-level keys, dict_merge recurses down into dicts nested
+    to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
+    ``dct``.
+    :param dct: dict onto which the merge is executed
+    :param merge_dct: dct merged into dct
+    :return: None
+    """
+    import collections
+    for k, v in merge_dct.items():
+        if (k in dct and isinstance(dct[k], dict)
+                and isinstance(merge_dct[k], collections.Mapping)):
+            dict_merge(dct[k], merge_dct[k])
+        else:
+            dct[k] = merge_dct[k]
 
 def get_default_table():
     table = BeautifulTable(max_width=150, default_alignment=Alignment.ALIGN_LEFT)
@@ -111,14 +91,17 @@ class PadreConfig:
 
     Expected values in config are following
     ---------------------------------------
-    [HTTP]
+    [HTTP BACKEND]
     user = username
     passwd = user_password
     base_url = http://localhost:8080/api
     token = oauth_token
 
-    [FILE_CACHE]
+    [LOCAL BACKEND]
     root_dir = ~/.pypadre/
+
+    [GENERAL]
+    offline = True
     ---------------------------------------
 
     Implemented functionality.
@@ -128,46 +111,103 @@ class PadreConfig:
     3- Set value for given key in config
     4- Authenticate given user and update new token in the config
     """
-    def __init__(self, http_repo, config_file=_PADRE_CFG_FILE):
+    def __init__(self, config_file: str=_PADRE_CFG_FILE, create: bool=True, config:dict=None):
+        """
+        PRecedence of Configurations: default gets overwritten by file which gets overwritten by config parameter
+        :param config: str pointing to the config file or None if no config file should be used
+        :param create: true if the config file should be created
+        :param config: Additional configuration
+        """
+        self._config = self.default()
+        # handle file here
         self._config_file = config_file
-        self._http_repo = http_repo
+        if self._config_file is not None:
+            self.__load_config()
+            if not os.path.exists(self._config_file) and create:
+                self.save()
+        # now merge
+        self.__merge_config(config)
 
-    def list(self):
+
+    def __merge_config(self, to_merge):
+        # merges the provided dictionary into the config.
+        if to_merge is not None:
+            dict_merge(self._config, to_merge)
+
+    def __load_config (self):
         """
-        Get list of dicts containing key, value pairs for all sections in config
-
-        :return: List of dicts
-        :rtype: list
-        """
-        config = configparser.ConfigParser()
-        config_list = []
-        if os.path.exists(self._config_file):
-            config.read(self._config_file)
-            for section in config.sections():
-                data = dict()
-                data[section] = dict()
-                for (k, v) in config.items(section):
-                    data[section][k] = v
-                config_list.append(data)
-        return config_list
-
-    def set_section(self, data, section='HTTP'):
-        """
-        Set section in config for given list of (key, value) pairs
-
-        :param data: dict containing key, value pair
-        :type data: dict
-        :return: None
+        loads a padre configuration from the given file or from the standard file ~/.padre.cfg if no file is provided
+        :param config_file: filename of config file
+        :return: config accessable as dictionary
         """
         config = configparser.ConfigParser()
         if os.path.exists(self._config_file):
             config.read(self._config_file)
-        for k, v in data.items():
-            config[section][k] = v
-        with open(self._config_file, 'w') as configfile:
-            config.write(configfile)
+            self.__merge_config(dict(config._sections))
 
-    def set(self, key, value, section='HTTP'):
+    def default(self):
+        """
+        :return: default values for
+        """
+        return {
+            "HTTP BACKEND": {
+                    "base_url": _BASE_URL,
+                     "user": "mgrani",
+            },
+            "LOCAL BACKEND": {
+                "root_dir": os.path.expanduser("~/.pypadre/")
+            },
+            "GENERAL": {
+                "offline": True
+            }
+        }
+
+    @property
+    def config_file(self):
+        return self._config_file
+
+    @property
+    def config(self):
+        return self._config
+
+    @config.setter
+    def config(self, config):
+        self._config = config
+
+    @property
+    def http_backend_config(self):
+        return self._config["HTTP BACKEND"]
+
+    @property
+    def general(self):
+        return self._config["GENERAL"]
+
+    @property
+    def local_backend_config(self):
+        return self._config["LOCAL BACKEND"]
+
+    def load(self) -> None:
+        """
+        reloads the configuration specified under the current config path
+        """
+        self.__load_config()
+    def save(self) -> None:
+        """
+        saves the current configuration to the configured file
+        """
+        pconfig = configparser.ConfigParser()
+        for k, v in self._config.items():
+            pconfig[k] = v
+        with open(self._config_file, "w") as cfile:
+            pconfig.write(cfile)
+
+    def sections(self) -> list:
+        """
+        :return: returns all sections of the config file
+        """
+        return self._config.keys()
+
+    def set(self, key, value, section='HTTP BACKEND'):
         """
         Set value for given key in config
 
@@ -178,27 +218,20 @@ class PadreConfig:
         :param section: Section to be changed in config, default HTTP
         :type section: str
         """
-        data = dict()
-        data[key] = value
-        self.set_section(data, section)
+        if not self.config[section]:
+            self.config[section] = dict()
+        self.config[section][key]=value
 
-    def get(self, key):
+    def get(self, key, section='HTTP BACKEND'):
         """
         Get value for given key.
         :param key: Any key in config for any section
         :type key: str
         :return: Found value or False
         """
-        config = configparser.ConfigParser()
-        if os.path.exists(self._config_file):
-            config.read(self._config_file)
-            for section in config.sections():
-                for k, v in config.items(section):
-                    if k == key:
-                        return v
-        return False
+        return self._config[section][key]
 
-    def authenticate(self, url=None, user=None, passwd=None):
+    def authenticate(self, user=None, passwd=None, url=None):
         """
         Authenticate given user and update new token in the config.
 
@@ -209,12 +242,10 @@ class PadreConfig:
         :param passwd: Given password
         :type passwd: str
         """
-        token = self.http.get_access_token(url, user, passwd)
+        self.http_backend_config["user"]=user
+        http = PadreHTTPClient(**self.http_backend_config)
+        token = http.get_access_token(url, user, passwd)
         self.set('token', token)
-
-    @property
-    def http(self):
-        return self._http_repo
 
 
 class DatasetApp:
@@ -225,7 +256,7 @@ class DatasetApp:
         self._parent = parent
 
     def list_datasets(self, start=0, count=999999999, search=None):
-        datasets = self._parent.http_repository.list_datasets(start, count, search)
+        datasets = self._parent.remote_backend.list_datasets(start, count, search)
 
         if self._parent.has_print():
             table = get_default_table()
@@ -252,7 +283,7 @@ class DatasetApp:
     def do_import(self, ds):
         if self.has_printer():
             self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
-        self._parent.http_repository.upload_dataset(ds, True)
+        self._parent.remote_backend.upload_dataset(ds, True)
 
     def upload_scratchdatasets(self,auth_token,max_threads=8,upload_graphs=True):
         if(max_threads<1 or max_threads>50):
@@ -274,18 +305,18 @@ class DatasetApp:
         # todo check force_download=False and cache_it True
         ds = None
         if not force_download: # look in cache first
-            ds = self._parent.file_repository.get_dataset(dataset_id)
+            ds = self._parent.local_backend.get_dataset(dataset_id)
         if ds is None: # no cache or not looked --> go to http client
-            ds = self._parent.http_repository.get_dataset(dataset_id, binary, format=format)
+            ds = self._parent.remote_backend.get_dataset(dataset_id, binary, format=format)
             if cache_it:
-                self._parent.file_repository.put_dataset(ds)
+                self._parent.local_backend.put_dataset(ds)
 
         if self.has_printer():
             self._print(f"Metadata for dataset {ds.id}")
             for k, v in ds.metadata.items():
                 self._print("\t%s=%s" % (k, str(v)))
             self._print("Available formats:")
-            formats = self._parent.http_repository.get_dataset_formats(dataset_id)
+            formats = self._parent.remote_backend.get_dataset_formats(dataset_id)
             for f in formats:
                 self._print("\t%s" % (f))
             self._print("Binary description:")
@@ -328,7 +359,7 @@ class ExperimentApp:
             file_name = search
             s = None
 
-        self._parent.file_repository.experiments.delete_experiments(search_id=file_name, search_metadata=s)
+        self._parent.local_backend.experiments.delete_experiments(search_id=file_name, search_metadata=s)
 
 
 
@@ -349,14 +380,14 @@ class ExperimentApp:
             else:
                 file_name = search
                 s = None
-            return _sub_list(self._parent.file_repository.experiments.list_experiments(search_id=file_name,
-                                                                                       search_metadata=s)
+            return _sub_list(self._parent.local_backend.experiments.list_experiments(search_id=file_name,
+                                                                                     search_metadata=s)
                              , start, count)
         else:
-            return _sub_list(self._parent.file_repository.experiments.list_experiments(), start, count)
+            return _sub_list(self._parent.local_backend.experiments.list_experiments(), start, count)
 
     def list_runs(self, ex_id, start=-1, count=999999999, search=None):
-        return _sub_list(self._parent.file_repository.experiments.list_runs(ex_id), start, count)
+        return _sub_list(self._parent.local_backend.experiments.list_runs(ex_id), start, count)
 
     def run(self, **ex_params):
         """
@@ -368,10 +399,10 @@ class ExperimentApp:
         """
         if "decorated" in ex_params and ex_params["decorated"]:
             from padre.decorators import run
-            return run(backend=self._parent.file_repository.experiments)
+            return run(backend=self._parent.local_backend.experiments)
         else:
             p = ex_params.copy()
-            p["backend"] = self._parent.file_repository.experiments
+            p["backend"] = self._parent.local_backend.experiments
             ex = Experiment(**p)
             ex.run()
             return ex
@@ -381,18 +412,31 @@ class PadreApp:
 
     # todo improve printing. Configure a proper printer or find a good ascii printing package
 
-    def __init__(self, http_repo, file_repo, printer=None):
-        self._http_repo = http_repo
-        self._file_repo = file_repo
-        self._dual_repo = DualBackend(file_repo, http_repo)
+    def __init__(self, config=None, printer=None):
+        if config is None:
+            self._config = PadreConfig()
+        self._offline = "offline" not in self._config.general or self._config.general["offline"]
+        self._http_repo = PadreHTTPClient(**self._config.http_backend_config)
+        self._file_repo = PadreFileBackend(**self._config.local_backend_config)
+        self._dual_repo = DualBackend(self._file_repo, self._http_repo)
         self._print = printer
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
         self._experiment_creator = ExperimentCreator()
         self._metrics_evaluator = CompareMetrics()
         self._metrics_reevaluator = ReevaluationMetrics()
-        self._config = PadreConfig(http_repo)
 
+    @property
+    def offline(self):
+        """
+        sets the current offline / online status of the app. Permanent changes need to be done via the config.
+        :return: True, if requests are not passed to the server
+        """
+        return self._offline
+
+    @offline.setter
+    def set_offline(self, offline):
+        self._offline = offline
 
     @property
     def datasets(self):
@@ -440,18 +484,16 @@ class PadreApp:
         return self._print is not None
 
     @property
-    def http_repository(self):
+    def remote_backend(self):
         return self._http_repo
 
     @property
-    def file_repository(self):
+    def local_backend(self):
         return self._file_repo
 
     @property
     def repository(self):
         return self._dual_repo
 
-default_logger_dual_repo = DualBackend(default_logger_file_cache, default_logger_http_client)
-default_logger.backend = default_logger_dual_repo
 
-pypadre = PadreApp(http_client, file_cache)
+pypadre = PadreApp()   # load the default app

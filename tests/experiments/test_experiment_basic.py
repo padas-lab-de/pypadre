@@ -11,7 +11,8 @@ from sklearn.svm import SVC
 
 class TestBasic(unittest.TestCase):
 
-    def test_SVC_SKLeanr(self):
+    # todo register a test file backend, then use it for testing
+    def test_SVC_SKLearn(self):
         ds = [i for i in load_sklearn_toys()]
         ex = Experiment(name="test_Experiment SVM",
                         description="Testing Support Vector Machines via SKLearn Pipeline\n"

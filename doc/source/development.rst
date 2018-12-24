@@ -1,6 +1,22 @@
 PyPaDRE Development
 ===================
 
+Module Architecture
+*******************
+
+PyPadre App
++++++++++++
+
+The PyPadre App (`padre.app.padre_app`) is the Python API for interacting with pypadre. The following classes are important
+
+TODO: Integrate modul documentation here.
+
+PyPadre CLI
++++++++++++
+
+The PyPadre CLI is the command line interface to the PyPadre App.
+
+TODO: Integrate modul documentation here.
 
 
 Unit Testing and Examples

@@ -19,7 +19,7 @@ def main():
                                         description='Test Experiment with pca and linear regression',
                                         dataset_list=None,
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
 
     workflow = experiment_helper.create_test_pipeline(['logistic regression'])
     params_logistic_pca = {'penalty_norm': ['l1', 'l2']}
@@ -29,7 +29,7 @@ def main():
                                         description='Test Experiment with pca and logistic regression',
                                         dataset_list='Boston_House_Prices',
                                         workflow=workflow,
-                                        backend=pypadre.file_repository.experiments)
+                                        backend=pypadre.local_backend.experiments)
     experiment_helper.execute_experiments()
 
     experiment = ['Test Experiment PCA Linear', 'Test Experiment PCA Logistic']

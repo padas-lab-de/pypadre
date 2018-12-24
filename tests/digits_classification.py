@@ -37,7 +37,7 @@ def main():
                     description="Testing Support Vector Classification via SKLearn Pipeline",
                     dataset=ds,
                     workflow=create_test_pipeline(),
-                    backend=pypadre.file_repository.experiments)
+                    backend=pypadre.local_backend.experiments)
 
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters

@@ -13,6 +13,7 @@ Welcome to PyPaDRE Documentation's documentation!
 
    concept
    design_principles
+   getting_started
    setup_experiments
    experiment_creator
    experiment_executor
