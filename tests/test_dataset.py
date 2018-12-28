@@ -4,12 +4,13 @@ Unit test testing the functionality of the padre.datasets module
 import unittest
 import numpy as np
 
-from padre import Dataset
+from padre.datasets import Dataset
 from padre.datasets import Attribute
 
 test_numpy_array = np.array([[1.0, "A", 2],
                         [2.0, "B", 2],
-                        [3.0, "A", 3]])
+                        [3.0, "A", 3],
+                        [3.0, "C", 4]])
 
 test_attributes = [{"name": "ratio_att", "measurementLevel": "RATIO",
                "unit": None, "description": "A ratio scaled attribute",
@@ -48,20 +49,22 @@ class TestDataset(unittest.TestCase):
             assert a.index == att["index"]
 
     def test_create_dataset(self):
-        ds = Dataset("test", test_metadata)
+        ds = Dataset("test", **test_metadata)
         ds.set_data(test_numpy_array)
         assert ds.id == "test"
-        assert ds.metdata is not None and len(ds.metadata) == len(test_metadata)
-        for k, v in ds.metadata.items:
-            assert test_metadata[k] == v
+        assert ds.metadata is not None and len(ds.metadata) == len(test_metadata)+5  # some metadata get added.
+        # todo check in more detail, that the correct metadata has been added
+        for k, v in test_metadata.items():
+            assert ds.metadata[k] == v
         assert ds.has_data()
+        assert len(ds.attributes) == test_numpy_array.shape[1]
         assert np.array_equal(ds.data, test_numpy_array)
         # Todo: check correct attributes
         # Test lazy loading here
         ds.set_data(lambda: (test_numpy_array, None))
         assert np.array_equal(ds.data, test_numpy_array)
         # Test lazy loading on new object.
-        ds = Dataset("test", test_metadata)
+        ds = Dataset("test", **test_metadata)
         ds.set_data(lambda: (test_numpy_array, None))
         assert np.array_equal(ds.data, test_numpy_array)
 
