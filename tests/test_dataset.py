@@ -68,7 +68,5 @@ class TestDataset(unittest.TestCase):
         ds.set_data(lambda: (test_numpy_array, None))
         assert np.array_equal(ds.data, test_numpy_array)
 
-        # Todo: check lazy loading.
-
 
 
