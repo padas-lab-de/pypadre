@@ -86,13 +86,14 @@ class NumpyContainer:
 
     def profile(self,bins=10,check_correlation=True,correlation_threshold=0.9,
                 correlation_overrides=None,check_recoded=False):
-        return pd_pf.ProfileReport(pd.DataFrame(self.data),bins=bins,check_correlation=check_correlation,correlation_threshold=correlation_threshold,
-                correlation_overrides=correlation_overrides,check_recoded=check_recoded)
+        return pd_pf.ProfileReport(pd.DataFrame(self.data), bins=bins, check_correlation=check_correlation,
+                                   correlation_threshold=correlation_threshold,
+                                   correlation_overrides=correlation_overrides,check_recoded=check_recoded)
 
 
     def describe(self):
-        ret = {"n_att" : len(self._attributes),
-               "n_target" : len([a for a in self._attributes if a.is_target])}
+        ret = {"n_att": len(self._attributes),
+               "n_target": len([a for a in self._attributes if a.defaultTargetAttribute])}
         if self._data is not None:
             ret["stats"] = stats.describe(self._data, axis=0)
         return ret
@@ -102,15 +103,12 @@ class GraphContainer:
 
     def __init__(self, data, attributes=None):
         # todo rework binary data into delegate pattern.
-        self._shape = (data.number_of_edges(),data.number_of_nodes())
-        #pd.DataFrame
-
-
+        self._shape = (data.number_of_edges(), data.number_of_nodes())
         self._data = data
         if attributes is None:
-            self._attributes={}
-            self._targets_idx=None
-            self.features_idx=None
+            self._attributes = {}
+            self._targets_idx = None
+            self.features_idx = None
 
         else:
             self._attributes = attributes
@@ -203,15 +201,15 @@ class GraphContainer:
     def getNodes(self):
         return self.data.nodes(data=True)
 
-    def getEdges(self,node):
+    def getEdges(self, node):
         return self.data.edges(data=True)
 
     def addNode(self,node,attr_dict):
-        self.data.add_node(node,**attr_dict)
-        self.shape[1]=+1
+        self.data.add_node(node, **attr_dict)
+        self.shape[1] = +1
 
-    def addEdge(self,source,target,attr_dict):
-        self.data.add_edge(source,target,**attr_dict)
+    def addEdge(self, source, target, attr_dict):
+        self.data.add_edge(source, target, **attr_dict)
         self.shape[0] = +1
   #      ret = {"n_att" : len(self._attributes),
   #             "n_target" : len([a for a in self._attributes if a.is_target])}
@@ -371,26 +369,13 @@ class AttributeOnlyContainer:
 class Attribute(dict):
 
     def __init__(self, name, measurementLevel=None, unit=None,
-                 description=None, defaultTargetAttribute=False,context=None,index=None):
+                 description=None, defaultTargetAttribute=False, context=None, index=None):
 
         if context is None:
             context={}
-        dict.__init__(self, name=name, measurementLevel = measurementLevel, unit = unit, description = description, defaultTargetAttribute = defaultTargetAttribute,
-                      context=context,index=index)
-
-
-
-        #self.name = name
-        #self.measurement_level = measurement_level
-        #self.unit = unit
-        #self.description = description
-        ##self.is_target = is_target
-        #self.graph_role=graph_role
-
-        #self.data_type=data_type
-        #self.data_class=data_class
-        #self.nominal_values=nominal_values
-        #self.number_missing_values=number_missing_values
+        dict.__init__(self, name=name, measurementLevel=measurementLevel,
+                      unit=unit, description=description, defaultTargetAttribute=defaultTargetAttribute,
+                      context=context, index=index)
 
     @property
     def name(self):
@@ -398,6 +383,14 @@ class Attribute(dict):
             return self["name"]
         else:
             self["name"] = None
+            return None
+
+    @property
+    def index(self):
+        if "index" in self:
+            return self["index"]
+        else:
+            self["index"] = None
             return None
 
     @property
@@ -461,9 +454,20 @@ class Dataset(MetadataEntity):
     def __init__(self, id_=None, **metadata):
         super().__init__(id_, **metadata)
         self._binary = None
+        self._binary_loader_fn = None
         self._binary_format = None
         self._fill_metedata()
 
+    def _get_binary(self):
+        """
+        returns the binary. In case that a binary_loader_fn is given, the binary is lazy loaded.
+        :return:
+        """
+        if self._binary is not None:
+            return self._binary.data
+        elif self._binary_loader_fn is not None:
+            self.set_data(*self._binary_loader_fn())  # derefered or lazy loading
+        return self._binary
 
     @property
     def type(self):
@@ -488,7 +492,7 @@ class Dataset(MetadataEntity):
         :return:
         """
         if self.has_data():
-            return self._binary.attributes
+            return self.data.attributes
         else:
             return None
 
@@ -504,7 +508,7 @@ class Dataset(MetadataEntity):
             return None
 
     def has_data(self):
-        return self._binary is not None
+        return self._get_binary() is not None
 
     @property
     def size(self):
@@ -514,39 +518,41 @@ class Dataset(MetadataEntity):
         if not self.has_data():
             return None
         else:
-            return self._binary.shape
+            return self.data.shape
 
     @property
     def isgraph(self):
         if "type" in self.metadata:
-            return self.metadata["type"]=="graph"or self.metadata["type"]=="graphDirected"
+            return self.metadata["type"] == "graph" or self.metadata["type"] == "graphDirected"
         else:
             return False
 
     def _fill_metedata(self):
-        keys=["name","version","description",
-              "originalSource","type"]
+        keys = ["name", "version", "description", "originalSource", "type"]
         for key in keys:
             if key not in self.metadata:
-                self.metadata[key]=""
+                self.metadata[key] = ""
         if "published" not in self.metadata:
-            self.metadata["published"]=False
+            self.metadata["published"] = False
 
     def pandas_repr(self):
         """
         :return: The pandas representation of the dataset. converts Numpy-array, pandas-df, and nx.Graph objects to pandas DF
         """
-        return self._binary.pandas_repr()
+        if self.has_data():
+            return None
+        else:
+            return self.data.pandas_repr()
 
     def features(self):
         if self.has_data():
-            return self._binary.features
+            return self.data.features
         else:
             return None
 
     def targets(self):
         if self.has_data():
-            return self._binary.targets
+            return self.data.targets
         else:
             return None
 
@@ -557,23 +563,22 @@ class Dataset(MetadataEntity):
         """
         return self._binary_format
 
-
     @property
     def num_attributes(self):
         if self.has_data():
-            return self._binary.num_attributes
+            return self.data.num_attributes
         else:
             return 0
 
     def profile(self, bins=50, check_correlation=True, correlation_threshold=0.8,
                 correlation_overrides=None, check_recoded=False):
-        if("profile" in self.metadata):
+        if "profile" in self.metadata:
             return self.metadata["profile"]
-        elif self.has_data():
-            profile=self._binary.profile(bins,check_correlation,correlation_threshold,correlation_overrides,check_recoded).get_description()
-            profile["variables"]=profile["variables"].to_dict(orient="index")
+        elif self.data is not None:
+            profile = self.data.profile(bins, check_correlation, correlation_threshold,
+                                       correlation_overrides, check_recoded).get_description()
+            profile["variables"] = profile["variables"].to_dict(orient="index")
             self.metadata["profile"] = profile
-
 
             _check_profiling_datatype(profile["variables"])
             _check_profiling_datatype(profile["table"])
@@ -584,37 +589,40 @@ class Dataset(MetadataEntity):
             for key in profile["correlations"].keys():
                 profile["correlations"][key]=profile["correlations"][key].to_dict()
 
-            #import json
-            #j=json.dumps(profile["variables"],ensure_ascii=True)
             return self.metadata["profile"]
         else:
             return "No records available"
 
-
     def describe(self):
-        if self.has_data():
-            return self._binary.describe()
+        if self.data is not None:
+            return self.data.describe()
         else:
             return "No records available"
 
-
-
-    """
-    sets the binary data and descriptive attributes
-    :param data: binary data in a supported format (numpy, pandas): size must be num_datasets x num_attributes
-    :param attributes: Description for attributes or None. If none, the attributes will be estimated as good as possible
-    """
     def set_data(self, data, attributes=None):
+        """
+        sets the binary data and descriptive attributes. If data is a function, it is expected that the function
+        returns a tuple (data, attributes) which can be used to call set_data at a later point in time and thus support
+        lazy loading.
+        :param data: binary data in a supported format (numpy, pandas, networkx):
+                    size must be num_datasets x num_attributes. If data is a function, it is expected that the function is called later.
+        :param attributes: Description for attributes or None. If none, the attributes will be estimated as good as possible
+        """
+        self._binary = None
+        self._binary_format = None
         if data is None:
             self._binary_format = None
             self._binary = AttributeOnlyContainer(attributes)
+        elif hasattr(data, '__call__'):
+            self._binary_loader_fn = data
+            return
         elif isinstance(data, pd.DataFrame):
             self._binary = PandasContainer(data, attributes)
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):
             self._binary = NumpyContainer(data, attributes)
             self._binary_format = formats.numpy
-        elif isinstance(data,nx.Graph):
+        elif isinstance(data, nx.Graph):
             self._binary = GraphContainer(data, attributes)
             self._binary_format = formats.graph
         else:
@@ -628,7 +636,7 @@ class Dataset(MetadataEntity):
 def _check_profiling_datatype(content):
     if(isinstance(content,dict)):
         for key in content.keys():
-            if key=="histogram" or key=="mini_histogram" or content[key] is np.nan:
+            if key == "histogram" or key == "mini_histogram" or content[key] is np.nan:
                 content[key]=None
             elif isinstance(content[key], np.int32)or isinstance(content[key], np.int64):
                 content[key] = int(content[key])
