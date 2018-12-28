@@ -15,11 +15,13 @@ import requests as req
 import json
 import io
 
+from deprecated import deprecated
 from padre.backend.experiment_uploader import ExperimentUploader
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
 import logging
-logger = logging.getLogger('pypadre')
+
+logger = logging.getLogger('pypadre - http')
 
 class PadreHTTPClient:
 
@@ -39,12 +41,16 @@ class PadreHTTPClient:
             self.silent_codes = []
         else:
             self.silent_codes = silent_codes
+
+        self._datasets_client = PadreHTTPClientDatasets(self)
+        self._experiments_client = ExperimentUploader(self)
+
         self._access_token = token
         if self._access_token is not None:
             self._default_header['Authorization'] = self._access_token
         else:
             logger.warning("Authentication token is NONE. You need to authentication for user %s "
-                           "with your current password (or set a new user)")
+                           "with your current password (or set a new user)" % self.user)
 
     def authenticate(self, passwd="", user= None):
         if user is not None:
@@ -94,7 +100,6 @@ class PadreHTTPClient:
     """
     returns the paging part of a url beginning with '?'
     """
-
     def get_paging_url(self, page=None, size=None, sort=None):
         ret = ""
         sep = "?"
@@ -159,47 +164,9 @@ class PadreHTTPClient:
         dataset.set_data(self._data_serializer.deserialize(res.content),
                          dataset.attributes)
 
-
+    @deprecated(reason ="use datasets.put method")
     def upload_dataset(self, dataset, create=False):
-        assert create or dataset.id is not None  # dataset id must be provided when the dataset should be updated
-        payload = dict()
-        payload.update(dataset.metadata)
-        payload["attributes"] = []
-        for ix, a in enumerate(dataset.attributes):
-            a_json = dict()
-            a_json["name"] = a.name
-            a_json["index"] = ix
-            a_json["measurementLevel"] = a.measurement_level
-            a_json["unit"] = a.unit
-            a_json["description"] = a.description
-            a_json["defaultTargetAttribute"] = a.is_target
-            payload["attributes"].append(a_json)
-        if create:
-            res = self.do_post(PadreHTTPClient.paths["datasets"], data=json.dumps(payload))
-        else:
-            if str(dataset.id).startswith(("http")):
-                res = self.do_put(dataset.id, data=json.dumps(payload))
-            else:
-                res = self.do_put(PadreHTTPClient.paths["dataset"](dataset.id), data=json.dumps(payload))
-        dataset.id(self.parse_hal(res)[1]["self"]["href"])
-        if dataset.has_data():
-            content, links = self.parse_hal(res)
-            # todo check format, compare it with the returned binary links possible, then submit.
-            if not "binaries" in links:
-                link = links["self"]["href"] + "/binaries/" + dataset.binary_format() + "/"
-            else:
-                link = links["binaries"]["href"] + "/" + dataset.binary_format() + "/"
-            self.do_put(link,
-                        headers={},  # let request handle the content type
-                        files={"file": io.BytesIO(self._data_serializer.serialise(dataset.data))})
-
-    def list_datasets(self, start=0, count=999999999, search=None):
-        ret = self.do_get(PadreHTTPClient.paths["datasets"])
-        content, links = self.parse_hal(ret)
-        if "datasets" in content:
-            return [json2dataset(ds) for ds in content["datasets"]]
-        else:
-            return []
+        self.datasets.put(dataset, create)
 
     def _get_id_url(self, id, kind, postfix=""):
         if str(id).startswith("http"):
@@ -263,9 +230,71 @@ class PadreHTTPClient:
 
     @property
     def experiments(self):
-        return ExperimentUploader(self)
+        return self._experiments_client
+
+    @property
+    def datasets(self):
+        return self._datasets_client
 
 
+class PadreHTTPClientDatasets:
+
+    def __init__(self, parent):
+        self._parent = parent
+
+    @property
+    def parent(self):
+        return self._parent
+
+    def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None):
+        """
+        lists all datasets available remote giving the search parameters.
+        :param search_name:
+        :param search_metadata:
+        :param start:
+        :param count:
+        :param search:
+        :return:
+        """
+        ret = self._parent.do_get(PadreHTTPClient.paths["datasets"])
+        content, links = self._parent.parse_hal(ret)
+        if "datasets" in content:
+            return [json2dataset(ds) for ds in content["datasets"]]
+        else:
+            return []
+
+    def put(self, dataset: Dataset, create :bool = True):
+        assert create or dataset.id is not None  # dataset id must be provided when the dataset should be updated
+        payload = dict()
+        payload.update(dataset.metadata)
+        payload["attributes"] = []
+        for ix, a in enumerate(dataset.attributes):
+            a_json = dict()
+            a_json["name"] = a.name
+            a_json["index"] = ix
+            a_json["measurementLevel"] = a.measurementLevel
+            a_json["unit"] = a.unit
+            a_json["description"] = a.description
+            a_json["defaultTargetAttribute"] = a.defaultTargetAttribute
+            payload["attributes"].append(a_json)
+        if create:
+            res = self._parent.do_post(PadreHTTPClient.paths["datasets"], data=json.dumps(payload))
+        else:
+            if str(dataset.id).startswith(("http")):
+                res = self._parent.do_put(dataset.id, data=json.dumps(payload))
+            else:
+                res = self._parent.do_put(PadreHTTPClient.paths["dataset"](dataset.id), data=json.dumps(payload))
+        dataset.id(self._parent.parse_hal(res)[1]["self"]["href"])
+        if dataset.has_data():
+            content, links = self._parent.parse_hal(res)
+            # todo check format, compare it with the returned binary links possible, then submit.
+            if not "binaries" in links:
+                link = links["self"]["href"] + "/binaries/" + dataset.binary_format() + "/"
+            else:
+                link = links["binaries"]["href"] + "/" + dataset.binary_format() + "/"
+            self._parent.do_put(link,
+                        headers={},  # let request handle the content type
+                        files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
 
 PadreHTTPClient.paths = {
     "padre-api": "http://padre-api:@localhost:8080",

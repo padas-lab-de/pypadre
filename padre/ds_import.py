@@ -19,7 +19,7 @@ import os.path
 from padre.datasets import Dataset, Attribute
 from multiprocessing import Process
 import copy
-
+import uuid
 def _split_DESCR(s):
     s = s.strip()
     k = s.find("\n")
@@ -44,7 +44,7 @@ def _create_dataset_data(bunch):
 
 def _create_dataset(bunch, type,source):
     meta = dict()
-
+    meta["id"] = str(uuid.uuid4())
     meta["name"], meta["description"] = _split_DESCR(bunch["DESCR"])
     meta["type"] = type
     meta["originalSource"]=source
@@ -52,8 +52,8 @@ def _create_dataset(bunch, type,source):
     meta["version"] = ""
     meta["context"] = {}
 
-    dataset =  Dataset(None, **meta)
-    dataset.set_data(*_create_dataset_data(bunch))
+    dataset = Dataset(meta["id"], **meta)
+    dataset.set_data(lambda: _create_dataset_data(bunch))
     return dataset
 
 

@@ -30,7 +30,7 @@ class NumpyContainer:
         self._shape = data.shape
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
-            self._features = data
+            self._data = data
             self._targets_idx = None
             self._features_idx = np.arange(self._shape[1])
         else:
@@ -492,7 +492,7 @@ class Dataset(MetadataEntity):
         :return:
         """
         if self.has_data():
-            return self.data.attributes
+            return self._binary.attributes
         else:
             return None
 
@@ -566,7 +566,7 @@ class Dataset(MetadataEntity):
     @property
     def num_attributes(self):
         if self.has_data():
-            return self.data.num_attributes
+            return self._binary.num_attributes
         else:
             return 0
 
@@ -595,7 +595,7 @@ class Dataset(MetadataEntity):
 
     def describe(self):
         if self.data is not None:
-            return self.data.describe()
+            return self._binary.describe()
         else:
             return "No records available"
 

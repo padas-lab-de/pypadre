@@ -10,6 +10,8 @@ import re
 import shutil
 import uuid
 
+from deprecated import deprecated
+
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
 from padre.datasets import Dataset, Attribute
 from padre.experiment import Experiment
@@ -353,7 +355,6 @@ class ExperimentFileRepository:
         self._file.write(message + "\n")
 
 
-
 class DatasetFileRepository(object):
     """
     repository for handling datasets as File Directory with the following format
@@ -373,15 +374,24 @@ class DatasetFileRepository(object):
         self._metadata_serializer = JSonSerializer
         self._data_serializer = PickleSerializer
 
-    def list_datasets(self, search_id=None, search_metadata=None):
+    def list(self, search_name=None, search_metadata=None) -> list:
         """
         List all data sets in the repository
         :param search_name: regular expression based search string for the title. Default None
         :param search_metadata: dict with regular expressions per metadata key. Default None
         """
-        return _dir_list(self.root_dir, search_id, search_metadata)
+        # todo apply the search metadata filter.
+        dirs = _dir_list(self.root_dir, search_name)
+        return [self.get(dir, metadata_only=True) for dir in dirs]
 
-    def put_dataset(self, dataset):
+
+    def put(self, dataset: Dataset)-> None:
+        """
+        stores the provided dataset into the file backend under the directory `dataset.id`
+        (file `data.bin` contains the binary and file `metadata.json` contains the metadata)
+        :param dataset: dataset to put.
+        :return:
+        """
         _dir = _get_path(self.root_dir, str(dataset.id))
         try:
             if dataset.has_data():
@@ -397,8 +407,11 @@ class DatasetFileRepository(object):
             shutil.rmtree(_dir)
             raise e
 
+    @deprecated(reason="use put")
+    def put_dataset(self, dataset):
+        self.put(dataset)
 
-    def get_dataset(self, id, metadata_only=False):
+    def get(self, id, metadata_only=False):
         """
         Fetches a data set with `name` and returns it (plus some metadata)
 
@@ -410,20 +423,35 @@ class DatasetFileRepository(object):
         with open(os.path.join(_dir, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
         attributes = metadata.pop("attributes")
-        print(type(metadata))
+        # print(type(metadata))
         ds = Dataset(id, **metadata)
         #sorted(attributes, key=lambda a: a["index"])
         #assert sum([int(a["index"]) for a in attributes]) == len(attributes) * (
         #    len(attributes) - 1) / 2  # check attribute correctness here
-        ds.set_data(None,
-                    [Attribute(a["name"], a["measurement_level"], a["unit"], a["description"],
-                               a["is_target"], a["data_class"], a["nominal_values"], a["number_missing_values"])
-                     for a in attributes])
-        if metadata_only:
-            return ds
-        elif os.path.exists(os.path.join(_dir, "data.bin")):
-            data = None
-            with open(os.path.join(_dir, "data.bin"), 'rb') as f:
-                data = self._data_serializer.deserialize(f.read())
-            ds.set_data(data, ds.attributes)
-            return ds
+        attributes = [Attribute(a["name"], a["measurementLevel"], a["unit"], a["description"],
+                               a["defaultTargetAttribute"], a["context"], a["index"])
+                     for a in attributes]
+        ds.set_data(None,attributes)
+        if os.path.exists(os.path.join(_dir, "data.bin")):
+            def __load_data():
+                with open(os.path.join(_dir, "data.bin"), 'rb') as f:
+                    data = self._data_serializer.deserialize(f.read())
+                return data, attributes
+            ds.set_data(__load_data)
+        return ds
+
+    def delete(self, id):
+        """
+
+        :param id:
+        :return:
+        """
+        _dir = _get_path(self.root_dir, id)
+        if os.path.exists(_dir):
+            shutil.rmtree(_dir)
+
+
+    @deprecated(reason="use get")
+    def get_dataset(self, id, metadata_only=False):
+        return self.get(id, metadata_only)
+

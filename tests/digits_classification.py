@@ -27,7 +27,7 @@ def main():
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list_datasets()
+        pypadre.datasets.list()
         ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
         ds = [i for i in load_sklearn_toys()][2]

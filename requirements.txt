@@ -17,3 +17,4 @@ tensorflow==1.10.0
 requests-toolbelt==0.8.0
 mock==2.0.0
 beautifulsoup4==4.6.3
+Deprecated=1.2.4
