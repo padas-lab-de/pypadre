@@ -14,8 +14,8 @@ from padre.protobuffer.protobuf import resultV1_pb2 as proto
 from padre.backend.serialiser import PickleSerializer
 
 
-class ExperimentUploader:
-    """Experiment uploader to upload data to server"""
+class HttpBackendExperiments:
+    """Experiment handler class to communicate to server"""
     def __init__(self, http_client, project_name="Default project"):
         """
         This initializes the Uploader class for given experiment.
@@ -421,9 +421,5 @@ class ExperimentUploader:
         :return:
         """
         pass
-
-
-
-
 
 
