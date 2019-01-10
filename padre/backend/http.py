@@ -271,8 +271,10 @@ PadreHTTPClient.paths = {
     "runs": "/runs",
     "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
     "run-splits": "/runSplits",
+    "run-split": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id,
     "oauth-token": lambda csrf_token: "/oauth/token?=" + csrf_token,
     "splits": "/splits",
+    "split": lambda id: "/splits/" + id,
     "dataset": lambda id: "/datasets/" + id + "/",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',
 }
