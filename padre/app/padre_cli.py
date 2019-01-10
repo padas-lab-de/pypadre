@@ -68,16 +68,15 @@ def list_config_params(ctx):
 
 
 @pypadre_cli.command(name="authenticate")
-@click.option('--url', default=None, help='Url of server api')
 @click.option('--user', default=None, help='User on server')
 @click.option('--passwd', default=None, help='Password for given user')
 @click.pass_context
-def authenticate(ctx, url, user, passwd):
+def authenticate(ctx, user, passwd):
     """
     To generate new token in config. Authenticate with given credentials, in case credentials
     are not provided default credentials will be used.
     """
-    ctx.obj["pypadre"].config.authenticate(url, user, passwd)
+    ctx.obj["pypadre"].config.authenticate(user, passwd)
 
 
 #################################

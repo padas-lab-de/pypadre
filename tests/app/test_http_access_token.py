@@ -77,9 +77,6 @@ class TestGetAccessToken01(unittest.TestCase):
         self.assertEqual(self.test_user,
                          self.test_object.do_post.call_args_list[0][1]['data']['username'],
                          "do_post not called with default username")
-        self.assertEqual(self.test_password,
-                         self.test_object.do_post.call_args_list[0][1]['data']['password'],
-                         "do_post not called with default password")
         self.assertEqual("password",
                          self.test_object.do_post.call_args_list[0][1]['data']['grant_type'],
                          "do_post not called with grant_type password")
@@ -97,16 +94,10 @@ class TestGetAccessToken01(unittest.TestCase):
         url = "test given url"
         user = "test_user"
         password = "test_password"
-        self.test_object.get_access_token(*(url, user, password))
-        self.assertEqual(user,
-                         self.test_object.do_post.call_args[1]['data']['username'],
-                         "do_post not called with given username")
+        self.test_object.get_access_token(password)
         self.assertEqual(password,
                          self.test_object.do_post.call_args[1]['data']['password'],
                          "do_post not called with given password")
-        self.assertEqual(url,
-                         self.test_object.do_post.call_args[0][0].split('/')[0],
-                         "do_post not called with given url")
         self.assertEqual("token?=" + self.test_csrf,
                          self.test_object.do_post.call_args[0][0].split('/')[-1],
                          "do_post not called with expected csrf token with url")
@@ -173,7 +164,7 @@ class TestHasToken(unittest.TestCase):
         Scenario: When token is None
         """
         mock_token.return_value = None
-        self.test_object = PadreHTTPClient(*('test url', 'user', 'pass'))
+        self.test_object = PadreHTTPClient(*('test url', 'user'))
         result = self.test_object.has_token()
         self.assertFalse(result, "Not returning False")
 

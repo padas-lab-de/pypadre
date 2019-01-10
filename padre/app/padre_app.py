@@ -236,7 +236,7 @@ class PadreConfig:
         """
         return self._config[section][key]
 
-    def authenticate(self, user=None, passwd=None, url=None):
+    def authenticate(self, user=None, passwd=None):
         """
         Authenticate given user and update new token in the config.
 
@@ -249,7 +249,7 @@ class PadreConfig:
         """
         self.http_backend_config["user"]=user
         http = PadreHTTPClient(**self.http_backend_config)
-        token = http.get_access_token(url, user, passwd)
+        token = http.get_access_token(passwd)
         self.set('token', token)
 
 
