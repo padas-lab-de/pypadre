@@ -136,6 +136,15 @@ class SKLearnWorkflow:
                 score = self._pipeline.score(ctx.train_features, y)
                 ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.trainset")
                 ctx.logger.log_score(ctx, keys=["training score"], values=[score])
+                args = {'source': self,
+                        'keys': ['training score'],
+                        'values': [score]}
+                # Create event dictionary
+                event_dict = {'EVENT_NAME': 'EVENT_LOG_RESULTS',
+                              'args': args}
+                # Fire event
+                eventemitter.emit('EVENT', event_dict)
+
                 if ctx.has_valset():
                     y = ctx.val_targets.reshape((len(ctx.val_targets),))
                     ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.valset")
@@ -512,7 +521,14 @@ class Split(MetadataEntity):
         return self._run
 
     def execute(self):
-        self.logger.log_start_split(self)
+        # self.logger.log_start_split(self)
+        args = {'split': self}
+        # Create event dictionary
+        event_dict = {'EVENT_NAME': 'EVENT_START_SPLIT',
+                      'args': args}
+        # Fire event
+        eventemitter.emit('EVENT', event_dict)
+
         # log run start here.
         workflow = self._run.experiment.workflow
         self.logger.log_event(self, exp_events.start, phase=phases.fitting)
@@ -522,7 +538,13 @@ class Split(MetadataEntity):
             self.logger.log_event(self, exp_events.start, phase=phases.inferencing)
             workflow.infer(self, self.train_idx.tolist(), self.test_idx.tolist())
             self.logger.log_event(self, exp_events.stop, phase=phases.inferencing)
-        self.logger.log_stop_split(self)
+        # self.logger.log_stop_split(self)
+        args = {'split': self}
+        # Create event dictionary
+        event_dict = {'EVENT_NAME': 'EVENT_STOP_SPLIT',
+                      'args': args}
+        # Fire event
+        eventemitter.emit('EVENT', event_dict)
 
     def has_testset(self):
         return self._test_idx is not None and len(self._test_idx) > 0
@@ -644,7 +666,14 @@ class Run(MetadataEntity):
 
     def do_splits(self):
         from copy import deepcopy
-        self.logger.log_start_run(self)
+        #self.logger.log_start_run(self)
+        args = {'run': self}
+        # Create event dictionary
+        event_dict = {'EVENT_NAME': 'EVENT_START_RUN',
+                      'args': args}
+        # Fire event
+        eventemitter.emit('EVENT', event_dict)
+
         # instantiate the splitter here based on the splitting configuration in options
         splitting = Splitter(self._experiment.dataset, self.logger,  **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
@@ -661,7 +690,13 @@ class Run(MetadataEntity):
             self._results.append(deepcopy(self._experiment.workflow.results))
             self._metrics.append(deepcopy(self._experiment.workflow.metrics))
             self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
-        self.logger.log_stop_run(self)
+        # self.logger.log_stop_run(self)
+        args = {'run': self}
+        # Create event dictionary
+        event_dict = {'EVENT_NAME': 'EVENT_STOP_RUN',
+                      'args': args}
+        # Fire event
+        eventemitter.emit('EVENT', event_dict)
 
     @property
     def experiment(self):
@@ -893,13 +928,13 @@ class Experiment(MetadataEntity):
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
-        self.logger.log_start_experiment(self, append_runs)
+        # self.logger.log_start_experiment(self, append_runs)
         args = {'experiment': self,
                 'append_runs': self._keep_runs}
         event_dict = {'EVENT_NAME': 'EVENT_START_EXPERIMENT',
                       'args': args}
 
-        #eventemitter.emit('EVENT', event_dict)
+        eventemitter.emit('EVENT', event_dict)
 
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
@@ -910,7 +945,12 @@ class Experiment(MetadataEntity):
         self._metrics.append(deepcopy(r.metrics))
         self._hyperparameters = (deepcopy(r.hyperparameters))
         self._last_run = r
-        self.logger.log_stop_experiment(self)
+        # self.logger.log_stop_experiment(self)
+        args = {'experiment': self}
+        event_dict = {'EVENT_NAME': 'EVENT_STOP_EXPERIMENT',
+                      'args': args}
+
+        eventemitter.emit('EVENT', event_dict)
 
     def grid_search(self, parameters=None):
         """
@@ -925,7 +965,16 @@ class Experiment(MetadataEntity):
         if parameters is None:
             self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
             self.run()
-            self.logger.put_experiment_configuration(self)
+            # self.logger.put_experiment_configuration(self)
+            # Create argument dictionary with required arguments for logger
+            args = {'experiment': self}
+
+            # Create event dictionary
+            event_dict = {'EVENT_NAME': 'EVENT_PUT_EXPERIMENT_CONFIGURATION',
+                          'args': args}
+
+            # Fire event
+            eventemitter.emit('EVENT', event_dict)
             return
 
         # Update metadata with version details of packages used in the workflow
@@ -936,10 +985,16 @@ class Experiment(MetadataEntity):
         master_list = []
         params_list = []
 
-        #self.logger.log_start_experiment(self)
-        event_dict = {'EVENT_NAME':'EVENT_START_EXPERIMENT',
-                      'args': self}
+        # self.logger.log_start_experiment(self)
+        # Create dictionary with required parameters for logger
+        args = {'experiment': self,
+                'append_runs': self._keep_runs}
+        # Create event dictionary
+        event_dict = {'EVENT_NAME': 'EVENT_START_EXPERIMENT',
+                      'args': args}
+        # Fire event
         eventemitter.emit('EVENT', event_dict)
+
         for estimator in parameters:
             param_dict = parameters.get(estimator)
             for params in param_dict:
@@ -952,7 +1007,16 @@ class Experiment(MetadataEntity):
         grid = itertools.product(*master_list)
 
         self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
-        self.logger.put_experiment_configuration(self)
+        # self.logger.put_experiment_configuration(self)
+        # Create argument dictionary with required arguments for logger
+        args = {'experiment': self}
+
+        # Create event dictionary
+        event_dict = {'EVENT_NAME': 'EVENT_PUT_EXPERIMENT_CONFIGURATION',
+                      'args': args}
+
+        # Fire event
+        eventemitter.emit('EVENT', event_dict)
 
         # Get the total number of iterations
         grid_size = 1
@@ -991,7 +1055,16 @@ class Experiment(MetadataEntity):
 
             curr_executing_index += 1
 
-        self.logger.log_stop_experiment(self)
+        # self.logger.log_stop_experiment(self)
+        # Create argument dictionary with required arguments for logger
+        args = {'experiment': self}
+
+        # Create event dictionary
+        event_dict = {'EVENT_NAME': 'EVENT_STOP_EXPERIMENT',
+                      'args': args}
+
+        # Fire event
+        eventemitter.emit('EVENT', event_dict)
 
     def create_experiment_configuration_dict(self, params=None, single_run=False):
         """

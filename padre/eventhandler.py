@@ -1,7 +1,18 @@
 from pymitter import EventEmitter
+"""
+Structure of Event Handling Mechanism in PyPaDRe
+The event emitter fires only a single event called EVENT. In the argument to the event, the actual event name is passed
+along with the required arguments to the Event Handler Function.
+
+Each fired event is pushed to a queue, and gets handled one after the other. The logger_list variable contains the list 
+of loggers that are to be used to handle the events. A single event can be handled by multiple loggers if needed. A 
+single event can trigger multiple functions too.
+"""
+
 
 """
-This list contains the list of loggers which log each event occuring in the experiment
+This list contains the list of loggers which log each event occuring in the experiment. These functions call the 
+corresponding functions in the logger after extracting the required arguments required by the logger function.
 """
 logger_list = []
 
@@ -55,7 +66,7 @@ def log_stop_split(args):
     split = args.get('split', None)
     if split is not None:
         for logger in logger_list:
-            logger.log_start_split(split=split)
+            logger.log_stop_split(split=split)
 
 
 def log_score(args):
@@ -134,7 +145,9 @@ class event_queue:
         Check for any pending events in the event queue and process the events
         :return:
         """
-
+        if self._event_queue:
+            print('EVENT QUEUE IS NOT EMPTY')
+        print(self._event_queue)
         process_events()
 
     def process_events(self):
@@ -159,15 +172,14 @@ class event_queue:
                 UNHANDLED EVENT ENCOUNTERED
                 """
                 print('UNHANDLED EVENT ENCOUNTERED')
-                return
-
-            args = event.get('args', None)
-            # If there are multiple event handlers for the same event, iterate through each handler
-            if len(event_handlers) > 1:
-                for event_handler in event_handlers:
-                    event_handler(args=args)
             else:
-                event_handlers[0](args)
+                args = event.get('args', None)
+                # If there are multiple event handlers for the same event, iterate through each handler
+                if len(event_handlers) > 1:
+                    for event_handler in event_handlers:
+                        event_handler(args=args)
+                else:
+                    event_handlers[0](args)
 
         self._emptying_queue = False
 
@@ -198,7 +210,7 @@ def add_event_to_queue(args):
     :param args: Arguments to be used for the event
     :return:
     """
-    print('Adding event to Queue')
+    print('Adding event to Queue' + str(args))
     event_queue_obj.event_queue = args
 
 eventemitter = EventEmitter()

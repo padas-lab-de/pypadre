@@ -42,7 +42,7 @@ if __name__ == '__main__':
                     description="Testing Event based mechanism for logging",
                     dataset=ds,
                     workflow=create_test_pipeline(),
-                    backend=pypadre.repository, keep_splits=True, strategy="cv")
+                    backend=pypadre.repository, keep_splits=True)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.grid_search()  # run the experiment and report
