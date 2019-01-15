@@ -217,6 +217,18 @@ eventemitter = EventEmitter()
 eventemitter.on('EVENT', add_event_to_queue)
 
 
+def trigger_event(event_name, args):
+    """
+    This function provides a simplified interface to wrap all event related code and fire the event
+    :param event_name: Name of the event
+    :param args: Parameters to be passed to the event
+    :return: None
+    """
+    event_dict = {'EVENT_NAME': 'EVENT_LOG_EVENT',
+                  'args': args}
+
+    eventemitter.emit('EVENT', event_dict)
+
 def process_events():
     """
     This function processes the events currently pending in the queue.
