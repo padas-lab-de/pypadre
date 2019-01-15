@@ -258,11 +258,11 @@ class ExperimentUploader:
 
     def put_metrics(self, experiment, run, split, metrics):
         rs_id = split.metadata["server_url"].split("/")[-1]
-        r_id = run.metadata["server_url"].split("/")[-1]
-        e_id = experiment.metadata["server_url"].split("/")[-1]
-        update_split_url = self.get_base_url() + self._http_client.paths["run-split"](e_id, r_id, rs_id)
+        update_split_url = self.get_base_url() + self._http_client.paths["split"](rs_id)
+        response = None
         if self._http_client.has_token():
-            response = self._http_client.do_patch(update_split_url, **{"data": json.dumps({"metrics": metrics, "uid": rs_id})})
+            response = self._http_client.do_patch(update_split_url,
+                                                  **{"data": json.dumps({"metrics": metrics})})
         return response
 
     def log(self, message):
