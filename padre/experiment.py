@@ -129,25 +129,30 @@ class SKLearnWorkflow:
             # do logging here
             #ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn." + phases.fitting)
             # Create argument dictionary for event
-            args = {'source': self,
+            args = {'source': ctx,
                     'kind': exp_events.start,
-                    'parameters': "sklearn." + phases.fitting}
+                    'parameters': {'phase':"sklearn." + phases.fitting}}
             # Trigger event
             trigger_event('EVENT_LOG_EVENT', args=args)
 
             y = ctx.train_targets.reshape((len(ctx.train_targets),))
             self._pipeline.fit(ctx.train_features, y)
-            ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn." + phases.fitting)
+            #ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn." + phases.fitting)
             args['kind'] = exp_events.stop
             trigger_event('EVENT_LOG_EVENT', args=args)
             if self.is_scorer():
-                ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.trainset")
+                # ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.trainset")
+                args['kind'] = exp_events.start
+                args['parameters'] = {'phase':"sklearn.scoring.trainset"}
+                trigger_event('EVENT_LOG_EVENT', args=args)
                 score = self._pipeline.score(ctx.train_features, y)
-                ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.trainset")
-                ctx.logger.log_score(ctx, keys=["training score"], values=[score])
+                # ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.trainset")
+                args['kind'] = exp_events.stop
+                trigger_event('EVENT_LOG_EVENT', args=args)
+                # ctx.logger.log_score(ctx, keys=["training score"], values=[score])
 
                 # Create argument dictionary for event
-                args = {'source': self,
+                args = {'source': ctx,
                         'keys': ['training score'],
                         'values': [score]}
                 # Trigger event
@@ -155,10 +160,21 @@ class SKLearnWorkflow:
 
                 if ctx.has_valset():
                     y = ctx.val_targets.reshape((len(ctx.val_targets),))
-                    ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.valset")
+                    # ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.valset")
+                    args['kind'] = exp_events.start
+                    args['parameters'] = {'phase': "sklearn.scoring.valset"}
+                    trigger_event('EVENT_LOG_EVENT', args=args)
                     score = self._pipeline.score(ctx.val_features, y)
-                    ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.valset")
+                    # ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.valset")
+                    args['kind'] = exp_events.stop
+                    trigger_event('EVENT_LOG_EVENT', args=args)
                     ctx.logger.log_score(ctx, keys=["validation score"], values=[score])
+                    # Create argument dictionary for event
+                    args = {'source': ctx,
+                            'keys': ['validation score'],
+                            'values': [score]}
+                    # Trigger event
+                    trigger_event('EVENT_LOG_SCORE', args=args)
 
     def infer(self, ctx, train_idx, test_idx):
         from copy import deepcopy
