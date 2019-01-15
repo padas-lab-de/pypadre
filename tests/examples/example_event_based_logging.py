@@ -3,6 +3,8 @@ This file shows an example on how to use the pypadre app.
 """
 from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment, Splitter
+from padre.base import PadreLogger
+from padre.eventhandler import logger_list, eventemitter
 import pprint
 
 
@@ -17,6 +19,12 @@ def create_test_pipeline():
 
 if __name__ == '__main__':
     from padre.app import pypadre
+
+
+    logger = PadreLogger()
+    logger.backend = pypadre.repository
+    logger_list.append(logger)
+
     pypadre.set_printer(print)
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
@@ -30,8 +38,8 @@ if __name__ == '__main__':
     if ds is None:
         ds = [i for i in load_sklearn_toys()][2]
     print(ds)
-    ex = Experiment(name="Test Experiment SVM",
-                    description="Testing Support Vector Machines via SKLearn Pipeline",
+    ex = Experiment(name="Event based Test Experiment",
+                    description="Testing Event based mechanism for logging",
                     dataset=ds,
                     workflow=create_test_pipeline(),
                     backend=pypadre.repository, keep_splits=True, strategy="cv")

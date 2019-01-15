@@ -59,15 +59,28 @@ def log_stop_split(args):
 
 
 def log_score(args):
-    pass
+    source = args.get('source', None)
+    parameters = args.get('parameters', None)
+    if source is not None and parameters is not None:
+        for logger in logger_list:
+            logger.log_score(source, **parameters)
 
 
 def log_results(args):
-    pass
+    source = args.get('source', None)
+    parameters = args.get('parameters', None)
+    if source is not None and parameters is not None:
+        for logger in logger_list:
+            logger.log_results(source, **parameters)
 
 
 def log_event(args):
-    pass
+    source = args.get('source', None)
+    parameters = args.get('parameters', None)
+    kind = args.get('kind', None)
+    if source is not None and parameters is not None:
+        for logger in logger_list:
+            logger.log_event(source, kind, **parameters)
 
 
 def log(args):
@@ -115,6 +128,14 @@ EVENT_QUEUE = []
 class event_queue:
     _event_queue = []
     _emptying_queue = False
+
+    def __del__(self):
+        """
+        Check for any pending events in the event queue and process the events
+        :return:
+        """
+
+        process_events()
 
     def process_events(self):
         """

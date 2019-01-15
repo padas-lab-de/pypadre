@@ -30,6 +30,7 @@ todo: we can put a user specific context in the `my_config_dict` which can be th
 import itertools
 import platform
 from collections import OrderedDict
+from padre.eventhandler import eventemitter
 # todo overthink the logger architecture. Maybe the storage should be handled with the exxperiment, and not within
 # a particular logger class. so the Experiment could be used to access splits later on and to reproduce
 # individual steps.
@@ -893,6 +894,12 @@ class Experiment(MetadataEntity):
         # todo allow to append runs for experiments
         # register experiment through logger
         self.logger.log_start_experiment(self, append_runs)
+        args = {'experiment': self,
+                'append_runs': self._keep_runs}
+        event_dict = {'EVENT_NAME': 'EVENT_START_EXPERIMENT',
+                      'args': args}
+
+        #eventemitter.emit('EVENT', event_dict)
 
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
@@ -929,7 +936,10 @@ class Experiment(MetadataEntity):
         master_list = []
         params_list = []
 
-        self.logger.log_start_experiment(self)
+        #self.logger.log_start_experiment(self)
+        event_dict = {'EVENT_NAME':'EVENT_START_EXPERIMENT',
+                      'args': self}
+        eventemitter.emit('EVENT', event_dict)
         for estimator in parameters:
             param_dict = parameters.get(estimator)
             for params in param_dict:
