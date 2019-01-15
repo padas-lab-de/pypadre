@@ -222,6 +222,7 @@ class ExperimentUploader:
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
         data["split"] = self.encode_split(split)
+        data["metrics"] = {}
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
@@ -247,7 +248,7 @@ class ExperimentUploader:
         e_id = experiment.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["results"](e_id, r_id, rs_id)
         response = None
-        if bool(results):
+        if bool(results) and self._http_client.has_token():
             with tempfile.TemporaryFile() as temp_file:
                 file = self.make_proto(results, temp_file)
                 m = MultipartEncoder(
@@ -256,7 +257,13 @@ class ExperimentUploader:
         return response
 
     def put_metrics(self, experiment, run, split, metrics):
-        pass
+        rs_id = split.metadata["server_url"].split("/")[-1]
+        update_split_url = self.get_base_url() + self._http_client.paths["split"](rs_id)
+        response = None
+        if self._http_client.has_token():
+            response = self._http_client.do_patch(update_split_url,
+                                                  **{"data": json.dumps({"metrics": metrics})})
+        return response
 
     def log(self, message):
         pass
