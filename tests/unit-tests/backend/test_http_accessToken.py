@@ -77,12 +77,30 @@ class TestGetAccessToken01(unittest.TestCase):
         self.assertEqual(self.test_user,
                          self.test_object.do_post.call_args_list[0][1]['data']['username'],
                          "do_post not called with default username")
-        self.assertEqual(self.test_password,
-                         self.test_object.do_post.call_args_list[0][1]['data']['password'],
-                         "do_post not called with default password")
         self.assertEqual("password",
                          self.test_object.do_post.call_args_list[0][1]['data']['grant_type'],
                          "do_post not called with grant_type password")
+
+    def test_access_token_04(self):
+        """
+        Test PadreHTTPClient.get_access_token with given url, user, password and csrf
+
+        Scenario: Test if do_post called with given url, user, password and csrf in url
+        """
+        response_mock = MagicMock()
+        response_mock.status_code = 200
+        response_mock.content = json.dumps({"access_token": "test_token"})
+        self.test_object.do_post = MagicMock(return_value=response_mock)
+        url = "test given url"
+        user = "test_user"
+        password = "test_password"
+        self.test_object.get_access_token(password)
+        self.assertEqual(password,
+                         self.test_object.do_post.call_args[1]['data']['password'],
+                         "do_post not called with given password")
+        self.assertEqual("token?=" + self.test_csrf,
+                         self.test_object.do_post.call_args[0][0].split('/')[-1],
+                         "do_post not called with expected csrf token with url")
 
     def tearDown(self):
         pass
