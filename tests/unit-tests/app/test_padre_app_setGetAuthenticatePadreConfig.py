@@ -26,41 +26,17 @@ class TestSetAndGet(unittest.TestCase):
 
     def test_set_and_get(self):
         """Test set and get functions"""
-        padre_config = PadreConfig(MagicMock(), self.path)
+        padre_config = PadreConfig(self.path)
         test_key = 'test_key'
         test_value = str(uuid.uuid4())
         padre_config.set(test_key, test_value, 'TEST')
-        updated_value = padre_config.get(test_key)
+        updated_value = padre_config.get(test_key, "TEST")
         self.assertEqual(test_value, updated_value, 'Config get or set not working')
 
     def tearDown(self):
         """Remove config file after test"""
         os.remove(self.path)
 
-
-class TestList(unittest.TestCase):
-    """Test PadreConfig.list() function"""
-    def setUp(self):
-        """Create config file for testing purpose"""
-        self.path = os.path.expanduser('~/.tests.cfg')
-        self.config = configparser.ConfigParser()
-        self.test_data = {'test_key': 'value 1', 'key2': 'value 2'}
-        self.config['TEST'] = self.test_data
-        self.config['TEST2'] = {'key3': 'value3'}
-        with open(self.path, 'w+') as configfile:
-            self.config.write(configfile)
-
-    def test_list(self):
-        """Test expected data returned from config list"""
-        padre_config = PadreConfig(MagicMock(), self.path)
-        result_list = padre_config.list()
-        self.assertTrue(
-            any(d['TEST'] == self.test_data for d in result_list if 'TEST' in d),
-            'Expected data not found in config list')
-
-    def tearDown(self):
-        """Remove config file after test"""
-        os.remove(self.path)
 
 
 class TestAuthenticate(unittest.TestCase):
