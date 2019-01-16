@@ -442,7 +442,6 @@ class DatasetFileRepository(object):
 
     def delete(self, id):
         """
-
         :param id:
         :return:
         """

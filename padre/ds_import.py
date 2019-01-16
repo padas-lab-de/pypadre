@@ -343,7 +343,7 @@ def sendTop100Datasets_multi(auth_token,server_url="http://localhost:8080",worke
     for i in padre.ds_import.load_sklearn_toys():
         padre.ds_import.createServerDataset(i, auth_token, server_url)
 
-    data="11,12,14,15,16,18,20,3,6,32,36,38,22,23,24,28,29,42,44,46,54,60,182,188,151,300,312,307,375,377,333,334,335," \
+    data = "11,12,14,15,16,18,20,3,6,32,36,38,22,23,24,28,29,42,44,46,54,60,182,188,151,300,312,307,375,377,333,334,335," \
          "451,458,469,470,554,1046,1049,1050,1038,1114,1120,1063,1067,1068,1053,1459,1471,1479,1480,1466,1467,1486," \
          "1489,1504,4135,23380,1461,1476,1475,1492,1491,1485,1468,1501,1462,1487,1494,1493,1478,1590,1112,1515,1510," \
          "1497,23381,4538,23512,4134,6332,4534,1464,37,31,50,40536,40496,40668,40499,40981"
@@ -470,9 +470,9 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
 
     """
 
-    binary= tempfile.TemporaryFile(mode='w+b')
+    binary = tempfile.TemporaryFile(mode='w+b')
 
-    proto_enlarged=padre.protobuffer.proto_organizer.createProtobuffer(dataset,binary)
+    proto_enlarged=padre.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
 
     hed = {'Authorization': auth_token}
 
