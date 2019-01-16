@@ -24,7 +24,7 @@ class HttpBackendExperiments:
         self._binary_serializer = PickleSerializer
         self.dataset_id = None
         self.experiment_id = None
-        self.project_id = self.get_or_create_project(project_name)
+        self.project_name = project_name
 
     def get_or_create_project(self, name):
         id_ = self.get_id_by_name(name, self._http_client.paths["projects"])
@@ -92,7 +92,7 @@ class HttpBackendExperiments:
             location = response.headers['Location']
         return location
 
-    def put_experiment(self, experiment):
+    def put_experiment(self, experiment, append_runs=None):
         """
         Upload experiment to server
         :param experiment: Experiment instance
@@ -121,7 +121,7 @@ class HttpBackendExperiments:
               "title": "string",
               "type": "string"
             }]
-        experiment_data["projectId"] = self.project_id
+        experiment_data["projectId"] = self.get_or_create_project(self.project_name)
         experiment_data["datasetId"] = self.dataset_id
         experiment_data["pipeline"] = {"components": [
             {"description": experiment.metadata["description"],
@@ -129,7 +129,9 @@ class HttpBackendExperiments:
              "name": experiment.metadata["name"]}
         ]}
 
-        return self.create_experiment(experiment_data)
+        url = self.create_experiment(experiment_data)
+        experiment.metadata["server_url"] = url
+        return url
 
     def delete_experiment(self, ex):
         """
@@ -200,6 +202,7 @@ class HttpBackendExperiments:
                            "application/octet-stream")})
             headers = {"Content-Type": data.content_type}
             self._http_client.do_post(run_model_url, **{"data": data, "headers": headers})
+        run.metadata["server_url"] = location
         return location
 
     def put_split(self, experiment, run, split):
@@ -226,6 +229,7 @@ class HttpBackendExperiments:
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
+        split.metadata["server_url"] = location
         return location
 
     def put_results(self, experiment, run, split, results):
