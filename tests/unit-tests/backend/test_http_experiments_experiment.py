@@ -1,5 +1,5 @@
 """
-This file contains tests covering backend.experiment_uploader.ExperimentUploader class
+This file contains tests covering backend.http_experiments.HttpBackendExperiments class
 All unnecessary function and http calls are mocked
 """
 import json
@@ -7,12 +7,12 @@ import unittest
 
 from mock import MagicMock, patch
 
-from padre.backend.experiment_uploader import ExperimentUploader
+from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.http import PadreHTTPClient
 
 
 class TestCreateDataSet(unittest.TestCase):
-    """Test experiment_uploader.ExperimentUploader.create_dataset
+    """Test HttpBackendExperiments.create_dataset
 
     All unnecessary function call and http calls are mocked
     """
@@ -29,30 +29,30 @@ class TestCreateDataSet(unittest.TestCase):
         mocked_post_response.headers = {'Location': 'api/datasets/' + self.test_dataset_id}
         self.http_client.do_post = MagicMock(return_value=mocked_post_response)
 
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.get_id_by_name')
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.create_project')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.create_project')
     def test_create_dataset_01(self, mock_project, mock_get_id):
-        """Test ExperimentUploader.create_dataset function.
+        """Test HttpBackendExperiments.create_dataset function.
 
         Scenario: Correct id is set for data set.
         """
         mock_get_id.return_value = None
-        obj = ExperimentUploader(self.http_client)
+        obj = HttpBackendExperiments(self.http_client)
         mock_project.return_value = True
         response = obj.create_dataset(self.test_dataset_data)
         self.assertEqual(self.test_dataset_id,
                          response,
                          'Data set not created successfully')
 
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.get_id_by_name')
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.create_project')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.create_project')
     def test_create_dataset_02(self, mock_project, mock_get_id):
-        """Test ExperimentUploader.create_dataset function.
+        """Test HttpBackendExperiments.create_dataset function.
 
         Scenario: do_post called with correct args.
         """
         mock_get_id.return_value = None
-        obj = ExperimentUploader(self.http_client)
+        obj = HttpBackendExperiments(self.http_client)
         mock_project.return_value = True
         obj.create_dataset(self.test_dataset_data)
         self.assertEqual(self.test_dataset_data,
@@ -64,7 +64,7 @@ class TestCreateDataSet(unittest.TestCase):
 
 
 class TestPutExperiment(unittest.TestCase):
-    """Test experiment_uploader.ExperimentUploader.put_experiment
+    """Test http_experiments.HttpBackendExperiments.put_experiment
 
     All unnecessary function calls and http calls are mocked
     """
@@ -92,14 +92,14 @@ class TestPutExperiment(unittest.TestCase):
             mocked_post_dataset,
             mocked_post_experiment]
 
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.get_id_by_name')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
     def test_put_experiment(self, mock_get_id):
-        """Test ExperimentUploader.put_experiment function.
+        """Test HttpBackendExperiments.put_experiment function.
 
         Scenario: Put experiment should return url of newly created experiment.
         """
         mock_get_id.return_value = None
-        obj = ExperimentUploader(self.http_client)
+        obj = HttpBackendExperiments(self.http_client)
         ex = MagicMock()
         ex.dataset = MagicMock()
         ex.dataset.metadata = {'name': 'test name'}
@@ -119,7 +119,7 @@ class TestPutExperiment(unittest.TestCase):
 
 
 class TestDeleteExperiment(unittest.TestCase):
-    """Test experiment_uploader.ExperimentUploader.delete_experiment
+    """Test http_experiments.HttpBackendExperiments.delete_experiment
 
     All unnecessary function calls and http calls are mocked
     """
@@ -132,19 +132,19 @@ class TestDeleteExperiment(unittest.TestCase):
         """
         mock_token.return_value = None
         self.test_experiment_id = '3'
-        self.http_client = PadreHTTPClient(user='test', passwd='test')
+        self.http_client = PadreHTTPClient(user='test')
         self.http_client.has_token = MagicMock(return_value=True)
         self.http_client.do_delete = MagicMock()
 
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.get_id_by_name')
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.create_project')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.create_project')
     def test_delete_experiment(self, mock_project, mock_get_id):
-        """Test ExperimentUploader.delete_experiment function.
+        """Test HttpBackendExperiments.delete_experiment function.
 
         Scenario: do_delete should be called with correct experiment url.
         """
         mock_get_id.return_value = None
-        obj = ExperimentUploader(self.http_client)
+        obj = HttpBackendExperiments(self.http_client)
         obj.delete_experiment(self.test_experiment_id)
         delete_url = self.http_client.base + 'experiments/' + self.test_experiment_id + '/'
 
@@ -157,13 +157,13 @@ class TestDeleteExperiment(unittest.TestCase):
 
 
 class TestGetIdByName(unittest.TestCase):
-    """Test experiment_uploader.ExperimentUploader.get_id_by_name
+    """Test http_experiments.HttpBackendExperiments.get_id_by_name
 
     All unnecessary function calls and http calls are mocked
     """
 
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.get_id_by_name')
-    @patch('padre.backend.experiment_uploader.ExperimentUploader.create_project')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
+    @patch('padre.backend.http_experiments.HttpBackendExperiments.create_project')
     @patch('padre.backend.http.PadreHTTPClient.get_access_token')
     def setUp(self, mock_token, mock_create_project, mock_get_id):
         """Initializing http client and other attributes for test.
@@ -174,7 +174,7 @@ class TestGetIdByName(unittest.TestCase):
         mock_create_project.return_value = None
         mock_get_id.return_value = None
         self.test_experiment_id = '3'
-        self.http_client = PadreHTTPClient(user='test', passwd='test')
+        self.http_client = PadreHTTPClient(user='test')
         self.http_client.has_token = MagicMock(return_value=True)
         get_mock = MagicMock()
         self.entity = "datasets"
@@ -184,10 +184,10 @@ class TestGetIdByName(unittest.TestCase):
         self.http_client.do_get = MagicMock(return_value=get_mock)
 
         self.http_client.do_get.content = json.dumps(data)
-        self.obj = ExperimentUploader(self.http_client)
+        self.obj = HttpBackendExperiments(self.http_client)
 
     def test_get_id_by_name(self):
-        """Test ExperimentUploader.get_id_by_name function.
+        """Test HttpBackendExperiments.get_id_by_name function.
 
         Scenario: Expected value returned, do_get called with expected arg
         """

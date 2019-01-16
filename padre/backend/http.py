@@ -16,7 +16,7 @@ import json
 import io
 
 from deprecated import deprecated
-from padre.backend.experiment_uploader import ExperimentUploader
+from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
 import logging
@@ -42,8 +42,8 @@ class PadreHTTPClient:
         else:
             self.silent_codes = silent_codes
 
-        self._datasets_client = PadreHTTPClientDatasets(self)
-        self._experiments_client = ExperimentUploader(self)
+        self._datasets_client = HTTPBackendDatasets(self)
+        self._experiments_client = HttpBackendExperiments(self)
 
         self._access_token = token
         if self._access_token is not None:
@@ -237,7 +237,7 @@ class PadreHTTPClient:
         return self._datasets_client
 
 
-class PadreHTTPClientDatasets:
+class HTTPBackendDatasets:
 
     def __init__(self, parent):
         self._parent = parent
