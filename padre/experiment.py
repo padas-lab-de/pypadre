@@ -125,46 +125,26 @@ class SKLearnWorkflow:
         if self._step_wise:
             raise NotImplemented()
         else:
-            # Create argument dictionary for event
-            args = {'source': ctx,
-                    'kind': exp_events.start,
-                    'parameters': {'phase':"sklearn." + phases.fitting}}
             # Trigger event
-            trigger_event('EVENT_LOG_EVENT', args=args)
+            trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.start, phase='sklearn.'+phases.fitting)
 
             y = ctx.train_targets.reshape((len(ctx.train_targets),))
             self._pipeline.fit(ctx.train_features, y)
-            args['kind'] = exp_events.stop
-            trigger_event('EVENT_LOG_EVENT', args=args)
+            trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase='sklearn.'+phases.fitting)
             if self.is_scorer():
-                args['kind'] = exp_events.start
-                args['parameters'] = {'phase':"sklearn.scoring.trainset"}
-                trigger_event('EVENT_LOG_EVENT', args=args)
+                trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.start, phase=f"sklearn.scoring.trainset")
                 score = self._pipeline.score(ctx.train_features, y)
-                args['kind'] = exp_events.stop
-                trigger_event('EVENT_LOG_EVENT', args=args)
+                trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase=f"sklearn.scoring.trainset")
 
-                # Create argument dictionary for event
-                args = {'source': ctx,
-                        'keys': ['training score'],
-                        'values': [score]}
                 # Trigger event
-                trigger_event('EVENT_LOG_RESULTS', args=args)
+                trigger_event('EVENT_LOG_RESULTS', source=ctx, keys=['training score'], values=[score])
 
                 if ctx.has_valset():
                     y = ctx.val_targets.reshape((len(ctx.val_targets),))
-                    args['kind'] = exp_events.start
-                    args['parameters'] = {'phase': "sklearn.scoring.valset"}
-                    trigger_event('EVENT_LOG_EVENT', args=args)
+                    trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.start, phase='sklearn.scoring.valset')
                     score = self._pipeline.score(ctx.val_features, y)
-                    args['kind'] = exp_events.stop
-                    trigger_event('EVENT_LOG_EVENT', args=args)
-                    # Create argument dictionary for event
-                    args = {'source': ctx,
-                            'keys': ['validation score'],
-                            'values': [score]}
-                    # Trigger event
-                    trigger_event('EVENT_LOG_SCORE', args=args)
+                    trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase='sklearn.scoring.valset')
+                    trigger_event('EVENT_LOG_SCORE', source=ctx, keys=['validation score'], values=score)
 
     def infer(self, ctx, train_idx, test_idx):
         from copy import deepcopy
@@ -183,9 +163,8 @@ class SKLearnWorkflow:
                 results = {'predicted': y_predicted.tolist(),
                            'truth': y.tolist()}
 
-                args = {'source':ctx, 'mode':'probability', 'pred':y_predicted, 'truth':y, 'probabilities':None,
-                        'scores':None, 'transforms':None, 'clustering':None}
-                trigger_event('EVENT_LOG_RESULTS', args=args)
+                trigger_event('EVENT_LOG_RESULTS', source=ctx, mode='probability', pred=y_predicted, truth=y,
+                              probabilities=None, scores=None, transforms=None, clustering=None)
                 metrics = dict()
                 metrics['dataset'] = ctx.dataset.name
 
@@ -199,11 +178,9 @@ class SKLearnWorkflow:
                 if 'predict_proba' in dir(self._pipeline.steps[-1][1]) and np.all(np.mod(y_predicted, 1) == 0) and \
                         compute_probabilities:
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
-                    args = {'source':ctx,
-                            'mode': 'probabilities', 'pred': y_predicted, 'truth': y,
-                            'probabilities':y_predicted_probabilities, 'scores':None,
-                            'transforms':None, 'clustering':None}
-                    trigger_event('EVENT_LOG_RESULTS', args=args)
+                    trigger_event('EVENT_LOG_RESULTS', source=ctx, mode='probability', pred=y_predicted, truth=y,
+                                  probabilities=y_predicted_probabilities, scores=None,
+                                  transforms=None, clustering=None)
                     results['probabilities'] = y_predicted_probabilities.tolist()
                     results['type'] = 'classification'
                     # Calculate the confusion matrix
@@ -224,8 +201,7 @@ class SKLearnWorkflow:
 
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y, )
-                    args = {'source': ctx , 'parameters':{'keys':["test score"], 'values':[score]}}
-                    trigger_event('EVENT_LOG_SCORE', args=args)
+                    trigger_event('EVENT_LOG_SCORE', source=ctx, keys=["test score"], values=[score])
 
                 results['dataset'] = ctx.dataset.name
                 results['train_idx'] = train_idx
@@ -421,23 +397,24 @@ class Splitter:
                          message=f"Unknown splitting strategy {self._strategy}. Only 'cv' or 'random' allowed")
 
         self._test_ratio = options.pop("test_ratio", 0.25)
-        args = {'condition': self._test_ratio is None or (0.0 <= self._test_ratio <= 1.0),
-                'source': self,
-                'message':f"Wrong ratio of test set provided {self._test_ratio}. Continuing with default=0"}
-        trigger_event('EVENT_WARN', args=args)
+        trigger_event('EVENT_WARN', condition=self._test_ratio is None or (0.0 <= self._test_ratio <= 1.0),
+                      source=self,
+                      message=f"Wrong ratio of test set provided {self._test_ratio}. Continuing with default=0")
         self._val_ratio = options.pop("val_ratio", 0)
-        args['condition'] = self._val_ratio is None or (0.0 <= self._val_ratio <= 1.0)
-        args['message'] = f"Wrong ratio of evaluation set provided {self._val_ratio}. Continuing with default=0"
-        trigger_event('EVENT_WARN', args=args)
+        trigger_event('EVENT_WARN', condition=self._val_ratio is None or (0.0 <= self._val_ratio <= 1.0),
+                      source=self,
+                      message=f"Wrong ratio of evaluation set provided {self._val_ratio}. Continuing with default=0")
         self._n_folds = options.pop("n_folds", 3)
         assert_condition(1 <= self._n_folds, source=self, message=f"Number of folds not positive {self._n_folds}")
         self._random_seed = options.pop("random_seed", None)
         self._no_shuffle = options.pop("no_shuffle", False)
-        args['condition'] = not (self._n_folds == 1 and self._strategy == "random" and self._no_shuffle)
-        args['message'] = f"Random test split will be always the same since shuffling is not permitted"
-        trigger_event('EVENT_WARN', args=args)
+        trigger_event('EVENT_WARN',
+                      condition=not (self._n_folds == 1 and self._strategy == "random" and self._no_shuffle),
+                      source=self,
+                      message=f"Random test split will be always the same since shuffling is not permitted")
         assert_condition(self._n_folds < self._dataset.size[0] or self._strategy != "cv",
-                         source=self, message=f"There are more folds than examples: {self._n_folds}<{self._dataset.size[0]}")
+                         source=self,
+                         message=f"There are more folds than examples: {self._n_folds}<{self._dataset.size[0]}")
         self._stratified = options.pop("stratified", None)
         self._indices = options.pop("indices", None)
         if self._strategy == "indices":
@@ -447,9 +424,10 @@ class Splitter:
             self._stratified = ds.targets() is not None
         else:
             if self._stratified and ds.targets() is None:
-                args['condition'] = False
-                args['message'] = f"Targets not provided in dataset {ds}. Can not do stratified splitting"
-                trigger_event('EVENT_WARN', args=args)
+                trigger_event('EVENT_WARN',
+                              condition=False,
+                              source=self,
+                              message=f"Targets not provided in dataset {ds}. Can not do stratified splitting")
                 self._stratified = False
         self._splitting_fn = options.pop("fn", None)
         if self._strategy == "function":
@@ -541,31 +519,27 @@ class Split(MetadataEntity):
         return self._run
 
     def execute(self):
-        args = {'split': self}
         # Fire event
-        trigger_event('EVENT_START_SPLIT', args=args)
+        trigger_event('EVENT_START_SPLIT', split=self)
 
         # log run start here.
         workflow = self._run.experiment.workflow
 
-        args = {'source': self,
-                'kind': exp_events.start,
-                'parameters':{'phase':phases.fitting}}
         # Fire event
-        trigger_event('EVENT_LOG_EVENT', args=args)
+        trigger_event('EVENT_LOG_EVENT',
+                      source=self, kind=exp_events.start, phase=phases.fitting)
 
         workflow.fit(self)
-        args['kind'] = exp_events.stop
-        trigger_event('EVENT_LOG_EVENT', args=args)
+        trigger_event('EVENT_LOG_EVENT',
+                      source=self, kind=exp_events.stop, phase=phases.fitting)
         if workflow.is_inferencer() and self.has_testset():
-            args['parameters'] = {'phase':phases.inferencing}
-            trigger_event('EVENT_LOG_EVENT', args=args)
+            trigger_event('EVENT_LOG_EVENT',
+                          source=self, kind=exp_events.start, phase=phases.inferencing)
             workflow.infer(self, self.train_idx.tolist(), self.test_idx.tolist())
-            args['kind'] = exp_events.stop
-            trigger_event('EVENT_LOG_EVENT', args=args)
-        args = {'split': self}
+            trigger_event('EVENT_LOG_EVENT',
+                          source=self, kind=exp_events.stop, phase=phases.inferencing)
         # Fire event
-        trigger_event('EVENT_STOP_SPLIT', args=args)
+        trigger_event('EVENT_STOP_SPLIT', split=self)
 
     def has_testset(self):
         return self._test_idx is not None and len(self._test_idx) > 0
@@ -686,9 +660,8 @@ class Run(MetadataEntity):
 
     def do_splits(self):
         from copy import deepcopy
-        args = {'run': self}
-        # Fire event
-        trigger_event('EVENT_START_RUN', args=args)
+        # Fire run start event
+        trigger_event('EVENT_START_RUN', run=self)
 
         # instantiate the splitter here based on the splitting configuration in options
         splitting = Splitter(self._experiment.dataset,  **self._metadata)
@@ -709,8 +682,8 @@ class Run(MetadataEntity):
             self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
 
         args = {'run': self}
-        # Fire event
-        trigger_event('EVENT_STOP_RUN', args=args)
+        # Fire stop run  event
+        trigger_event('EVENT_STOP_RUN', run=self)
 
     @property
     def experiment(self):
@@ -941,9 +914,7 @@ class Experiment(MetadataEntity):
         # todo allow to append runs for experiments
         # register experiment through logger
         # self.logger.log_start_experiment(self, append_runs)
-        args = {'experiment': self,
-                'append_runs': self._keep_runs}
-        trigger_event('EVENT_START_EXPERIMENT', args=args)
+        trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
 
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
@@ -954,8 +925,7 @@ class Experiment(MetadataEntity):
         self._metrics.append(deepcopy(r.metrics))
         self._hyperparameters = (deepcopy(r.hyperparameters))
         self._last_run = r
-        args = {'experiment': self}
-        trigger_event('EVENT_STOP_EXPERIMENT', args=args)
+        trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def grid_search(self, parameters=None):
         """
@@ -970,11 +940,9 @@ class Experiment(MetadataEntity):
         if parameters is None:
             self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
             self.run()
-            # Create argument dictionary with required arguments for logger
-            args = {'experiment': self}
 
             # Fire event
-            trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', args=args)
+            trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
             return
 
         # Update metadata with version details of packages used in the workflow
@@ -985,11 +953,8 @@ class Experiment(MetadataEntity):
         master_list = []
         params_list = []
 
-        # Create dictionary with required parameters for logger
-        args = {'experiment': self,
-                'append_runs': self._keep_runs}
         # Fire event
-        trigger_event('EVENT_START_EXPERIMENT', args=args)
+        trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
 
         for estimator in parameters:
             param_dict = parameters.get(estimator)
@@ -1003,11 +968,9 @@ class Experiment(MetadataEntity):
         grid = itertools.product(*master_list)
 
         self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
-        # Create argument dictionary with required arguments for logger
-        args = {'experiment': self}
 
         # Fire event
-        trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', args=args)
+        trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
 
         # Get the total number of iterations
         grid_size = 1
@@ -1019,19 +982,16 @@ class Experiment(MetadataEntity):
 
         # For each tuple in the combination create a run
         for element in grid:
-            args  = {'source':self,
-                     'parameters': {'message':"Executing grid " + str(curr_executing_index) + '/' + str(grid_size)}}
-            trigger_event('EVENT_LOG_EVENT', args=args)
+            trigger_event('EVENT_LOG_EVENT', source=self,
+                          message="Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
 
                 if estimator is None:
-                    args = {'condition': estimator is not None,
-                            'source': self,
-                            'message': f"Estimator {split_params[0]} is not present in the pipeline"}
-                    trigger_event('EVENT_WARN', args=args)
+                    trigger_event('EVENT_WARN', condition=estimator is not None, source=self,
+                                  message=f"Estimator {split_params[0]} is not present in the pipeline")
                     break
 
                 estimator.set_params(**{split_params[1]: element[idx]})
@@ -1049,10 +1009,8 @@ class Experiment(MetadataEntity):
 
             curr_executing_index += 1
 
-        # Create argument dictionary with required arguments for logger
-        args = {'experiment': self}
         # Fire event
-        trigger_event('EVENT_STOP_EXPERIMENT', args=args)
+        trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def create_experiment_configuration_dict(self, params=None, single_run=False):
         """

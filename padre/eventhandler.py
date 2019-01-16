@@ -219,7 +219,7 @@ eventemitter = EventEmitter()
 eventemitter.on('EVENT', add_event_to_queue)
 
 
-def trigger_event(event_name, args):
+def trigger_event(event_name, **args):
     """
     This function provides a simplified interface to wrap all event related code and fire the event
     :param event_name: Name of the event

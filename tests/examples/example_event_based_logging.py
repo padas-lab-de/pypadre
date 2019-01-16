@@ -20,7 +20,6 @@ def create_test_pipeline():
 if __name__ == '__main__':
     from padre.app import pypadre
 
-
     logger = PadreLogger()
     logger.backend = pypadre.repository
     add_logger(logger=logger)

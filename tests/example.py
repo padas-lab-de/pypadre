@@ -3,6 +3,8 @@ This file shows an example on how to use the pypadre app.
 """
 from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment, Splitter
+from padre.base import PadreLogger
+from padre.eventhandler import add_logger
 import pprint
 
 
@@ -18,6 +20,10 @@ def create_test_pipeline():
 if __name__ == '__main__':
     from padre.app import pypadre
     pypadre.set_printer(print)
+
+    logger = PadreLogger()
+    logger.backend = pypadre.repository
+    add_logger(logger=logger)
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
