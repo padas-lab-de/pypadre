@@ -1,4 +1,3 @@
-from pymitter import EventEmitter
 """
 Structure of Event Handling Mechanism in PyPaDRe
 The event emitter fires only a single event called EVENT. In the argument to the event, the actual event name is passed
@@ -14,6 +13,7 @@ single event can trigger multiple functions too.
 This list contains the list of loggers which log each event occuring in the experiment. These functions call the 
 corresponding functions in the logger after extracting the required arguments required by the logger function.
 """
+from pymitter import EventEmitter
 logger_list = []
 
 def log_start_experiment(args):
@@ -103,7 +103,12 @@ def warn(args):
 
 
 def error(args):
-    pass
+    source = args.get('source', None)
+    message = args.get('message', None)
+    for logger in logger_list:
+        # The condition is set as true as the condition is already validated
+        logger.error(True, source, message)
+
 
 
 """
@@ -146,9 +151,8 @@ class event_queue:
         :return:
         """
         if self._event_queue:
-            print('EVENT QUEUE IS NOT EMPTY')
-        print(self._event_queue)
-        process_events()
+            log(source=self, message=f"Event Queue is not empty. Emtpying Queue")
+        self.process_events()
 
     def process_events(self):
         """
@@ -165,13 +169,12 @@ class event_queue:
             """
             self._emptying_queue = True
             event = self._event_queue.pop(0)
-            print(event)
             event_handlers = EVENT_HANDLER_DICT.get(event['EVENT_NAME'], None)
             if event_handlers is None:
                 """
                 UNHANDLED EVENT ENCOUNTERED
                 """
-                print('UNHANDLED EVENT ENCOUNTERED')
+                log(source=self, message='Unhandled event encountered ' + event['EVENT_NAME'])
             else:
                 args = event.get('args', None)
                 # If there are multiple event handlers for the same event, iterate through each handler
@@ -210,7 +213,6 @@ def add_event_to_queue(args):
     :param args: Arguments to be used for the event
     :return:
     """
-    print('Adding event to Queue' + str(args))
     event_queue_obj.event_queue = args
 
 eventemitter = EventEmitter()
@@ -224,134 +226,34 @@ def trigger_event(event_name, args):
     :param args: Parameters to be passed to the event
     :return: None
     """
-    event_dict = {'EVENT_NAME': 'EVENT_LOG_EVENT',
+    event_dict = {'EVENT_NAME': event_name,
                   'args': args}
 
     eventemitter.emit('EVENT', event_dict)
 
-def process_events():
+
+def assert_condition(condition, **args):
     """
-    This function processes the events currently pending in the queue.
-    Functions corresponding to each event are obtained from the EVENT_HANDLER_DICT
+    This function checks for the condition and if the condition is not true, triggers an exception
+    :param condition: The condition to be checked
+    :param source: Source of the condition
+    :param message: Message to be logged if the condition fails
     :return:
     """
-
-    while EVENT_QUEUE:
-        """
-        The event should contain the EVENT_NAME and the args for the function call
-        Args is a dictionary which would be unwrapped by the corresponding function call to obtain the required
-        parameters
-        """
-        event = EVENT_QUEUE.pop(0)
-        print(event)
-        event_handlers = EVENT_HANDLER_DICT.get(event['EVENT_NAME'], None)
-        if  event_handlers is None:
-            """
-            UNHANDLED EVENT ENCOUNTERED
-            """
-            print('UNHANDLED EVENT ENCOUNTERED')
-            return
+    if not condition:
+        error_event_handlers = EVENT_HANDLER_DICT.get('EVENT_ERROR')
+        for logger in logger_list:
+            for error_event_handler in error_event_handlers:
+                error_event_handler(args)
 
 
-        args = event.get('args', None)
-        # If there are multiple event handlers for the same event, iterate through each handler
-        if len(event_handlers) > 1:
-            for event_handler in event_handlers:
-                event_handler(args=args)
-        else:
-            event_handlers[0](args)
+def add_logger(logger):
+    """
+    This function appends a new logger to the list of loggers
+    :param logger: The logger to be appended to the list
+    :return:
+    TODO: Create an abstract base class for loggers so that all functions are uniform among all the loggers
+    """
+    if logger is not None:
+        logger_list.append(logger)
 
-
-class EventHandler:
-
-    _eventemitter = EventEmitter()
-    _logger_list = None
-
-    def __init__(self, logger_list=None):
-        """
-        This function initializes the event emitter object for handling the different events.
-        A list of loggers should also be passed for logging the events
-        """
-        _logger_list = logger_list
-
-    def log_start_experiment(self, args):
-        experiment = args.get('experiment', None)
-        append_runs = args.get('append_runs', False)
-
-        if experiment is not None:
-            for logger in self._logger_list:
-                logger.log_start_experiment(experiment=experiment, append_runs=append_runs)
-
-    def log_stop_experiment(self, args):
-        experiment = args.get('experiment', None)
-
-        if experiment is not None:
-            for logger in self._logger_list:
-                logger.log_stop_experiment(experiment=experiment)
-
-    def put_experiment_configuration(self, args):
-        pass
-
-    def log_start_run(self, args):
-        run = args.get('run', None)
-        if run is not None:
-            for logger in self._logger_list:
-                logger.log_start_run(run=run)
-
-    def log_stop_run(self, args):
-        run = args.get('run', None)
-        if run is not None:
-            for logger in self._logger_list:
-                logger.log_stop_run(run=run)
-
-    def log_start_split(self, args):
-        split = args.get('split', None)
-        if split is not None:
-            for logger in self._logger_list:
-                logger.log_start_split(split=split)
-
-    def log_stop_split(self, args):
-        split = args.get('split', None)
-        if split is not None:
-            for logger in self._logger_list:
-                logger.log_start_split(split=split)
-
-    def log_score(self, args):
-        pass
-
-    def log_results(self, args):
-        pass
-
-    def log_event(self, args):
-        pass
-
-    def log(self, args):
-        print(args)
-
-    def warn(self, args):
-        pass
-
-    def error(self, args):
-        pass
-
-    # Binding events to event handlers
-    _eventemitter.on("start_experiment", log_start_experiment)
-    _eventemitter.on("stop_experiment", log_stop_experiment)
-
-    _eventemitter.on("start_run", log_start_run)
-    _eventemitter.on("stop_run", log_stop_run)
-
-    _eventemitter.on("start_split", log_start_split)
-    _eventemitter.on("stop_split", log_stop_split)
-
-    _eventemitter.on("log_score", log_score)
-    _eventemitter.on("log_results", log_results)
-
-    _eventemitter.on("log_event", log_event)
-    _eventemitter.on("log", log)
-    _eventemitter.on("warn", warn)
-    _eventemitter.on("error", error)
-
-    @property
-    def eventemitter(self):
-        return self._eventemitter

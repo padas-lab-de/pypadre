@@ -4,7 +4,7 @@ This file shows an example on how to use the pypadre app.
 from padre.ds_import import load_sklearn_toys
 from padre.experiment import Experiment, Splitter
 from padre.base import PadreLogger
-from padre.eventhandler import logger_list, eventemitter
+from padre.eventhandler import add_logger
 import pprint
 
 
@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     logger = PadreLogger()
     logger.backend = pypadre.repository
-    logger_list.append(logger)
+    add_logger(logger=logger)
 
     pypadre.set_printer(print)
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
@@ -42,7 +42,7 @@ if __name__ == '__main__':
                     description="Testing Event based mechanism for logging",
                     dataset=ds,
                     workflow=create_test_pipeline(),
-                    backend=pypadre.repository, keep_splits=True)
+                    keep_splits=True)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.grid_search()  # run the experiment and report
