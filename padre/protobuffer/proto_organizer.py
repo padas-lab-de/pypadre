@@ -60,7 +60,8 @@ def write_delimited_pb_msg(binary, pb_msg):
 
 def createProtobuffer(dataset,binary):
 
-    pd_dataframe = dataset.pandas_repr()
+    #pd_dataframe = dataset.pandas_repr()
+    pd_dataframe = dataset._binary.pandas_repr()
     pb_dataframe_meta = proto.Meta()
     pb_dataframe_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
     write_delimited_pb_msg(binary, pb_dataframe_meta)

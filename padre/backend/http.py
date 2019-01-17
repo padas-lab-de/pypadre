@@ -14,11 +14,14 @@ Manages:
 import requests as req
 import json
 import io
+import tempfile
 
 from deprecated import deprecated
+from requests_toolbelt import MultipartEncoder
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
+from padre import ds_import
 import logging
 
 logger = logging.getLogger('pypadre - http')
@@ -295,6 +298,80 @@ class HTTPBackendDatasets:
             self._parent.do_put(link,
                         headers={},  # let request handle the content type
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
+
+    def put_dataset(self, dataset):
+        """Upload local dataset to the server and return dataset id
+        """
+        from padre.protobuffer import proto_organizer as proto
+        binary = tempfile.TemporaryFile(mode='w+b')
+        proto.createProtobuffer(dataset, binary)
+        data = dataset.metadata
+        data["attributes"] = dataset.attributes
+        url = self.parent.base[0:-1] + PadreHTTPClient.paths["datasets"]
+        response = self.parent.do_post(url, **{"data":json.dumps(data)})
+        dataset_id = response.headers["Location"].split("/")[-1]
+        url = self.parent.base[0:-1] + PadreHTTPClient.paths["binaries"](dataset_id)
+        binary.seek(0)
+        m = MultipartEncoder(
+            fields={"field0": ("fname", binary, "application/x.padre.dataset.v1+protobuf")})
+        response = self.parent.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+        return dataset_id
+
+    def get(self, _id, metadata_only=False):
+        """Fetches data with given id from server and returns it"""
+        from padre.protobuffer import proto_organizer as proto
+        from padre import graph_import
+        import networkx as nx
+        url = self.parent.base[0:-1] + PadreHTTPClient.paths["dataset"](_id)
+        response = self.parent.do_get(url)
+        response_meta = json.loads(response.content.decode("utf-8"))
+        attribute_name_list = []
+        atts = []
+        for attr in response_meta["attributes"]:
+            if (attr["name"] != "INVALID_COLUMN"):
+                atts.append(Attribute(**attr))
+            attribute_name_list.append(attr["name"])
+
+        del response_meta["attributes"]
+        df_data = proto.get_Server_Dataframe(_id, self.parent._access_token, url="http://localhost:8080")
+        dataset = Dataset(None, **response_meta)
+        df_data.columns = attribute_name_list
+
+        if ("INVALID_COLUMN" in list(df_data.columns.values)):
+            df_data = df_data.drop(["INVALID_COLUMN"], axis=1)
+
+        if dataset.isgraph:
+            node_attr = []
+            edge_attr = []
+
+            for attr in atts:
+                graph_role = attr.context["graph_role"]
+                if (graph_role == "source"):
+                    source = attr.name
+                elif (graph_role == "target"):
+                    target = attr.name
+                elif (graph_role == "nodeattribute"):
+                    node_attr.append(attr.name)
+                elif (graph_role == "edgeattribute"):
+                    edge_attr.append(attr.name)
+            network = nx.Graph() if response_meta["type"] == "graph" else nx.DiGraph()
+            graph_import.pandas_to_networkx(df_data, source, target, network, node_attr, edge_attr)
+            dataset.set_data(network, atts)
+        else:
+            dataset.set_data(df_data, atts)
+            print("Load dataset " + _id + " from server:")
+
+        return dataset
+
+    def get_openml_dataset(self, url):
+        """Get OpenML datasets
+
+         Download OpenML dataset, store it locally and return the instance of the dataset.
+         :param url: Url of the OpenML dataset
+         :returns: padre.datasets.Dataset
+         """
+        ds = ds_import.load_openML_dataset(url)
+        return ds
 
 PadreHTTPClient.paths = {
     "padre-api": "http://padre-api:@localhost:8080",
