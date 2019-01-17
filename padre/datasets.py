@@ -546,13 +546,13 @@ class Dataset(MetadataEntity):
 
     def features(self):
         if self.has_data():
-            return self.data.features
+            return self._binary.features
         else:
             return None
 
     def targets(self):
         if self.has_data():
-            return self.data.targets
+            return self._binary.targets
         else:
             return None
 
