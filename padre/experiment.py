@@ -30,6 +30,7 @@ todo: we can put a user specific context in the `my_config_dict` which can be th
 import itertools
 import platform
 from collections import OrderedDict
+from padre.eventhandler import trigger_event, assert_condition
 # todo overthink the logger architecture. Maybe the storage should be handled with the exxperiment, and not within
 # a particular logger class. so the Experiment could be used to access splits later on and to reproduce
 # individual steps.
@@ -38,10 +39,9 @@ from time import time
 import numpy as np
 
 import padre.visitors.parameter
-from padre.base import MetadataEntity, timer_priorities, default_timer
+from padre.base import MetadataEntity
 from padre.utils import _const
 from padre.visitors.scikit import SciKitVisitor
-from padre.base import PadreLogger
 
 
 ####################################################################################################################
@@ -125,22 +125,26 @@ class SKLearnWorkflow:
         if self._step_wise:
             raise NotImplemented()
         else:
-            # do logging here
-            ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn." + phases.fitting)
+            # Trigger event
+            trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.start, phase='sklearn.'+phases.fitting)
+
             y = ctx.train_targets.reshape((len(ctx.train_targets),))
             self._pipeline.fit(ctx.train_features, y)
-            ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn." + phases.fitting)
+            trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase='sklearn.'+phases.fitting)
             if self.is_scorer():
-                ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.trainset")
+                trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.start, phase=f"sklearn.scoring.trainset")
                 score = self._pipeline.score(ctx.train_features, y)
-                ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.trainset")
-                ctx.logger.log_score(ctx, keys=["training score"], values=[score])
+                trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase=f"sklearn.scoring.trainset")
+
+                # Trigger event
+                trigger_event('EVENT_LOG_RESULTS', source=ctx, keys=['training score'], values=[score])
+
                 if ctx.has_valset():
                     y = ctx.val_targets.reshape((len(ctx.val_targets),))
-                    ctx.logger.log_event(ctx, kind=exp_events.start, phase="sklearn.scoring.valset")
+                    trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.start, phase='sklearn.scoring.valset')
                     score = self._pipeline.score(ctx.val_features, y)
-                    ctx.logger.log_event(ctx, kind=exp_events.stop, phase="sklearn.scoring.valset")
-                    ctx.logger.log_score(ctx, keys=["validation score"], values=[score])
+                    trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase='sklearn.scoring.valset')
+                    trigger_event('EVENT_LOG_SCORE', source=ctx, keys=['validation score'], values=score)
 
     def infer(self, ctx, train_idx, test_idx):
         from copy import deepcopy
@@ -159,9 +163,8 @@ class SKLearnWorkflow:
                 results = {'predicted': y_predicted.tolist(),
                            'truth': y.tolist()}
 
-                ctx.logger.log_result(ctx, mode="probability", pred=y_predicted, truth=y,
-                                      probabilities=None, scores=None,
-                                      transforms=None, clustering=None)
+                trigger_event('EVENT_LOG_RESULTS', source=ctx, mode='probability', pred=y_predicted, truth=y,
+                              probabilities=None, scores=None, transforms=None, clustering=None)
                 metrics = dict()
                 metrics['dataset'] = ctx.dataset.name
 
@@ -175,9 +178,9 @@ class SKLearnWorkflow:
                 if 'predict_proba' in dir(self._pipeline.steps[-1][1]) and np.all(np.mod(y_predicted, 1) == 0) and \
                         compute_probabilities:
                     y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
-                    ctx.logger.log_result(ctx, mode="probabilities", pred=y_predicted,
-                                           truth=y, probabilities=y_predicted_probabilities,
-                                           scores=None, transforms=None, clustering=None)
+                    trigger_event('EVENT_LOG_RESULTS', source=ctx, mode='probability', pred=y_predicted, truth=y,
+                                  probabilities=y_predicted_probabilities, scores=None,
+                                  transforms=None, clustering=None)
                     results['probabilities'] = y_predicted_probabilities.tolist()
                     results['type'] = 'classification'
                     # Calculate the confusion matrix
@@ -198,7 +201,7 @@ class SKLearnWorkflow:
 
                 if self.is_scorer():
                     score = self._pipeline.score(ctx.test_features, y, )
-                    ctx.logger.log_score(ctx, keys=["test score"], values=[score])
+                    trigger_event('EVENT_LOG_SCORE', source=ctx, keys=["test score"], values=[score])
 
                 results['dataset'] = ctx.dataset.name
                 results['train_idx'] = train_idx
@@ -385,45 +388,51 @@ class Splitter:
                                (train, validation, test) tuples (the form is similar to the indices parameter) as split
     """
 
-    def __init__(self, ds, logger, **options):
+    def __init__(self, ds, **options):
         self._dataset = ds
         self._num_examples = ds.size[0]
         self._strategy = options.pop("strategy", "random")
 
-        logger.error(self._strategy == "random" or self._strategy == "cv", self,
-                     f"Unknown splitting strategy {self._strategy}. Only 'cv' or 'random' allowed")
-        self._test_ratio = options.pop("test_ratio", 0.25)
-        logger.warn(self._test_ratio is None or (0.0 <= self._test_ratio <= 1.0), self,
-                    f"Wrong ratio of test set provided {self._test_ratio}. Continuing with default=0")
-        self._val_ratio = options.pop("val_ratio", 0)
-        logger.warn(self._val_ratio is None or (0.0 <= self._val_ratio <= 1.0), self,
-                    f"Wrong ratio of evaluation set provided {self._val_ratio}. Continuing with default=0")
+        assert_condition(self._strategy == "random" or self._strategy == "cv", source=self,
+                         message=f"Unknown splitting strategy {self._strategy}. Only 'cv' or 'random' allowed")
 
+        self._test_ratio = options.pop("test_ratio", 0.25)
+        trigger_event('EVENT_WARN', condition=self._test_ratio is None or (0.0 <= self._test_ratio <= 1.0),
+                      source=self,
+                      message=f"Wrong ratio of test set provided {self._test_ratio}. Continuing with default=0")
+        self._val_ratio = options.pop("val_ratio", 0)
+        trigger_event('EVENT_WARN', condition=self._val_ratio is None or (0.0 <= self._val_ratio <= 1.0),
+                      source=self,
+                      message=f"Wrong ratio of evaluation set provided {self._val_ratio}. Continuing with default=0")
         self._n_folds = options.pop("n_folds", 3)
-        logger.error(1 <= self._n_folds, self, f"Number of folds not positive {self._n_folds}")
+        assert_condition(1 <= self._n_folds, source=self, message=f"Number of folds not positive {self._n_folds}")
         self._random_seed = options.pop("random_seed", None)
         self._no_shuffle = options.pop("no_shuffle", False)
-        logger.warn(not (self._n_folds == 1 and self._strategy == "random" and self._no_shuffle), self,
-                    f"Random test split will be always the same since shuffling is not permitted")
-        logger.error(self._n_folds < self._dataset.size[0] or self._strategy != "cv", self,
-                     f"There are more folds than examples: {self._n_folds}<{self._dataset.size[0]}")
+        trigger_event('EVENT_WARN',
+                      condition=not (self._n_folds == 1 and self._strategy == "random" and self._no_shuffle),
+                      source=self,
+                      message=f"Random test split will be always the same since shuffling is not permitted")
+        assert_condition(self._n_folds < self._dataset.size[0] or self._strategy != "cv",
+                         source=self,
+                         message=f"There are more folds than examples: {self._n_folds}<{self._dataset.size[0]}")
         self._stratified = options.pop("stratified", None)
         self._indices = options.pop("indices", None)
         if self._strategy == "indices":
-            logger.error(self._indices is not None, self,
-                         f"Splitting strategy {self._strategy} requires an "
-                         f"explicit split given by parameter 'indices'")
+            assert_condition(self._indices is not None, source=self,
+                             message=f"Splitting strategy {self._strategy} requires an explicit split given by parameter 'indices'")
         if self._stratified is None:
             self._stratified = ds.targets() is not None
         else:
             if self._stratified and ds.targets() is None:
-                logger.warn(False, self,
-                            f"Targets not provided in dataset {ds}. Can not do stratified splitting")
+                trigger_event('EVENT_WARN',
+                              condition=False,
+                              source=self,
+                              message=f"Targets not provided in dataset {ds}. Can not do stratified splitting")
                 self._stratified = False
         self._splitting_fn = options.pop("fn", None)
         if self._strategy == "function":
-            logger.error(self._splitting_fn is not None, self,
-                                 f"Splitting strategy {self._strategy} requires a function provided via parameter 'fn'")
+            assert_condition(self._splitting_fn is not None, source=self,
+                             message=f"Splitting strategy {self._strategy} requires a function provided via parameter 'fn'")
 
     def splits(self):
         """
@@ -499,7 +508,6 @@ class Split(MetadataEntity):
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._id = options.pop("split_id", None)
-        self.logger = run.logger
         super().__init__(self._id, **options)
 
     @property
@@ -511,17 +519,27 @@ class Split(MetadataEntity):
         return self._run
 
     def execute(self):
-        self.logger.log_start_split(self)
+        # Fire event
+        trigger_event('EVENT_START_SPLIT', split=self)
+
         # log run start here.
         workflow = self._run.experiment.workflow
-        self.logger.log_event(self, exp_events.start, phase=phases.fitting)
+
+        # Fire event
+        trigger_event('EVENT_LOG_EVENT',
+                      source=self, kind=exp_events.start, phase=phases.fitting)
+
         workflow.fit(self)
-        self.logger.log_event(self, exp_events.stop, phase=phases.fitting)
+        trigger_event('EVENT_LOG_EVENT',
+                      source=self, kind=exp_events.stop, phase=phases.fitting)
         if workflow.is_inferencer() and self.has_testset():
-            self.logger.log_event(self, exp_events.start, phase=phases.inferencing)
+            trigger_event('EVENT_LOG_EVENT',
+                          source=self, kind=exp_events.start, phase=phases.inferencing)
             workflow.infer(self, self.train_idx.tolist(), self.test_idx.tolist())
-            self.logger.log_event(self, exp_events.stop, phase=phases.inferencing)
-        self.logger.log_stop_split(self)
+            trigger_event('EVENT_LOG_EVENT',
+                          source=self, kind=exp_events.stop, phase=phases.inferencing)
+        # Fire event
+        trigger_event('EVENT_STOP_SPLIT', split=self)
 
     def has_testset(self):
         return self._test_idx is not None and len(self._test_idx) > 0
@@ -631,7 +649,6 @@ class Run(MetadataEntity):
         self._experiment = experiment
         self._workflow = workflow
         self._backend = experiment.backend
-        self.logger = experiment.logger
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._results = []
@@ -643,14 +660,17 @@ class Run(MetadataEntity):
 
     def do_splits(self):
         from copy import deepcopy
-        self.logger.log_start_run(self)
+        # Fire run start event
+        trigger_event('EVENT_START_RUN', run=self)
+
         # instantiate the splitter here based on the splitting configuration in options
-        splitting = Splitter(self._experiment.dataset, self.logger,  **self._metadata)
+        splitting = Splitter(self._experiment.dataset,  **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
 
-            self.logger.error\
-                ((self._experiment.validate.validate(train_idx, test_idx, val_idx, self._experiment.dataset)),
-                 'Run.do_splits', 'Dataset Validation Failed')
+            assert_condition(
+                (self._experiment.validate.validate(train_idx, test_idx, val_idx, self._experiment.dataset)),
+                 source=self,
+                 message='Dataset Validation Failed')
 
             sp = Split(self, split, train_idx, val_idx, test_idx, **self._metadata)
             sp.execute()
@@ -660,7 +680,10 @@ class Run(MetadataEntity):
             self._results.append(deepcopy(self._experiment.workflow.results))
             self._metrics.append(deepcopy(self._experiment.workflow.metrics))
             self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
-        self.logger.log_stop_run(self)
+
+        args = {'run': self}
+        # Fire stop run  event
+        trigger_event('EVENT_STOP_RUN', run=self)
 
     @property
     def experiment(self):
@@ -764,8 +787,6 @@ class Experiment(MetadataEntity):
         # todo workflow semantic not clear. Fit and infer is fine, but we need someting for transform
         workflow = options.pop("workflow", None)
         self._backend = options.pop("backend", None)
-        self.logger = PadreLogger()
-        self.logger.backend = self._backend
         self._stdout = options.get("stdout", True)
         self._keep_runs = options.get("keep_runs", False) or options.get("keep_splits", False)
         self._runs = []
@@ -892,7 +913,8 @@ class Experiment(MetadataEntity):
         # which gives access to one split, the model of the split etc.
         # todo allow to append runs for experiments
         # register experiment through logger
-        self.logger.log_start_experiment(self, append_runs)
+        # self.logger.log_start_experiment(self, append_runs)
+        trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
 
         # todo here we do the hyperparameter search, e.g. GridSearch. so there would be a loop over runs here.
         r = Run(self, self._workflow, **dict(self._metadata))
@@ -903,7 +925,7 @@ class Experiment(MetadataEntity):
         self._metrics.append(deepcopy(r.metrics))
         self._hyperparameters = (deepcopy(r.hyperparameters))
         self._last_run = r
-        self.logger.log_stop_experiment(self)
+        trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def grid_search(self, parameters=None):
         """
@@ -918,7 +940,9 @@ class Experiment(MetadataEntity):
         if parameters is None:
             self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
             self.run()
-            self.logger.put_experiment_configuration(self)
+
+            # Fire event
+            trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
             return
 
         # Update metadata with version details of packages used in the workflow
@@ -929,7 +953,9 @@ class Experiment(MetadataEntity):
         master_list = []
         params_list = []
 
-        self.logger.log_start_experiment(self)
+        # Fire event
+        trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+
         for estimator in parameters:
             param_dict = parameters.get(estimator)
             for params in param_dict:
@@ -942,7 +968,9 @@ class Experiment(MetadataEntity):
         grid = itertools.product(*master_list)
 
         self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
-        self.logger.put_experiment_configuration(self)
+
+        # Fire event
+        trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
 
         # Get the total number of iterations
         grid_size = 1
@@ -954,16 +982,16 @@ class Experiment(MetadataEntity):
 
         # For each tuple in the combination create a run
         for element in grid:
-
-            self.logger.log(self, "Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
+            trigger_event('EVENT_LOG_EVENT', source=self,
+                          message="Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
 
                 if estimator is None:
-                    self.logger.warn(False, self,
-                                     f"Estimator {split_params[0]} is not present in the pipeline")
+                    trigger_event('EVENT_WARN', condition=estimator is not None, source=self,
+                                  message=f"Estimator {split_params[0]} is not present in the pipeline")
                     break
 
                 estimator.set_params(**{split_params[1]: element[idx]})
@@ -981,7 +1009,8 @@ class Experiment(MetadataEntity):
 
             curr_executing_index += 1
 
-        self.logger.log_stop_experiment(self)
+        # Fire event
+        trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def create_experiment_configuration_dict(self, params=None, single_run=False):
         """

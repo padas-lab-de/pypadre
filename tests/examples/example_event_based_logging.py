@@ -19,11 +19,12 @@ def create_test_pipeline():
 
 if __name__ == '__main__':
     from padre.app import pypadre
-    pypadre.set_printer(print)
 
     logger = PadreLogger()
     logger.backend = pypadre.repository
     add_logger(logger=logger)
+
+    pypadre.set_printer(print)
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
@@ -36,11 +37,11 @@ if __name__ == '__main__':
     if ds is None:
         ds = [i for i in load_sklearn_toys()][2]
     print(ds)
-    ex = Experiment(name="Test Experiment SVM",
-                    description="Testing Support Vector Machines via SKLearn Pipeline",
+    ex = Experiment(name="Event based Test Experiment",
+                    description="Testing Event based mechanism for logging",
                     dataset=ds,
                     workflow=create_test_pipeline(),
-                    backend=pypadre.repository, keep_splits=True, strategy="cv")
+                    keep_splits=True)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.grid_search()  # run the experiment and report

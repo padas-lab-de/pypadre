@@ -3,9 +3,13 @@ This file will be used to test the functionalities of the ExperimentCreator clas
 """
 from padre.app import pypadre
 from padre.experimentcreator import ExperimentCreator
-
+from padre.base import PadreLogger
+from padre.eventhandler import add_logger
 
 def main():
+    logger = PadreLogger()
+    logger.backend = pypadre.local_backend.experiments
+    add_logger(logger=logger)
     experiment_helper = ExperimentCreator()
     print(experiment_helper.get_dataset_names())
     workflow = experiment_helper.create_test_pipeline(['principal component analysis', 'linear regression'])
@@ -18,8 +22,7 @@ def main():
     experiment_helper.create_experiment(name='Test Experiment PCA Linear',
                                         description='Test Experiment with pca and linear regression',
                                         dataset_list=None,
-                                        workflow=workflow,
-                                        backend=pypadre.local_backend.experiments)
+                                        workflow=workflow)
 
     workflow = experiment_helper.create_test_pipeline(['logistic regression'])
     params_logistic_pca = {'penalty_norm': ['l1', 'l2']}
@@ -28,8 +31,7 @@ def main():
     experiment_helper.create_experiment(name='Test Experiment PCA Logistic',
                                         description='Test Experiment with pca and logistic regression',
                                         dataset_list='Boston_House_Prices',
-                                        workflow=workflow,
-                                        backend=pypadre.local_backend.experiments)
+                                        workflow=workflow)
     experiment_helper.execute_experiments()
 
     experiment = ['Test Experiment PCA Linear', 'Test Experiment PCA Logistic']
