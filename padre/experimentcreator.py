@@ -14,10 +14,7 @@ from padre.eventhandler import add_logger, trigger_event, assert_condition
 from padre.ds_import import load_sklearn_toys
 from padre.visitors.mappings import name_mappings
 from padre.visitors.mappings import supported_frameworks
-from padre.experiment import Experiment
-
-add_logger(default_logger)
-
+from padre.core import Experiment
 
 class ExperimentCreator:
     # Initialization of the experiments dict.

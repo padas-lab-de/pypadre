@@ -14,7 +14,7 @@ from deprecated import deprecated
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
 from padre.datasets import Dataset, Attribute
-from padre.experiment import Experiment
+from padre.core import Experiment
 
 
 def _get_path(root_dir, name, create=True):

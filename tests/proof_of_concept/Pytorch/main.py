@@ -3,7 +3,7 @@ from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
 import torch
-from padre.experiment import Experiment, Splitter
+from padre.core import Experiment, Splitter
 from padre.app import pypadre
 
 

@@ -33,7 +33,7 @@ from padre.backend.http import PadreHTTPClient
 from padre.backend.dual_backend import DualBackend
 import padre.ds_import
 from padre.experimentcreator import ExperimentCreator
-from padre.experiment import Experiment
+from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
 from padre.base import default_logger

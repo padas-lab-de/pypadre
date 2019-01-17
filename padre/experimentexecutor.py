@@ -7,7 +7,7 @@ The experiments could be run
 4. Parallelly on the server
 5. Use a queueing system
 """
-from padre.experiment import Experiment
+from padre.core import Experiment
 from padre.ds_import import load_sklearn_toys
 import threading
 import time

@@ -175,7 +175,7 @@ the user is responsible for using the correct backends to persist results to.
 .. code-block:: python
 
     from padre.ds_import import load_sklearn_toys
-    from padre.experiment import Experiment
+    from padre.core import Experiment
     ds = [i for i in load_sklearn_toys()]
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline\n"

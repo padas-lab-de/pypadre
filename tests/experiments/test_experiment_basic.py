@@ -4,7 +4,7 @@ This file shows an example on how to use the pypadre app.
 import unittest
 
 from padre.ds_import import load_sklearn_toys
-from padre.experiment import Experiment
+from padre.core import Experiment
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 

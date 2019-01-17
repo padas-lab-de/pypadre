@@ -5,9 +5,11 @@ def test_other_test():
     for k in type_mappings:
         if k:
             print("def test_extract_" + type_mappings[k][0]['name'].replace(' ', '_').replace('-', '_') + "(self): ")
-            impl = type_mappings[k][0]['implementation']['scikit-learn']
-            print("    self.extract_type_object(" + impl + ")")
-            print()
+            for impl in type_mappings[k][0]['implementation']:
+                # impl = type_mappings[k][0]['implementation']['scikit-learn']
+                print("    self.extract_type_object(" + impl + ")")
+                print()
+
 
 if __name__=='__main__':
     test_other_test()

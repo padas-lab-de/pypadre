@@ -7,7 +7,7 @@ The example is taken from <http://scikit-learn.org/stable/auto_examples/plot_dig
 import pprint
 
 from padre.ds_import import load_sklearn_toys
-from padre.experiment import Experiment
+from padre.core import Experiment
 
 
 def create_test_pipeline():

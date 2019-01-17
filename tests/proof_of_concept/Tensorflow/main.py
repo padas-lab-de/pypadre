@@ -4,7 +4,7 @@ from sklearn.pipeline import Pipeline
 from sklearn import datasets
 import torch
 import numpy as np
-from padre.experiment import Experiment, Splitter
+from padre.core import Experiment
 from padre.app import pypadre
 
 

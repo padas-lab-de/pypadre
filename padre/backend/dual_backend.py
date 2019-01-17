@@ -1,4 +1,4 @@
-from padre.experiment import Experiment
+from padre.core import Experiment
 import sys
 
 
