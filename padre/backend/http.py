@@ -17,10 +17,12 @@ import io
 import tempfile
 
 from deprecated import deprecated
+from google.protobuf.internal.encoder import _VarintBytes
 from requests_toolbelt import MultipartEncoder
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
+import padre.protobuffer.protobuf.datasetV1_pb2 as proto
 from padre import ds_import
 import logging
 
@@ -302,19 +304,17 @@ class HTTPBackendDatasets:
     def put_dataset(self, dataset):
         """Upload local dataset to the server and return dataset id
         """
-        from padre.protobuffer import proto_organizer as proto
-        binary = tempfile.TemporaryFile(mode='w+b')
-        proto.createProtobuffer(dataset, binary)
         data = dataset.metadata
         data["attributes"] = dataset.attributes
         url = self.parent.base[0:-1] + PadreHTTPClient.paths["datasets"]
         response = self.parent.do_post(url, **{"data":json.dumps(data)})
         dataset_id = response.headers["Location"].split("/")[-1]
         url = self.parent.base[0:-1] + PadreHTTPClient.paths["binaries"](dataset_id)
-        binary.seek(0)
-        m = MultipartEncoder(
-            fields={"field0": ("fname", binary, "application/x.padre.dataset.v1+protobuf")})
-        response = self.parent.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+        with tempfile.TemporaryFile() as _file:
+            binary = self.make_proto(dataset, _file)
+            m = MultipartEncoder(
+                fields={"field0": ("fname", binary, "application/x.padre.dataset.v1+protobuf")})
+            response = self.parent.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
         return dataset_id
 
     def get(self, _id, metadata_only=False):
@@ -372,6 +372,28 @@ class HTTPBackendDatasets:
          """
         ds = ds_import.load_openML_dataset(url)
         return ds
+
+    def make_proto(self, dataset, _file):
+        from padre.protobuffer import proto_organizer
+        pd_dataframe = dataset._binary.pandas_repr()
+        pb_meta = proto.Meta()
+        pb_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
+        pb_msg_serialized = pb_meta.SerializeToString()
+        _file.write(_VarintBytes(len(pb_msg_serialized)))
+        _file.write(pb_msg_serialized)
+        _file.flush()
+        for i, row in pd_dataframe.iterrows():
+            pb_row = proto.DataRow()
+            for i, entry in row.iteritems():
+                proto_organizer.set_cell(pb_row, entry)
+            serialize = pb_row.SerializeToString()
+
+            _file.write(_VarintBytes(len(serialize)))
+            _file.write(serialize)
+            _file.flush()
+        _file.seek(0)
+        return _file
+
 
 PadreHTTPClient.paths = {
     "padre-api": "http://padre-api:@localhost:8080",
