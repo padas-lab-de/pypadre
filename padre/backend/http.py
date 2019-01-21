@@ -16,8 +16,11 @@ import json
 import io
 import tempfile
 
+import networkx as nx
+import pandas as pd
 from deprecated import deprecated
 from google.protobuf.internal.encoder import _VarintBytes
+from google.protobuf.internal.decoder import _DecodeVarint
 from requests_toolbelt import MultipartEncoder
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
@@ -181,6 +184,12 @@ class PadreHTTPClient:
         else:
             return PadreHTTPClient.paths[kind](id)
 
+    def get_base_url(self):
+        url = self.base
+        if url[-1] == "/":
+            url = url[0:-1]
+        return url
+
     def get_access_token(self,  passwd=None):
         """Get access token.
 
@@ -319,31 +328,27 @@ class HTTPBackendDatasets:
 
     def get(self, _id, metadata_only=False):
         """Fetches data with given id from server and returns it"""
-        from padre.protobuffer import proto_organizer as proto
         from padre import graph_import
-        import networkx as nx
+
         url = self.parent.base[0:-1] + PadreHTTPClient.paths["dataset"](_id)
         response = self.parent.do_get(url)
         response_meta = json.loads(response.content.decode("utf-8"))
         attribute_name_list = []
         atts = []
         for attr in response_meta["attributes"]:
-            if (attr["name"] != "INVALID_COLUMN"):
-                atts.append(Attribute(**attr))
+            atts.append(Attribute(**attr))
             attribute_name_list.append(attr["name"])
 
+        binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](_id)
+        pb_data = self.parent.do_get(binaries_url).content
+        df_data = self.proto_to_dataframe(pb_data)
         del response_meta["attributes"]
-        df_data = proto.get_Server_Dataframe(_id, self.parent._access_token, url="http://localhost:8080")
         dataset = Dataset(None, **response_meta)
         df_data.columns = attribute_name_list
-
-        if ("INVALID_COLUMN" in list(df_data.columns.values)):
-            df_data = df_data.drop(["INVALID_COLUMN"], axis=1)
 
         if dataset.isgraph:
             node_attr = []
             edge_attr = []
-
             for attr in atts:
                 graph_role = attr.context["graph_role"]
                 if (graph_role == "source"):
@@ -359,8 +364,7 @@ class HTTPBackendDatasets:
             dataset.set_data(network, atts)
         else:
             dataset.set_data(df_data, atts)
-            print("Load dataset " + _id + " from server:")
-
+        logger.info("Loaded dataset " + _id + " from server:")
         return dataset
 
     def get_openml_dataset(self, url):
@@ -393,6 +397,24 @@ class HTTPBackendDatasets:
             _file.flush()
         _file.seek(0)
         return _file
+
+    def proto_to_dataframe(self, pb_data):
+        from padre.protobuffer import proto_organizer
+        pb_meta = proto.Meta()
+        pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, 0, pb_meta)
+
+        data_rows = []
+        while pb_pos < len(pb_data):
+            pb_row = proto.DataRow()
+            pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, pb_pos, pb_row)
+            data_fields = []
+            for cell in pb_row.cells:
+                value = getattr(cell, cell.WhichOneof("cell_type"))
+                data_fields.append(value)
+            data_rows.append(data_fields)
+        df = pd.DataFrame(data_rows)
+        return df
+
 
 
 PadreHTTPClient.paths = {
