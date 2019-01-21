@@ -34,7 +34,7 @@ class Run(MetadataEntity):
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
 
             assert_condition(
-                (self._experiment.validate.validate(train_idx, test_idx, val_idx, self._experiment.dataset)),
+                 condition=(self._experiment.validate.validate(train_idx, test_idx, val_idx, self._experiment.dataset)),
                  source=self,
                  message='Dataset Validation Failed')
 

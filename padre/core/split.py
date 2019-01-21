@@ -38,7 +38,7 @@ class Splitter:
         self._num_examples = ds.size[0]
         self._strategy = options.pop("strategy", "random")
 
-        assert_condition(self._strategy == "random" or self._strategy == "cv", source=self,
+        assert_condition(condition=self._strategy == "random" or self._strategy == "cv", source=self,
                          message=f"Unknown splitting strategy {self._strategy}. Only 'cv' or 'random' allowed")
 
         self._test_ratio = options.pop("test_ratio", 0.25)
@@ -50,20 +50,20 @@ class Splitter:
                       source=self,
                       message=f"Wrong ratio of evaluation set provided {self._val_ratio}. Continuing with default=0")
         self._n_folds = options.pop("n_folds", 3)
-        assert_condition(1 <= self._n_folds, source=self, message=f"Number of folds not positive {self._n_folds}")
+        assert_condition(condition=1 <= self._n_folds, source=self, message=f"Number of folds not positive {self._n_folds}")
         self._random_seed = options.pop("random_seed", None)
         self._no_shuffle = options.pop("no_shuffle", False)
         trigger_event('EVENT_WARN',
                       condition=not (self._n_folds == 1 and self._strategy == "random" and self._no_shuffle),
                       source=self,
                       message=f"Random test split will be always the same since shuffling is not permitted")
-        assert_condition(self._n_folds < self._dataset.size[0] or self._strategy != "cv",
+        assert_condition(condition=self._n_folds < self._dataset.size[0] or self._strategy != "cv",
                          source=self,
                          message=f"There are more folds than examples: {self._n_folds}<{self._dataset.size[0]}")
         self._stratified = options.pop("stratified", None)
         self._indices = options.pop("indices", None)
         if self._strategy == "indices":
-            assert_condition(self._indices is not None, source=self,
+            assert_condition(condition=self._indices is not None, source=self,
                              message=f"Splitting strategy {self._strategy} requires an explicit split given by parameter 'indices'")
         if self._stratified is None:
             self._stratified = ds.targets() is not None
@@ -76,7 +76,7 @@ class Splitter:
                 self._stratified = False
         self._splitting_fn = options.pop("fn", None)
         if self._strategy == "function":
-            assert_condition(self._splitting_fn is not None, source=self,
+            assert_condition(condition=self._splitting_fn is not None, source=self,
                              message=f"Splitting strategy {self._strategy} requires a function provided via parameter 'fn'")
 
     def splits(self):

@@ -247,13 +247,13 @@ class ExperimentCreator:
                 Else, None.
         """
         if estimator is None:
-            assert_condition(False, source=self,
+            assert_condition(condition=False, source=self,
                              message=''.join([estimator_name + ' does not exist in the workflow']))
             return None
         available_params = self._parameters.get(estimator_name)
         for param in param_val_dict:
             if param not in available_params:
-                assert_condition(False, source=self,
+                assert_condition(condition=False, source=self,
                                  message=''.join([param + ' is not present for estimator ' + estimator_name]))
             else:
                 actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
@@ -434,7 +434,7 @@ class ExperimentCreator:
         if description is None or \
                 workflow is None or workflow is False:
             if description is None:
-                assert_condition(False, source=self,
+                assert_condition(condition=False, source=self,
                                  message=''.join(['Description is missing for experiment:', name]))
             return None
 
@@ -458,9 +458,9 @@ class ExperimentCreator:
                               message=''.join([name, ' created successfully!']))
 
             else:
-                assert_condition(False, source=self, message='Error creating experiment')
+                assert_condition(condition=False, source=self, message='Error creating experiment')
                 if self._experiments.get(name, None) is not None:
-                    assert_condition(False, source=self, message=''.join(['Experiment name: ', name,
+                    assert_condition(condition=False, source=self, message=''.join(['Experiment name: ', name,
                                                   ' already present. Experiment name should be unique']))
 
     def get_local_dataset(self, name=None):
@@ -476,12 +476,12 @@ class ExperimentCreator:
                  Else, None
         """
         if name is None:
-            assert_condition(False, source=self, message='Dataset name is empty')
+            assert_condition(condition=False, source=self, message='Dataset name is empty')
             return None
         if name in self._local_dataset:
             return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
         else:
-            assert_condition(False, source=self, message=name + ' Local Dataset not found')
+            assert_condition(condition=False, source=self, message=name + ' Local Dataset not found')
             return None
 
     def get_dataset_names(self):

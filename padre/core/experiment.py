@@ -3,7 +3,7 @@ import platform
 import padre.visitors.parameter
 
 from collections import OrderedDict
-from padre.eventhandler import trigger_event
+from padre.eventhandler import trigger_event, assert_condition
 from padre.base import MetadataEntity
 from padre.core.validatetraintestsplits import ValidateTrainTestSplits
 from padre.core.sklearnworkflow import SKLearnWorkflow
@@ -83,19 +83,16 @@ class Experiment(MetadataEntity):
 
     """
 
+    id = None
+
     def __init__(self,
                  **options):
-        self._dataset = options.pop("dataset", None)
-        # we need to store the dataset_id in the metadata. otherwise, this information might be lost during storage
-        options["dataset_id"] = self._dataset.id
-        # todo workflow semantic not clear. Fit and infer is fine, but we need someting for transform
-        workflow = options.pop("workflow", None)
+
         self._stdout = options.get("stdout", True)
         self._keep_runs = options.get("keep_runs", False) or options.get("keep_splits", False)
         self._runs = []
         self._run_split_dict = OrderedDict()
         self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
-        self._set_workflow(workflow)
         self._last_run = None
         self._validation_obj = options.get('validation', None)
         self._results = []
@@ -103,6 +100,17 @@ class Experiment(MetadataEntity):
         self._hyperparameters = []
         self._experiment_configuration = None
         super().__init__(options.pop("ex_id", None), **options)
+
+
+        # todo workflow semantic not clear. Fit and infer is fine, but we need someting for transform
+        workflow = options.pop("workflow", None)
+        assert_condition(condition=workflow is not None, source=self, message='Workflow cannot be none')
+        self._set_workflow(workflow)
+
+        self._dataset = options.pop("dataset", None)
+        # we need to store the dataset_id in the metadata. otherwise, this information might be lost during storage
+        assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
+        options["dataset_id"] = self._dataset.id
 
         if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):
             self._validation_obj = ValidateTrainTestSplits()
