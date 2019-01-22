@@ -67,6 +67,7 @@ class PadreHTTPClient:
                 or not self.is_token_valid(self._access_token):
             self._access_token = self.get_access_token(passwd)
         self._default_header['Authorization'] = self._access_token
+        return self._access_token
 
     def do_request(self, request, url, **body):
         """

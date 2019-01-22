@@ -249,8 +249,10 @@ class PadreConfig:
         """
         self.http_backend_config["user"]=user
         http = PadreHTTPClient(**self.http_backend_config)
-        token = http.get_access_token(passwd)
+        token = http.authenticate(passwd, user)
         self.set('token', token)
+        self.save()
+        self.general["offline"] = False
 
 
 class DatasetApp:
@@ -512,6 +514,8 @@ class PadreApp:
     def __init__(self, config=None, printer=None):
         if config is None:
             self._config = PadreConfig()
+        else:
+            self._config = config
         self._offline = "offline" not in self._config.general or self._config.general["offline"]
         self._http_repo = PadreHTTPClient(**self._config.http_backend_config)
         self._file_repo = PadreFileBackend(**self._config.local_backend_config)
