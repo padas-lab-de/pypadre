@@ -2,6 +2,7 @@ from padre.eventhandler import trigger_event, assert_condition
 from padre.base import MetadataEntity
 from padre.core.split import Splitter, Split
 
+
 class Run(MetadataEntity):
     """
     A run is a single instantiation of an experiment with a definitive set of parameters.

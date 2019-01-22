@@ -52,7 +52,7 @@ def main():
                     dataset=ds,
                     workflow=workflow,
                     backend=pypadre.local_backend.experiments)
-    ex.grid_search()
+    ex.execute()
     '''
     Sample network dictionary creation
     

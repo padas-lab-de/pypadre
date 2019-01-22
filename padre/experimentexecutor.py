@@ -49,7 +49,7 @@ def process_queue(q,  queueLock, threadID):
             c1 = time.time()
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-            ex.grid_search(parameters=params)
+            ex.execute(parameters=params)
             c2 = time.time()
             print('Completed experiment: {name} with thread: {threadID}. '
                   'Execution time: {time_diff}'.format(name=name, threadID=threadID, time_diff=c2-c1))
@@ -63,7 +63,7 @@ def process_queue(q,  queueLock, threadID):
 
 def run_experiment(experiment, params):
     conf = experiment.configuration()
-    experiment.grid_search(parameters=params)
+    experiment.execute(parameters=params)
 
 
 def run_workflow(workflow, dataset):
@@ -85,7 +85,7 @@ def run_idx(idx):
     c1 = time.time()
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-    ex.grid_search(parameters=params)
+    ex.execute(parameters=params)
     c2 = time.time()
     print('Completed experiment: {name}. '
           'Execution time: {time_diff}'.format(name=name, time_diff=c2 - c1))
@@ -96,7 +96,7 @@ def run(experiment_object):
     ex = experiment_object.get('experiment')
     name = experiment_object.get('name')
     params = experiment_object.get('params')
-    ex.grid_search(parameters=params)
+    ex.execute(parameters=params)
     c2 = time.time()
     print('Completed experiment: {name}. Execution time: {time_diff}'.format(name=name,
                                                                                                      time_diff=c2 - c1))
@@ -201,7 +201,7 @@ class ExperimentExecutor:
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-            ex.grid_search(parameters=params)
+            ex.execute(parameters=params)
             self._experiment_objects.append(ex)
             c2 = time.time()
             print('Completed experiment: {name} with execution time: {time_diff}'.format(name=name, time_diff=c2-c1))

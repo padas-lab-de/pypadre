@@ -617,7 +617,7 @@ class ExperimentCreator:
 
                 conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                ex.execute(parameters=self._param_value_dict.get(experiment))
 
             else:
                 # If there are multiple datasets defined for the experiment execute the experiment for each dataset
@@ -664,7 +664,7 @@ class ExperimentCreator:
                     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
                     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                    ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                    ex.execute(parameters=self._param_value_dict.get(experiment))
 
     def do_experiments(self, experiment_datasets=None):
         """
@@ -725,7 +725,7 @@ class ExperimentCreator:
                 conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                ex.execute(parameters=self._param_value_dict.get(experiment))
 
     def populate_alternate_names(self):
         """

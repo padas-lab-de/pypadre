@@ -5,6 +5,7 @@ import padre.visitors.parameter
 from collections import OrderedDict
 from padre.eventhandler import trigger_event, assert_condition
 from padre.base import MetadataEntity
+from padre.datasets import Dataset
 from padre.core.validatetraintestsplits import ValidateTrainTestSplits
 from padre.core.sklearnworkflow import SKLearnWorkflow
 from padre.core.run import Run
@@ -83,12 +84,22 @@ class Experiment(MetadataEntity):
 
     """
 
-    id = None
+    _id = None
+    _metadata = None
 
     def __init__(self,
                  **options):
+        # Validate input types
+        assert_condition(condition=isinstance(options.get('name', 'noname'), str),
+                         source=self, message='Experiment name should be of type string')
+        assert_condition(condition=isinstance(options.get('description', 'noname'), str),
+                         source=self, message='Experiment description should be of type string')
+
 
         self._dataset = options.pop("dataset", None)
+        assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
+        assert_condition(condition=isinstance(self._dataset, Dataset),
+                         source=self, message='Experiment dataset is not of type Dataset')
         # we need to store the dataset_id in the metadata. otherwise, this information might be lost during storage
         options["dataset_id"] = self._dataset.id
         # todo workflow semantic not clear. Fit and infer is fine, but we need someting for transform
@@ -111,6 +122,9 @@ class Experiment(MetadataEntity):
             self._validation_obj = ValidateTrainTestSplits()
 
         self._fill_sys_info()
+        assert_condition(condition=self.workflow is not None, source=self, message="Workflow cannot be none")
+        assert_condition(condition=options.get('description', None) is not None, source=self,
+                         message="Description cannot be none")
 
     def _fill_sys_info(self):
         # TODO: Implement the gathering of system information as dynamic code
@@ -224,7 +238,7 @@ class Experiment(MetadataEntity):
         self._last_run = r
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
-    def grid_search(self, parameters=None):
+    def execute(self, parameters=None):
         """
         This function searches a grid of the parameter combinations given into the function
         :param parameters: A nested dictionary, where the outermost key is the estimator name and
@@ -233,6 +247,10 @@ class Experiment(MetadataEntity):
         """
 
         from copy import deepcopy
+
+        assert_condition(condition=parameters is None or isinstance(parameters, dict),
+                         source=self,
+                         message='Incorrect parameter type to the execute function')
 
         if parameters is None:
             self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
@@ -255,6 +273,9 @@ class Experiment(MetadataEntity):
 
         for estimator in parameters:
             param_dict = parameters.get(estimator)
+            assert_condition(condition=isinstance(param_dict, dict),
+                             source=self,
+                             message='Parameter dictionary is not of type dictionary for estimator:' + estimator)
             for params in param_dict:
                 # Append only the parameters to create a master list
                 master_list.append(param_dict.get(params))
@@ -287,7 +308,7 @@ class Experiment(MetadataEntity):
                 estimator = workflow._pipeline.named_steps.get(split_params[0])
 
                 if estimator is None:
-                    trigger_event('EVENT_WARN', condition=estimator is not None, source=self,
+                    assert_condition(condition=estimator is not None, source=self,
                                   message=f"Estimator {split_params[0]} is not present in the pipeline")
                     break
 
