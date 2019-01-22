@@ -90,10 +90,7 @@ class Experiment(MetadataEntity):
     def __init__(self,
                  **options):
         # Validate input types
-        assert_condition(condition=isinstance(options.get('name', 'noname'), str),
-                         source=self, message='Experiment name should be of type string')
-        assert_condition(condition=isinstance(options.get('description', 'noname'), str),
-                         source=self, message='Experiment description should be of type string')
+        self.validate_input_parameters(options=options)
 
 
         self._dataset = options.pop("dataset", None)
@@ -122,9 +119,6 @@ class Experiment(MetadataEntity):
             self._validation_obj = ValidateTrainTestSplits()
 
         self._fill_sys_info()
-        assert_condition(condition=self.workflow is not None, source=self, message="Workflow cannot be none")
-        assert_condition(condition=options.get('description', None) is not None, source=self,
-                         message="Description cannot be none")
 
     def _fill_sys_info(self):
         # TODO: Implement the gathering of system information as dynamic code
@@ -481,3 +475,30 @@ class Experiment(MetadataEntity):
                 module_version_info[module] = module_.__version__
 
         self.metadata['versions'] = module_version_info
+
+    def validate_input_parameters(self, options):
+        """
+        This function validates all the parameters given to the experiment constructor
+        :param options: Dictionary containing the parameters given to the constructor of the class
+        :return: True if successful validation of parameters, False if not
+        """
+        assert_condition(condition=options.get('workflow', None) is not None, source=self, message="Workflow cannot be none")
+        assert_condition(condition=options.get('description', None) is not None, source=self,
+                         message="Description cannot be none")
+        assert_condition(condition=isinstance(options.get("keep_runs", True), bool), source=self,
+                         message='keep_runs parameter has to be of type bool')
+        assert_condition(condition=isinstance(options.get("keep_splits", True), bool), source=self,
+                         message='keep_splits parameter has to be of type bool')
+        assert_condition(condition=isinstance(options.get('sk_learn_stepwise', False), bool), source=self,
+                         message = 'keep_splits parameter has to be of type bool')
+        assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
+                         message='Workflow does not have a fit function')
+        assert_condition(condition=isinstance(options.get('name', 'noname'), str),
+                         source=self, message='Experiment name should be of type string')
+        assert_condition(condition=isinstance(options.get('description', 'noname'), str),
+                         source=self, message='Experiment description should be of type string')
+        assert_condition(condition=options.get('dataset', None) is not None, source=self,
+                         message="Dataset cannot be none")
+        assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
+                         source=self, message='Experiment dataset is not of type Dataset')
+

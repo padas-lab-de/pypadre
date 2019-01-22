@@ -24,11 +24,11 @@ def get_toy_dataset():
 class TestExperiment(unittest.TestCase):
 
     def test_experiment_constructor_no_workflow(self):
-        self.assertRaises(ValueError, Experiment, name='No workflow',
+        self.assertRaises(ValueError, Experiment, name='Test_No_Workflow',
                           description='Test Experiment without any workflow', dataset=get_toy_dataset())
 
     def test_experiment_constructor_no_dataset(self):
-        self.assertRaises(ValueError, Experiment, name='No dataset',
+        self.assertRaises(ValueError, Experiment, name='Test_No_dataset',
                           description='Test Experiment without a dataset', workflow=create_test_pipeline())
 
     def test_experiment_constructor_no_name(self):
@@ -36,18 +36,33 @@ class TestExperiment(unittest.TestCase):
                                    workflow=create_test_pipeline(), dataset=get_toy_dataset()), None)
 
     def test_experiment_constructor_no_description(self):
-        self.assertRaises(ValueError, Experiment, name='No description',
+        self.assertRaises(ValueError, Experiment, name='Test_No_Description',
                           workflow=create_test_pipeline(), dataset=get_toy_dataset())
 
     def test_experiment_constructor_validate_type_experiment_name(self):
         self.assertRaises(ValueError, Experiment, name=5.55555,
-                          description='Experiment with wrong type in Experiment name',
+                          description='Experiment with incorrect type in Experiment name',
                           workflow=create_test_pipeline(), dataset=get_toy_dataset())
 
     def test_experiment_constructor_validate_type_dataset(self):
-        self.assertRaises(ValueError, Experiment, name='Wrong Dataset Type',
-                          description='Experiment with wrong dataset type',
+        self.assertRaises(ValueError, Experiment, name='Test_Incorrect_Dataset_Type',
+                          description='Experiment with incorrect dataset type',
                           workflow=create_test_pipeline(), dataset=np.zeros([50,50]))
+
+    def test_experiment_constructor_validate_type_keep_runs(self):
+        self.assertRaises(ValueError, Experiment, name='Test_Incorrect_Parameter_Type_keep_runs',
+                          description='Experiment with incorrect parameter type for keep_runs',
+                          workflow=create_test_pipeline(), dataset=get_toy_dataset(), keep_runs=3.141592653)
+
+    def test_experiment_constructor_validate_type_keep_splits(self):
+        self.assertRaises(ValueError, Experiment, name='Test_Incorrect_Parameter_Type_keep_splits',
+                          description='Experiment with incorrect parameter type for keep_splits',
+                          workflow=create_test_pipeline(), dataset=get_toy_dataset(), keep_splits=2.71828158284)
+
+    def test_experiment_constructor_validate_workflow(self):
+        self.assertRaises(ValueError, Experiment, name='Test_Incorrect_Workflow',
+                          description='Experiment with incorrect workflow type',
+                          workflow=dict(), dataset=get_toy_dataset())
 
     def test_experiment_execute_validate_type_parameters(self):
         ex = Experiment(name='Test_Incorrect_Execute_Parameter_Type',
@@ -71,7 +86,9 @@ class TestExperiment(unittest.TestCase):
                         description="Experiment with incorrect estimator in parameters",
                         workflow=create_test_pipeline(),
                         dataset=get_toy_dataset())
-        parameters = dict()
+        parameters = dict();
         parameters['good'] = {'night': 'morning'}
         self.assertRaises(ValueError, ex.execute, parameters=parameters)
+
+
 
