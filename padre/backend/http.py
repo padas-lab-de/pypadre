@@ -311,6 +311,28 @@ class HTTPBackendDatasets:
                         headers={},  # let request handle the content type
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
 
+    def list_dataset(self, search_name=None, search_metadata=None) -> list:
+        """
+        List all data sets in the repository
+        :param search_name: regular expression based search string for the title. Default None
+        :param search_metadata: dict with regular expressions per metadata key. Default None
+        """
+        # todo apply the search metadata filter.
+        data = []
+        url = self.parent.get_base_url() + PadreHTTPClient.paths["search"]("datasets") + "name:?"
+        if search_name is not None:
+            url += search_name
+        response = self.parent.do_get(url)
+        content = json.loads(response.content)
+        if content['page']['totalElements'] > 0:
+            datasets = content['_embedded']['datasets']
+            data = [[{'uid': d['uid'],
+                      'name': d['name'],
+                      'type': d['type'],
+                      'attributes': len(d['attributes'])}]
+                    for d in datasets]
+        return data
+
     def put_dataset(self, dataset):
         """Upload local dataset to the server and return dataset id
         """
@@ -429,6 +451,7 @@ PadreHTTPClient.paths = {
     "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
     "run-splits": "/runSplits",
     "run-split": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id,
+    "search": lambda entity: "/" + entity + "/search?search=",
     "oauth-token": lambda csrf_token: "/oauth/token?=" + csrf_token,
     "splits": "/splits",
     "split": lambda id: "/splits/" + id,
