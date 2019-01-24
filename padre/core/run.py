@@ -2,7 +2,6 @@ from padre.eventhandler import trigger_event, assert_condition
 from padre.base import MetadataEntity
 from padre.core.split import Splitter, Split
 
-
 class Run(MetadataEntity):
     """
     A run is a single instantiation of an experiment with a definitive set of parameters.
@@ -12,8 +11,11 @@ class Run(MetadataEntity):
     _results = []
     _hyperparameters = []
     _split_ids = None
+    _id = None
+    _metadata = None
 
     def __init__(self, experiment, workflow, **options):
+        self.validate_parameters(experiment=experiment, workflow=workflow, options=options)
         self._experiment = experiment
         self._workflow = workflow
         self._keep_splits = options.pop("keep_splits", False)
@@ -86,3 +88,32 @@ class Run(MetadataEntity):
             return str(super())
         else:
             return "Run<" + ";".join(s) + ">"
+
+    def validate_parameters(self, experiment, workflow, options):
+        """
+        This function validates the parameters passed to the constructor
+        :param experiment: Experiment class object
+        :param workflow: workflow of the experiment
+        :param options: additional parameters
+        :return:
+        """
+        from padre.core.experiment import Experiment
+        assert_condition(condition=experiment is not None, source=self,
+                         message="Experiment cannot be None")
+        assert_condition(condition=isinstance(experiment, Experiment), source=self,
+                         message="Parameter experiment is not an object of padre.core.Experiment")
+
+        assert_condition(condition=workflow is not None, source=self,
+                         message="Workflow cannot be none")
+        assert_condition(condition=hasattr(workflow, 'fit') is True, source=self,
+                         message='Workflow does not have a fit function')
+
+        assert_condition(condition=options is not None, source=self,
+                         message='Options parameter cannot be None')
+        assert_condition(condition=isinstance(options, dict), source=self,
+                         message='Options is not a dictionary type')
+
+        assert_condition(condition=isinstance(options.get('keep_splits', True), bool), source=self,
+                         message='keep_splits parameter is not of type bool')
+
+

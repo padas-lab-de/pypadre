@@ -482,6 +482,8 @@ class Experiment(MetadataEntity):
         :param options: Dictionary containing the parameters given to the constructor of the class
         :return: True if successful validation of parameters, False if not
         """
+        import numpy as np
+
         assert_condition(condition=options.get('workflow', None) is not None, source=self, message="Workflow cannot be none")
         assert_condition(condition=options.get('description', None) is not None, source=self,
                          message="Description cannot be none")
@@ -501,4 +503,9 @@ class Experiment(MetadataEntity):
                          message="Dataset cannot be none")
         assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
                          source=self, message='Experiment dataset is not of type Dataset')
+        assert_condition(condition=len(options.get('dataset', None).targets()) > 1, source=self,
+                         message='Dataset row count is 1. Experiment cannot train and test properly')
+        assert_condition(condition=np.all(np.mod(options.get('dataset').targets(), 1) == 0) and
+                                   options.get('workflow')._estimator_type is 'classifier',
+                         source=self, message='Classification not possible on continous data')
 

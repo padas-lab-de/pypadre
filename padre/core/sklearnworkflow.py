@@ -2,6 +2,7 @@ import numpy as np
 from padre.eventhandler import trigger_event
 from padre.core.base import exp_events, phases
 from padre.visitors.scikit import SciKitVisitor
+from padre.eventhandler import assert_condition
 
 class SKLearnWorkflow:
     """
@@ -34,8 +35,16 @@ class SKLearnWorkflow:
         else:
             # Trigger event
             trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.start, phase='sklearn.'+phases.fitting)
+            y = None
+            if ctx.train_targets is not None:
+                y = ctx.train_targets.reshape((len(ctx.train_targets),))
+            else:
+                # Create dummy target of zeros if target is not present.
+                y = np.zeros(shape=(len(ctx.train_features,)))
 
-            y = ctx.train_targets.reshape((len(ctx.train_targets),))
+            assert_condition(condition=np.all(np.mod(ctx.train_targets, 1) == 0) and
+                                       self._pipeline._estimator_type is 'classifier',
+                             source=self, message='Classification not possible on continous data')
             self._pipeline.fit(ctx.train_features, y)
             trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase='sklearn.'+phases.fitting)
             if self.is_scorer():
@@ -61,6 +70,7 @@ class SKLearnWorkflow:
         else:
             # do logging here
             if ctx.has_testset() and self.is_inferencer():
+
                 y = ctx.test_targets.reshape((len(ctx.test_targets),))
                 # todo: check if we can estimate probabilities, scores or hard decisions
                 # this also changes the result type to be written.

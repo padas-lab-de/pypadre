@@ -272,9 +272,9 @@ class PandasContainer:
         else:
             removekeys = []
             for att in self._attributes:
-                if(att.is_target):
+                if(att.defaultTargetAttribute):
                     removekeys.append(att.name)
-            return self._data.drop(removekeys,axis=1)
+            return self._data.drop(removekeys,axis=1).values
 
     @property
     def targets(self):
@@ -285,7 +285,12 @@ class PandasContainer:
             for col,att in enumerate(self._attributes):
                 if (att.defaultTargetAttribute):
                     targets.append(att.name)
-            return targets
+
+            # TODO: Fix issue on how to define targets if the targets are not given in the Pandas table
+            if len(targets) == 0:
+                return self._data[col].values
+
+            return self._data[targets].values
 
     @property
     def data(self):

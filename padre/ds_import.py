@@ -125,7 +125,8 @@ def load_pandas_df(pandas_df,target_features=[]):
     atts = []
 
     for feature in pandas_df.columns.values:
-        atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,defaultTargetAttribute=feature in target_features, context=None))
+        atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
+                              defaultTargetAttribute=feature in target_features, context=None))
     dataset.set_data(pandas_df, atts)
     return dataset
 

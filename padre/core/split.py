@@ -193,7 +193,7 @@ class Split(MetadataEntity):
         return self._val_idx is not None and len(self._val_idx) > 0
 
     def has_targets(self):
-        return self.dataset.targets() is not None
+        return self.dataset.targets() is not None and len(self.dataset.targets()) > 0
 
     @property
     def train_idx(self):
