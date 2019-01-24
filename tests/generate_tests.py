@@ -1,7 +1,7 @@
-from padre.visitors.mappings import type_mappings
+from padre.core.visitors.mappings import type_mappings
 
 def test_other_test():
-    from padre.visitors.mappings import type_mappings
+    from padre.core.visitors.mappings import type_mappings
     for k in type_mappings:
         if k:
             print("def test_extract_" + type_mappings[k][0]['name'].replace(' ', '_').replace('-', '_') + "(self): ")

@@ -1,6 +1,6 @@
 import itertools
 import platform
-import padre.visitors.parameter
+import padre.core.visitors.parameter
 
 from collections import OrderedDict
 from padre.eventhandler import trigger_event, assert_condition
@@ -183,7 +183,7 @@ class Experiment(MetadataEntity):
         steps = self.configuration()[0]["steps"]
         # Params is a dictionary of hyper parameters where the key is the zero-indexed step number
         # The traverse_dict function traverses the dictionary in a recursive fashion and replaces
-        # any instance of <class 'padre.visitors.parameter.Parameter'> type to a sub-dictionary of
+        # any instance of <class 'padre.core.visitors.parameter.Parameter'> type to a sub-dictionary of
         # value and attribute. This allows the dictionary to be JSON serializable
         for idx, step in enumerate(steps):
             params["".join(["Step_", str(idx)])] = self.traverse_dict(dict(step))
@@ -415,7 +415,7 @@ class Experiment(MetadataEntity):
         This function traverses a Nested dictionary structure such as the
         parameter dictionary obtained from hyperparameters()
         The aim of this function is to convert the param objects to
-        JSON serializable form. The <class 'padre.visitors.parameter.Parameter'> type
+        JSON serializable form. The <class 'padre.core.visitors.parameter.Parameter'> type
         is used to store the base values. This function changes the type to basic JSON
         serializable data types.
 
@@ -428,7 +428,7 @@ class Experiment(MetadataEntity):
             return
 
         for key in dictionary:
-            if isinstance(dictionary[key], padre.visitors.parameter.Parameter):
+            if isinstance(dictionary[key], padre.core.visitors.parameter.Parameter):
                 dictionary[key] = {'value': dictionary[key].value,
                                    'attributes': dictionary[key].attributes}
 
@@ -495,7 +495,7 @@ class Experiment(MetadataEntity):
                          message = 'keep_splits parameter has to be of type bool')
         assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
                          message='Workflow does not have a fit function')
-        assert_condition(condition=isinstance(options.get('name', 'noname'), str),
+        assert_condition(condition=isinstance(options.get('name', 'noname'), str) or options.get('name') is None,
                          source=self, message='Experiment name should be of type string')
         assert_condition(condition=isinstance(options.get('description', 'noname'), str),
                          source=self, message='Experiment description should be of type string')
@@ -505,7 +505,4 @@ class Experiment(MetadataEntity):
                          source=self, message='Experiment dataset is not of type Dataset')
         assert_condition(condition=len(options.get('dataset', None).targets()) > 1, source=self,
                          message='Dataset row count is 1. Experiment cannot train and test properly')
-        assert_condition(condition=np.all(np.mod(options.get('dataset').targets(), 1) == 0) and
-                                   options.get('workflow')._estimator_type is 'classifier',
-                         source=self, message='Classification not possible on continous data')
 

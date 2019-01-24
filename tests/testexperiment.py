@@ -26,8 +26,8 @@ from sklearn.svm import *
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 
-from padre.visitors import DictVisitor, ListVisitor
-from padre.visitors.scikit import SciKitVisitor
+from padre.core.visitors import DictVisitor, ListVisitor
+from padre.core.visitors.scikit import SciKitVisitor
 
 import pprint
 

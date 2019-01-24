@@ -1,7 +1,7 @@
 import numpy as np
 from padre.eventhandler import trigger_event
 from padre.core.base import exp_events, phases
-from padre.visitors.scikit import SciKitVisitor
+from padre.core.visitors.scikit import SciKitVisitor
 from padre.eventhandler import assert_condition
 
 class SKLearnWorkflow:
@@ -42,9 +42,6 @@ class SKLearnWorkflow:
                 # Create dummy target of zeros if target is not present.
                 y = np.zeros(shape=(len(ctx.train_features,)))
 
-            assert_condition(condition=np.all(np.mod(ctx.train_targets, 1) == 0) and
-                                       self._pipeline._estimator_type is 'classifier',
-                             source=self, message='Classification not possible on continous data')
             self._pipeline.fit(ctx.train_features, y)
             trigger_event('EVENT_LOG_EVENT', source=ctx, kind=exp_events.stop, phase='sklearn.'+phases.fitting)
             if self.is_scorer():

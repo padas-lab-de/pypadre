@@ -12,8 +12,8 @@ from copy import deepcopy
 from padre.base import default_logger
 from padre.eventhandler import add_logger, trigger_event, assert_condition
 from padre.ds_import import load_sklearn_toys
-from padre.visitors.mappings import name_mappings
-from padre.visitors.mappings import supported_frameworks
+from padre.core.visitors.mappings import name_mappings
+from padre.core.visitors.mappings import supported_frameworks
 from padre.core import Experiment
 
 class ExperimentCreator:
