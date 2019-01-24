@@ -287,8 +287,9 @@ class PandasContainer:
                     targets.append(att.name)
 
             # TODO: Fix issue on how to define targets if the targets are not given in the Pandas table
+            # Currently the values in the last column are returned as target values
             if len(targets) == 0:
-                return self._data[col].values
+                return self.data[self.data.columns[-1]].values
 
             return self._data[targets].values
 
@@ -622,6 +623,8 @@ class Dataset(MetadataEntity):
             self._binary_loader_fn = data
             return
         elif isinstance(data, pd.DataFrame):
+            # Remove non numerical attributes
+            # TODO: Bring in support for nominal and ordinal attributes too
             self._binary = PandasContainer(data, attributes)
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):

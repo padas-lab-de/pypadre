@@ -95,7 +95,7 @@ def load_csv(path_dataset,path_target=None,target_features=[],originalSource="im
     atts = []
 
     for feature in data.columns.values:
-        atts.append(Attribute(feature,None, None, None,feature in targets,None,None,None))
+        atts.append(Attribute(feature,None, None, None,feature in targets,None,None))
 
     dataset.set_data(data,atts)
     return dataset
