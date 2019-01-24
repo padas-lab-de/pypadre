@@ -1,4 +1,4 @@
-from padre.wrappers.wrapper_tensorflow import WrapperTensorFlow
+from padre.core.wrappers.wrapper_tensorflow import WrapperTensorFlow
 from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets

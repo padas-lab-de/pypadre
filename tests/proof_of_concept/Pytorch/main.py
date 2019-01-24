@@ -1,9 +1,9 @@
-from padre.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
+from padre.core.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
 from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
 import torch
-from padre.core import Experiment, Splitter
+from padre.core import Experiment
 from padre.app import pypadre
 
 
