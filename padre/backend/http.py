@@ -14,19 +14,22 @@ Manages:
 import requests as req
 import json
 import io
+import os
 import tempfile
+import uuid
 
+import arff
 import networkx as nx
+import openml as oml
 import pandas as pd
 from deprecated import deprecated
 from google.protobuf.internal.encoder import _VarintBytes
-from google.protobuf.internal.decoder import _DecodeVarint
 from requests_toolbelt import MultipartEncoder
+
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
 from padre.datasets import Dataset, Attribute
 import padre.protobuffer.protobuf.datasetV1_pb2 as proto
-from padre import ds_import
 import logging
 
 logger = logging.getLogger('pypadre - http')
@@ -390,16 +393,6 @@ class HTTPBackendDatasets:
         logger.info("Loaded dataset " + _id + " from server:")
         return dataset
 
-    def get_openml_dataset(self, url):
-        """Get OpenML datasets
-
-         Download OpenML dataset, store it locally and return the instance of the dataset.
-         :param url: Url of the OpenML dataset
-         :returns: padre.datasets.Dataset
-         """
-        ds = ds_import.load_openML_dataset(url)
-        return ds
-
     def make_proto(self, dataset, _file):
         from padre.protobuffer import proto_organizer
         pd_dataframe = dataset._binary.pandas_repr()
@@ -437,6 +430,53 @@ class HTTPBackendDatasets:
             data_rows.append(data_fields)
         df = pd.DataFrame(data_rows)
         return df
+
+
+    def load_oml_dataset(self, did):
+        """Load dataset from openML with given id.
+
+        :param did: Dataset Id on openML
+        :type did: str
+        :return: Padre compatible dataset
+        :rtype: <class 'padre.datasets.Dataset'>
+        """
+        from padre.app.padre_app import pypadre
+        path = pypadre.config.get("root_dir", "LOCAL BACKEND") + '/datasets/temp/openml'
+        oml.config.apikey = pypadre.config.get("oml_key", "GENERAL")
+        oml.config.cache_directory = path
+        dataset = None
+        try:
+            load = oml.datasets.get_dataset(did)
+            meta = dict()
+            meta["id"] = str(uuid.uuid4())
+            meta["name"] = load.name
+            meta["version"] = load.version
+            meta["description"] = load.description
+            meta["originalSource"] = load.url
+            meta["type"] = "multivariate"
+            meta["published"] = False
+            dataset = Dataset(meta["id"], **meta)
+            raw_data = arff.load(open(load.data_file, encoding='utf-8'))
+            df_attributes = raw_data['attributes']
+            attribute_list = [att[0] for att in raw_data["attributes"]]
+
+            df_data = pd.DataFrame(data=raw_data['data'])
+            atts = []
+            for col in df_data.keys():
+                current_attribute = df_attributes[col]
+                if isinstance(current_attribute[1], list):
+                    df_data[col] = df_data[col].astype('category')
+                atts.append(Attribute(name=current_attribute[0],
+                                      measurementLevel="nominal" if isinstance(current_attribute[1], list) else None,
+                                      unit=None, description=None,
+                                      defaultTargetAttribute=(current_attribute[0] == load.default_target_attribute)))
+            df_data.columns = attribute_list
+            dataset.set_data(df_data, atts)
+
+        except ConnectionError as err:
+            logger.error("openML unreachable! \nErrormessage: " + str(err))
+
+        return dataset
 
 
 

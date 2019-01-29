@@ -96,7 +96,6 @@ class PadreConfig:
     ---------------------------------------
     [HTTP BACKEND]
     user = username
-    passwd = user_password
     base_url = http://localhost:8080/api
     token = oauth_token
 
@@ -105,6 +104,7 @@ class PadreConfig:
 
     [GENERAL]
     offline = True
+    oml_key = openML_api_key
     ---------------------------------------
 
     Implemented functionality.
@@ -324,7 +324,15 @@ class DatasetApp:
         :param name: regexp for filtering the names
         :return: list of possible imports
         """
-        pass
+        from padre import ds_import
+        oml_key = self._parent.config.get("oml_key", "GENERAL")
+        root_dir = self._parent.config.get("root_dir", "LOCAL BACKEND")
+        datasets = ds_import.search_oml_datasets(name, root_dir, oml_key)
+
+        datasets_list = []
+        for key in datasets.keys():
+            datasets_list.append(datasets[key])
+        return datasets_list
 
     def download(self, source: str, name: str) -> Iterable:
         """
@@ -335,6 +343,18 @@ class DatasetApp:
         """
         # todo implement using a generator pattern to avoid loading every dataset in main memory
         pass
+
+    def download_external(self, sources: list) -> Iterable:
+        """
+        Downloads the dataset defined by name from source and stores it into the local file backend.
+        :param sources: list of sources
+        :return: returns a iterator of dataset objects
+        """
+        # todo implement using a generator pattern to avoid loading every dataset in main memory
+        for dataset_source in sources:
+            dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
+            yield dataset
+
 
     def sync(self, name: str=None, mode: str = "sync"):
         """

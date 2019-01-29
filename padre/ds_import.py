@@ -510,6 +510,15 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
     del data["attributes"]
     return did
 
+def search_oml_datasets(name, root_dir, key):
+    path = root_dir + '/datasets/temp/openml'
+
+    oml.config.apikey = key
+    oml.config.cache_directory = path
+    meta = {"data_name": name}
+    return oml.datasets.list_datasets(**meta)
+
+
 def load_openML_dataset(url,destpath=os.path.expanduser('~/.pypadre'),apikey="1f8766e1615225a727bdea12ad4c72fa"):
     """Downloads a dataset from the given open-ml url and Converts it to a padre.Dataset. The metadata is also added to
     the padre.Dataset
