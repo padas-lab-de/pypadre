@@ -14,11 +14,22 @@ Manages:
 import requests as req
 import json
 import io
+import os
+import tempfile
+import uuid
 
+import arff
+import networkx as nx
+import openml as oml
+import pandas as pd
 from deprecated import deprecated
+from google.protobuf.internal.encoder import _VarintBytes
+from requests_toolbelt import MultipartEncoder
+
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
-from padre.datasets import Dataset, Attribute
+from padre.core.datasets import Dataset, Attribute
+import padre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
 import logging
 
 logger = logging.getLogger('pypadre - http')
@@ -59,6 +70,7 @@ class PadreHTTPClient:
                 or not self.is_token_valid(self._access_token):
             self._access_token = self.get_access_token(passwd)
         self._default_header['Authorization'] = self._access_token
+        return self._access_token
 
     def do_request(self, request, url, **body):
         """
@@ -175,6 +187,12 @@ class PadreHTTPClient:
             return id + postfix
         else:
             return PadreHTTPClient.paths[kind](id)
+
+    def get_base_url(self):
+        url = self.base
+        if url[-1] == "/":
+            url = url[0:-1]
+        return url
 
     def get_access_token(self,  passwd=None):
         """Get access token.
@@ -296,6 +314,174 @@ class HTTPBackendDatasets:
                         headers={},  # let request handle the content type
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
 
+
+    def list_dataset(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
+        """
+        List all data sets in the repository
+        :param search_name: regular expression based search string for the title. Default None
+        :param search_metadata: dict with regular expressions per metadata key. Default None
+        """
+        # todo apply the search metadata filter.
+        data = []
+        url = self.parent.get_base_url() + PadreHTTPClient.paths["search"]("datasets") + "name:?"
+        if search_name is not None:
+            url += search_name
+        response = self.parent.do_get(url)
+        content, links = self._parent.parse_hal(response)
+        if "datasets" in content:
+            data = [[{'uid': d['uid'],
+                      'name': d['name'],
+                      'type': d['type'],
+                      'attributes': len(d['attributes'])}]
+                    for d in content["datasets"]]
+        return data
+
+    def put_dataset(self, dataset, create :bool = True):
+        """Upload local dataset to the server and return dataset id
+        '
+        # Todo: Merge put and put dataset functions into one
+        """
+        data = dataset.metadata
+        data["attributes"] = dataset.attributes
+        url = self.parent.base[0:-1] + PadreHTTPClient.paths["datasets"]
+        response = self.parent.do_post(url, **{"data":json.dumps(data)})
+        dataset_id = response.headers["Location"].split("/")[-1]
+        url = self.parent.base[0:-1] + PadreHTTPClient.paths["binaries"](dataset_id)
+        with tempfile.TemporaryFile() as _file:
+            binary = self.make_proto(dataset, _file)
+            m = MultipartEncoder(
+                fields={"field0": ("fname", binary, "application/x.padre.dataset.v1+protobuf")})
+            response = self.parent.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+        return dataset_id
+
+    def get(self, _id, metadata_only=False):
+        """Fetches data with given id from server and returns it"""
+        from padre import graph_import
+
+        url = self.parent.base[0:-1] + PadreHTTPClient.paths["dataset"](_id)
+        response = self.parent.do_get(url)
+        response_meta = json.loads(response.content.decode("utf-8"))
+        attribute_name_list = []
+        atts = []
+        for attr in response_meta["attributes"]:
+            atts.append(Attribute(**attr))
+            attribute_name_list.append(attr["name"])
+
+        binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](_id)
+        pb_data = self.parent.do_get(binaries_url).content
+        df_data = self.proto_to_dataframe(pb_data)
+        del response_meta["attributes"]
+        dataset = Dataset(None, **response_meta)
+        df_data.columns = attribute_name_list
+
+        if dataset.isgraph:
+            node_attr = []
+            edge_attr = []
+            for attr in atts:
+                graph_role = attr.context["graph_role"]
+                if (graph_role == "source"):
+                    source = attr.name
+                elif (graph_role == "target"):
+                    target = attr.name
+                elif (graph_role == "nodeattribute"):
+                    node_attr.append(attr.name)
+                elif (graph_role == "edgeattribute"):
+                    edge_attr.append(attr.name)
+            network = nx.Graph() if response_meta["type"] == "graph" else nx.DiGraph()
+            graph_import.pandas_to_networkx(df_data, source, target, network, node_attr, edge_attr)
+            dataset.set_data(network, atts)
+        else:
+            dataset.set_data(df_data, atts)
+        logger.info("Loaded dataset " + _id + " from server:")
+        return dataset
+
+    def make_proto(self, dataset, _file):
+        from padre.backend.protobuffer import proto_organizer
+        pd_dataframe = dataset._binary.pandas_repr()
+        pb_meta = proto.Meta()
+        pb_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
+        pb_msg_serialized = pb_meta.SerializeToString()
+        _file.write(_VarintBytes(len(pb_msg_serialized)))
+        _file.write(pb_msg_serialized)
+        _file.flush()
+        for i, row in pd_dataframe.iterrows():
+            pb_row = proto.DataRow()
+            for i, entry in row.iteritems():
+                proto_organizer.set_cell(pb_row, entry)
+            serialize = pb_row.SerializeToString()
+
+            _file.write(_VarintBytes(len(serialize)))
+            _file.write(serialize)
+            _file.flush()
+        _file.seek(0)
+        return _file
+
+    def proto_to_dataframe(self, pb_data):
+        from padre.backend.protobuffer import proto_organizer
+        pb_meta = proto.Meta()
+        pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, 0, pb_meta)
+
+        data_rows = []
+        while pb_pos < len(pb_data):
+            pb_row = proto.DataRow()
+            pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, pb_pos, pb_row)
+            data_fields = []
+            for cell in pb_row.cells:
+                value = getattr(cell, cell.WhichOneof("cell_type"))
+                data_fields.append(value)
+            data_rows.append(data_fields)
+        df = pd.DataFrame(data_rows)
+        return df
+
+
+    def load_oml_dataset(self, did):
+        """Load dataset from openML with given id.
+
+        :param did: Dataset Id on openML
+        :type did: str
+        :return: Padre compatible dataset
+        :rtype: <class 'padre.datasets.Dataset'>
+        """
+        from padre.app.padre_app import pypadre
+        path = os.path.expanduser(pypadre.config.get("root_dir", "LOCAL BACKEND")) + '/temp/openml'
+        oml.config.apikey = pypadre.config.get("oml_key", "GENERAL")
+        oml.config.cache_directory = path
+        dataset = None
+        try:
+            load = oml.datasets.get_dataset(did)
+            meta = dict()
+            meta["id"] = str(uuid.uuid4())
+            meta["name"] = load.name
+            meta["version"] = load.version
+            meta["description"] = load.description
+            meta["originalSource"] = load.url
+            meta["type"] = "multivariate"
+            meta["published"] = False
+            dataset = Dataset(meta["id"], **meta)
+            raw_data = arff.load(open(load.data_file, encoding='utf-8'))
+            df_attributes = raw_data['attributes']
+            attribute_list = [att[0] for att in raw_data["attributes"]]
+
+            df_data = pd.DataFrame(data=raw_data['data'])
+            atts = []
+            for col in df_data.keys():
+                current_attribute = df_attributes[col]
+                if isinstance(current_attribute[1], list):
+                    df_data[col] = df_data[col].astype('category')
+                atts.append(Attribute(name=current_attribute[0],
+                                      measurementLevel="nominal" if isinstance(current_attribute[1], list) else None,
+                                      unit=None, description=None,
+                                      defaultTargetAttribute=(current_attribute[0] == load.default_target_attribute)))
+            df_data.columns = attribute_list
+            dataset.set_data(df_data, atts)
+
+        except ConnectionError as err:
+            logger.error("openML unreachable! \nErrormessage: " + str(err))
+
+        return dataset
+
+
+
 PadreHTTPClient.paths = {
     "padre-api": "http://padre-api:@localhost:8080",
     "datasets": "/datasets",
@@ -307,6 +493,7 @@ PadreHTTPClient.paths = {
     "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
     "run-splits": "/runSplits",
     "run-split": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id,
+    "search": lambda entity: "/" + entity + "/search?search=",
     "oauth-token": lambda csrf_token: "/oauth/token?=" + csrf_token,
     "splits": "/splits",
     "split": lambda id: "/splits/" + id,
@@ -338,3 +525,5 @@ def json2dataset(json, links=None):
                 [Attribute(a["name"], a["measurementLevel"], a["unit"], a["description"], a["defaultTargetAttribute"])
                  for a in attributes])
     return ds
+
+

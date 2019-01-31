@@ -5,7 +5,7 @@ import padre.core.visitors.parameter
 from collections import OrderedDict
 from padre.eventhandler import trigger_event, assert_condition
 from padre.base import MetadataEntity
-from padre.datasets import Dataset
+from padre.core.datasets import Dataset
 from padre.core.validatetraintestsplits import ValidateTrainTestSplits
 from padre.core.sklearnworkflow import SKLearnWorkflow
 from padre.core.run import Run
@@ -482,7 +482,6 @@ class Experiment(MetadataEntity):
         :param options: Dictionary containing the parameters given to the constructor of the class
         :return: True if successful validation of parameters, False if not
         """
-        import numpy as np
 
         assert_condition(condition=options.get('workflow', None) is not None, source=self, message="Workflow cannot be none")
         assert_condition(condition=options.get('description', None) is not None, source=self,

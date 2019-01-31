@@ -9,7 +9,7 @@ from itertools import groupby
 
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
-from padre.protobuffer.protobuf import resultV1_pb2 as proto
+from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
 from padre.backend.serialiser import PickleSerializer
 

@@ -1,14 +1,12 @@
 #!/usr/bin/env python
-import tempfile
 
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
 import pandas as pd
-import padre.protobuffer.protobuf.datasetV1_pb2 as proto
-import time
+import padre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
 import requests
-import os
+
 
 def set_cell(pb_row, df_cell):
     pb_cell = pb_row.cells.add()
@@ -60,7 +58,8 @@ def write_delimited_pb_msg(binary, pb_msg):
 
 def createProtobuffer(dataset,binary):
 
-    pd_dataframe = dataset.pandas_repr()
+    #pd_dataframe = dataset.pandas_repr()
+    pd_dataframe = dataset._binary.pandas_repr()
     pb_dataframe_meta = proto.Meta()
     pb_dataframe_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
     write_delimited_pb_msg(binary, pb_dataframe_meta)

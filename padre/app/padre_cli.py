@@ -3,6 +3,7 @@ Command Line Interface for PADRE.
 
 """
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
+import os
 import click
 from padre.app import pypadre, PadreApp, PadreConfig
 
@@ -12,7 +13,7 @@ from padre.app import pypadre, PadreApp, PadreConfig
 @click.group()
 @click.option('--config-file', '-c',
               type=click.Path(),
-              default='~/.padre.cfg',
+              default=os.path.expanduser('~/.padre.cfg'),
               )
 @click.option('--base-url', '-b', envvar="PADRE_URL",
               type=str,

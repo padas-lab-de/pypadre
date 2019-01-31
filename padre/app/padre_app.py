@@ -26,9 +26,9 @@ from beautifultable import BeautifulTable
 from beautifultable.enums import Alignment
 from scipy.stats.stats import DescribeResult
 
-from padre.datasets import formats, Dataset
+from padre.core.datasets import formats, Dataset
 
-from padre.backend.file import DatasetFileRepository, PadreFileBackend
+from padre.backend.file import PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.backend.dual_backend import DualBackend
 import padre.ds_import
@@ -36,7 +36,6 @@ from padre.experimentcreator import ExperimentCreator
 from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
-from padre.base import default_logger
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -96,7 +95,6 @@ class PadreConfig:
     ---------------------------------------
     [HTTP BACKEND]
     user = username
-    passwd = user_password
     base_url = http://localhost:8080/api
     token = oauth_token
 
@@ -105,6 +103,7 @@ class PadreConfig:
 
     [GENERAL]
     offline = True
+    oml_key = openML_api_key
     ---------------------------------------
 
     Implemented functionality.
@@ -249,8 +248,10 @@ class PadreConfig:
         """
         self.http_backend_config["user"]=user
         http = PadreHTTPClient(**self.http_backend_config)
-        token = http.get_access_token(passwd)
+        token = http.authenticate(passwd, user)
         self.set('token', token)
+        self.save()
+        self.general["offline"] = False
 
 
 class DatasetApp:
@@ -322,7 +323,15 @@ class DatasetApp:
         :param name: regexp for filtering the names
         :return: list of possible imports
         """
-        pass
+        from padre import ds_import
+        oml_key = self._parent.config.get("oml_key", "GENERAL")
+        root_dir = self._parent.config.get("root_dir", "LOCAL BACKEND")
+        datasets = ds_import.search_oml_datasets(name, root_dir, oml_key)
+
+        datasets_list = []
+        for key in datasets.keys():
+            datasets_list.append(datasets[key])
+        return datasets_list
 
     def download(self, source: str, name: str) -> Iterable:
         """
@@ -333,6 +342,17 @@ class DatasetApp:
         """
         # todo implement using a generator pattern to avoid loading every dataset in main memory
         pass
+
+    def download_external(self, sources: list) -> Iterable:
+        """
+        Downloads the datasets their information provided as list provided as list from oml
+        :return: returns a iterator of dataset objects
+        """
+        # todo: Merge download and download_external functions into one
+        for dataset_source in sources:
+            dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
+            yield dataset
+
 
     def sync(self, name: str=None, mode: str = "sync"):
         """
@@ -420,7 +440,7 @@ class DatasetApp:
                                "Backend is not expected to work properly")
             if self.has_printer():
                 self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
-            self._parent.remote_backend.datasets.put(ds, True)
+            self._parent.remote_backend.datasets.put_dataset(ds, True)
         self._parent.local_backend.datasets.put(ds)
 
     def delete(self, dataset_id, remote_also=False):
@@ -512,7 +532,9 @@ class PadreApp:
     def __init__(self, config=None, printer=None):
         if config is None:
             self._config = PadreConfig()
-        self._offline = "offline" not in self._config.general or self._config.general["offline"]
+        else:
+            self._config = config
+#        self._offline = "offline" not in self._config.general or self._config.general["offline"]
         self._http_repo = PadreHTTPClient(**self._config.http_backend_config)
         self._file_repo = PadreFileBackend(**self._config.local_backend_config)
         self._dual_repo = DualBackend(self._file_repo, self._http_repo)
@@ -529,7 +551,7 @@ class PadreApp:
         sets the current offline / online status of the app. Permanent changes need to be done via the config.
         :return: True, if requests are not passed to the server
         """
-        return self._offline
+        return self._config.general["offline"]
 
     @offline.setter
     def offline(self, offline):
@@ -592,5 +614,5 @@ class PadreApp:
     def repository(self):
         return self._dual_repo
 
-import sys
+
 pypadre = PadreApp(printer=print)   # load the default app

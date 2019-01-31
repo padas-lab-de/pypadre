@@ -5,18 +5,17 @@ import tempfile
 import sklearn.datasets as ds
 import numpy as np
 import openml as oml
-import os.path
 from requests.exceptions import ConnectionError
 import arff
 import pandas as pd
 import json
 import requests
-import padre.protobuffer.proto_organizer as proto
+import padre.backend.protobuffer.proto_organizer as proto
 import padre.backend.file
 import padre.graph_import
 import networkx as nx
 import os.path
-from padre.datasets import Dataset, Attribute
+from padre.core.datasets import Dataset, Attribute
 from multiprocessing import Process
 import copy
 import uuid
@@ -356,7 +355,6 @@ def sendTop100Datasets_multi(auth_token,server_url="http://localhost:8080",worke
 
     #datasets = []
     i=0
-    import _thread
     import math
     amount=len(id_list)
     workerDatasets=[[] for x in range(worker)]
@@ -473,7 +471,7 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
 
     binary = tempfile.TemporaryFile(mode='w+b')
 
-    proto_enlarged=padre.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
+    proto_enlarged= padre.backend.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
 
     hed = {'Authorization': auth_token}
 
@@ -510,6 +508,15 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
     requests.session().close()
     del data["attributes"]
     return did
+
+def search_oml_datasets(name, root_dir, key):
+    path = root_dir + '/temp/openml'
+
+    oml.config.apikey = key
+    oml.config.cache_directory = path
+    meta = {"data_name": name}
+    return oml.datasets.list_datasets(**meta)
+
 
 def load_openML_dataset(url,destpath=os.path.expanduser('~/.pypadre'),apikey="1f8766e1615225a727bdea12ad4c72fa"):
     """Downloads a dataset from the given open-ml url and Converts it to a padre.Dataset. The metadata is also added to

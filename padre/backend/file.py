@@ -13,7 +13,7 @@ import uuid
 from deprecated import deprecated
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
-from padre.datasets import Dataset, Attribute
+from padre.core.datasets import Dataset, Attribute
 from padre.core import Experiment
 
 
