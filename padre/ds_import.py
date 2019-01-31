@@ -10,7 +10,7 @@ import arff
 import pandas as pd
 import json
 import requests
-import padre.protobuffer.proto_organizer as proto
+import padre.backend.protobuffer.proto_organizer as proto
 import padre.backend.file
 import padre.graph_import
 import networkx as nx
@@ -471,7 +471,7 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
 
     binary = tempfile.TemporaryFile(mode='w+b')
 
-    proto_enlarged=padre.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
+    proto_enlarged= padre.backend.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
 
     hed = {'Authorization': auth_token}
 

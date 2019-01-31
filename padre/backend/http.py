@@ -29,7 +29,7 @@ from requests_toolbelt import MultipartEncoder
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
 from padre.core.datasets import Dataset, Attribute
-import padre.protobuffer.protobuf.datasetV1_pb2 as proto
+import padre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
 import logging
 
 logger = logging.getLogger('pypadre - http')
@@ -396,7 +396,7 @@ class HTTPBackendDatasets:
         return dataset
 
     def make_proto(self, dataset, _file):
-        from padre.protobuffer import proto_organizer
+        from padre.backend.protobuffer import proto_organizer
         pd_dataframe = dataset._binary.pandas_repr()
         pb_meta = proto.Meta()
         pb_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
@@ -417,7 +417,7 @@ class HTTPBackendDatasets:
         return _file
 
     def proto_to_dataframe(self, pb_data):
-        from padre.protobuffer import proto_organizer
+        from padre.backend.protobuffer import proto_organizer
         pb_meta = proto.Meta()
         pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, 0, pb_meta)
 
