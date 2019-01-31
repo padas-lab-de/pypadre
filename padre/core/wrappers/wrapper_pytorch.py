@@ -8,6 +8,7 @@ import os
 import torchvision
 from torch.nn import Module
 from abc import ABC, abstractmethod
+from padre.eventhandler import assert_condition
 
 # TODO: Look into ReduceLROnPlateau LR Policy
 # TODO: Implement Vision Layers
@@ -214,11 +215,12 @@ class WrapperPytorch:
         if params.get('lr_scheduler', None) is not None:
             self.create_lr_scheduler(params.get('lr_scheduler'))
 
+        self.lr_scheduler_params = None
+
         if self.lr_scheduler is not None:
             self.lr_scheduler_params = copy.deepcopy(self.lr_scheduler.state_dict())
-        else:
-            self.lr_scheduler_params['step_size'] = self.steps
-            self.lr_scheduler_params['scheduler'] = False
+
+        print('End of constructor')
 
     def set_params(self, params):
         '''
@@ -365,7 +367,8 @@ class WrapperPytorch:
             if epoch_completed is True:
                 self.on_end_epoch()
                 permutation = torch.randperm(x.size()[0])
-                self.lr_scheduler.step()
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
                 self.on_start_epoch()
                 epoch_completed = False
 
@@ -791,8 +794,11 @@ class WrapperPytorch:
 
         :return: Boolean indicating the success of the function
         """
-
-        with open('mappings_torch.json') as f:
+        import os
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), "./wrapper_mappings/mappings_torch.json"))
+        assert_condition(condition=os.path.exists(path) and os.path.isfile(path), source=self,
+                         message='Invalid wrapper mappings file')
+        with open(path) as f:
             framework_dict = json.load(f)
         self.layers_dict = framework_dict.get('layers', None)
         self.transforms_dict = framework_dict.get('transforms', None)

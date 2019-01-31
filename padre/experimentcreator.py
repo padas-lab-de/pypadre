@@ -458,7 +458,8 @@ class ExperimentCreator:
                               message=''.join([name, ' created successfully!']))
 
             else:
-                assert_condition(condition=False, source=self, message='Error creating experiment')
+                assert_condition(condition=self._experiments.get(name, None) is None, source=self,
+                                 message='Error creating experiment. Experiment name has to be unique.')
                 if self._experiments.get(name, None) is not None:
                     assert_condition(condition=False, source=self, message=''.join(['Experiment name: ', name,
                                                   ' already present. Experiment name should be unique']))
@@ -869,6 +870,29 @@ class ExperimentCreator:
                     experiments_list.append(deepcopy(experiment_dict))
 
         return deepcopy(experiments_list)
+
+    def clear_experiments(self, experiments=None):
+        """
+        This function clears the experiments listed in the argument
+        :param experiments: Name of the experiments as a list that are to be removed
+        :return:
+        """
+        # If no argument is given clear all experiments
+        if experiments is None:
+            self._experiments = dict()
+
+        # If a single experiment name is given, clear that experiment if it is present in the experiment list
+        if isinstance(experiments, str):
+            if self._experiments.get(experiments, None) is not None:
+                self._experiments.pop(experiments)
+
+        if isinstance(experiments, list):
+            for experiment_name in experiments:
+                if isinstance(experiment_name, str):
+                    if self._experiments.get(experiment_name, None) is not None:
+                        self._experiments.pop(experiment_name)
+
+
 
     @property
     def experiments(self):

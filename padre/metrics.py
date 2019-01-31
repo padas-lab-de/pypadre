@@ -911,8 +911,9 @@ class CompareMetrics:
 
         # Remove empty columns in the data frame
         for name in df.columns:
-            if all(df.get(name) == '-'):
+            if all([str(df.get(name).values) == '-']):
                 df = df.drop(name, axis=1)
+
 
         return df
 

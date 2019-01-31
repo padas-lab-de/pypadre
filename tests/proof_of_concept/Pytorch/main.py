@@ -50,8 +50,7 @@ def main():
     ex = Experiment(name="Torch",
                     description="Testing Torch via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=workflow,
-                    backend=pypadre.local_backend.experiments)
+                    workflow=workflow)
     ex.execute()
     '''
     Sample network dictionary creation

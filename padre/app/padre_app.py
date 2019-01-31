@@ -36,7 +36,8 @@ from padre.experimentcreator import ExperimentCreator
 from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
-from padre.base import default_logger
+from padre.base import PadreLogger
+from padre.eventhandler import add_logger
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -496,7 +497,7 @@ class ExperimentApp:
         """
         if "decorated" in ex_params and ex_params["decorated"]:
             from padre.decorators import run
-            return run(backend=self._parent.local_backend.experiments)
+            return run()
         else:
             p = ex_params.copy()
             p["backend"] = self._parent.local_backend.experiments
@@ -593,4 +594,9 @@ class PadreApp:
         return self._dual_repo
 
 import sys
-pypadre = PadreApp(printer=print)   # load the default app
+pypadre = PadreApp(printer=print) # load the default app
+
+# Create and set the logger
+logger = PadreLogger()
+logger.backend = pypadre.repository
+add_logger(logger=logger)

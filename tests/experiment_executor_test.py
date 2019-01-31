@@ -1,16 +1,13 @@
 from padre.experimentexecutor import ExperimentExecutor
 from padre.experimentcreator import ExperimentCreator
 from padre.app import pypadre
-from padre.base import PadreLogger
-from padre.eventhandler import add_logger
+from padre.eventhandler import trigger_event
 
 
 def main():
-    from padre.base import default_logger
-    logger = PadreLogger()
-    logger.backend = pypadre.repository
-    add_logger(logger=logger)
-    default_logger.log(ExperimentExecutor, message='Experiment Executor Starting')
+
+    trigger_event('EVENT_LOG_EVENT', source='Experiment_Executor_Test',
+                  message='Experiment Executor Starting')
     experiment_creator = ExperimentCreator()
 
     # FIRST TEST EXPERIMENT WITH MULTIPLE DATASETS
@@ -42,7 +39,8 @@ def main():
     params_dict = experiment_creator.convert_alternate_estimator_names(params_dict)
     experiment_creator.create_experiment(name='Executor Test 3',
                                          description='Grid search experiment with SVR',
-                                         dataset_list=['Boston_House_Prices', 'Diabetes', 'Digits'],
+                                         dataset_list=['Boston_House_Prices'],
+                                         #dataset_list=['Boston_House_Prices', 'Diabetes', 'Digits'],
                                          workflow=workflow,
                                          params=params_dict
                                          )

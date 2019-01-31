@@ -107,7 +107,6 @@ def error(args):
     message = args.get('message', None)
     condition = args.get('condition', False)
     for logger in logger_list:
-        # The condition is set as False as the condition is already validated
         logger.error(condition, source, message)
 
 
