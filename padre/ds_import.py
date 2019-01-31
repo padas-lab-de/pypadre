@@ -510,7 +510,7 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
     return did
 
 def search_oml_datasets(name, root_dir, key):
-    path = root_dir + '/datasets/temp/openml'
+    path = root_dir + '/temp/openml'
 
     oml.config.apikey = key
     oml.config.cache_directory = path
