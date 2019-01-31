@@ -11,7 +11,7 @@ from sklearn import linear_model, decomposition, manifold
 from sklearn.svm import SVC, SVR
 
 from padre.ds_import import load_sklearn_toys
-from padre.experiment import Experiment
+from padre.core import Experiment
 from padre.base import PadreLogger
 from padre.eventhandler import add_logger
 

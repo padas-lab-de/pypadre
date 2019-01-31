@@ -105,9 +105,10 @@ def warn(args):
 def error(args):
     source = args.get('source', None)
     message = args.get('message', None)
+    condition = args.get('condition', False)
     for logger in logger_list:
-        # The condition is set as true as the condition is already validated
-        logger.error(True, source, message)
+        # The condition is set as False as the condition is already validated
+        logger.error(condition, source, message)
 
 
 
@@ -232,7 +233,7 @@ def trigger_event(event_name, **args):
     eventemitter.emit('EVENT', event_dict)
 
 
-def assert_condition(condition, **args):
+def assert_condition(**args):
     """
     This function checks for the condition and if the condition is not true, triggers an exception
     :param condition: The condition to be checked
@@ -240,11 +241,11 @@ def assert_condition(condition, **args):
     :param message: Message to be logged if the condition fails
     :return:
     """
-    if not condition:
-        error_event_handlers = EVENT_HANDLER_DICT.get('EVENT_ERROR')
-        for logger in logger_list:
-            for error_event_handler in error_event_handlers:
-                error_event_handler(args)
+
+    error_event_handlers = EVENT_HANDLER_DICT.get('EVENT_ERROR')
+    for logger in logger_list:
+        for error_event_handler in error_event_handlers:
+            error_event_handler(args)
 
 
 def add_logger(logger):

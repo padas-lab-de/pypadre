@@ -2,7 +2,7 @@
 This file shows an example on how to use the pypadre app.
 """
 from padre.ds_import import load_sklearn_toys
-from padre.experiment import Experiment, Splitter
+from padre.core import Experiment
 from padre.base import PadreLogger
 from padre.eventhandler import add_logger
 import pprint
@@ -44,7 +44,7 @@ if __name__ == '__main__':
                     keep_splits=True)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-    ex.grid_search()  # run the experiment and report
+    ex.execute()  # run the experiment and report
     print("========Available experiments=========")
     for idx, ex in enumerate(pypadre.experiments.list_experiments()):
         print("%d: %s" % (idx, str(ex)))

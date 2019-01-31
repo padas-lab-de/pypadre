@@ -272,9 +272,9 @@ class PandasContainer:
         else:
             removekeys = []
             for att in self._attributes:
-                if(att.is_target):
+                if(att.defaultTargetAttribute):
                     removekeys.append(att.name)
-            return self._data.drop(removekeys,axis=1)
+            return self._data.drop(removekeys,axis=1).values
 
     @property
     def targets(self):
@@ -285,7 +285,13 @@ class PandasContainer:
             for col,att in enumerate(self._attributes):
                 if (att.defaultTargetAttribute):
                     targets.append(att.name)
-            return targets
+
+            # TODO: Fix issue on how to define targets if the targets are not given in the Pandas table
+            # Currently the values in the last column are returned as target values
+            if len(targets) == 0:
+                return self.data[self.data.columns[-1]].values
+
+            return self._data[targets].values
 
     @property
     def data(self):
@@ -617,6 +623,8 @@ class Dataset(MetadataEntity):
             self._binary_loader_fn = data
             return
         elif isinstance(data, pd.DataFrame):
+            # Remove non numerical attributes
+            # TODO: Bring in support for nominal and ordinal attributes too
             self._binary = PandasContainer(data, attributes)
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):

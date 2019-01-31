@@ -1,6 +1,6 @@
 import pprint
 from functools import wraps
-from padre.experiment import Experiment
+from padre.core import Experiment
 import itertools
 import copy
 

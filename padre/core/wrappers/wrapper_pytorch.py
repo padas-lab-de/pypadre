@@ -133,6 +133,7 @@ class WrapperPytorch:
     lr_scheduler_params = dict()
     loss_params = dict()
     layer_order = []
+    _estimator_type = 'regression'
 
     pre_trained_model_path = None
 
@@ -170,6 +171,9 @@ class WrapperPytorch:
         # Failed network creation
         if shape is None:
             return
+
+        if self.top_shape > 1:
+            self._estimator_type = 'classification'
 
         self.model = self.create_model(shape)
 

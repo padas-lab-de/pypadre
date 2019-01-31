@@ -12,12 +12,9 @@ from copy import deepcopy
 from padre.base import default_logger
 from padre.eventhandler import add_logger, trigger_event, assert_condition
 from padre.ds_import import load_sklearn_toys
-from padre.visitors.mappings import name_mappings
-from padre.visitors.mappings import supported_frameworks
-from padre.experiment import Experiment
-
-add_logger(default_logger)
-
+from padre.core.visitors.mappings import name_mappings
+from padre.core.visitors.mappings import supported_frameworks
+from padre.core import Experiment
 
 class ExperimentCreator:
     # Initialization of the experiments dict.
@@ -123,8 +120,8 @@ class ExperimentCreator:
             params = (estimator_params[sep_idx + 1:]).split(',')
             sep_idx = params[0].find(':')
             if sep_idx == -1:
-                default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                    'Missing separators.')
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message='ExperimentCreator.set_param_values. Missing separators.')
 
                 continue
 
@@ -132,15 +129,15 @@ class ExperimentCreator:
             params[0] = params[0][sep_idx + 1:].strip()
             sep_idx = params[0].find('[')
             if sep_idx == -1:
-                default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                    'Missing separators.')
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message='ExperimentCreator.set_param_values. Missing separators.')
                 continue
 
             params[0] = params[0][sep_idx + 1:].strip()
             sep_idx = params[-1].find("]")
             if sep_idx == -1:
-                default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                    'Missing separators.')
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message='ExperimentCreator.set_param_values. Missing separators.')
                 continue
 
             params[-1] = params[-1][:sep_idx].strip()
@@ -182,8 +179,8 @@ class ExperimentCreator:
         """
         param_dict = None
         if param is None:
-            default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                'Missing parameter value')
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message='Missing parameter value')
             return None
 
         if isinstance(param, str):
@@ -194,12 +191,13 @@ class ExperimentCreator:
 
 
         if experiment_name is None:
-            default_logger.warn(False, 'ExperimentCreator.set_param_values',
-                                 'Missing experiment name when setting param values')
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message='Missing experiment name when setting param values. Discarding experiment')
             return None
 
         if param_dict is None:
-            default_logger.warn(False, 'ExperimentCreator.set_param_values', 'Missing dictionary argument')
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message='Missing dictionary argument. Discarding experiment')
             return None
 
         # Convert the names of the parameters to the actual described names in the mapping file
@@ -249,14 +247,14 @@ class ExperimentCreator:
                 Else, None.
         """
         if estimator is None:
-            default_logger.error(False, 'ExperimentCreator.set_parameters',
-                                 ''.join([estimator_name + ' does not exist in the workflow']))
+            assert_condition(condition=False, source=self,
+                             message=''.join([estimator_name + ' does not exist in the workflow']))
             return None
         available_params = self._parameters.get(estimator_name)
         for param in param_val_dict:
             if param not in available_params:
-                default_logger.error(False, 'ExperimentCreator.set_parameters',
-                                     ''.join([param + ' is not present for estimator ' + estimator_name]))
+                assert_condition(condition=False, source=self,
+                                 message=''.join([param + ' is not present for estimator ' + estimator_name]))
             else:
                 actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
                 estimator.set_params(**{actual_param_name: param_val_dict.get(param)})
@@ -300,15 +298,15 @@ class ExperimentCreator:
                         estimator_params[param] = parameters.get(param)
 
                     else:
-                        default_logger.warn(False, 'ExperimentCreator.validate_parameters',
-                                            ''.join([param, ' not present in list for estimator:', estimator_name]))
+                        trigger_event('EVENT_WARN', condition=False, source=self,
+                                      message=''.join([param, ' not present in list for estimator:', estimator_name]))
 
                 if len(estimator_params) > 0:
                     validated_param_dict[estimator_name] = deepcopy(estimator_params)
 
             else:
-                default_logger.warn(False, 'ExperimentCreator.validate_parameters',
-                                    ''.join([estimator_name, ' not present in list']))
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message=''.join([estimator_name, ' not present in list']))
 
         if len(validated_param_dict) > 0:
             return validated_param_dict
@@ -331,14 +329,15 @@ class ExperimentCreator:
         for transformer in transformers:
             if (not (hasattr(transformer[1], "fit") or hasattr(transformer[1], "fit_transform")) or not
                hasattr(transformer[1], "transform")):
-                default_logger.warn(False, 'ExperimentCreator.validate_pipeline',
-                                     "All intermediate steps should implement fit "
-                                     "and fit_transform or the transform function")
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message="All intermediate steps should implement fit "
+                                     "and fit_transform or the transform function. Experiment will not be created")
                 return False
 
         if estimator is not None and not (hasattr(estimator[1], "fit")):
-            default_logger.warn(False, 'ExperimentCreator.validate_pipeline',
-                                 ''.join(["Estimator:" + estimator[0] + " does not have attribute fit"]))
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message=''.join(["Estimator:" + estimator[0] + " does not have attribute fit. "
+                                                                         "Experiment will not be created"]))
             return False
         return True
 
@@ -371,8 +370,8 @@ class ExperimentCreator:
         for estimator_name in estimator_list:
             if self._workflow_components.get(estimator_name, None) is None and \
                     self._estimator_alternate_names.get(str(estimator_name).upper(), None) is None:
-                default_logger.error(False, 'ExperimentCreator.create_test_pipleline',
-                                     ''.join([estimator_name + ' not present in list']))
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message=''.join([estimator_name + ' not present in list']))
                 return None
 
             actual_estimator_name = estimator_name
@@ -429,14 +428,14 @@ class ExperimentCreator:
         """
         import numpy as np
         if name is None:
-            default_logger.warn(False, 'ExperimentCreator.create_experiment',
-                                'Experiment name is missing, a name will be generated by the system')
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message='Experiment name is missing, a name will be generated by the system')
 
         if description is None or \
                 workflow is None or workflow is False:
             if description is None:
-                default_logger.error(False, 'ExperimentCreator.create_experiment',
-                                     ''.join(['Description is missing for experiment:', name]))
+                assert_condition(condition=False, source=self,
+                                 message=''.join(['Description is missing for experiment:', name]))
             return None
 
         # If the name of the dataset is passed, the get the local dataset and replace it
@@ -455,14 +454,13 @@ class ExperimentCreator:
                 if params is not None:
                     self._param_value_dict[name] = self.validate_parameters(params)
                     data_dict['params'] = self.validate_parameters(params)
-                default_logger.log('ExperimentCreator.create_experiment',
-                                   ''.join([name, ' created successfully!']))
+                trigger_event('EVENT_LOG', condition=False, source=self,
+                              message=''.join([name, ' created successfully!']))
 
             else:
-                default_logger.error(False, 'ExperimentCreator.create_experiment', 'Error creating experiment')
+                assert_condition(condition=False, source=self, message='Error creating experiment')
                 if self._experiments.get(name, None) is not None:
-                    default_logger.error(False, 'ExperimentCreator.create_experiment',
-                                         ''.join(['Experiment name: ', name,
+                    assert_condition(condition=False, source=self, message=''.join(['Experiment name: ', name,
                                                   ' already present. Experiment name should be unique']))
 
     def get_local_dataset(self, name=None):
@@ -478,12 +476,12 @@ class ExperimentCreator:
                  Else, None
         """
         if name is None:
-            default_logger.error(False, 'ExperimentCreator.get_local_dataset', 'Dataset name is empty')
+            assert_condition(condition=False, source=self, message='Dataset name is empty')
             return None
         if name in self._local_dataset:
             return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
         else:
-            default_logger.error(False, 'ExperimentCreator.get_local_dataset', name + ' Local Dataset not found')
+            assert_condition(condition=False, source=self, message=name + ' Local Dataset not found')
             return None
 
     def get_dataset_names(self):
@@ -585,8 +583,9 @@ class ExperimentCreator:
             flag = True
             dataset = deepcopy(self._experiments.get(experiment).get('dataset', None))
             if dataset is None:
-                default_logger.warn(False, 'Experiment_creator.execute_experiments',
-                                    'Dataset is not present for the experiment. Experiment ' + experiment + 'is ignored.')
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message='Dataset is not present for the experiment. Experiment '
+                                      + experiment + 'is ignored.')
                 continue
 
             if len(dataset) == 1:
@@ -600,8 +599,7 @@ class ExperimentCreator:
                     for estimator in workflow.named_steps:
                         if name_mappings.get(estimator).get('type', None) == 'Classification':
                             flag = False
-                            default_logger.warn(False, 'ExperimentCreator.do_experiments',
-                                                ''.join(
+                            trigger_event('EVENT_WARN', condition=False, source=self, message=''.join(
                                                     ['Estimator ', estimator, ' cannot work on continuous data.'
                                                                               'This dataset will be disregarded']))
                             break
@@ -619,7 +617,7 @@ class ExperimentCreator:
 
                 conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                ex.execute(parameters=self._param_value_dict.get(experiment))
 
             else:
                 # If there are multiple datasets defined for the experiment execute the experiment for each dataset
@@ -647,8 +645,7 @@ class ExperimentCreator:
                         for estimator in workflow.named_steps:
                             if name_mappings.get(estimator).get('type', None) == 'Classification':
                                 flag = False
-                                default_logger.warn(False, 'ExperimentCreator.execute_experiments',
-                                                    ''.join(
+                                trigger_event('EVENT_WARN', source=self, message=''.join(
                                                         ['Estimator ', estimator, ' cannot work on continuous data.'
                                                                                   'This dataset will be disregarded']))
 
@@ -657,7 +654,7 @@ class ExperimentCreator:
                         continue
 
                     message = 'Executing experiment ' + experiment + ' for dataset' + dataset
-                    default_logger.log('ExperimentCreator.do_experiments', message)
+                    trigger_event('EVENT_LOG', source=self, message=message)
 
                     ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
                                     description=desc,
@@ -667,7 +664,7 @@ class ExperimentCreator:
                     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
                     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                    ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                    ex.execute(parameters=self._param_value_dict.get(experiment))
 
     def do_experiments(self, experiment_datasets=None):
         """
@@ -709,16 +706,16 @@ class ExperimentCreator:
                     for estimator in workflow.named_steps:
                         if name_mappings.get(estimator).get('type', None) == 'Classification':
                             flag = False
-                            default_logger.warn(False, 'ExperimentCreator.do_experiments',
-                                                 ''.join(['Estimator ', estimator, ' cannot work on continuous data.'
-                                                                                   'This dataset will be disregarded']))
+                            trigger_event('EVENT_WARN', source=self,
+                                          message=''.join(['Estimator ', estimator, ' cannot work on continuous data.'
+                                                                                    'This dataset will be disregarded']))
 
                 # If a classification estimator tries to work on continous data disregard it
                 if not flag:
                     continue
 
                 message = 'Executing experiment ' + experiment + ' for dataset ' + dataset
-                default_logger.log('ExperimentCreator.do_experiments', message)
+                trigger_event('EVENT_LOG', source=self, message=message)
 
                 ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
                                 description=desc,
@@ -728,7 +725,7 @@ class ExperimentCreator:
                 conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                ex.grid_search(parameters=self._param_value_dict.get(experiment))
+                ex.execute(parameters=self._param_value_dict.get(experiment))
 
     def populate_alternate_names(self):
         """
@@ -809,8 +806,9 @@ class ExperimentCreator:
             # Create the pipeline and if it is not possible move to next experiment
             workflow = self.create_test_pipeline(pipeline)
             if workflow is None:
-                default_logger.warn(False, 'ExperimentCreator.parse_config_file',
-                                    'Workflow  based workflow was not created')
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message='Workflow is empty. Workflow was not created')
+
                 continue
 
             self.create_experiment(name=name, description=description,workflow=workflow, dataset_list=dataset,

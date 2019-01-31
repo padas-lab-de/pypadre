@@ -1,9 +1,9 @@
-from padre.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
+from padre.core.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
 from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
 import torch
-from padre.experiment import Experiment, Splitter
+from padre.core import Experiment
 from padre.app import pypadre
 
 
@@ -52,7 +52,7 @@ def main():
                     dataset=ds,
                     workflow=workflow,
                     backend=pypadre.local_backend.experiments)
-    ex.grid_search()
+    ex.execute()
     '''
     Sample network dictionary creation
     

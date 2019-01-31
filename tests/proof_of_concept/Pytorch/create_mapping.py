@@ -42,7 +42,7 @@ pytorch_dict  = dict()
 pytorch_dict[name] = 'pytorch'
 pytorch_dict[other_names] = []
 pytorch_dict[wikidata_id] = "Q47509047"
-pytorch_dict[implementation] = {'pytorch':'padre.wrappers.wrapper_pytorch.WrapperPytorch'}
+pytorch_dict[implementation] = {'pytorch':'padre.core.wrappers.wrapper_pytorch.WrapperPytorch'}
 pytorch_dict[type_] = "Neural Network"
 
 ratio = "ratio"
