@@ -5,7 +5,6 @@ import tempfile
 import sklearn.datasets as ds
 import numpy as np
 import openml as oml
-import os.path
 from requests.exceptions import ConnectionError
 import arff
 import pandas as pd
@@ -16,7 +15,7 @@ import padre.backend.file
 import padre.graph_import
 import networkx as nx
 import os.path
-from padre.datasets import Dataset, Attribute
+from padre.core.datasets import Dataset, Attribute
 from multiprocessing import Process
 import copy
 import uuid
@@ -356,7 +355,6 @@ def sendTop100Datasets_multi(auth_token,server_url="http://localhost:8080",worke
 
     #datasets = []
     i=0
-    import _thread
     import math
     amount=len(id_list)
     workerDatasets=[[] for x in range(worker)]

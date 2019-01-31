@@ -26,9 +26,9 @@ from beautifultable import BeautifulTable
 from beautifultable.enums import Alignment
 from scipy.stats.stats import DescribeResult
 
-from padre.datasets import formats, Dataset
+from padre.core.datasets import formats, Dataset
 
-from padre.backend.file import DatasetFileRepository, PadreFileBackend
+from padre.backend.file import PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.backend.dual_backend import DualBackend
 import padre.ds_import
@@ -36,7 +36,6 @@ from padre.experimentcreator import ExperimentCreator
 from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
-from padre.base import default_logger
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -615,5 +614,5 @@ class PadreApp:
     def repository(self):
         return self._dual_repo
 
-import sys
+
 pypadre = PadreApp(printer=print)   # load the default app

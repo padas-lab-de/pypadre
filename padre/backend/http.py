@@ -28,7 +28,7 @@ from requests_toolbelt import MultipartEncoder
 
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
-from padre.datasets import Dataset, Attribute
+from padre.core.datasets import Dataset, Attribute
 import padre.protobuffer.protobuf.datasetV1_pb2 as proto
 import logging
 

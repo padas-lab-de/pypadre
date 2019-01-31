@@ -4,8 +4,8 @@ Unit test testing the functionality of the padre.datasets module
 import unittest
 import numpy as np
 
-from padre.datasets import Dataset
-from padre.datasets import Attribute
+from padre.core.datasets import Dataset
+from padre.core.datasets import Attribute
 
 test_numpy_array = np.array([[1.0, "A", 2],
                         [2.0, "B", 2],

@@ -11,7 +11,7 @@ from urllib.request import urlopen
 import pandas as pd
 from urllib.request import urlopen as uReq
 from bs4 import BeautifulSoup as soup
-from padre.datasets import Dataset, Attribute
+from padre.core.datasets import Dataset, Attribute
 import copy
 
 
