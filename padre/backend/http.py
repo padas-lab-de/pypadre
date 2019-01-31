@@ -314,7 +314,8 @@ class HTTPBackendDatasets:
                         headers={},  # let request handle the content type
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
 
-    def list_dataset(self, search_name=None, search_metadata=None) -> list:
+
+    def list_dataset(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
         """
         List all data sets in the repository
         :param search_name: regular expression based search string for the title. Default None
@@ -326,18 +327,19 @@ class HTTPBackendDatasets:
         if search_name is not None:
             url += search_name
         response = self.parent.do_get(url)
-        content = json.loads(response.content)
-        if content['page']['totalElements'] > 0:
-            datasets = content['_embedded']['datasets']
+        content, links = self._parent.parse_hal(response)
+        if "datasets" in content:
             data = [[{'uid': d['uid'],
                       'name': d['name'],
                       'type': d['type'],
                       'attributes': len(d['attributes'])}]
-                    for d in datasets]
+                    for d in content["datasets"]]
         return data
 
-    def put_dataset(self, dataset):
+    def put_dataset(self, dataset, create :bool = True):
         """Upload local dataset to the server and return dataset id
+        '
+        # Todo: Merge put and put dataset functions into one
         """
         data = dataset.metadata
         data["attributes"] = dataset.attributes
@@ -441,7 +443,7 @@ class HTTPBackendDatasets:
         :rtype: <class 'padre.datasets.Dataset'>
         """
         from padre.app.padre_app import pypadre
-        path = pypadre.config.get("root_dir", "LOCAL BACKEND") + '/datasets/temp/openml'
+        path = os.path.expanduser(pypadre.config.get("root_dir", "LOCAL BACKEND")) + '/temp/openml'
         oml.config.apikey = pypadre.config.get("oml_key", "GENERAL")
         oml.config.cache_directory = path
         dataset = None
@@ -523,3 +525,5 @@ def json2dataset(json, links=None):
                 [Attribute(a["name"], a["measurementLevel"], a["unit"], a["description"], a["defaultTargetAttribute"])
                  for a in attributes])
     return ds
+
+

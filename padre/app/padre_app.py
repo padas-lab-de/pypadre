@@ -346,11 +346,10 @@ class DatasetApp:
 
     def download_external(self, sources: list) -> Iterable:
         """
-        Downloads the dataset defined by name from source and stores it into the local file backend.
-        :param sources: list of sources
+        Downloads the datasets their information provided as list provided as list from oml
         :return: returns a iterator of dataset objects
         """
-        # todo implement using a generator pattern to avoid loading every dataset in main memory
+        # todo: Merge download and download_external functions into one
         for dataset_source in sources:
             dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
             yield dataset
@@ -442,7 +441,7 @@ class DatasetApp:
                                "Backend is not expected to work properly")
             if self.has_printer():
                 self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
-            self._parent.remote_backend.datasets.put(ds, True)
+            self._parent.remote_backend.datasets.put_dataset(ds, True)
         self._parent.local_backend.datasets.put(ds)
 
     def delete(self, dataset_id, remote_also=False):
@@ -536,7 +535,7 @@ class PadreApp:
             self._config = PadreConfig()
         else:
             self._config = config
-        self._offline = "offline" not in self._config.general or self._config.general["offline"]
+#        self._offline = "offline" not in self._config.general or self._config.general["offline"]
         self._http_repo = PadreHTTPClient(**self._config.http_backend_config)
         self._file_repo = PadreFileBackend(**self._config.local_backend_config)
         self._dual_repo = DualBackend(self._file_repo, self._http_repo)
@@ -553,7 +552,7 @@ class PadreApp:
         sets the current offline / online status of the app. Permanent changes need to be done via the config.
         :return: True, if requests are not passed to the server
         """
-        return self._offline
+        return self._config.general["offline"]
 
     @offline.setter
     def offline(self, offline):
