@@ -102,6 +102,37 @@ def warn(args):
     pass
 
 
+def log_experiment_progress(args):
+    curr_value = args.get('curr_value', 0)
+    limit = args.get('limit', 0)
+    phase = args.get('phase', 'start')
+    for logger in logger_list:
+        logger.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+
+def log_run_progress(args):
+    curr_value = args.get('curr_value', 0)
+    limit = args.get('limit', 0)
+    phase = args.get('phase', 'start')
+    for logger in logger_list:
+        logger.log_run_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+
+def log_split_progress(args):
+    curr_value = args.get('curr_value', 0)
+    limit = args.get('limit', 0)
+    phase = args.get('phase', 'start')
+    for logger in logger_list:
+        logger.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+def log_progress(args):
+    curr_value = args.get('curr_value', 0)
+    limit = args.get('limit', 0)
+    phase = args.get('phase', 'start')
+    for logger in logger_list:
+        logger.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+
 def error(args):
     source = args.get('source', None)
     message = args.get('message', None)
@@ -127,7 +158,11 @@ EVENT_HANDLER_DICT = {
     'EVENT_LOG_EVENT': [log_event],
     'EVENT_LOG': [log],
     'EVENT_WARN': [warn],
-    'EVENT_ERROR': [error]
+    'EVENT_ERROR': [error],
+    'EVENT_LOG_EXPERIMENT_PROGRESS': [log_experiment_progress],
+    'EVENT_LOG_RUN_PROGRESS': [log_run_progress],
+    'EVENT_LOG_SPLIT_PROGRESS': [log_split_progress],
+    'EVENT_PROGRESS': [log_progress]
 }
 
 """
