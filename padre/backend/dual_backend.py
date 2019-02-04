@@ -158,4 +158,57 @@ class DualBackend:
     def put_experiment_configuration(self, experiment):
         return self._file_experiments.put_experiment_configuration(experiment)
 
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_run_progress(curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_run_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+
+        :param message:
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_end_experiment(self):
+        """
+        Clean up after completing the experiment
+        :return:
+        """
+        self._file_experiments.log_end_experiment()
+        self._http_experiments.log_end_experiment()
+
 # todo implement all functions currently needed by the experiment class (when the backend is set)

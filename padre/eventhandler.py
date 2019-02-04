@@ -95,11 +95,22 @@ def log_event(args):
 
 
 def log(args):
-    print(args)
+    source = args.get('source', None)
+    message = args.get('message', None)
+    padding = args.get('padding', "")
+    if message is not None:
+        for logger in logger_list:
+            logger.log(source=source, message=message, padding=padding)
 
 
 def warn(args):
-    pass
+    condition = args.get('condition', None)
+    source = args.get('source', None)
+    message = args.get('message', None)
+
+    if condition is not None and source is not None and message is not None:
+        for logger in logger_list:
+            logger.warn(condition=condition, source=source, message=message)
 
 
 def log_experiment_progress(args):

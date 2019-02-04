@@ -354,6 +354,71 @@ class ExperimentFileRepository:
 
         self._file.write(message + "\n")
 
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                              curr_value=curr_value,
+                                                                                              limit=limit))
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("RUN PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                       curr_value=curr_value,
+                                                                                       limit=limit))
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("SPLIT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                         curr_value=curr_value,
+                                                                                         limit=limit))
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+
+        :param message:
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("PROGRESS: {curr_value}/{limit}. phase={phase}. Message:{message} \n".
+                         format(phase=phase, curr_value=curr_value, limit=limit,
+                                message=message))
+
+    def log_end_experiment(self):
+        self._file.close()
+        self._file = None
+
 
 class DatasetFileRepository(object):
     """

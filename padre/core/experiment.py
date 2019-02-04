@@ -296,6 +296,7 @@ class Experiment(MetadataEntity):
         for element in grid:
             trigger_event('EVENT_LOG_EVENT', source=self,
                           message="Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
+            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size), phase='start')
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
@@ -319,6 +320,8 @@ class Experiment(MetadataEntity):
             self._last_run = r
             self._hyperparameters.append(deepcopy(r.hyperparameters))
 
+            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
+                          phase='stop')
             curr_executing_index += 1
 
         # Fire event

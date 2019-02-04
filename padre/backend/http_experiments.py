@@ -272,6 +272,50 @@ class HttpBackendExperiments:
     def log(self, message):
         pass
 
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        pass
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        pass
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        pass
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+
+        :param message:
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        pass
+
+    def log_end_experiment(self):
+        pass
+
     def get_base_url(self):
         url = self._http_client.base
         if url[-1] == "/":

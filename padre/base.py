@@ -280,6 +280,7 @@ class PadreLogger(LoggerBase):
         """
         if self._backend is not None:
             self.log_event(experiment, exp_events.stop, phase=phases.experiment)
+            self._backend.log_end_experiment()
 
     def log_start_run(self, run):
         """
@@ -364,6 +365,51 @@ class PadreLogger(LoggerBase):
         """
         if self._backend:
             self._backend.put_experiment_configuration(experiment=experiment)
+
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+        Reports the progress of the experiment to the backend
+        :param curr_value: Current Experiment that is executing
+        :param limit: Total experiments
+        :param phase: Start/Stop of the experiment
+        :return:
+        """
+        if self._backend:
+            self._backend.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+        Reports the overall progress of the run to the backend
+        :param curr_value: Current run that is executing
+        :param limit: Total number of runs
+        :param phase: Start/stop of the run
+        :return:
+        """
+        if self._backend:
+            self._backend.log_run_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+        Reports the overall progress of the split to the backend
+        :param curr_value: Current Experiment that is executing
+        :param limit: Total number of splits
+        :param phase:
+        :return:
+        """
+        if self._backend:
+            self._backend.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+        Reports the progress of a function to the backend
+        :param message: Message to be written to the backend
+        :param curr_value: Current execution value
+        :param limit: Total number
+        :param phase: start/Stop
+        :return:
+        """
+        if self._backend:
+            self._backend.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
 
     def _padding(self, source):
 

@@ -195,7 +195,7 @@ class ExperimentExecutor:
             strategy = experiment_dict.get('strategy', 'random')
             params = experiment_dict.get('params')
 
-            trigger_event('EVENT_LOG', message='Executing experiment: {name}'.format(name=name))
+            trigger_event('EVENT_LOG', message='Executing experiment: {name}'.format(name=name), source=self)
             c1 = time.time()
             ex = Experiment(name=name,
                             description=desc,
@@ -211,8 +211,8 @@ class ExperimentExecutor:
             c2 = time.time()
             trigger_event('EVENT_LOG',
                           message = 'Completed experiment: {name} with execution time: '
-                                    '{time_diff}'.format(name=name, time_diff=c2-c1))
-            trigger_event('EVENT_LOG_EXPERIMENT_PROGRESS', curr_value=curr_experiment, limit=limit, phase='start')
+                                    '{time_diff}'.format(name=name, time_diff=c2-c1), source=self)
+            trigger_event('EVENT_LOG_EXPERIMENT_PROGRESS', curr_value=curr_experiment, limit=limit, phase='stop')
 
     def runLocal(self, threadCount:int = 1):
         """
