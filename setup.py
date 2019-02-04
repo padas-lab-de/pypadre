@@ -10,7 +10,13 @@ release = '0.0.1'
 setup(
     name=name,
     version=version,
-    packages=find_packages(),
+    packages=['padre']+find_packages(),
+    package_dir={'padre': 'padre'},
+    package_data={'padre': ['res/mapping/pytorch.json', 'res/mapping/mapping.json',
+                            'core/wrappers/wrapper_mappings/mappings_torch.json',
+                            'protobuffer/binaries/1kb_mixed_dataframe.protobinV1']},
+    #packages=find_packages(),
+    include_package_data=True,
     url='',
     license='GPL',
     author='Michael Granitzer',
@@ -20,6 +26,7 @@ setup(
        [console_scripts]
        padre=padre.app.padre_cli:main
    ''',
+    #data_files=[('padre',['./padre/res/mapping/mapping.json', './padre/res/mapping/pytorch.json'])],
    command_options={
         'build_sphinx': {
             'project': ('setup.py', name),

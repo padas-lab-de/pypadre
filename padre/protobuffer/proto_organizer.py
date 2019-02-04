@@ -4,8 +4,8 @@ import tempfile
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
+from padre.protobuffer.protobuf import datasetV1_pb2 as proto
 import pandas as pd
-import padre.protobuffer.protobuf.datasetV1_pb2 as proto
 import time
 import requests
 import os
