@@ -228,6 +228,17 @@ class LoggerBase(ABC):
         """
         pass
 
+    def log_model(self, model, framework, filename, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param filename: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        pass
+
 
 
 class PadreLogger(LoggerBase):
@@ -410,6 +421,19 @@ class PadreLogger(LoggerBase):
         """
         if self._backend:
             self._backend.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_model(self, model, framework, modelname, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param modelname: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        if self._backend:
+            self._backend.log_model(model=model, framework=framework,
+                                                 modelname=modelname, finalmodel=finalmodel)
 
     def _padding(self, source):
 

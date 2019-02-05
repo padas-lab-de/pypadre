@@ -211,4 +211,16 @@ class DualBackend:
         self._file_experiments.log_end_experiment()
         self._http_experiments.log_end_experiment()
 
+    def log_model(self, model, framework, modelname, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param modelname: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        self._http_experiments.log_model(model=model, framework=framework, modelname=modelname, finalmodel=finalmodel)
+        self._file_experiments.log_model(model=model, framework=framework, modelname=modelname, finalmodel=finalmodel)
+
 # todo implement all functions currently needed by the experiment class (when the backend is set)

@@ -8,7 +8,7 @@ import os
 import torchvision
 from torch.nn import Module
 from abc import ABC, abstractmethod
-from padre.eventhandler import assert_condition
+from padre.eventhandler import assert_condition, trigger_event
 
 # TODO: Look into ReduceLROnPlateau LR Policy
 # TODO: Implement Vision Layers
@@ -22,6 +22,7 @@ __version__ = '0.0.0'
 __doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method to " \
           "use the layers of the PyTorch library in a Scikit-learn pipeline"
 
+framework = 'pytorch'
 
 class Flatten(Module):
     """
@@ -220,8 +221,6 @@ class WrapperPytorch:
         if self.lr_scheduler is not None:
             self.lr_scheduler_params = copy.deepcopy(self.lr_scheduler.state_dict())
 
-        print('End of constructor')
-
     def set_params(self, params):
         '''
         This function allows individual parameters to be set to a pytorch network
@@ -401,7 +400,10 @@ class WrapperPytorch:
                 state['step'] = step
                 state['model'] = self.model.state_dict()
                 state['optimizer'] = self.optimizer.state_dict()
-                torch.save(state, save_file_name)
+                #torch.save(state, save_file_name)
+                trigger_event('EVENT_LOG_MODEL', model=state, modelname=save_file_name,
+                              framework=framework, finalmodel=False)
+
 
             step = step + 1
             self.on_end_iteration()
@@ -412,7 +414,9 @@ class WrapperPytorch:
         state['step'] = step
         state['model'] = self.model.state_dict()
         state['optimizer'] = self.optimizer.state_dict()
-        torch.save(state, save_file_name)
+        #torch.save(state, save_file_name)
+        trigger_event('EVENT_LOG_MODEL', model=state, modelname=save_file_name,
+                      framework=framework, finalmodel=True)
 
     def predict(self, x):
         """

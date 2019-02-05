@@ -50,7 +50,7 @@ def main():
     ex = Experiment(name="Torch",
                     description="Testing Torch via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=workflow)
+                    workflow=workflow, keep_splits=True, strategy='random')
     ex.execute()
     '''
     Sample network dictionary creation

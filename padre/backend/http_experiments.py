@@ -316,6 +316,17 @@ class HttpBackendExperiments:
     def log_end_experiment(self):
         pass
 
+    def log_model(self, model, framework, modelname, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param modelname: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        pass
+
     def get_base_url(self):
         url = self._http_client.base
         if url[-1] == "/":

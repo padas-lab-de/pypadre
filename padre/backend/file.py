@@ -95,6 +95,7 @@ class ExperimentFileRepository:
 
     def __init__(self, root_dir, data_repository):
         self.root_dir = _get_path(root_dir, "")
+        self._split_dir = _get_path(root_dir, "")
         self._metadata_serializer = JSonSerializer
         self._binary_serializer = PickleSerializer
         self._data_repository = data_repository
@@ -292,6 +293,7 @@ class ExperimentFileRepository:
         os.mkdir(dir)
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
+        self._split_dir = dir
 
     def get_split(self, ex_id, run_id, split_id):
         """
@@ -418,6 +420,22 @@ class ExperimentFileRepository:
     def log_end_experiment(self):
         self._file.close()
         self._file = None
+
+    def log_model(self, model, framework, modelname, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param modelname: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        if framework == 'pytorch':
+            import torch
+            import os
+            path = os.path.join(self._split_dir,modelname)
+            torch.save(model, path)
+
 
 
 class DatasetFileRepository(object):

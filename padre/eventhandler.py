@@ -151,6 +151,16 @@ def error(args):
     for logger in logger_list:
         logger.error(condition, source, message)
 
+def log_model(args):
+    model = args.get('model', None)
+    framework = args.get('framework', None)
+    modelname = args.get('modelname', None)
+    finalmodel = args.get('finalmodel', False)
+
+    if not(model is None or framework is None or modelname is None):
+        for logger in logger_list:
+            logger.log_model(model=model, framework=framework, modelname=modelname, finalmodel=finalmodel)
+
 
 
 """
@@ -173,7 +183,8 @@ EVENT_HANDLER_DICT = {
     'EVENT_LOG_EXPERIMENT_PROGRESS': [log_experiment_progress],
     'EVENT_LOG_RUN_PROGRESS': [log_run_progress],
     'EVENT_LOG_SPLIT_PROGRESS': [log_split_progress],
-    'EVENT_PROGRESS': [log_progress]
+    'EVENT_PROGRESS': [log_progress],
+    'EVENT_LOG_MODEL': [log_model]
 }
 
 """
