@@ -363,7 +363,7 @@ class HTTPBackendDatasets:
         response_meta = json.loads(response.content.decode("utf-8"))
         attribute_name_list = []
         atts = []
-        for attr in response_meta["attributes"]:
+        for attr in reversed(response_meta["attributes"]):
             atts.append(Attribute(**attr))
             attribute_name_list.append(attr["name"])
 
@@ -443,6 +443,7 @@ class HTTPBackendDatasets:
         :rtype: <class 'padre.datasets.Dataset'>
         """
         from padre.app.padre_app import pypadre
+        from padre import ds_import
         path = os.path.expanduser(pypadre.config.get("root_dir", "LOCAL BACKEND")) + '/temp/openml'
         oml.config.apikey = pypadre.config.get("oml_key", "GENERAL")
         oml.config.cache_directory = path
@@ -463,16 +464,18 @@ class HTTPBackendDatasets:
             attribute_list = [att[0] for att in raw_data["attributes"]]
 
             df_data = pd.DataFrame(data=raw_data['data'])
-            atts = []
-            for col in df_data.keys():
-                current_attribute = df_attributes[col]
-                if isinstance(current_attribute[1], list):
-                    df_data[col] = df_data[col].astype('category')
-                atts.append(Attribute(name=current_attribute[0],
-                                      measurementLevel="nominal" if isinstance(current_attribute[1], list) else None,
-                                      unit=None, description=None,
-                                      defaultTargetAttribute=(current_attribute[0] == load.default_target_attribute)))
             df_data.columns = attribute_list
+            target_features = load.default_target_attribute.split(",")
+            for col_name in target_features:
+                df_data[col_name] = df_data[col_name].astype('category')
+                df_data[col_name] = df_data[col_name].cat.codes
+
+            dataset = Dataset(None, **meta)
+            atts = []
+            for feature in df_data.columns.values:
+                atts.append(Attribute(name=feature,
+                                      measurementLevel="ratio" if feature in target_features else None,
+                                      defaultTargetAttribute=feature in target_features))
             dataset.set_data(df_data, atts)
 
         except ConnectionError as err:

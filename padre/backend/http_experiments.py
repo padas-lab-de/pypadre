@@ -3,15 +3,19 @@ Logic to upload experiment data to server goes here
 """
 import io
 import json
+import logging
 import tempfile
 import uuid
 from itertools import groupby
 
+import requests as req
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
 from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
 from padre.backend.serialiser import PickleSerializer
+
+logger = logging.getLogger('pypadre - http')
 
 
 class HttpBackendExperiments:
@@ -32,25 +36,18 @@ class HttpBackendExperiments:
             id_ = self.create_project(name)
         return id_
 
-    def get_or_create_dataset(self, data):
-        id_ = self.get_id_by_name(data["name"], self._http_client.paths["datasets"])
-        if id_ is None:
-            id_ = self.create_dataset(data)
-        return id_
-
-    def create_dataset(self, data):
-        """Create data set
-
-        :param data: All the metadata of dataset
-        :returns: Id of the new dataset
-        """
-        url = self.get_base_url() + self._http_client.paths["datasets"]
-        if isinstance(data, dict):
-            data = json.dumps(data)
+    def get_or_create_dataset(self, ds):
+        _id = ds.metadata["uid"]
+        get_url = self._http_client.get_base_url() + self._http_client.paths["dataset"](str(_id))
+        dataset_id = None
         if self._http_client.has_token():
-            response = self._http_client.do_post(url, **{"data": data})
-            return response.headers['Location'].split('/')[-1]
-        return None
+            try:
+                response = self._http_client.do_get(get_url)
+                dataset_id = json.loads(response.content)["uid"]
+            except req.HTTPError as e:
+                logger.warn("Dataset with id {%s} not found  " % str(_id))
+                dataset_id = self._http_client.datasets.put_dataset(ds)
+        return dataset_id
 
     def get_id_by_name(self, name, entity):
         """Get entity id by name
@@ -100,7 +97,7 @@ class HttpBackendExperiments:
         :return: None
         """
 
-        dataset_dict = experiment.dataset.metadata
+        dataset_dict = experiment.dataset
         self.dataset_id = self.get_or_create_dataset(dataset_dict)
         experiment_data = dict()
         experiment_data["name"] = experiment.metadata["name"]
