@@ -328,6 +328,14 @@ class WrapperPytorch:
                 integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
                 y = onehot_encoder.fit_transform(integer_encoded)
 
+                assert_condition(condition=y.shape[1] <= self.top_shape, source=self,
+                                 message="One hot encoded values greater than number of neurons on the top layer")
+
+                if self.top_shape > y.shape[1]:
+                    pad = np.zeros(shape=(x.shape[0],self.top_shape-y.shape[1]))
+                    y = np.concatenate((y, pad), axis=1)
+
+
         x = torch.autograd.Variable(torch.from_numpy(x), requires_grad=False)
         y = torch.autograd.Variable(torch.from_numpy(y), requires_grad=False)
 
@@ -446,6 +454,8 @@ class WrapperPytorch:
                 if end_idx > test_samples_count:
                     indices = torch.LongTensor(list(range(start_idx, test_samples_count)))
                     end_idx = test_samples_count
+                    if len(indices) <= 0:
+                        break
 
                 mini_batch_x = x[indices]
                 mini_batch_output = self.model(mini_batch_x)
