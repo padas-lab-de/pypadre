@@ -37,7 +37,7 @@ class HttpBackendExperiments:
         return id_
 
     def get_or_create_dataset(self, ds):
-        _id = ds.metadata["uid"]
+        _id = ds.metadata.get("uid", None)
         get_url = self._http_client.get_base_url() + self._http_client.paths["dataset"](str(_id))
         dataset_id = None
         if self._http_client.has_token():
@@ -46,7 +46,7 @@ class HttpBackendExperiments:
                 dataset_id = json.loads(response.content)["uid"]
             except req.HTTPError as e:
                 logger.warn("Dataset with id {%s} not found  " % str(_id))
-                dataset_id = self._http_client.datasets.put_dataset(ds)
+                dataset_id = self._http_client.datasets.put(ds)
         return dataset_id
 
     def get_id_by_name(self, name, entity):
