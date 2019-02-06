@@ -333,7 +333,8 @@ class DatasetApp:
             datasets_list.append(datasets[key])
         return datasets_list
 
-    def download(self, source: str, name: str) -> Iterable:
+    @deprecated("Use download with list of sources")
+    def download_external(self, source: str, name: str) -> Iterable:
         """
         Downloads the dataset defined by name from source and stores it into the local file backend.
         :param source: name of the source
@@ -343,12 +344,12 @@ class DatasetApp:
         # todo implement using a generator pattern to avoid loading every dataset in main memory
         pass
 
-    def download_external(self, sources: list) -> Iterable:
+    def download(self, sources: list) -> Iterable:
         """
         Downloads the datasets their information provided as list provided as list from oml
         :return: returns a iterator of dataset objects
         """
-        # todo: Merge download and download_external functions into one
+        # todo: Extend support for other dataset sources
         for dataset_source in sources:
             dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
             yield dataset
@@ -428,8 +429,10 @@ class DatasetApp:
 
     def put(self, ds: Dataset, overwrite= True, upload= True)->None:
         """
-        puts a dataset to the local repository
+        puts a dataset to the local repository as well to server if upload is True
+
         :param dataset: dataset to be uploaded
+        :type dataset: <class 'padre.core.datasets.Dataset'>
         :param overwrite: if false, datasets are not overwritten
         :param upload: True, if the dataset should be uploaded
         """
@@ -440,7 +443,7 @@ class DatasetApp:
                                "Backend is not expected to work properly")
             if self.has_printer():
                 self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
-            self._parent.remote_backend.datasets.put_dataset(ds, True)
+            ds.id = self._parent.remote_backend.datasets.put(ds, True)
         self._parent.local_backend.datasets.put(ds)
 
     def delete(self, dataset_id, remote_also=False):

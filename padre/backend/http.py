@@ -264,7 +264,8 @@ class HTTPBackendDatasets:
     def parent(self):
         return self._parent
 
-    def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None):
+    @deprecated("Use list instead")
+    def list_datasetset(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None):
         """
         lists all datasets available remote giving the search parameters.
         :param search_name:
@@ -281,7 +282,8 @@ class HTTPBackendDatasets:
         else:
             return []
 
-    def put(self, dataset: Dataset, create :bool = True):
+    @deprecated("Use put instead for protobuf support.")
+    def put_dataset(self, dataset: Dataset, create :bool = True):
         assert create or dataset.id is not None  # dataset id must be provided when the dataset should be updated
         payload = dict()
         payload.update(dataset.metadata)
@@ -315,7 +317,7 @@ class HTTPBackendDatasets:
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
 
 
-    def list_dataset(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
+    def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
         """
         List all data sets in the repository
         :param search_name: regular expression based search string for the title. Default None
@@ -328,15 +330,15 @@ class HTTPBackendDatasets:
             url += search_name
         response = self.parent.do_get(url)
         content, links = self._parent.parse_hal(response)
-        if "datasets" in content:
-            data = [[{'uid': d['uid'],
-                      'name': d['name'],
-                      'type': d['type'],
-                      'attributes': len(d['attributes'])}]
-                    for d in content["datasets"]]
+        for meta in content["datasets"]:
+
+            binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](str(meta["uid"]))
+            pb_data = self.parent.do_get(binaries_url).content
+            dataset = self.response_to_dataset(meta, pb_data)
+            data.append(dataset)
         return data
 
-    def put_dataset(self, dataset, create :bool = True):
+    def put(self, dataset, create :bool = True):
         """Upload local dataset to the server and return dataset id
         '
         # Todo: Merge put and put dataset functions into one
@@ -356,42 +358,12 @@ class HTTPBackendDatasets:
 
     def get(self, _id, metadata_only=False):
         """Fetches data with given id from server and returns it"""
-        from padre import graph_import
-
         url = self.parent.base[0:-1] + PadreHTTPClient.paths["dataset"](_id)
         response = self.parent.do_get(url)
         response_meta = json.loads(response.content.decode("utf-8"))
-        attribute_name_list = []
-        atts = []
-        for attr in reversed(response_meta["attributes"]):
-            atts.append(Attribute(**attr))
-            attribute_name_list.append(attr["name"])
-
         binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](_id)
         pb_data = self.parent.do_get(binaries_url).content
-        df_data = self.proto_to_dataframe(pb_data)
-        del response_meta["attributes"]
-        dataset = Dataset(None, **response_meta)
-        df_data.columns = attribute_name_list
-
-        if dataset.isgraph:
-            node_attr = []
-            edge_attr = []
-            for attr in atts:
-                graph_role = attr.context["graph_role"]
-                if (graph_role == "source"):
-                    source = attr.name
-                elif (graph_role == "target"):
-                    target = attr.name
-                elif (graph_role == "nodeattribute"):
-                    node_attr.append(attr.name)
-                elif (graph_role == "edgeattribute"):
-                    edge_attr.append(attr.name)
-            network = nx.Graph() if response_meta["type"] == "graph" else nx.DiGraph()
-            graph_import.pandas_to_networkx(df_data, source, target, network, node_attr, edge_attr)
-            dataset.set_data(network, atts)
-        else:
-            dataset.set_data(df_data, atts)
+        dataset = self.response_to_dataset(response_meta, pb_data)
         logger.info("Loaded dataset " + _id + " from server:")
         return dataset
 
@@ -433,6 +405,41 @@ class HTTPBackendDatasets:
         df = pd.DataFrame(data_rows)
         return df
 
+    def response_to_dataset(self, meta, binary):
+        from padre import graph_import
+        attribute_name_list = []
+        atts = []
+        for attr in meta["attributes"]:
+            atts.append(Attribute(**attr))
+            attribute_name_list.append(attr["name"])
+
+        df_data = self.proto_to_dataframe(binary)
+        del meta["attributes"]
+        dataset = Dataset(meta["uid"], **meta)
+        if df_data.empty:
+            return dataset
+        df_data.columns = attribute_name_list
+
+        if dataset.isgraph:
+            node_attr = []
+            edge_attr = []
+            for attr in atts:
+                graph_role = attr.context["graph_role"]
+                if (graph_role == "source"):
+                    source = attr.name
+                elif (graph_role == "target"):
+                    target = attr.name
+                elif (graph_role == "nodeattribute"):
+                    node_attr.append(attr.name)
+                elif (graph_role == "edgeattribute"):
+                    edge_attr.append(attr.name)
+            network = nx.Graph() if meta["type"] == "graph" else nx.DiGraph()
+            graph_import.pandas_to_networkx(df_data, source, target, network, node_attr, edge_attr)
+            dataset.set_data(network, atts)
+        else:
+            dataset.set_data(df_data, atts)
+        return dataset
+
 
     def load_oml_dataset(self, did):
         """Load dataset from openML with given id.
@@ -443,7 +450,6 @@ class HTTPBackendDatasets:
         :rtype: <class 'padre.datasets.Dataset'>
         """
         from padre.app.padre_app import pypadre
-        from padre import ds_import
         path = os.path.expanduser(pypadre.config.get("root_dir", "LOCAL BACKEND")) + '/temp/openml'
         oml.config.apikey = pypadre.config.get("oml_key", "GENERAL")
         oml.config.cache_directory = path
