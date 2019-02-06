@@ -35,14 +35,14 @@ def main(params):
     #                                   'principal component analysis.whiten:[False, True]')
 
     experiment_helper.set_param_values(params.get('name', None), params.get('estimator_params', None))
-    experiment_helper.create_experiment(name=params.get('name', None),
-                                        description=params.get('description', None),
-                                        dataset=params.get('dataset', None),
-                                        workflow=workflow,
-                                        backend=params.get('backend', None))
+    experiment_helper.create(name=params.get('name', None),
+                             description=params.get('description', None),
+                             dataset=params.get('dataset', None),
+                             workflow=workflow,
+                             backend=params.get('backend', None))
 
     if params.get('run_for_multiple_datasets', False) is False:
-        experiment_helper.execute_experiments()
+        experiment_helper.execute()
 
     else:
         if params.get('experiment_datasets', None) is not None:

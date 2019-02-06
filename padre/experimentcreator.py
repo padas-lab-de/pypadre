@@ -412,9 +412,7 @@ class ExperimentCreator:
         obj = class_()
         return deepcopy(obj)
 
-    def create_experiment(self, name, description,
-                          dataset_list=None, workflow=None,
-                          params=None):
+    def create(self, name, description, dataset_list=None, workflow=None, params=None):
         """
         This function adds an experiment to the dictionary.
 
@@ -570,7 +568,7 @@ class ExperimentCreator:
 
         return dataset_names
 
-    def execute_experiments(self):
+    def execute(self):
         """
         This function runs all the created experiments from the experiment dictionary
 
@@ -812,8 +810,8 @@ class ExperimentCreator:
 
                 continue
 
-            self.create_experiment(name=name, description=description,workflow=workflow, dataset_list=dataset,
-                                   params=params)
+            self.create(name=name, description=description,workflow=workflow, dataset_list=dataset,
+                        params=params)
 
         return True
 
