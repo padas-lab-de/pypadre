@@ -9,7 +9,7 @@ import json
 import numpy as np
 import os
 import pandas as pd
-from padre.base import default_logger
+from padre.eventhandler import assert_condition
 
 
 class ReevaluationMetrics:
@@ -27,7 +27,7 @@ class ReevaluationMetrics:
         :param dir_path: The directories of the run paths whose metrics have to be reevaluated.
         :param file_path: The exact file path whose metrics have to be evaluated.
 
-        TODO: Implement the functionality where the exact files could be given and results are recomputed only for those.
+        TODO: Implement the functionality where the exact files could be given and results are recomputed only for those
         """
         if dir_path is not None:
             self._dir_path = dir_path
@@ -86,24 +86,23 @@ class ReevaluationMetrics:
             prediction_type = results.get('type', None)
             dataset = results.get('dataset', '-')
             metrics = None
-            if prediction_type is None:
-                default_logger.error('No prediction type present in ' + split_path)
-                continue
+            assert_condition(condition=prediction_type is None, source=self,
+                             message='No prediction type present in ' + split_path)
 
-            elif prediction_type == 'regression':
+            if prediction_type == 'regression':
                 metrics = self.compute_regression_metrics(results)
 
             elif prediction_type == 'classification':
                 metrics = self.compute_classification_metrics(results)
+
+            assert_condition(condition=metrics is not None, source=self,
+                             message='Error reading the results.json file in ' + split_path)
 
             if metrics is not None:
                 metrics['type'] = prediction_type
                 metrics['dataset'] = dataset
                 with open(os.path.join(split_path, "metrics.json"), 'w') as f:
                     f.write(json.dumps(metrics))
-
-            else:
-                default_logger.error('Error reading the results.json file in ' + split_path)
 
     def compute_regression_metrics(self, results=None):
         """
@@ -114,16 +113,13 @@ class ReevaluationMetrics:
         :return: A dictionary containing the computed regression metrics.
         """
 
-        if results is None:
-            default_logger.error('Results is None')
-            return
+        assert_condition(condition=results is not None, source=self, message='Results are None')
 
         y_true = results.get('truth', None)
         y_predicted = results.get('predicted', None)
 
-        if y_true is None or y_predicted is None:
-            default_logger.error('Truth or Predicted values missing in results.json')
-            return None
+        assert_condition(condition=not(y_true is None or y_predicted is None), source=self,
+                         message='Truth or Predicted values missing in results.json')
 
         metrics_dict = dict()
         y_true = np.array(y_true)
@@ -145,24 +141,20 @@ class ReevaluationMetrics:
         :return: A dictionary containing the computed classification metrics
         """
 
-        if results is None:
-            default_logger.error('Results is empty')
-            return None
+        assert_condition(condition=results is not None, source=self, message='Results are empty')
 
         y_true = results.get('truth', None)
         y_predicted = results.get('predicted', None)
         option = results.get('average', 'macro')
 
-        if y_true is None or y_predicted is None:
-            default_logger.error('Truth or Predicted values missing in results.json')
-            return None
+        assert_condition(condition=not(y_true is None or y_predicted is None), source=self,
+                         message='Predicted/Actual results are not available')
 
         confusion_matrix = self.compute_confusion_matrix(predicted=y_predicted,
                                                          truth=y_true)
 
-        if confusion_matrix is None:
-            default_logger.error('Could not compute confusion matrix')
-            return None
+        assert_condition(condition=confusion_matrix is not None, source=self,
+                         message='Could not compute confusion matrix')
 
         classification_metrics = dict()
         classification_metrics['confusion_matrix'] = confusion_matrix
@@ -254,7 +246,7 @@ class CompareMetrics:
     _dir_path = []
     _experiments = None
 
-    def __init__(self, dir_path=None, file_path=None, experiments_list = None):
+    def __init__(self, dir_path=None, file_path=None, experiments_list=None):
         """
         The constructor that initializes the object with all the required paths.
 
@@ -383,9 +375,7 @@ class CompareMetrics:
 
         :return: dictionary containing estimator name and list of params.
         """
-        if run_dir is None:
-            default_logger.error('Empty run directory')
-            return None
+        assert_condition(condition=run_dir is not None, source=self, message='Run directory value is None')
 
         # Load the hyperparameters.json file from the run directory
         with open(os.path.join(run_dir, "hyperparameter.json"), 'r') as f:
@@ -691,9 +681,8 @@ class CompareMetrics:
 
         data_report = []
         # For all runs that need to be displayed
-        if self._display_run is None:
-            default_logger.error('No runs to be displayed')
-            return
+        assert_condition(condition=self._display_run is not None, source=self,
+                         message='No runs to be displayed')
 
         for run in self._display_run:
 
@@ -749,9 +738,7 @@ class CompareMetrics:
         
         TODO: The options functionality is not yet implemented
         """
-        if query is None:
-            default_logger.error('Function called with empty query')
-            return
+        assert_condition(condition=query is not None, source=self, message='Function called with empty query')
 
         row_id_set = set()
 
@@ -761,6 +748,10 @@ class CompareMetrics:
                 self._display_run = copy.deepcopy(self._run_split_dict)
                 return
 
+            assert_condition(condition=self._run_estimators.get(element, None) is not None or
+                             self._param_values_run_id.get(element, None) is not None,
+                             source=self, message='Element ' + element + ' not present ')
+
             if self._run_estimators.get(element, None) is not None:
                 row_id_set = row_id_set.union(set(self._run_estimators.get(element, None)))
 
@@ -769,7 +760,7 @@ class CompareMetrics:
 
             else:
                 # Query not present within lists
-                default_logger.error(element + 'not present')
+                pass
 
         self._display_run = copy.deepcopy(list(row_id_set))
 
@@ -798,9 +789,8 @@ class CompareMetrics:
         """
         params_list = dict()
         params = self._unique_estimators.get(estimator_name, None)
-        if params is None:
-            default_logger.error('No parameters obtained for estimator :' + estimator_name)
-            return None
+        assert_condition(condition=params is not None, source=self,
+                         message='No parameters obtained for estimator :' + estimator_name)
 
         # If all the parameters are selected, then return the whole param dictionary
         if return_all_values:
@@ -826,6 +816,7 @@ class CompareMetrics:
 
         :return: None
         """
+        metrics = None
         display_columns = copy.deepcopy(self._mandatory_display_columns)
         regression_metrics = ['mean_error', 'mean_absolute_error', 'standard_deviation',
                               'max_absolute_error', 'min_absolute_error']
@@ -899,6 +890,7 @@ class CompareMetrics:
             df.columns = display_columns
 
         # Update only those columns that are present in the data frame
+        assert_condition(condition=metrics is not None, source=self, message='Could not compute metrics')
         if metrics.get('type', None) == 'regression':
             for metric in regression_metrics:
                 if df.get(metric, None) is not None:
@@ -913,7 +905,6 @@ class CompareMetrics:
         for name in df.columns:
             if all([str(df.get(name).values) == '-']):
                 df = df.drop(name, axis=1)
-
 
         return df
 
@@ -936,9 +927,6 @@ class CompareMetrics:
         This function combines all the other read and aggregate functions for ease of use
         :return:
         """
-
-        df = None
-        print(self.get_experiment_directores())
         self.read_run_directories()
         # From the run directory names, obtain the estimators and the parameters
         self.get_unique_estimators_parameter_names()
@@ -948,5 +936,53 @@ class CompareMetrics:
         df = self.display_results()
         return df
 
+    def add_experiments(self, experiment_list):
+        """
+        Adds a list of experiment objects to the current list
+        :param experiment_list: A list of experiment objects
+        :return:
+        """
+        from padre.core.experiment import Experiment
+        assert_condition(condition=isinstance(experiment_list, list) or isinstance(experiment_list, Experiment),
+                         source=self, message='Incorrect input parameter type.')
+
+        if isinstance(experiment_list, list):
+            for experiment in experiment_list:
+                assert_condition(condition=isinstance(experiment, Experiment), source=self,
+                                 message='An object in the list is not of the type padre.core.experiment.Experiment')
+
+        else:
+            assert_condition(condition=isinstance(experiment_list, Experiment), source=self,
+                             message='Incorrect parameter type')
+            experiment_list = [experiment_list]
+
+        if self._experiments is not None:
+            self._experiments = self._experiments + experiment_list
+        else:
+            self._experiments = experiment_list
+
+    def add_experiment_directory(self, directory_list):
+        """
+        Adds a list of directory paths for computing metrics
+        :param directory_list: List of directories
+        :return:
+        """
+
+        assert_condition(condition=isinstance(directory_list, list) or isinstance(directory_list, str),
+                         source=self, message='Incorrect input parameter type.')
 
 
+        if isinstance(directory_list, list):
+            for directory in directory_list:
+                assert_condition(condition=isinstance(directory, str), source=self,
+                                 message='An object in the list is not of the type string')
+
+        else:
+            assert_condition(condition=isinstance(directory_list, str), source=self,
+                             message='Incorrect parameter type')
+            directory_list = [directory_list]
+
+        if self._dir_path is not None:
+            self._dir_path = self._dir_path + directory_list
+        else:
+            self._dir_path = directory_list
