@@ -228,8 +228,9 @@ class Experiment(MetadataEntity):
             self._runs.append(r)
         self._results.append(deepcopy(r.results))
         self._metrics.append(deepcopy(r.metrics))
-        self._hyperparameters = (deepcopy(r.hyperparameters))
+        self._hyperparameters = [(deepcopy(r.hyperparameters))]
         self._last_run = r
+        self._run_split_dict[str(r.id) + '.run'] = r.split_ids
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def execute(self, parameters=None):

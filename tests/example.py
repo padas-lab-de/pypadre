@@ -43,10 +43,15 @@ if __name__ == '__main__':
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
+
+    pypadre.metrics_evaluator.add_experiments([ex, ex])
+    print(pypadre.metrics_evaluator.show_metrics())
+    '''
     print("========Available experiments=========")
     for idx, ex in enumerate(pypadre.experiments.list_experiments()):
         print("%d: %s" % (idx, str(ex)))
         for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
             print("\tRun: %s"%str(run))
-
+    '''
     # ex.report_results() # last step, but we can also look that up on the server
+

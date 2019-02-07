@@ -39,8 +39,7 @@ def main():
     params_dict = experiment_creator.convert_alternate_estimator_names(params_dict)
     experiment_creator.create(name='Executor Test 3',
                               description='Grid search experiment with SVR',
-                              dataset_list=['Boston_House_Prices'],
-                              #dataset_list=['Boston_House_Prices', 'Diabetes', 'Digits'],
+                              dataset_list=['Boston_House_Prices', 'Diabetes', 'Digits'],
                               workflow=workflow,
                               params=params_dict
                               )
