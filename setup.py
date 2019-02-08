@@ -26,7 +26,6 @@ setup(
        [console_scripts]
        padre=padre.app.padre_cli:main
    ''',
-    #data_files=[('padre',['./padre/res/mapping/mapping.json', './padre/res/mapping/pytorch.json'])],
    command_options={
         'build_sphinx': {
             'project': ('setup.py', name),

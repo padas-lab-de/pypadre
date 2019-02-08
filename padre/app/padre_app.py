@@ -280,6 +280,16 @@ class DatasetApp:
         local_datasets.extend(remote_datasets)
         if prnt:
             self.print_datasets_details(local_datasets)
+
+        # Add sklearn toy datasets if they are not present in the list
+        if len(local_datasets) == 0:
+            local_datasets = ['Boston_House_Prices',
+                             'Breast_Cancer',
+                             'Diabetes',
+                             'Digits',
+                             'Iris',
+                             'Linnerrud']
+
         return local_datasets
 
     def print_datasets_details(self, datasets: list):
