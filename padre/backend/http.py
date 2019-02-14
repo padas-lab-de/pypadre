@@ -265,7 +265,7 @@ class HTTPBackendDatasets:
         return self._parent
 
     @deprecated("Use list instead")
-    def list_datasetset(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None):
+    def list_datasets(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None):
         """
         lists all datasets available remote giving the search parameters.
         :param search_name:
@@ -399,8 +399,12 @@ class HTTPBackendDatasets:
             pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, pb_pos, pb_row)
             data_fields = []
             for cell in pb_row.cells:
-                value = getattr(cell, cell.WhichOneof("cell_type"))
-                data_fields.append(value)
+                field = cell.WhichOneof("cell_type")
+                if field is None:
+                    data_fields.append(field)
+                else:
+                    value = getattr(cell, cell.WhichOneof("cell_type"))
+                    data_fields.append(value)
             data_rows.append(data_fields)
         df = pd.DataFrame(data_rows)
         return df
@@ -462,7 +466,7 @@ class HTTPBackendDatasets:
             meta["version"] = load.version
             meta["description"] = load.description
             meta["originalSource"] = load.url
-            meta["type"] = "multivariate"
+            meta["type"] = "Multivariat"
             meta["published"] = False
             dataset = Dataset(meta["id"], **meta)
             raw_data = arff.load(open(load.data_file, encoding='utf-8'))
@@ -480,7 +484,7 @@ class HTTPBackendDatasets:
             atts = []
             for feature in df_data.columns.values:
                 atts.append(Attribute(name=feature,
-                                      measurementLevel="ratio" if feature in target_features else None,
+                                      measurementLevel="Ratio" if feature in target_features else None,
                                       defaultTargetAttribute=feature in target_features))
             dataset.set_data(df_data, atts)
 

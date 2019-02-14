@@ -16,8 +16,8 @@ print(pypadre.local_backend.datasets.list())
 print("Datasets on server")
 print(pypadre.remote_backend.datasets.list())
 
-downloads = pypadre.datasets.search_downloads("breast-cancer")
-print("Datasets available on openMl for Breast cancer")
+downloads = pypadre.datasets.search_downloads("iris")
+print("Datasets available on openMl for Iris")
 print(downloads)
 print("Downloaded External Datasets: ")
 for externel_dataset in pypadre.datasets.download(downloads):

@@ -417,7 +417,8 @@ class DatasetApp:
         if not force_download: # look in cache first
             ds = self._parent.local_backend.datasets.get(dataset_id)
         if ds is None and not self._parent.offline:  # no cache or not looked --> go to http client
-            ds = self._parent.remote_backend.datasets.get(dataset_id, binary, format=format)
+            # ds = self._parent.remote_backend.datasets.get(dataset_id, binary, format=format)
+            ds = self._parent.remote_backend.datasets.get(dataset_id)
             if cache_it:
                 self._parent.local_backend.datasets.put(ds)
         return ds
