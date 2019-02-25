@@ -28,13 +28,13 @@ if __name__ == '__main__':
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list()
+        pypadre.datasets.list();
         ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
-        ds = [i for i in load_sklearn_toys()][2]
+        ds = [i for i in load_sklearn_toys()][4]
 
     if ds is None:
-        ds = [i for i in load_sklearn_toys()][2]
+        ds = [i for i in load_sklearn_toys()][4]
     print(ds)
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
