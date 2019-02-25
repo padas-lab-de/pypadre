@@ -507,6 +507,4 @@ class Experiment(MetadataEntity):
                          message="Dataset cannot be none")
         assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
                          source=self, message='Experiment dataset is not of type Dataset')
-        assert_condition(condition=len(options.get('dataset', None).targets()) > 1, source=self,
-                         message='Dataset row count is 1. Experiment cannot train and test properly')
 
