@@ -1,6 +1,7 @@
 from padre.eventhandler import trigger_event, assert_condition
 from padre.base import MetadataEntity
 from padre.core.split import Splitter, Split
+import uuid
 
 class Run(MetadataEntity):
     """
@@ -26,6 +27,9 @@ class Run(MetadataEntity):
         self._id = options.pop("run_id", None)
         self._split_ids = []
         super().__init__(self._id, **options)
+
+        if self._id is None:
+            self._id = uuid.uuid1()
 
     def do_splits(self):
         from copy import deepcopy
