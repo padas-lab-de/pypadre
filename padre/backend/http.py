@@ -330,12 +330,13 @@ class HTTPBackendDatasets:
             url += search_name
         response = self.parent.do_get(url)
         content, links = self._parent.parse_hal(response)
-        for meta in content["datasets"]:
+        if "datasets" in content:
+            for meta in content["datasets"]:
 
-            binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](str(meta["uid"]))
-            pb_data = self.parent.do_get(binaries_url).content
-            dataset = self.response_to_dataset(meta, pb_data)
-            data.append(dataset)
+                binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](str(meta["uid"]))
+                pb_data = self.parent.do_get(binaries_url).content
+                dataset = self.response_to_dataset(meta, pb_data)
+                data.append(dataset)
         return data
 
     def put(self, dataset, create :bool = True):

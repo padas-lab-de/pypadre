@@ -13,6 +13,7 @@ from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
 from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
+from padre import experimentcreator
 from padre.backend.serialiser import PickleSerializer
 
 logger = logging.getLogger('pypadre - http')
@@ -125,6 +126,7 @@ class HttpBackendExperiments:
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
              "name": experiment.metadata["name"]}
         ]}
+        experiment_data["configuration"] = experiment.experiment_configuration
 
         url = self.create_experiment(experiment_data)
         experiment.metadata["server_url"] = url
@@ -160,8 +162,15 @@ class HttpBackendExperiments:
             else:
                 url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             response = json.loads(self._http_client.do_get(url, **{}).content)
+            conf = response[list(response.keys())[0]]
+            experiment_creator = experimentcreator.ExperimentCreator()
+            experiment_creator.create_experiment(conf["name"],
+                                                 conf["description"],
+                                                 [conf["dataset"]],
+                                                 conf["workflow"],
+                                                 conf["params"])
 
-            return response
+            return experiment_creator
         return False
 
     def put_run(self, experiment, run):
