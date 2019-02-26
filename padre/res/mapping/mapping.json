@@ -6066,7 +6066,7 @@
             }
         },
         {
-            "name": "vating classifier",
+            "name": "voting classifier",
             "other_names": [],
             "implementation": {
                 "scikit-learn": "sklearn.ensemble.VotingClassifier"
