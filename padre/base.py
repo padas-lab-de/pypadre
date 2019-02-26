@@ -5,6 +5,7 @@ import json
 import sys
 from time import time
 from datetime import datetime
+from abc import ABC
 
 
 class _const:
@@ -48,7 +49,199 @@ Enum for the different phases of an experiment
 exp_events = _ExperimentEvents()
 
 
-class PadreLogger:
+class LoggerBase(ABC):
+
+    def warn(self, condition, source, message):
+        """
+        This function logs the warning messages to the backend
+        :param condition: Warning is given if condition is not satisfied
+        :param source: Source of the warning
+        :param message: Warning message to be printed if the condition is not satisfied
+        :return:
+        """
+        pass
+
+    def error(self, condition, source, message):
+        """
+        This function logs the error messages to the backend
+        :param condition: Error condition to be checked
+        :param source: Source of the error
+        :param message: Error message to be printed if the condition is not satisfied
+        :return:
+        """
+        pass
+
+    def log(self, source, message, padding):
+        """
+        This function logs the normal runtime logs to the backend
+        :param source: Source of the message
+        :param message: Message to be printed to the backend
+        :param padding: Padding of the message
+        :return:
+        """
+        pass
+
+    def log_start_experiment(self, experiment, append_runs):
+        """
+        Logs the start of an experiment
+        :param experiment: The experiment object
+        :param append_runs: Whether the runs of the current experiment are to be appended,
+         if an existing experiment is found
+        :return:
+        """
+        pass
+
+    def log_stop_experiment(self, experiment):
+        """
+        This function logs the stop of the experiment
+        :param experiment: The experiment object which has completed execution
+        :return:
+        """
+        pass
+
+    def log_stop_experiment(self, experiment):
+        """
+        This function stops the logging of an experiment, handles the closing of the backends
+
+        param experiment: Experiment that is being logged
+
+        :return:
+        """
+        if self._backend is not None:
+            self.log_event(experiment, exp_events.stop, phase=phases.experiment)
+
+    def log_start_run(self, run):
+        """
+        This function handles the start of a run
+
+        :param run: The run object to be logged
+
+        :return:
+        """
+        pass
+
+    def log_stop_run(self, run):
+        """
+        This function handles the end of a run
+
+        :param run: The run object
+
+        :return:
+        """
+        pass
+
+    def log_start_split(self, split):
+        """
+        This function handles the start of a split
+
+        :param split: The split object
+
+        :return:
+        """
+        pass
+
+    def log_stop_split(self, split):
+        """
+        This function handles the logging at the end of a split
+
+        :param split: The split object
+
+        :return:
+        """
+        pass
+
+    def log_event(self, source, kind=None, **parameters):
+        """
+        Logs an event to the backend
+
+        :param source: Function calling the log event
+        :param kind: Start/Stop of event
+        :param parameters: Parameters to be written to the log
+        :return:
+        """
+        pass
+
+    def log_score(self, source, **parameters):
+        """
+        Logs the score of the experiment
+        :param source: Source of the score
+        :param parameters: The different score values to be written to be logged
+        :return:
+        """
+        pass
+
+    def log_result(self, source, **parameters):
+        """
+        Logs the result of the experiment
+        :param source: Source of the result
+        :param parameters: Parameters that contains the results to be logged
+        :return:
+        """
+        pass
+
+    def put_experiment_configuration(self, experiment):
+        """
+        Writes the experiment configuration to the backend
+        :param experiment:
+        :return:
+        """
+        pass
+
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+        Logs the progession of the experiments
+        :param curr_value: Curr experiment
+        :param limit: Total number of experiments
+        :param phase: Whether the experiment is starting execution or has completed its execution
+        :return:
+        """
+        pass
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+        Logs the progression of runs
+        :param curr_value: Current Run
+        :param limit: Total number of runs
+        :param phase: Whether the run is starting or stopping
+        :return:
+        """
+        pass
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+        Logs the progression of the splits
+        :param curr_value: Current split execution
+        :param limit: Total number of splits
+        :param phase: Start or stop of the split
+        :return:
+        """
+        pass
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+        Logs the general progression of the experiment, run, split or fit function
+        :param message: Message to be printed to the backend
+        :param curr_value: Current execution cycle
+        :param limit: Total number of execution cycle
+        :param phase: Start or stop of the execution cycle
+        :return:
+        """
+        pass
+
+    def log_model(self, model, framework, filename, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param filename: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        pass
+
+
+
+class PadreLogger(LoggerBase):
     """
     Base class for logging output, warnings and errors
     """
@@ -98,6 +291,7 @@ class PadreLogger:
         """
         if self._backend is not None:
             self.log_event(experiment, exp_events.stop, phase=phases.experiment)
+            self._backend.log_end_experiment()
 
     def log_start_run(self, run):
         """
@@ -182,6 +376,64 @@ class PadreLogger:
         """
         if self._backend:
             self._backend.put_experiment_configuration(experiment=experiment)
+
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+        Reports the progress of the experiment to the backend
+        :param curr_value: Current Experiment that is executing
+        :param limit: Total experiments
+        :param phase: Start/Stop of the experiment
+        :return:
+        """
+        if self._backend:
+            self._backend.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+        Reports the overall progress of the run to the backend
+        :param curr_value: Current run that is executing
+        :param limit: Total number of runs
+        :param phase: Start/stop of the run
+        :return:
+        """
+        if self._backend:
+            self._backend.log_run_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+        Reports the overall progress of the split to the backend
+        :param curr_value: Current Experiment that is executing
+        :param limit: Total number of splits
+        :param phase:
+        :return:
+        """
+        if self._backend:
+            self._backend.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+        Reports the progress of a function to the backend
+        :param message: Message to be written to the backend
+        :param curr_value: Current execution value
+        :param limit: Total number
+        :param phase: start/Stop
+        :return:
+        """
+        if self._backend:
+            self._backend.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_model(self, model, framework, modelname, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param modelname: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        if self._backend:
+            self._backend.log_model(model=model, framework=framework,
+                                                 modelname=modelname, finalmodel=finalmodel)
 
     def _padding(self, source):
 

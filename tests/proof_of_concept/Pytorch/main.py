@@ -35,7 +35,7 @@ def main():
     params['lr'] = 0.01
 
     import json
-    with open('regression.json') as json_data:
+    with open('classification.json') as json_data:
         params = json.load(json_data)
 
     obj = WrapperPytorch(params=params)
@@ -50,8 +50,7 @@ def main():
     ex = Experiment(name="Torch",
                     description="Testing Torch via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=workflow,
-                    backend=pypadre.local_backend.experiments)
+                    workflow=workflow, keep_splits=True, strategy='cv')
     ex.execute()
     '''
     Sample network dictionary creation

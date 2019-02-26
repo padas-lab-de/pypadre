@@ -1,4 +1,5 @@
 import numpy as np
+import uuid
 from padre.eventhandler import trigger_event, assert_condition
 from padre.base import MetadataEntity, exp_events, phases
 
@@ -154,6 +155,9 @@ class Split(MetadataEntity):
         self._splits = []
         self._id = options.pop("split_id", None)
         super().__init__(self._id, **options)
+
+        if self._id is None:
+            self._id = str(num) + "_" + str(uuid.uuid4())
 
     @property
     def number(self):

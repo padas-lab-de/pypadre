@@ -158,4 +158,69 @@ class DualBackend:
     def put_experiment_configuration(self, experiment):
         return self._file_experiments.put_experiment_configuration(experiment)
 
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_run_progress(curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_run_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_split_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+
+        :param message:
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_end_experiment(self):
+        """
+        Clean up after completing the experiment
+        :return:
+        """
+        self._file_experiments.log_end_experiment()
+        self._http_experiments.log_end_experiment()
+
+    def log_model(self, model, framework, modelname, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param modelname: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        self._http_experiments.log_model(model=model, framework=framework, modelname=modelname, finalmodel=finalmodel)
+        self._file_experiments.log_model(model=model, framework=framework, modelname=modelname, finalmodel=finalmodel)
+
 # todo implement all functions currently needed by the experiment class (when the backend is set)
