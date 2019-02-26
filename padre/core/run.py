@@ -29,7 +29,7 @@ class Run(MetadataEntity):
         super().__init__(self._id, **options)
 
         if self._id is None:
-            self._id = uuid.uuid1()
+            self._id = uuid.uuid4()
 
     def do_splits(self):
         from copy import deepcopy

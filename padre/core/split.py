@@ -157,7 +157,7 @@ class Split(MetadataEntity):
         super().__init__(self._id, **options)
 
         if self._id is None:
-            self._id = str(num) + "_" + str(uuid.uuid1())
+            self._id = str(num) + "_" + str(uuid.uuid4())
 
     @property
     def number(self):

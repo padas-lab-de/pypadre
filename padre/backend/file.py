@@ -153,7 +153,7 @@ class ExperimentFileRepository:
 
         if experiment.id is None:  #  this is a new experiment
             if experiment.name is None or experiment.name == "":
-                experiment.id = uuid.uuid1()
+                experiment.id = uuid.uuid4()
             else:
                 experiment.id = experiment.name
         dir = os.path.join(self.root_dir, *self._dir(experiment.id))
@@ -231,7 +231,7 @@ class ExperimentFileRepository:
         :return:
         """
         if run.id is None:  # this is a new experiment
-            run.id = uuid.uuid1()
+            run.id = uuid.uuid4()
 
         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id))
         if os.path.exists(dir):
@@ -285,7 +285,7 @@ class ExperimentFileRepository:
         :return:
         """
         if split.id is None:  # this is a new experiment
-            split.id = str(split.number)+"_"+str(uuid.uuid1())
+            split.id = str(split.number)+"_"+str(uuid.uuid4())
 
         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
         if os.path.exists(dir):
