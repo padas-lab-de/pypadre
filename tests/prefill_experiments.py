@@ -15,7 +15,7 @@ def main():
     '''
     CLASSIFICATION EXPERIMENTS
     '''
-    '''
+
     # A decision tree classifier with Iris and Digits datasets and multiple parameter assignments
     workflow = experiment_creator.create_test_pipeline(['decision tree classifier'])
     params = {'max_depth_tree': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'min_samples_split': [2, 3, 4, 5, 6, 7]}
@@ -74,7 +74,7 @@ def main():
                               dataset_list=['Iris'],
                               strategy='random',
                               workflow=workflow)
-    '''
+
     '''
     REGRESSION EXPEIRIMENTS
     '''
