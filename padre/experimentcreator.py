@@ -455,7 +455,7 @@ class ExperimentCreator:
                     for estimator in params:
                         estimator_params = params.get(estimator)
                         for param in estimator_params:
-                            if type(params.get(param)) is not list:
+                            if type(estimator_params.get(param)) is not list:
                                 param_value = estimator_params.get(param)
                                 estimator_params[param] = [param_value]
                     self._param_value_dict[name] = self.validate_parameters(params)
