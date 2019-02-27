@@ -471,6 +471,10 @@ class ExperimentCreator:
                     assert_condition(condition=False, source=self, message=''.join(['Experiment name: ', name,
                                                   ' already present. Experiment name should be unique']))
 
+        else:
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message='Dataset is not valid')
+
     def get_local_dataset(self, name=None):
         """
         This function returns the dataset from pypadre.
