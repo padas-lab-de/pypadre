@@ -170,7 +170,7 @@ class HttpBackendExperiments:
                                                  conf["workflow"],
                                                  conf["params"])
 
-            return experiment_creator
+            return experiment_creator.experiments[0]
         return False
 
     def put_run(self, experiment, run):
