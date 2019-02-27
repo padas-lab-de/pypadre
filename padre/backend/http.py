@@ -391,9 +391,7 @@ class HTTPBackendDatasets:
 
     def proto_to_dataframe(self, pb_data):
         from padre.backend.protobuffer import proto_organizer
-        pb_meta = proto.Meta()
-        pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, 0, pb_meta)
-
+        pb_pos = 0
         data_rows = []
         while pb_pos < len(pb_data):
             pb_row = proto.DataRow()

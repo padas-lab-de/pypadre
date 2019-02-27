@@ -164,11 +164,11 @@ class HttpBackendExperiments:
             response = json.loads(self._http_client.do_get(url, **{}).content)
             conf = response[list(response.keys())[0]]
             experiment_creator = experimentcreator.ExperimentCreator()
-            experiment_creator.create_experiment(conf["name"],
-                                                 conf["description"],
-                                                 [conf["dataset"]],
-                                                 conf["workflow"],
-                                                 conf["params"])
+            experiment_creator.create(conf["name"],
+                                      conf["description"],
+                                      [conf["dataset"]],
+                                      conf["workflow"],
+                                      conf["params"])
 
             return experiment_creator.experiments[0]
         return False
@@ -187,7 +187,7 @@ class HttpBackendExperiments:
         experiment_id = experiment.metadata["server_url"].split("/")[-1]
         run_data = dict()
         run_data["clientAddress"] = self.get_base_url()
-        run_data["uid"] = str(uuid.uuid4())
+        run_data["uid"] = str(run.id)
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
@@ -227,7 +227,7 @@ class HttpBackendExperiments:
         data = dict()
         r_id = run.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["splits"]
-        data["uid"] = str(uuid.uuid4())
+        data["uid"] = split.id
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
         data["split"] = self.encode_split(split)
