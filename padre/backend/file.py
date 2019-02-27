@@ -95,6 +95,7 @@ class ExperimentFileRepository:
 
     def __init__(self, root_dir, data_repository):
         self.root_dir = _get_path(root_dir, "")
+        self._split_dir = _get_path(root_dir, "")
         self._metadata_serializer = JSonSerializer
         self._binary_serializer = PickleSerializer
         self._data_repository = data_repository
@@ -152,7 +153,7 @@ class ExperimentFileRepository:
 
         if experiment.id is None:  #  this is a new experiment
             if experiment.name is None or experiment.name == "":
-                experiment.id = uuid.uuid1()
+                experiment.id = uuid.uuid4()
             else:
                 experiment.id = experiment.name
         dir = os.path.join(self.root_dir, *self._dir(experiment.id))
@@ -230,7 +231,7 @@ class ExperimentFileRepository:
         :return:
         """
         if run.id is None:  # this is a new experiment
-            run.id = uuid.uuid1()
+            run.id = uuid.uuid4()
 
         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id))
         if os.path.exists(dir):
@@ -284,7 +285,7 @@ class ExperimentFileRepository:
         :return:
         """
         if split.id is None:  # this is a new experiment
-            split.id = str(split.number)+"_"+str(uuid.uuid1())
+            split.id = str(split.number)+"_"+str(uuid.uuid4())
 
         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
         if os.path.exists(dir):
@@ -292,6 +293,7 @@ class ExperimentFileRepository:
         os.mkdir(dir)
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
+        self._split_dir = dir
 
     def get_split(self, ex_id, run_id, split_id):
         """
@@ -353,6 +355,87 @@ class ExperimentFileRepository:
             self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
 
         self._file.write(message + "\n")
+
+    def log_experiment_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                              curr_value=curr_value,
+                                                                                              limit=limit))
+
+    def log_run_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("RUN PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                       curr_value=curr_value,
+                                                                                       limit=limit))
+
+    def log_split_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("SPLIT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                         curr_value=curr_value,
+                                                                                         limit=limit))
+
+    def log_progress(self, message, curr_value, limit, phase):
+        """
+
+        :param message:
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("PROGRESS: {curr_value}/{limit}. phase={phase}. Message:{message} \n".
+                         format(phase=phase, curr_value=curr_value, limit=limit,
+                                message=message))
+
+    def log_end_experiment(self):
+        self._file.close()
+        self._file = None
+
+    def log_model(self, model, framework, modelname, finalmodel=False):
+        """
+        Logs an intermediate model to the backend
+        :param model: Model to be logged
+        :param framework: Framework of the model
+        :param modelname: Name of the intermediate model
+        :param finalmodel: Boolean value indicating whether the model is the final one or not
+        :return:
+        """
+        if framework == 'pytorch':
+            import torch
+            import os
+            path = os.path.join(self._split_dir,modelname)
+            torch.save(model, path)
+
 
 
 class DatasetFileRepository(object):

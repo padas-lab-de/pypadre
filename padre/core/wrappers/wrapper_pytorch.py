@@ -8,6 +8,7 @@ import os
 import torchvision
 from torch.nn import Module
 from abc import ABC, abstractmethod
+from padre.eventhandler import assert_condition, trigger_event
 
 # TODO: Look into ReduceLROnPlateau LR Policy
 # TODO: Implement Vision Layers
@@ -21,6 +22,7 @@ __version__ = '0.0.0'
 __doc__ = "This layer implements the wrapper function of the PyTorch library. This layer provides a method to " \
           "use the layers of the PyTorch library in a Scikit-learn pipeline"
 
+framework = 'pytorch'
 
 class Flatten(Module):
     """
@@ -214,11 +216,10 @@ class WrapperPytorch:
         if params.get('lr_scheduler', None) is not None:
             self.create_lr_scheduler(params.get('lr_scheduler'))
 
+        self.lr_scheduler_params = None
+
         if self.lr_scheduler is not None:
             self.lr_scheduler_params = copy.deepcopy(self.lr_scheduler.state_dict())
-        else:
-            self.lr_scheduler_params['step_size'] = self.steps
-            self.lr_scheduler_params['scheduler'] = False
 
     def set_params(self, params):
         '''
@@ -327,6 +328,14 @@ class WrapperPytorch:
                 integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
                 y = onehot_encoder.fit_transform(integer_encoded)
 
+                assert_condition(condition=y.shape[1] <= self.top_shape, source=self,
+                                 message="One hot encoded values greater than number of neurons on the top layer")
+
+                if self.top_shape > y.shape[1]:
+                    pad = np.zeros(shape=(x.shape[0],self.top_shape-y.shape[1]))
+                    y = np.concatenate((y, pad), axis=1)
+
+
         x = torch.autograd.Variable(torch.from_numpy(x), requires_grad=False)
         y = torch.autograd.Variable(torch.from_numpy(y), requires_grad=False)
 
@@ -365,7 +374,8 @@ class WrapperPytorch:
             if epoch_completed is True:
                 self.on_end_epoch()
                 permutation = torch.randperm(x.size()[0])
-                self.lr_scheduler.step()
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
                 self.on_start_epoch()
                 epoch_completed = False
 
@@ -398,7 +408,10 @@ class WrapperPytorch:
                 state['step'] = step
                 state['model'] = self.model.state_dict()
                 state['optimizer'] = self.optimizer.state_dict()
-                torch.save(state, save_file_name)
+                #torch.save(state, save_file_name)
+                trigger_event('EVENT_LOG_MODEL', model=state, modelname=save_file_name,
+                              framework=framework, finalmodel=False)
+
 
             step = step + 1
             self.on_end_iteration()
@@ -409,7 +422,9 @@ class WrapperPytorch:
         state['step'] = step
         state['model'] = self.model.state_dict()
         state['optimizer'] = self.optimizer.state_dict()
-        torch.save(state, save_file_name)
+        #torch.save(state, save_file_name)
+        trigger_event('EVENT_LOG_MODEL', model=state, modelname=save_file_name,
+                      framework=framework, finalmodel=True)
 
     def predict(self, x):
         """
@@ -439,6 +454,8 @@ class WrapperPytorch:
                 if end_idx > test_samples_count:
                     indices = torch.LongTensor(list(range(start_idx, test_samples_count)))
                     end_idx = test_samples_count
+                    if len(indices) <= 0:
+                        break
 
                 mini_batch_x = x[indices]
                 mini_batch_output = self.model(mini_batch_x)
@@ -791,8 +808,11 @@ class WrapperPytorch:
 
         :return: Boolean indicating the success of the function
         """
-
-        with open('mappings_torch.json') as f:
+        import os
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), "./wrapper_mappings/mappings_torch.json"))
+        assert_condition(condition=os.path.exists(path) and os.path.isfile(path), source=self,
+                         message='Invalid wrapper mappings file')
+        with open(path) as f:
             framework_dict = json.load(f)
         self.layers_dict = framework_dict.get('layers', None)
         self.transforms_dict = framework_dict.get('transforms', None)

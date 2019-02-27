@@ -228,8 +228,9 @@ class Experiment(MetadataEntity):
             self._runs.append(r)
         self._results.append(deepcopy(r.results))
         self._metrics.append(deepcopy(r.metrics))
-        self._hyperparameters = (deepcopy(r.hyperparameters))
+        self._hyperparameters = [(deepcopy(r.hyperparameters))]
         self._last_run = r
+        self._run_split_dict[str(r.id) + '.run'] = r.split_ids
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def execute(self, parameters=None):
@@ -296,6 +297,7 @@ class Experiment(MetadataEntity):
         for element in grid:
             trigger_event('EVENT_LOG_EVENT', source=self,
                           message="Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
+            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size), phase='start')
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
@@ -319,6 +321,8 @@ class Experiment(MetadataEntity):
             self._last_run = r
             self._hyperparameters.append(deepcopy(r.hyperparameters))
 
+            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
+                          phase='stop')
             curr_executing_index += 1
 
         # Fire event
@@ -502,6 +506,4 @@ class Experiment(MetadataEntity):
                          message="Dataset cannot be none")
         assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
                          source=self, message='Experiment dataset is not of type Dataset')
-        assert_condition(condition=len(options.get('dataset', None).targets()) > 1, source=self,
-                         message='Dataset row count is 1. Experiment cannot train and test properly')
 

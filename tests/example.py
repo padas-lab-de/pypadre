@@ -28,13 +28,13 @@ if __name__ == '__main__':
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list()
+        pypadre.datasets.list();
         ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
-        ds = [i for i in load_sklearn_toys()][2]
+        ds = [i for i in load_sklearn_toys()][4]
 
     if ds is None:
-        ds = [i for i in load_sklearn_toys()][2]
+        ds = [i for i in load_sklearn_toys()][4]
     print(ds)
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
@@ -43,10 +43,15 @@ if __name__ == '__main__':
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
+
+    pypadre.metrics_evaluator.add_experiments([ex, ex])
+    print(pypadre.metrics_evaluator.show_metrics())
+    '''
     print("========Available experiments=========")
     for idx, ex in enumerate(pypadre.experiments.list_experiments()):
         print("%d: %s" % (idx, str(ex)))
         for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
             print("\tRun: %s"%str(run))
-
+    '''
     # ex.report_results() # last step, but we can also look that up on the server
+

@@ -205,15 +205,13 @@ def create_experiment(ctx, name, description, dataset, workflow, backend):
         estimator_list = (workflow.replace(", ",",")).split(sep=",")
         workflow_obj = ctx.obj["pypadre"].experiment_creator.create_test_pipeline(estimator_list)
 
-    if backend is None:
-        backend = pypadre.local_backend.experiments
-    ctx.obj["pypadre"].experiment_creator.create_experiment(name, description, dataset, workflow_obj, backend)
+    ctx.obj["pypadre"].experiment_creator.create(name, description, dataset, workflow_obj)
 
 
 @pypadre_cli.command(name="run")
 @click.pass_context
 def execute(ctx):
-    ctx.obj["pypadre"].experiment_creator.execute_experiments()
+    ctx.obj["pypadre"].experiment_creator.execute()
 
 
 @pypadre_cli.command(name="do_experiments")
@@ -243,7 +241,7 @@ def load_config_file(ctx, filename):
 
     if os.path.exists(filename):
         ctx.obj["pypadre"].experiment_creator.parse_config_file(filename)
-        ctx.obj["pypadre"].experiment_creator.execute_experiments()
+        ctx.obj["pypadre"].experiment_creator.execute()
 
     else:
         print('File does not exist')

@@ -13,6 +13,7 @@ import threading
 import time
 from copy import deepcopy
 from sklearn.externals.joblib import Parallel, delayed
+from padre.eventhandler import trigger_event
 
 
 EXPERIMENT_EXECUTION_QUEUE = []
@@ -181,7 +182,11 @@ class ExperimentExecutor:
         :return: None
         """
         import pprint
+        limit = len(self._experiments)
+        curr_experiment = 0
         for experiment_dict in self._experiments:
+            curr_experiment += 1
+            trigger_event('EVENT_LOG_EXPERIMENT_PROGRESS', curr_value=curr_experiment, limit=limit, phase='start')
             name = experiment_dict.get('name')
             desc = experiment_dict.get('description')
             dataset = self.get_local_dataset(experiment_dict.get('dataset'))
@@ -190,7 +195,7 @@ class ExperimentExecutor:
             strategy = experiment_dict.get('strategy', 'random')
             params = experiment_dict.get('params')
 
-            print('Executing experiment: {name}'.format(name=name))
+            trigger_event('EVENT_LOG', message='Executing experiment: {name}'.format(name=name), source=self)
             c1 = time.time()
             ex = Experiment(name=name,
                             description=desc,
@@ -204,7 +209,10 @@ class ExperimentExecutor:
             ex.execute(parameters=params)
             self._experiment_objects.append(ex)
             c2 = time.time()
-            print('Completed experiment: {name} with execution time: {time_diff}'.format(name=name, time_diff=c2-c1))
+            trigger_event('EVENT_LOG',
+                          message = 'Completed experiment: {name} with execution time: '
+                                    '{time_diff}'.format(name=name, time_diff=c2-c1), source=self)
+            trigger_event('EVENT_LOG_EXPERIMENT_PROGRESS', curr_value=curr_experiment, limit=limit, phase='stop')
 
     def runLocal(self, threadCount:int = 1):
         """
