@@ -126,7 +126,7 @@ class HttpBackendExperiments:
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
              "name": experiment.metadata["name"]}
         ]}
-        experiment_data["configuration"] = experiment.experiment_configuration
+        experiment_data["configuration"] = {}
 
         url = self.create_experiment(experiment_data)
         experiment.metadata["server_url"] = url
@@ -484,14 +484,20 @@ class HttpBackendExperiments:
         return result
 
 
-
-
     def put_experiment_configuration(self, experiment):
         """
         Writes the experiment configuration to the HTTP Client
         :param experiment: Experiment to be written
         :return:
         """
-        pass
+        response = None
+        data = dict()
+        e_id = experiment.metadata["server_url"].split("/")[-1]
+        update_split_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
+        data["configuration"] = experiment.experiment_configuration
+        if self._http_client.has_token():
+            response = self._http_client.do_patch(update_split_url,
+                                                  **{"data": json.dumps(data)})
+        return response
 
 
