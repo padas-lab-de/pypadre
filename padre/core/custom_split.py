@@ -5,7 +5,7 @@ The custom function is to be assigned to the variable in the split function
 
 
 class SplitFunction:
-    f = None
+    function_pointer = None
 
 
 split_obj = SplitFunction()

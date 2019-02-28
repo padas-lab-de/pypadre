@@ -113,7 +113,7 @@ class Experiment(MetadataEntity):
         self._metrics = []
         self._hyperparameters = []
         self._experiment_configuration = None
-        split_obj.f = options.pop('function', None)
+        split_obj.function_pointer = options.pop('function', None)
         super().__init__(options.pop("ex_id", None), **options)
 
         if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):

@@ -78,7 +78,7 @@ class Splitter:
                 self._stratified = False
         self._splitting_fn = options.pop("fn", None)
         if self._strategy == "function":
-            assert_condition(condition=split_obj.f is not None, source=self,
+            assert_condition(condition=split_obj.function_pointer is not None, source=self,
                              message=f"Splitting strategy {self._strategy} requires a function provided via parameter 'fn'")
 
     def splits(self):
@@ -103,7 +103,7 @@ class Splitter:
                 for i in self._indices:
                     yield i
             elif self._strategy == "function":
-                train, test, val = split_obj.f(idx)
+                train, test, val = split_obj.function_pointer(idx)
                 yield train, test, []
             elif self._strategy == "random":
                 # for i in range(self._n_folds):
