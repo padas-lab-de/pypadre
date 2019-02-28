@@ -91,7 +91,21 @@ class SKLearnWorkflow:
                     compute_probabilities = False
 
                 # log the probabilities of the result too if the method is present
-                final_estimator_type = name_mappings.get(self._pipeline.steps[-1][0]).get('type')
+                final_estimator_type = None
+                final_estimator_name = self._pipeline.steps[-1][0]
+                if name_mappings.get(final_estimator_name) is None:
+                    # If estimator name is not present in name mappings check whether it is present in alternate names
+                    for estimator in name_mappings:
+                        alternate_names = name_mappings.get(estimator).get('other_names')
+                        if final_estimator_name in alternate_names:
+                            final_estimator_type = name_mappings.get(estimator).get('type')
+                            break
+                else:
+                    final_estimator_type = name_mappings.get(self._pipeline.steps[-1][0]).get('type')
+
+                assert_condition(condition= final_estimator_type is not None, source=self,
+                                 message='Final estimator could not be found in names or alternate names')
+
                 if final_estimator_type == 'Classification' or \
                         (final_estimator_type == 'Neural Network' and np.all(np.mod(y_predicted, 1)) == 0):
                     results['type'] = 'classification'
