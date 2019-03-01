@@ -26,9 +26,6 @@ if __name__ == '__main__':
     from padre.app import pypadre
     pypadre.set_printer(print)
 
-    logger = PadreLogger()
-    logger.backend = pypadre.repository
-    add_logger(logger=logger)
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
