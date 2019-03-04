@@ -13,8 +13,13 @@ def create_test_pipeline():
     from sklearn.svm import SVC
     from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-    estimators = [('clf', SVC(probability=True))]
+    estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
+
+def split(idx):
+    # Do a 70:30 split
+    limit = int(.7 * len(idx))
+    return idx[0:limit], idx[limit:], None
 
 
 if __name__ == '__main__':
@@ -36,7 +41,8 @@ if __name__ == '__main__':
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="random")
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="random",
+                    function=split)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report

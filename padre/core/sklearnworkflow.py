@@ -3,6 +3,8 @@ from padre.eventhandler import trigger_event
 from padre.core.base import exp_events, phases
 from padre.core.visitors.scikit import SciKitVisitor
 from padre.eventhandler import assert_condition
+from padre.core.visitors.mappings import name_mappings
+
 
 class SKLearnWorkflow:
     """
@@ -89,14 +91,31 @@ class SKLearnWorkflow:
                     compute_probabilities = False
 
                 # log the probabilities of the result too if the method is present
-                if 'predict_proba' in dir(self._pipeline.steps[-1][1]) and np.all(np.mod(y_predicted, 1) == 0) and \
-                        compute_probabilities:
-                    y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
-                    trigger_event('EVENT_LOG_RESULTS', source=ctx, mode='probability', pred=y_predicted, truth=y,
-                                  probabilities=y_predicted_probabilities, scores=None,
-                                  transforms=None, clustering=None)
-                    results['probabilities'] = y_predicted_probabilities.tolist()
+                final_estimator_type = None
+                final_estimator_name = self._pipeline.steps[-1][0]
+                if name_mappings.get(final_estimator_name) is None:
+                    # If estimator name is not present in name mappings check whether it is present in alternate names
+                    for estimator in name_mappings:
+                        alternate_names = name_mappings.get(estimator).get('other_names')
+                        if final_estimator_name in alternate_names:
+                            final_estimator_type = name_mappings.get(estimator).get('type')
+                            break
+                else:
+                    final_estimator_type = name_mappings.get(self._pipeline.steps[-1][0]).get('type')
+
+                assert_condition(condition= final_estimator_type is not None, source=self,
+                                 message='Final estimator could not be found in names or alternate names')
+
+                if final_estimator_type == 'Classification' or \
+                        (final_estimator_type == 'Neural Network' and np.all(np.mod(y_predicted, 1)) == 0):
                     results['type'] = 'classification'
+
+                    if compute_probabilities:
+                        y_predicted_probabilities = self._pipeline.predict_proba(ctx.test_features)
+                        trigger_event('EVENT_LOG_RESULTS', source=ctx, mode='probability', pred=y_predicted, truth=y,
+                                      probabilities=y_predicted_probabilities, scores=None,
+                                      transforms=None, clustering=None)
+                        results['probabilities'] = y_predicted_probabilities.tolist()
                     # Calculate the confusion matrix
                     confusion_matrix = self.compute_confusion_matrix(Predicted=y_predicted.tolist(),
                                                                      Truth=y.tolist())
@@ -120,6 +139,8 @@ class SKLearnWorkflow:
                 results['dataset'] = ctx.dataset.name
                 results['train_idx'] = train_idx
                 results['test_idx'] = test_idx
+                results['training_sample_count'] = len(train_idx)
+                results['testing_sample_count'] = len(test_idx)
 
                 self._results = deepcopy(results)
                 estimator_parameters = ctx.run.experiment.hyperparameters()

@@ -9,7 +9,7 @@ from padre.core.datasets import Dataset
 from padre.core.validatetraintestsplits import ValidateTrainTestSplits
 from padre.core.sklearnworkflow import SKLearnWorkflow
 from padre.core.run import Run
-
+from padre.core.custom_split import split_obj
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -113,6 +113,7 @@ class Experiment(MetadataEntity):
         self._metrics = []
         self._hyperparameters = []
         self._experiment_configuration = None
+        split_obj.function_pointer = options.pop('function', None)
         super().__init__(options.pop("ex_id", None), **options)
 
         if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):

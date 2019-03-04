@@ -271,6 +271,7 @@ class ExperimentCreator:
         :return: A dictionary of the validated parameters
         """
         validated_param_dict = dict()
+        param_value_dict = self.convert_alternate_estimator_names(param_value_dict)
         for estimator_name in param_value_dict:
             # Check whether the estimator is available
             if self._workflow_components.get(estimator_name) is not None:
@@ -412,7 +413,7 @@ class ExperimentCreator:
         obj = class_()
         return deepcopy(obj)
 
-    def create(self, name, description, dataset_list=None, workflow=None, params=None):
+    def create(self, name, description, dataset_list=None, workflow=None, params=None, strategy='random'):
         """
         This function adds an experiment to the dictionary.
 
@@ -448,10 +449,18 @@ class ExperimentCreator:
                 data_dict['description'] = description
                 data_dict['dataset'] = dataset_list
                 data_dict['workflow'] = workflow
-                self._experiments[name] = data_dict
+                data_dict['strategy'] = strategy
                 if params is not None:
+                    # Iterate through the parameters and convert the parameters to a list if they are not a list
+                    for estimator in params:
+                        estimator_params = params.get(estimator)
+                        for param in estimator_params:
+                            if type(estimator_params.get(param)) is not list:
+                                param_value = estimator_params.get(param)
+                                estimator_params[param] = [param_value]
                     self._param_value_dict[name] = self.validate_parameters(params)
                     data_dict['params'] = self.validate_parameters(params)
+                self._experiments[name] = data_dict
                 trigger_event('EVENT_LOG', condition=False, source=self,
                               message=''.join([name, ' created successfully!']))
 
@@ -461,6 +470,10 @@ class ExperimentCreator:
                 if self._experiments.get(name, None) is not None:
                     assert_condition(condition=False, source=self, message=''.join(['Experiment name: ', name,
                                                   ' already present. Experiment name should be unique']))
+
+        else:
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message='Dataset is not valid')
 
     def get_local_dataset(self, name=None):
         """
@@ -855,6 +868,7 @@ class ExperimentCreator:
                 experiment_dict['workflow'] = experiment.get('workflow')
                 experiment_dict['dataset'] = dataset[0]
                 experiment_dict['params'] = experiment.get('params')
+                experiment_dict['strategy'] = experiment.get('strategy', 'random')
                 experiments_list.append(deepcopy(experiment_dict))
 
             elif len(dataset) > 1:
@@ -864,6 +878,7 @@ class ExperimentCreator:
                     experiment_dict['description'] = ''.join([experiment.get('description'), ' with dataset ', dataset])
                     experiment_dict['workflow'] = experiment.get('workflow')
                     experiment_dict['dataset'] = dataset
+                    experiment_dict['strategy'] = experiment.get('strategy', 'random')
                     experiment_dict['params'] = experiment.get('params')
                     experiments_list.append(deepcopy(experiment_dict))
 

@@ -3994,7 +3994,7 @@
         {
             "name": "k-nn classifier",
             "other_names": [
-                " k-nearest neighbors calssifier"
+                "k-nearest neighbors classifier"
             ],
             "implementation": {
                 "scikit-learn": "sklearn.neighbors.classification.KNeighborsClassifier"
@@ -4091,7 +4091,7 @@
         {
             "name": "k-nn regressor",
             "other_names": [
-                " k-nearest neighbors regressor"
+                "k-nearest neighbors regressor"
             ],
             "implementation": {
                 "scikit-learn": "sklearn.neighbors.regression.KNeighborsRegressor"
@@ -6066,7 +6066,7 @@
             }
         },
         {
-            "name": "vating classifier",
+            "name": "voting classifier",
             "other_names": [],
             "implementation": {
                 "scikit-learn": "sklearn.ensemble.VotingClassifier"

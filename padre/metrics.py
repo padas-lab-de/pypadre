@@ -628,21 +628,21 @@ class CompareMetrics:
         """
         for curr_experiment in self._experiments:
             runs = list(curr_experiment.run_split_dict.keys())
-            for curr_run in list(curr_experiment.run_split_dict.keys()):
+            for curr_run in runs:
                 splits = curr_experiment.run_split_dict.get(curr_run, None)
                 for split_id in splits:
-
-                    # read the json file into memory
+                    # read the metrics dictionary into memory
                     key = split_id[:-6]
                     run_idx = runs.index(curr_run)
                     split_idx = splits.index(split_id)
                     self._metrics[key] = curr_experiment.metrics[run_idx][split_idx]
                     run_id = curr_run[:-4]
-                    splits = self._run_split_dict.get(run_id, None)
-                    if splits is None:
+                    split = self._run_split_dict.get(run_id, None)
+                    # Add the split after removing the .split characters to the run_split dictionary
+                    if split is None:
                         self._run_split_dict[run_id] = frozenset({key})
                     else:
-                        self._run_split_dict[run_id] = splits.union({key})
+                        self._run_split_dict[run_id] = split.union({key})
 
         self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
 
@@ -827,6 +827,10 @@ class CompareMetrics:
             if params is not None:
                 for param in params:
                     display_columns.insert(3, '.'.join([key, param]))
+
+        # Return if there are no metrics to be displayed
+        if len(self._metrics) == 0:
+            return
 
         if len(self._metrics_display) == 0:
             if self._metrics.get(list(self._metrics.keys())[0]).get('type') == 'regression':
