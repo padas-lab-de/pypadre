@@ -21,14 +21,11 @@ if __name__ == '__main__':
     from padre.app import pypadre
     pypadre.set_printer(print)
 
-    logger = PadreLogger()
-    logger.backend = pypadre.repository
-    add_logger(logger=logger)
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list();
+        pypadre.datasets.list()
         ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
         ds = [i for i in load_sklearn_toys()][4]

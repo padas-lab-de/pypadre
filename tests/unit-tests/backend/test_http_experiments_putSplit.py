@@ -3,6 +3,7 @@ This file contains tests covering backend.http_experiments.HttpBackendExperiment
 All unnecessary function and http calls are mocked
 """
 import unittest
+import uuid
 
 from mock import MagicMock, patch
 
@@ -50,6 +51,7 @@ class TestPutSplit(unittest.TestCase):
         split.test_idx = MagicMock()
         split.train_idx = [2, 1, 5]  # train:f1t2f2t1
         split.test_idx = [6, 4, 7]   # test: f4t1f1t2
+        split.id = str(uuid.uuid4())
 
 
         result = obj.put_split(MagicMock(), run, split)
