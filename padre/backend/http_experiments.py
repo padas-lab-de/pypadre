@@ -32,19 +32,29 @@ class HttpBackendExperiments:
         self.project_name = project_name
 
     def get_or_create_project(self, name):
-        id_ = self.get_id_by_name(name, self._http_client.paths["projects"])
+        id_ = self.get_id_by_name(name, self._http_client.paths["projects"][1:])
         if id_ is None:
             id_ = self.create_project(name)
         return id_
 
     def get_or_create_dataset(self, ds):
+        """Get or create new dataset
+
+        If uid not given then check if dataset with this name already exists, if it exists then use it in experiment
+        If dataset not found  then check if dataset with this id exists and if exists use it in experiment
+        If dataset with given uid or same name does not exists then put this dataset to server
+        """
         _id = ds.metadata.get("uid", None)
         get_url = self._http_client.get_base_url() + self._http_client.paths["dataset"](str(_id))
         dataset_id = None
         if self._http_client.has_token():
             try:
-                response = self._http_client.do_get(get_url)
-                dataset_id = json.loads(response.content)["uid"]
+                if _id is None:  # Uid not given
+                    dataset_id = self.get_id_by_name(ds.metadata.get("name"), self._http_client.paths["datasets"][1:])
+                if dataset_id is None:
+                    response = self._http_client.do_get(get_url)
+                    dataset_id = json.loads(response.content)["uid"]
+
             except req.HTTPError as e:
                 logger.warn("Dataset with id {%s} not found  " % str(_id))
                 dataset_id = self._http_client.datasets.put(ds)
@@ -58,11 +68,11 @@ class HttpBackendExperiments:
         :returns: id of instance or None
         """
         id_ = None
-        url = self.get_base_url() + entity + "?name=" + name
+        url = self.get_base_url() + self._http_client.paths["search"](entity) +"name?:" + name
         if self._http_client.has_token():
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
-                id_ = response["_embedded"][entity[1:]][0]["uid"]
+                id_ = response["_embedded"][entity][0]["uid"]
         return id_
 
     def create_project(self, name):
@@ -227,7 +237,7 @@ class HttpBackendExperiments:
         data = dict()
         r_id = run.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["splits"]
-        data["uid"] = split.id
+        data["uid"] = str(split.id)
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
         data["split"] = self.encode_split(split)
