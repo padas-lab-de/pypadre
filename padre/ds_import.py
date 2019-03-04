@@ -35,9 +35,9 @@ def _create_dataset_data(bunch):
     atts = []
     for ix in range(data.shape[1]):
         if fn is not None and len(fn) > ix:
-            atts.append(Attribute(fn[ix], "ratio", None, None, n_feat <= ix))
+            atts.append(Attribute(fn[ix], "Ratio", None, None, n_feat <= ix))
         else:
-            atts.append(Attribute(str(ix), "ratio", None, None, n_feat <= ix))
+            atts.append(Attribute(str(ix), "Ratio", None, None, n_feat <= ix))
 
     return data, atts
 
@@ -132,12 +132,12 @@ def load_pandas_df(pandas_df,target_features=[]):
 
 def load_sklearn_toys():
     #returns an iterator loading different sklearn datasets
-    loaders = [(ds.load_boston, ("regression", "multivariate"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_boston.html#sklearn.datasets.load_boston"),
-               (ds.load_breast_cancer, ("classification", "multivariate"),"https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)"),
-               (ds.load_diabetes, ("regression", "multivariate"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes"),
-               (ds.load_digits, ("classification", "multivariate"),"http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits"),
-               (ds.load_iris, ("classification", "multivariate"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_iris.html#sklearn.datasets.load_iris"),
-               (ds.load_linnerud, ("mregression", "multivariate"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_linnerud.html#sklearn.datasets.load_linnerud")]
+    loaders = [(ds.load_boston, ("regression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_boston.html#sklearn.datasets.load_boston"),
+               (ds.load_breast_cancer, ("classification", "Multivariat"),"https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)"),
+               (ds.load_diabetes, ("regression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes"),
+               (ds.load_digits, ("classification", "Multivariat"),"http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits"),
+               (ds.load_iris, ("classification", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_iris.html#sklearn.datasets.load_iris"),
+               (ds.load_linnerud, ("mregression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_linnerud.html#sklearn.datasets.load_linnerud")]
 
     for loader in loaders:
         yield _create_dataset(loader[0](), loader[1][1],loader[2])

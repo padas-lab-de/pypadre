@@ -264,7 +264,8 @@ class HTTPBackendDatasets:
     def parent(self):
         return self._parent
 
-    def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None):
+    @deprecated("Use list instead")
+    def list_datasets(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None):
         """
         lists all datasets available remote giving the search parameters.
         :param search_name:
@@ -281,7 +282,8 @@ class HTTPBackendDatasets:
         else:
             return []
 
-    def put(self, dataset: Dataset, create :bool = True):
+    @deprecated("Use put instead for protobuf support.")
+    def put_dataset(self, dataset: Dataset, create :bool = True):
         assert create or dataset.id is not None  # dataset id must be provided when the dataset should be updated
         payload = dict()
         payload.update(dataset.metadata)
@@ -315,7 +317,7 @@ class HTTPBackendDatasets:
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
 
 
-    def list_dataset(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
+    def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
         """
         List all data sets in the repository
         :param search_name: regular expression based search string for the title. Default None
@@ -329,14 +331,15 @@ class HTTPBackendDatasets:
         response = self.parent.do_get(url)
         content, links = self._parent.parse_hal(response)
         if "datasets" in content:
-            data = [[{'uid': d['uid'],
-                      'name': d['name'],
-                      'type': d['type'],
-                      'attributes': len(d['attributes'])}]
-                    for d in content["datasets"]]
+            for meta in content["datasets"]:
+
+                binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](str(meta["uid"]))
+                pb_data = self.parent.do_get(binaries_url).content
+                dataset = self.response_to_dataset(meta, pb_data)
+                data.append(dataset)
         return data
 
-    def put_dataset(self, dataset, create :bool = True):
+    def put(self, dataset, create :bool = True):
         """Upload local dataset to the server and return dataset id
         '
         # Todo: Merge put and put dataset functions into one
@@ -356,42 +359,12 @@ class HTTPBackendDatasets:
 
     def get(self, _id, metadata_only=False):
         """Fetches data with given id from server and returns it"""
-        from padre import graph_import
-
         url = self.parent.base[0:-1] + PadreHTTPClient.paths["dataset"](_id)
         response = self.parent.do_get(url)
         response_meta = json.loads(response.content.decode("utf-8"))
-        attribute_name_list = []
-        atts = []
-        for attr in response_meta["attributes"]:
-            atts.append(Attribute(**attr))
-            attribute_name_list.append(attr["name"])
-
         binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](_id)
         pb_data = self.parent.do_get(binaries_url).content
-        df_data = self.proto_to_dataframe(pb_data)
-        del response_meta["attributes"]
-        dataset = Dataset(None, **response_meta)
-        df_data.columns = attribute_name_list
-
-        if dataset.isgraph:
-            node_attr = []
-            edge_attr = []
-            for attr in atts:
-                graph_role = attr.context["graph_role"]
-                if (graph_role == "source"):
-                    source = attr.name
-                elif (graph_role == "target"):
-                    target = attr.name
-                elif (graph_role == "nodeattribute"):
-                    node_attr.append(attr.name)
-                elif (graph_role == "edgeattribute"):
-                    edge_attr.append(attr.name)
-            network = nx.Graph() if response_meta["type"] == "graph" else nx.DiGraph()
-            graph_import.pandas_to_networkx(df_data, source, target, network, node_attr, edge_attr)
-            dataset.set_data(network, atts)
-        else:
-            dataset.set_data(df_data, atts)
+        dataset = self.response_to_dataset(response_meta, pb_data)
         logger.info("Loaded dataset " + _id + " from server:")
         return dataset
 
@@ -418,20 +391,57 @@ class HTTPBackendDatasets:
 
     def proto_to_dataframe(self, pb_data):
         from padre.backend.protobuffer import proto_organizer
-        pb_meta = proto.Meta()
-        pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, 0, pb_meta)
-
+        pb_pos = 0
         data_rows = []
         while pb_pos < len(pb_data):
             pb_row = proto.DataRow()
             pb_pos = proto_organizer.read_delimited_pb_msg(pb_data, pb_pos, pb_row)
             data_fields = []
             for cell in pb_row.cells:
-                value = getattr(cell, cell.WhichOneof("cell_type"))
-                data_fields.append(value)
+                field = cell.WhichOneof("cell_type")
+                if field is None:
+                    data_fields.append(field)
+                else:
+                    value = getattr(cell, cell.WhichOneof("cell_type"))
+                    data_fields.append(value)
             data_rows.append(data_fields)
         df = pd.DataFrame(data_rows)
         return df
+
+    def response_to_dataset(self, meta, binary):
+        from padre import graph_import
+        attribute_name_list = []
+        atts = []
+        for attr in meta["attributes"]:
+            atts.append(Attribute(**attr))
+            attribute_name_list.append(attr["name"])
+
+        df_data = self.proto_to_dataframe(binary)
+        del meta["attributes"]
+        dataset = Dataset(meta["uid"], **meta)
+        if df_data.empty:
+            return dataset
+        df_data.columns = attribute_name_list
+
+        if dataset.isgraph:
+            node_attr = []
+            edge_attr = []
+            for attr in atts:
+                graph_role = attr.context["graph_role"]
+                if (graph_role == "source"):
+                    source = attr.name
+                elif (graph_role == "target"):
+                    target = attr.name
+                elif (graph_role == "nodeattribute"):
+                    node_attr.append(attr.name)
+                elif (graph_role == "edgeattribute"):
+                    edge_attr.append(attr.name)
+            network = nx.Graph() if meta["type"] == "graph" else nx.DiGraph()
+            graph_import.pandas_to_networkx(df_data, source, target, network, node_attr, edge_attr)
+            dataset.set_data(network, atts)
+        else:
+            dataset.set_data(df_data, atts)
+        return dataset
 
 
     def load_oml_dataset(self, did):
@@ -455,7 +465,7 @@ class HTTPBackendDatasets:
             meta["version"] = load.version
             meta["description"] = load.description
             meta["originalSource"] = load.url
-            meta["type"] = "multivariate"
+            meta["type"] = "Multivariat"
             meta["published"] = False
             dataset = Dataset(meta["id"], **meta)
             raw_data = arff.load(open(load.data_file, encoding='utf-8'))
@@ -463,16 +473,18 @@ class HTTPBackendDatasets:
             attribute_list = [att[0] for att in raw_data["attributes"]]
 
             df_data = pd.DataFrame(data=raw_data['data'])
-            atts = []
-            for col in df_data.keys():
-                current_attribute = df_attributes[col]
-                if isinstance(current_attribute[1], list):
-                    df_data[col] = df_data[col].astype('category')
-                atts.append(Attribute(name=current_attribute[0],
-                                      measurementLevel="nominal" if isinstance(current_attribute[1], list) else None,
-                                      unit=None, description=None,
-                                      defaultTargetAttribute=(current_attribute[0] == load.default_target_attribute)))
             df_data.columns = attribute_list
+            target_features = load.default_target_attribute.split(",")
+            for col_name in target_features:
+                df_data[col_name] = df_data[col_name].astype('category')
+                df_data[col_name] = df_data[col_name].cat.codes
+
+            dataset = Dataset(None, **meta)
+            atts = []
+            for feature in df_data.columns.values:
+                atts.append(Attribute(name=feature,
+                                      measurementLevel="Ratio" if feature in target_features else None,
+                                      defaultTargetAttribute=feature in target_features))
             dataset.set_data(df_data, atts)
 
         except ConnectionError as err:

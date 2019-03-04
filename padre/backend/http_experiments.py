@@ -3,15 +3,20 @@ Logic to upload experiment data to server goes here
 """
 import io
 import json
+import logging
 import tempfile
 import uuid
 from itertools import groupby
 
+import requests as req
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
 from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
+from padre import experimentcreator
 from padre.backend.serialiser import PickleSerializer
+
+logger = logging.getLogger('pypadre - http')
 
 
 class HttpBackendExperiments:
@@ -27,30 +32,33 @@ class HttpBackendExperiments:
         self.project_name = project_name
 
     def get_or_create_project(self, name):
-        id_ = self.get_id_by_name(name, self._http_client.paths["projects"])
+        id_ = self.get_id_by_name(name, self._http_client.paths["projects"][1:])
         if id_ is None:
             id_ = self.create_project(name)
         return id_
 
-    def get_or_create_dataset(self, data):
-        id_ = self.get_id_by_name(data["name"], self._http_client.paths["datasets"])
-        if id_ is None:
-            id_ = self.create_dataset(data)
-        return id_
+    def get_or_create_dataset(self, ds):
+        """Get or create new dataset
 
-    def create_dataset(self, data):
-        """Create data set
-
-        :param data: All the metadata of dataset
-        :returns: Id of the new dataset
+        If uid not given then check if dataset with this name already exists, if it exists then use it in experiment
+        If dataset not found  then check if dataset with this id exists and if exists use it in experiment
+        If dataset with given uid or same name does not exists then put this dataset to server
         """
-        url = self.get_base_url() + self._http_client.paths["datasets"]
-        if isinstance(data, dict):
-            data = json.dumps(data)
+        _id = ds.metadata.get("uid", None)
+        get_url = self._http_client.get_base_url() + self._http_client.paths["dataset"](str(_id))
+        dataset_id = None
         if self._http_client.has_token():
-            response = self._http_client.do_post(url, **{"data": data})
-            return response.headers['Location'].split('/')[-1]
-        return None
+            try:
+                if _id is None:  # Uid not given
+                    dataset_id = self.get_id_by_name(ds.metadata.get("name"), self._http_client.paths["datasets"][1:])
+                if dataset_id is None:
+                    response = self._http_client.do_get(get_url)
+                    dataset_id = json.loads(response.content)["uid"]
+
+            except req.HTTPError as e:
+                logger.warn("Dataset with id {%s} not found  " % str(_id))
+                dataset_id = self._http_client.datasets.put(ds)
+        return dataset_id
 
     def get_id_by_name(self, name, entity):
         """Get entity id by name
@@ -60,11 +68,11 @@ class HttpBackendExperiments:
         :returns: id of instance or None
         """
         id_ = None
-        url = self.get_base_url() + entity + "?name=" + name
+        url = self.get_base_url() + self._http_client.paths["search"](entity) +"name?:" + name
         if self._http_client.has_token():
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
-                id_ = response["_embedded"][entity[1:]][0]["uid"]
+                id_ = response["_embedded"][entity][0]["uid"]
         return id_
 
     def create_project(self, name):
@@ -100,7 +108,7 @@ class HttpBackendExperiments:
         :return: None
         """
 
-        dataset_dict = experiment.dataset.metadata
+        dataset_dict = experiment.dataset
         self.dataset_id = self.get_or_create_dataset(dataset_dict)
         experiment_data = dict()
         experiment_data["name"] = experiment.metadata["name"]
@@ -128,6 +136,7 @@ class HttpBackendExperiments:
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
              "name": experiment.metadata["name"]}
         ]}
+        experiment_data["configuration"] = {}
 
         url = self.create_experiment(experiment_data)
         experiment.metadata["server_url"] = url
@@ -163,8 +172,15 @@ class HttpBackendExperiments:
             else:
                 url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             response = json.loads(self._http_client.do_get(url, **{}).content)
+            conf = response[list(response.keys())[0]]
+            experiment_creator = experimentcreator.ExperimentCreator()
+            experiment_creator.create(conf["name"],
+                                      conf["description"],
+                                      [conf["dataset"]],
+                                      conf["workflow"],
+                                      conf["params"])
 
-            return response
+            return experiment_creator.experiments[0]
         return False
 
     def put_run(self, experiment, run):
@@ -181,7 +197,7 @@ class HttpBackendExperiments:
         experiment_id = experiment.metadata["server_url"].split("/")[-1]
         run_data = dict()
         run_data["clientAddress"] = self.get_base_url()
-        run_data["uid"] = str(uuid.uuid4())
+        run_data["uid"] = str(run.id)
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
@@ -221,7 +237,7 @@ class HttpBackendExperiments:
         data = dict()
         r_id = run.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["splits"]
-        data["uid"] = str(uuid.uuid4())
+        data["uid"] = str(split.id)
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
         data["split"] = self.encode_split(split)
@@ -478,14 +494,20 @@ class HttpBackendExperiments:
         return result
 
 
-
-
     def put_experiment_configuration(self, experiment):
         """
         Writes the experiment configuration to the HTTP Client
         :param experiment: Experiment to be written
         :return:
         """
-        pass
+        response = None
+        data = dict()
+        e_id = experiment.metadata["server_url"].split("/")[-1]
+        update_split_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
+        data["configuration"] = experiment.experiment_configuration
+        if self._http_client.has_token():
+            response = self._http_client.do_patch(update_split_url,
+                                                  **{"data": json.dumps(data)})
+        return response
 
 

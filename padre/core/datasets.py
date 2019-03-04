@@ -375,13 +375,13 @@ class AttributeOnlyContainer:
 class Attribute(dict):
 
     def __init__(self, name, measurementLevel=None, unit=None,
-                 description=None, defaultTargetAttribute=False, context=None, index=None):
+                 description=None, defaultTargetAttribute=False, context=None, index=None, type=None, nullable=True):
 
         if context is None:
             context={}
         dict.__init__(self, name=name, measurementLevel=measurementLevel,
                       unit=unit, description=description, defaultTargetAttribute=defaultTargetAttribute,
-                      context=context, index=index)
+                      context=context, index=index, type=type, nullable=nullable)
 
     @property
     def name(self):

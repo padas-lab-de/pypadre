@@ -11,8 +11,8 @@ from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.http import PadreHTTPClient
 
 
-class TestCreateDataSet(unittest.TestCase):
-    """Test HttpBackendExperiments.create_dataset
+class TestGetOrCreateDataSet(unittest.TestCase):
+    """Test HttpBackendExperiments.get_or_create_dataset
 
     All unnecessary function call and http calls are mocked
     """
@@ -22,42 +22,52 @@ class TestCreateDataSet(unittest.TestCase):
         All non related function calls and http calls will be mocked for this purpose.
         """
         self.test_dataset_id = '2'
-        self.test_dataset_data = {'name': 'test data', 'description': 'test description'}
+        self.uid = "1"
+        self.test_dataset_data = MagicMock()
+        self.test_dataset_data.metadata = {'name': 'test data',
+                                           'description': 'test description',
+                                           'uid': self.uid}
         self.http_client = MagicMock()
         self.http_client.has_token = MagicMock(return_value=True)
         mocked_post_response = MagicMock()
         mocked_post_response.headers = {'Location': 'api/datasets/' + self.test_dataset_id}
         self.http_client.do_post = MagicMock(return_value=mocked_post_response)
 
-    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
-    @patch('padre.backend.http_experiments.HttpBackendExperiments.create_project')
-    def test_create_dataset_01(self, mock_project, mock_get_id):
-        """Test HttpBackendExperiments.create_dataset function.
+    def test_get_or_create_dataset_01(self):
+        """Test HttpBackendExperiments.get_or_create_dataset function.
 
-        Scenario: Correct id is set for data set.
+        Scenario: do_get return uid of dataset.
         """
-        mock_get_id.return_value = None
+
+        return_data = MagicMock()
+        return_data.content = json.dumps({"uid": self.uid})
+        self.http_client.do_get = MagicMock(return_value=return_data)
         obj = HttpBackendExperiments(self.http_client)
-        mock_project.return_value = True
-        response = obj.create_dataset(self.test_dataset_data)
-        self.assertEqual(self.test_dataset_id,
+        response = obj.get_or_create_dataset(self.test_dataset_data)
+        self.assertEqual(self.uid,
                          response,
-                         'Data set not created successfully')
+                         'do_get does not return uid of dataset')
 
-    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
-    @patch('padre.backend.http_experiments.HttpBackendExperiments.create_project')
-    def test_create_dataset_02(self, mock_project, mock_get_id):
-        """Test HttpBackendExperiments.create_dataset function.
+    def test_get_or_create_dataset_02(self):
+        """Test HttpBackendExperiments.get_or_create_dataset function.
 
-        Scenario: do_post called with correct args.
+        Scenario: do_put returns new data set id,
+                  call args for dataset.put matches
         """
-        mock_get_id.return_value = None
+        import requests as req
+        return_data = MagicMock()
+        return_data.content = json.dumps({"uid": self.uid})
+        self.http_client.do_get = MagicMock(side_effect=req.HTTPError('Test'))
+        self.http_client.datasets = MagicMock()
+        self.http_client.datasets.put = MagicMock(return_value=self.uid)
         obj = HttpBackendExperiments(self.http_client)
-        mock_project.return_value = True
-        obj.create_dataset(self.test_dataset_data)
-        self.assertEqual(self.test_dataset_data,
-                         json.loads(self.http_client.do_post.call_args_list[0][1]['data']),
-                         'Do post not called with expected data for create_dataset')
+        response = obj.get_or_create_dataset(self.test_dataset_data)
+        self.assertEqual(self.uid,
+                         response,
+                         'datasets.put does not return uid of dataset')
+        self.assertDictEqual(self.http_client.datasets.put.call_args[0][0].metadata,
+                             self.test_dataset_data.metadata,
+                             "Call args for dataset.put dont matches")
 
     def tearDown(self):
         pass
@@ -81,15 +91,12 @@ class TestPutExperiment(unittest.TestCase):
 
         mocked_post_project = MagicMock()
         mocked_post_project.headers = {'Location': 'api/projects/' + '1'}
-        mocked_post_dataset = MagicMock()
-        mocked_post_dataset.headers = {'Location': 'api/datasets/' + '2'}
         mocked_post_experiment = MagicMock()
         mocked_post_experiment.headers = {'Location': self.test_experiment_url}
 
         self.http_client.do_post = MagicMock()
         self.http_client.do_post.side_effect = [
             mocked_post_project,
-            mocked_post_dataset,
             mocked_post_experiment]
 
     @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
@@ -100,6 +107,7 @@ class TestPutExperiment(unittest.TestCase):
         """
         mock_get_id.return_value = None
         obj = HttpBackendExperiments(self.http_client)
+        obj.get_or_create_dataset = MagicMock(return_value="1")
         ex = MagicMock()
         ex.dataset = MagicMock()
         ex.dataset.metadata = {'name': 'test name'}
@@ -192,8 +200,8 @@ class TestGetIdByName(unittest.TestCase):
         Scenario: Expected value returned, do_get called with expected arg
         """
 
-        response = self.obj.get_id_by_name("test", "/" + self.entity)
-        self.assertIn(self.entity + "?name=test",
+        response = self.obj.get_id_by_name("test", self.entity)
+        self.assertIn(self.entity + "/search?search=name?:test",
                       self.http_client.do_get.call_args[0][0],
                       "do_get not called with expected arg")
         self.assertEqual(self.test_value,
