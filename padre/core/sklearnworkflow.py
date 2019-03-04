@@ -139,6 +139,8 @@ class SKLearnWorkflow:
                 results['dataset'] = ctx.dataset.name
                 results['train_idx'] = train_idx
                 results['test_idx'] = test_idx
+                results['training_sample_count'] = len(train_idx)
+                results['testing_sample_count'] = len(test_idx)
 
                 self._results = deepcopy(results)
                 estimator_parameters = ctx.run.experiment.hyperparameters()
