@@ -16,6 +16,7 @@ import padre.graph_import
 import networkx as nx
 import os.path
 from padre.core.datasets import Dataset, Attribute
+from padre.eventhandler import assert_condition
 from multiprocessing import Process
 import copy
 import uuid
@@ -56,7 +57,7 @@ def _create_dataset(bunch, type,source):
     return dataset
 
 
-def load_csv(path_dataset,path_target=None,target_features=[],originalSource="imoprted by csv",
+def load_csv(path_dataset,path_target=None,target_features=[],originalSource="imported by csv",
              description="imported form csv",type="multivariate"):
     """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
 
@@ -68,6 +69,8 @@ def load_csv(path_dataset,path_target=None,target_features=[],originalSource="im
         padre.Dataset() A dataset containing the data of the .csv file
 
     """
+    assert_condition(condition=os.path.exists(os.path.abspath(path_dataset)), source='ds_import.load_csv',
+                     message='Dataset path does not exist')
     dataset_path_list = path_dataset.split('/')
     nameOfDataset = dataset_path_list[-1].split('.csv')[0]
     data =pd.read_csv(path_dataset)
@@ -88,8 +91,14 @@ def load_csv(path_dataset,path_target=None,target_features=[],originalSource="im
         target = pd.read_csv(path_dataset)
         data=data.join(target,lsuffix="data",rsuffix="target")
         targets=list(target.columns.values)
+    elif len(target_features) > 0:
+        # Assign the target values to targets from the csv data
+        targets=data[data.columns[target_features]]
+        # Remove the target column from the data
+        del data[data.columns[target_features].values[0]]
+
     else:
-        targets=target_features
+        targets = [0] * len(data)
 
     atts = []
 
