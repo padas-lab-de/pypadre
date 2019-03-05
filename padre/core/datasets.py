@@ -324,7 +324,7 @@ class PandasContainer:
 
     def describe(self):
         ret = {"n_att" : len(self._attributes),
-               "n_target" : len([a for a in self._attributes if a.is_target])}
+               "n_target" : len([a for a in self._attributes if a.defaultTargetAttribute])}
         shallow_cp=self._data
         for col in shallow_cp:
             if isinstance(shallow_cp[col][0], str):
