@@ -206,7 +206,7 @@ class HttpBackendExperiments:
         if search is not None:
             url = self.get_base_url() + self._http_client.paths["search"]("experiments") + "name?:" + search + "&size=" + str(count)
         else:
-            url = self.get_base_url() + self._http_client.paths["experiments"] + "?size="+count
+            url = self.get_base_url() + self._http_client.paths["experiments"] + "?size=" + str(count)
         if self._http_client.has_token():
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
