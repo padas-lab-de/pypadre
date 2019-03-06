@@ -23,5 +23,6 @@ print("Downloaded External Datasets: ")
 for externel_dataset in pypadre.datasets.download(downloads):
     pypadre.datasets.put(externel_dataset, upload=True)
 
-print("After Downloading External, available datasets on local and remote")
-print(pypadre.datasets.list())
+print("Total available datasets in Padre")
+for ds in pypadre.datasets.list():
+    pypadre.datasets.print_dataset_details(ds)

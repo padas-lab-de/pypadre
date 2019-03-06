@@ -163,25 +163,58 @@ class HttpBackendExperiments:
         The function returns an experiment class, which is loaded from file.
 
         :param ex: Id or url of the experiment
-        :return:
+        :return: Dict containing experiment configuration
         # todo: Return experiment instance according to above documentation
         """
+        experiment = {}
         if self._http_client.has_token():
             if not ex.isdigit():  # url of the experiment
                 url = self._http_client.base + ex
             else:
                 url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             response = json.loads(self._http_client.do_get(url, **{}).content)
-            conf = response[list(response.keys())[0]]
-            experiment_creator = experimentcreator.ExperimentCreator()
-            experiment_creator.create(conf["name"],
-                                      conf["description"],
-                                      [conf["dataset"]],
-                                      conf["workflow"],
-                                      conf["params"])
+            conf = response["configuration"]
+            keys = list(conf.keys())
+            if len(keys) > 0:  # If configuration not empty
+                name = keys[0]
+                conf = conf[name]
+                experiment_creator = experimentcreator.ExperimentCreator()
+                experiment_creator.create(conf["name"],
+                                          conf["description"],
+                                          [conf["dataset"]],
+                                          conf["workflow"],
+                                          conf["params"])
 
-            return experiment_creator.experiments[0]
-        return False
+                experiment = experiment_creator.experiments[name]
+        return experiment
+
+    def list_experiments(self, search=None, search_metadata=None, start=-1, count=999999999):
+        """List of experiments from server.
+
+        If search string is provided then search based on experiment name
+        otherwise get list of all experiments
+
+        Todo: We will later define a synatx to search also associated metadata (e.g. "description:search_string").
+        :param search: Name of experiment
+        :type search: str
+        :param start: start index of sublist
+        :param count: end index of sublist
+        :return: list of experiments containing experiment names
+        """
+        experiments = []
+        start = max(start, 0)
+        if search is not None:
+            url = self.get_base_url() + self._http_client.paths["search"]("experiments") + "name?:" + search + "&size=" + str(count)
+        else:
+            url = self.get_base_url() + self._http_client.paths["experiments"] + "?size=" + str(count)
+        if self._http_client.has_token():
+            response = json.loads(self._http_client.do_get(url, **{}).content)
+            if "_embedded" in response:
+                experiments = response["_embedded"]["experiments"]
+                experiments = [ex["name"] for ex in experiments]
+        if start < len(experiments):
+            experiments = experiments[start:]
+        return experiments
 
     def put_run(self, experiment, run):
         """
@@ -492,7 +525,6 @@ class HttpBackendExperiments:
                 result += "f" + l
 
         return result
-
 
     def put_experiment_configuration(self, experiment):
         """
