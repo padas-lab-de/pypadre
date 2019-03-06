@@ -1,25 +1,28 @@
 """
 Modul containing import methods from different packages / repositories.
 """
-import tempfile
-import sklearn.datasets as ds
+
+import arff
+import copy
+import networkx as nx
 import numpy as np
 import openml as oml
-from requests.exceptions import ConnectionError
-import arff
-import pandas as pd
-import json
-import requests
+import os.path
 import padre.backend.protobuffer.proto_organizer as proto
 import padre.backend.file
 import padre.graph_import
-import networkx as nx
-import os.path
-from padre.core.datasets import Dataset, Attribute
-from padre.eventhandler import assert_condition
-from multiprocessing import Process
-import copy
+import pandas as pd
+import sklearn.datasets as ds
+import tempfile
+import json
+import requests
 import uuid
+from multiprocessing import Process
+from padre.core.datasets import Dataset, Attribute
+from padre.eventhandler import assert_condition, trigger_event
+from requests.exceptions import ConnectionError
+
+
 def _split_DESCR(s):
     s = s.strip()
     k = s.find("\n")
@@ -71,9 +74,14 @@ def load_csv(path_dataset,path_target=None,target_features=[],originalSource="im
     """
     assert_condition(condition=os.path.exists(os.path.abspath(path_dataset)), source='ds_import.load_csv',
                      message='Dataset path does not exist')
+
+    trigger_event('EVENT_WARN', condition=len(target_features)>0, source='ds_import.load_csv',
+                  message='No targets defined. Program will crash when used for supervised learning')
+
     dataset_path_list = path_dataset.split('/')
     nameOfDataset = dataset_path_list[-1].split('.csv')[0]
     data =pd.read_csv(path_dataset)
+
     meta =dict()
     meta["name"]=nameOfDataset
 
@@ -85,20 +93,17 @@ def load_csv(path_dataset,path_target=None,target_features=[],originalSource="im
     meta["context"]={}
 
     dataset=Dataset(None, **meta)
+    trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True, source='ds_import.load_csv',
+                  message='Non-numeric data values found. Program may crash if not handled by estimators')
 
     targets=None
     if path_target != None:
         target = pd.read_csv(path_dataset)
         data=data.join(target,lsuffix="data",rsuffix="target")
         targets=list(target.columns.values)
-    elif len(target_features) > 0:
-        # Assign the target values to targets from the csv data
-        targets=data[data.columns[target_features]]
-        # Remove the target column from the data
-        del data[data.columns[target_features].values[0]]
 
     else:
-        targets = [0] * len(data)
+        targets=target_features
 
     atts = []
 
@@ -131,6 +136,9 @@ def load_pandas_df(pandas_df,target_features=[]):
     dataset = Dataset(None, **meta)
 
     atts = []
+
+    if len(target_features) == 0:
+        targets = [0] * len(pandas_df)
 
     for feature in pandas_df.columns.values:
         atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,

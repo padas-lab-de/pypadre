@@ -113,7 +113,7 @@ class ExperimentCreator:
             # Extract each estimator name and corresponding parameter list
             sep_idx = estimator_params.find('.')
             if sep_idx == -1:
-                trigger_event('EVENT_WARN', source=self, message=f'Missing separators.')
+                trigger_event('EVENT_WARN', condition=False, source=self, message=f'Missing separators.')
                 continue
 
             estimator = estimator_params[:sep_idx]
