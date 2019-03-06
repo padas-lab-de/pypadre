@@ -19,15 +19,6 @@ from padre.backend.serialiser import PickleSerializer
 logger = logging.getLogger('pypadre - http')
 
 
-def _sub_list(l, start=-1, count=9999999999999):
-    start = max(start, 0)
-    stop = min(start + count, len(l))
-    if start >= len(l):
-        return []
-    else:
-        return l[start:stop]
-
-
 class HttpBackendExperiments:
     """Experiment handler class to communicate to server"""
     def __init__(self, http_client, project_name="Default project"):
@@ -197,23 +188,33 @@ class HttpBackendExperiments:
                 experiment = experiment_creator.experiments[name]
         return experiment
 
-    def list_experiments(self, search, start=-1, count=999999999):
+    def list_experiments(self, search=None, search_metadata=None, start=-1, count=999999999):
         """List of experiments from server.
+
+        If search string is provided then search based on experiment name
+        otherwise get list of all experiments
 
         Todo: We will later define a synatx to search also associated metadata (e.g. "description:search_string").
         :param search: Name of experiment
         :type search: str
         :param start: start index of sublist
         :param count: end index of sublist
-        :return: list of experiments containing attribute values
+        :return: list of experiments containing experiment names
         """
         experiments = []
-        url = self.get_base_url() + self._http_client.paths["search"]("experiments") + "name?:" + search
+        start = max(start, 0)
+        if search is not None:
+            url = self.get_base_url() + self._http_client.paths["search"]("experiments") + "name?:" + search + "&size=" + str(count)
+        else:
+            url = self.get_base_url() + self._http_client.paths["experiments"] + "?size="+count
         if self._http_client.has_token():
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 experiments = response["_embedded"]["experiments"]
-        return _sub_list(experiments, start, count)
+                experiments = [ex["name"] for ex in experiments]
+        if start < len(experiments):
+            experiments = experiments[start:]
+        return experiments
 
     def put_run(self, experiment, run):
         """

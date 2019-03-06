@@ -88,7 +88,7 @@ class PadreHTTPClient:
             if "headers" not in body:
                 body["headers"] = self._default_header
             if "Authorization" not in body["headers"]:
-                body["headers"]["Authorization"] = self._access_token
+                body["headers"]["Authorization"] = self._default_header["Authorization"]
             r = request(url, **body)
         self.last_status = r.status_code
         r.raise_for_status()
@@ -412,7 +412,10 @@ class HTTPBackendDatasets:
         from padre import graph_import
         attribute_name_list = []
         atts = []
-        for attr in meta["attributes"]:
+        meta_attributes = meta["attributes"]
+        if meta_attributes[0]["defaultTargetAttribute"]:
+            meta_attributes = list(reversed(meta_attributes))
+        for attr in meta_attributes:
             atts.append(Attribute(**attr))
             attribute_name_list.append(attr["name"])
 

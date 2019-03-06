@@ -48,16 +48,21 @@ class DualBackend:
         The function returns a list of strings with experiment names / experiment identifies
         that could be used in get_experiment.
 
-        :param search_id:
-        :param search_metadata:
+        :param search_id: Name of the experiment
+        :param search_metadata: Todo: Search experiment with metadata
         :param start:
         :param count:
-        :param remote:
-        :return: List of experiments
-        # todo: Implement for http backend
+        :param remote: Flag to search on server or no
+        :return: List of experiment names
 
         """
-        return self._file_experiments.list_experiments(search_id, search_metadata)
+        experiments = self._file_experiments.list_experiments(search_id, search_metadata)
+        if remote:
+            experiments = experiments + self._http_experiments.list_experiments(search_id,
+                                                                                search_metadata,
+                                                                                start,
+                                                                                count)
+        return experiments
 
     def delete_experiments(self, experiment=".*", mode="all", search_metadata=None):
         """
