@@ -7431,7 +7431,7 @@
             }
         },
         {
-            "name": "label probagation",
+            "name": "label propagation",
             "other_names": [],
             "implementation": {
                 "scikit-learn": "sklearn.semi_supervised.label_propagation.LabelPropagation"

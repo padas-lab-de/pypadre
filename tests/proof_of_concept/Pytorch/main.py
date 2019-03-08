@@ -39,7 +39,7 @@ def main():
         params = json.load(json_data)
 
     obj = WrapperPytorch(params=params)
-    estimators = [('clf', obj)]
+    estimators = [('pytorch', obj)]
     workflow = Pipeline(estimators)
     obj.set_callbacks([TestCallbacks()])
     iris = datasets.load_iris()
