@@ -17,6 +17,7 @@ import io
 import os
 import tempfile
 import uuid
+from urllib.parse import urlparse
 
 import arff
 import networkx as nx
@@ -208,7 +209,7 @@ class PadreHTTPClient:
             "password": passwd,
             "grant_type": "password"
         }
-        api = PadreHTTPClient.paths["padre-api"]
+        api = PadreHTTPClient.paths["padre-api"] + urlparse(self.get_base_url()).netloc
         try:
             csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
             url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
@@ -498,7 +499,7 @@ class HTTPBackendDatasets:
 
 
 PadreHTTPClient.paths = {
-    "padre-api": "http://padre-api:@localhost:8080",
+    "padre-api": "http://padre-api:@",
     "datasets": "/datasets",
     "experiments": "/experiments",
     "experiment": lambda id: "/experiments/" + id + "/",
