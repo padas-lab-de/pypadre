@@ -10,6 +10,7 @@ from padre.core.validatetraintestsplits import ValidateTrainTestSplits
 from padre.core.sklearnworkflow import SKLearnWorkflow
 from padre.core.run import Run
 from padre.core.custom_split import split_obj
+from padre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -360,10 +361,21 @@ class Experiment(MetadataEntity):
             # All the parameters of the estimators need to be filled into the params dictionary
             estimators = self.workflow.pipeline.named_steps
             for estimator in estimators:
+
+                obj_params = estimators.get(estimator).get_params()
+                estimator_name = estimator
+                if name_mappings.get(estimator, None) is None:
+                    estimator_name = alternate_name_mappings.get(estimator)
+
+                params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
                 params = estimators.get(estimator).get_params()
                 param_dict = dict()
-                for param in params:
-                    param_dict[param] = params.get(param)
+                for param in params_list:
+                    for framework in supported_frameworks:
+                        if param.get(framework, None) is not None:
+                            break
+                    param_name = param.get(framework).get('path')
+                    param_dict[param_name] = obj_params.get(param_name)
 
                 estimator_dict[estimator] = deepcopy(param_dict)
 
