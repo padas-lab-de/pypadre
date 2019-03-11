@@ -459,7 +459,7 @@ class ExperimentCreator:
                                 param_value = estimator_params.get(param)
                                 estimator_params[param] = [param_value]
                     self._param_value_dict[name] = self.validate_parameters(params)
-                    data_dict['params'] = self.validate_parameters(params)
+                    data_dict['params'] = self._param_value_dict[name]
                 self._experiments[name] = data_dict
                 trigger_event('EVENT_LOG', condition=False, source=self,
                               message=''.join([name, ' created successfully!']))
