@@ -39,9 +39,10 @@ class Splitter:
         self._num_examples = ds.size[0]
         self._strategy = options.pop("strategy", "random")
 
-        assert_condition(condition=self._strategy == "random" or self._strategy == "cv" or self._strategy == 'function',
+        assert_condition(condition=self._strategy in ['random', 'cv', 'function', None],
                          source=self,
-                         message=f"Unknown splitting strategy {self._strategy}. Only 'cv' or 'random' allowed")
+                         message=f"Unknown splitting strategy {self._strategy}. "
+                         f"Only 'cv', 'random', 'function' or 'None'  allowed")
 
         self._test_ratio = options.pop("test_ratio", 0.25)
         trigger_event('EVENT_WARN', condition=self._test_ratio is None or (0.0 <= self._test_ratio <= 1.0),

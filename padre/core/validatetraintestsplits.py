@@ -17,16 +17,16 @@ class ValidateTrainTestSplits:
         if dataset is None:
             return False
 
-        if train_idx is None or test_idx is None:
+        if train_idx is None:
             return False
 
-        if len(set(train_idx).intersection(set(test_idx))) > 0:
+        if test_idx is not None and len(set(train_idx).intersection(set(test_idx))) > 0:
             return False
 
         if val_idx is not None and len(set(train_idx).intersection(set(val_idx))) > 0:
             return False
 
-        if val_idx is not None and len(set(val_idx).intersection(set(test_idx))) > 0:
+        if val_idx is not None and test_idx is not None and len(set(val_idx).intersection(set(test_idx))) > 0:
             return False
 
         return True
