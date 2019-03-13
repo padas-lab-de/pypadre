@@ -16,8 +16,8 @@ def create_test_pipeline():
     from sklearn.neighbors import KNeighborsClassifier
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.decomposition import PCA
-    # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-    estimators = [('k-nn classifier', KNeighborsClassifier())]
+    estimators = [('PCA', PCA()), ('SVC', SVC())]
+    #estimators = [('k-nn classifier', KNeighborsClassifier())]
     return Pipeline(estimators)
 
 def create_test_pipeline_regression():
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = load_csv('/home/christofer/PycharmProjects/TwitterCrawler/datasets/merged/twitterbot.csv',
-                  # target_features=['bot'],
+                  target_features=['bot'],
                   description='Crawled Twitter data for identifying bots')
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
