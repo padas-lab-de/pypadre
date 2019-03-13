@@ -13,7 +13,7 @@ def create_test_pipeline():
     from sklearn.svm import SVC
     from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-    estimators = [('clf', SVC(probability=True))]
+    estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
 def get_toy_dataset_classification():
@@ -97,7 +97,7 @@ class TestExperiment(unittest.TestCase):
         self.assertRaises(ValueError, ex.execute, parameters=parameters)
 
     def test_experiment_continous_data_with_classifier_estimator(self):
-        self.assertRaises(ValueError, Experiment, name='Test_Regressoin_dataset_with_classification_estimator',
+        self.assertRaises(ValueError, Experiment, name='Test_Regression_dataset_with_classification_estimator',
                         description='Experiment with a regression dataset passed to a classification estimator',
                         workflow=create_test_pipeline(), dataset=get_toy_dataset_regression())
 

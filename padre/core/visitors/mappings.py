@@ -7,6 +7,7 @@ import os
 
 type_mappings = {}
 name_mappings = {}
+alternate_name_mappings = {}
 version_mappings = {}
 # TODO: Currently hard coded, but later should be read from the library tag in the mapping file
 #supported_frameworks = ['scikit-learn', 'pytorch']
@@ -29,6 +30,9 @@ for file in mapping_files:
 
                 for k in alg['implementation']:
                     type_mappings[alg['implementation'][k]] = (alg, k)
+
+                for alt_name in alg['other_names']:
+                    alternate_name_mappings[alt_name] = alg['name']
 
         except:
             raise ValueError('Error when parsing JSON file {name}'.format(name=file))

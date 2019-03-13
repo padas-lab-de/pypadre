@@ -3,7 +3,7 @@ from padre.eventhandler import trigger_event
 from padre.core.base import exp_events, phases
 from padre.core.visitors.scikit import SciKitVisitor
 from padre.eventhandler import assert_condition
-from padre.core.visitors.mappings import name_mappings
+from padre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
 
 class SKLearnWorkflow:
@@ -95,11 +95,8 @@ class SKLearnWorkflow:
                 final_estimator_name = self._pipeline.steps[-1][0]
                 if name_mappings.get(final_estimator_name) is None:
                     # If estimator name is not present in name mappings check whether it is present in alternate names
-                    for estimator in name_mappings:
-                        alternate_names = name_mappings.get(estimator).get('other_names')
-                        if final_estimator_name in alternate_names:
-                            final_estimator_type = name_mappings.get(estimator).get('type')
-                            break
+                    estimator = alternate_name_mappings.get(final_estimator_name)
+                    final_estimator_type = name_mappings.get(estimator).get('type')
                 else:
                     final_estimator_type = name_mappings.get(self._pipeline.steps[-1][0]).get('type')
 

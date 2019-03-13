@@ -10,6 +10,7 @@ from padre.core.validatetraintestsplits import ValidateTrainTestSplits
 from padre.core.sklearnworkflow import SKLearnWorkflow
 from padre.core.run import Run
 from padre.core.custom_split import split_obj
+from padre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -360,10 +361,21 @@ class Experiment(MetadataEntity):
             # All the parameters of the estimators need to be filled into the params dictionary
             estimators = self.workflow.pipeline.named_steps
             for estimator in estimators:
+
+                obj_params = estimators.get(estimator).get_params()
+                estimator_name = estimator
+                if name_mappings.get(estimator, None) is None:
+                    estimator_name = alternate_name_mappings.get(estimator)
+
+                params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
                 params = estimators.get(estimator).get_params()
                 param_dict = dict()
-                for param in params:
-                    param_dict[param] = params.get(param)
+                for param in params_list:
+                    for framework in supported_frameworks:
+                        if param.get(framework, None) is not None:
+                            break
+                    param_name = param.get(framework).get('path')
+                    param_dict[param_name] = obj_params.get(param_name)
 
                 estimator_dict[estimator] = deepcopy(param_dict)
 
@@ -487,6 +499,8 @@ class Experiment(MetadataEntity):
         :param options: Dictionary containing the parameters given to the constructor of the class
         :return: True if successful validation of parameters, False if not
         """
+        from padre.core.visitors.mappings import name_mappings, alternate_name_mappings
+        import numpy as np
 
         assert_condition(condition=options.get('workflow', None) is not None, source=self, message="Workflow cannot be none")
         assert_condition(condition=options.get('description', None) is not None, source=self,
@@ -507,4 +521,35 @@ class Experiment(MetadataEntity):
                          message="Dataset cannot be none")
         assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
                          source=self, message='Experiment dataset is not of type Dataset')
+
+        # Check if all estimator names are present in the name mappings
+        workflow = options.get('workflow')
+        for estimator in workflow.named_steps:
+            assert_condition(condition=name_mappings.get(estimator, None) is not None or
+                             alternate_name_mappings.get(estimator, None) is not None,
+                             source=self,
+                             message='Estimator {estimator} not present in name mappings or '
+                                     'alternate name mappings'.format(estimator=estimator))
+
+        # Check if dataset has targets, and if supervised learning is used, then throw an error
+        if options.get('dataset').targets() is None:
+            workflow = options.get('workflow')
+            for estimator in workflow.named_steps:
+                actual_estimator_name = estimator
+                if name_mappings.get(estimator, None) is None:
+                    actual_estimator_name = alternate_name_mappings.get(estimator)
+                assert_condition(
+                    condition=name_mappings.get(actual_estimator_name).get('type', None) not in
+                              ['Classification', 'Regression'],
+                    source=self, message='Dataset without targets cannot be used for supervised learning')
+
+        # Check if regression data is assigned to a classification estimator
+        if not np.all(np.mod(options.get('dataset').targets(), 1) == 0):
+            workflow = options.get('workflow')
+            for estimator in workflow.named_steps:
+                actual_estimator_name = estimator
+                if name_mappings.get(estimator, None) is None:
+                    actual_estimator_name = alternate_name_mappings.get(estimator)
+                assert_condition(condition=name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
+                                 source=self, message='Classifier cannot be trained on regression data')
 
