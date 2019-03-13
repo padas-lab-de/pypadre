@@ -531,6 +531,18 @@ class Experiment(MetadataEntity):
                              message='Estimator {estimator} not present in name mappings or '
                                      'alternate name mappings'.format(estimator=estimator))
 
+        # Check if dataset has targets, and if supervised learning is used, then throw an error
+        if options.get('dataset').targets() is None:
+            workflow = options.get('workflow')
+            for estimator in workflow.named_steps:
+                actual_estimator_name = estimator
+                if name_mappings.get(estimator, None) is None:
+                    actual_estimator_name = alternate_name_mappings.get(estimator)
+                assert_condition(
+                    condition=name_mappings.get(actual_estimator_name).get('type', None) not in
+                              ['Classification', 'Regression'],
+                    source=self, message='Dataset without targets cannot be used for supervised learning')
+
         # Check if regression data is assigned to a classification estimator
         if not np.all(np.mod(options.get('dataset').targets(), 1) == 0):
             workflow = options.get('workflow')

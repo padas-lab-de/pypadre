@@ -278,7 +278,7 @@ class PandasContainer:
 
     @property
     def targets(self):
-        if self._targets_idx is None:
+        if self._targets_idx is None or len(self._targets_idx) == 0:
             return None
         else:
             targets=[]
@@ -286,10 +286,9 @@ class PandasContainer:
                 if (att.defaultTargetAttribute):
                     targets.append(att.name)
 
-            # TODO: Fix issue on how to define targets if the targets are not given in the Pandas table
-            # Currently the values in the last column are returned as target values
+            # if no targets are present, return None
             if len(targets) == 0:
-                return self.data[self.data.columns[-1]].values
+                return None
 
             return self._data[targets].values
 

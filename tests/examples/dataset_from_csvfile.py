@@ -42,7 +42,8 @@ if __name__ == '__main__':
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = load_csv('/home/christofer/PycharmProjects/TwitterCrawler/datasets/merged/twitterbot.csv',
-                  target_features=['bot'], description='Crawled Twitter data for identifying bots')
+                  # target_features=['bot'],
+                  description='Crawled Twitter data for identifying bots')
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
@@ -53,7 +54,7 @@ if __name__ == '__main__':
 
     pypadre.metrics_evaluator.add_experiments([ex, ex])
     print(pypadre.metrics_evaluator.show_metrics())
-
+    '''
     import numpy as np
     import pandas as pd
     from padre.ds_import import load_pandas_df
@@ -66,6 +67,6 @@ if __name__ == '__main__':
                     dataset=ds,
                     workflow=create_test_pipeline_regression(), keep_splits=True, strategy="random")
     ex.execute()
-
+    '''
     # ex.report_results() # last step, but we can also look that up on the server
 
