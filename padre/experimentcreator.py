@@ -9,8 +9,7 @@ import ast
 import importlib
 import numpy as np
 from copy import deepcopy
-from padre.base import default_logger
-from padre.eventhandler import add_logger, trigger_event, assert_condition
+from padre.eventhandler import trigger_event, assert_condition
 from padre.ds_import import load_sklearn_toys
 from padre.core.visitors.mappings import name_mappings
 from padre.core.visitors.mappings import supported_frameworks
@@ -796,7 +795,8 @@ class ExperimentCreator:
         from padre.app import pypadre
 
         if not (os.path.exists(filename)):
-            default_logger.warn(False, 'ExperimentCreator.parse_config_file', f"File does not exist {filename}. Return")
+            trigger_event('EVENT_WARN', condition=False, source=self,
+                          message=f"File does not exist {filename}")
             return False
 
         # Load the experiments structure from the file

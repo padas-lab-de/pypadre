@@ -240,23 +240,39 @@ class LoggerBase(ABC):
         pass
 
 
+class ErrorLogger(LoggerBase):
+    """
+    Logs only the warning and error messages to the standard output.
+    This class informs the user of warnings and error messages even if the user does not provide a logger
+    """
+
+    def warn(self, condition, source, message):
+        if not condition:
+            sys.stderr.write(str(source) + ":\t" + message + "\n")
+
+
+    def error(self, condition, source, message):
+        if not condition:
+            sys.stderr.write(str(source) + ":\t" + message + "\n")
+            raise ValueError(str(source)+":\t"+message)
+
 
 class PadreLogger(LoggerBase):
     """
-    Base class for logging output, warnings and errors
+    Class for logging output, warnings and errors
     """
     _file = None
     _backend = None
 
     def warn(self, condition, source, message):
         if not condition:
-            sys.stderr.write(str(source) + ":\t" + message + "\n")
+            # sys.stderr.write(str(source) + ":\t" + message + "\n")
             if self.has_backend():
                 self.backend.log("WARN: " + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
     def error(self, condition, source, message):
         if not condition:
-            sys.stderr.write(str(source) + ":\t" + message + "\n")
+            # sys.stderr.write(str(source) + ":\t" + message + "\n")
             if self.has_backend():
                 self.backend.log("ERROR: " + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
@@ -459,7 +475,6 @@ class PadreLogger(LoggerBase):
         return self._backend is not None
 
 
-default_logger = PadreLogger()
 ""
 
 

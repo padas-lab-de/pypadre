@@ -14,6 +14,9 @@ This list contains the list of loggers which log each event occuring in the expe
 corresponding functions in the logger after extracting the required arguments required by the logger function.
 """
 from pymitter import EventEmitter
+from padre.base import ErrorLogger
+
+
 logger_list = []
 
 def log_start_experiment(args):
@@ -313,4 +316,9 @@ def add_logger(logger):
     """
     if logger is not None:
         logger_list.append(logger)
+
+
+# Add the default error logger that logs warnings & errors to the standard error console
+std_err_logger = ErrorLogger()
+add_logger(std_err_logger)
 
