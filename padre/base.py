@@ -51,6 +51,8 @@ exp_events = _ExperimentEvents()
 
 class LoggerBase(ABC):
 
+    _backend = None
+
     def warn(self, condition, source, message):
         """
         This function logs the warning messages to the backend

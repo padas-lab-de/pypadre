@@ -470,7 +470,7 @@ class HTTPBackendDatasets:
             meta["description"] = load.description
             meta["originalSource"] = load.url
             meta["type"] = "Multivariat"
-            meta["published"] = False
+            meta["published"] = True
             dataset = Dataset(meta["id"], **meta)
             raw_data = arff.load(open(load.data_file, encoding='utf-8'))
             df_attributes = raw_data['attributes']

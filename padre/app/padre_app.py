@@ -287,11 +287,11 @@ class DatasetApp:
         # Add sklearn toy datasets if they are not present in the list
         if len(local_datasets) == 0:
             local_datasets = ['Boston_House_Prices',
-                             'Breast_Cancer',
-                             'Diabetes',
-                             'Digits',
-                             'Iris',
-                             'Linnerrud']
+                              'Breast_Cancer',
+                              'Diabetes',
+                              'Digits',
+                              'Iris',
+                              'Linnerrud']
 
         return local_datasets
 
@@ -452,9 +452,10 @@ class DatasetApp:
         """
         # todo implement overwrite correctly
         if upload:
-            if self._parent.offline:
-                logger.warning("Warning: The class is set to offline put upload was set to true. "+
-                               "Backend is not expected to work properly")
+            logger.warn(condition=self._parent.offline is False, source=self,
+                        message="Warning: The class is set to offline put upload was set to true. "
+                                "Backend is not expected to work properly")
+
             if self.has_printer():
                 self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
             ds.id = self._parent.remote_backend.datasets.put(ds, True)
