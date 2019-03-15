@@ -252,11 +252,9 @@ class ErrorLogger(LoggerBase):
         if not condition:
             sys.stderr.write(str(source) + ":\t" + message + "\n")
 
-
-    def error(self, condition, source, message):
-        if not condition:
-            sys.stderr.write(str(source) + ":\t" + message + "\n")
-            raise ValueError(str(source)+":\t"+message)
+    def error(self, source, message):
+        # Write the error to the standard error stream
+        sys.stderr.write(str(source) + ":\t" + message + "\n")
 
 
 class PadreLogger(LoggerBase):
@@ -272,13 +270,10 @@ class PadreLogger(LoggerBase):
             if self.has_backend():
                 self.backend.log("WARN: " + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
-    def error(self, condition, source, message):
-        if not condition:
-            # sys.stderr.write(str(source) + ":\t" + message + "\n")
-            if self.has_backend():
-                self.backend.log("ERROR: " + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
+    def error(self, source, message):
 
-            raise ValueError(str(source)+":\t"+message)
+        if self.has_backend():
+            self.backend.log("ERROR: " + str(datetime.now())[:-3] + " " + str(source) + ":\t" + message + "\n")
 
     def log(self, source, message, padding=""):
 

@@ -150,9 +150,8 @@ def log_progress(args):
 def error(args):
     source = args.get('source', None)
     message = args.get('message', None)
-    condition = args.get('condition', False)
     for logger in logger_list:
-        logger.error(condition, source, message)
+        logger.error(source, message)
 
 def log_model(args):
     model = args.get('model', None)
@@ -302,9 +301,16 @@ def assert_condition(**args):
     """
 
     error_event_handlers = EVENT_HANDLER_DICT.get('EVENT_ERROR')
-    for logger in logger_list:
-        for error_event_handler in error_event_handlers:
-            error_event_handler(args)
+    condition = args.pop('condition', False)
+    source = args.get('source', None)
+    message = args.get('message', None)
+    if not condition:
+        for logger in logger_list:
+            for error_event_handler in error_event_handlers:
+                error_event_handler(args)
+
+        # Raise exception only after all loggers have logged the exception
+        raise ValueError(str(source) + ":\t" + message)
 
 
 def add_logger(logger):
