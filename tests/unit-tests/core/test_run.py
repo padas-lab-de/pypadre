@@ -1,19 +1,15 @@
 from padre.core import Experiment, Run
-from padre.base import default_logger
 from padre.eventhandler import assert_condition, add_logger
 from padre.app import pypadre
 import numpy as np
 import unittest
-
-default_logger.backend = pypadre.repository
-add_logger(default_logger)
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
     from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-    estimators = [('clf', SVC(probability=True))]
+    estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
 def get_toy_dataset():

@@ -1,12 +1,8 @@
 from padre.core import Experiment
-from padre.base import default_logger
 from padre.eventhandler import assert_condition, add_logger
 from padre.app import pypadre
 import numpy as np
 import unittest
-
-default_logger.backend = pypadre.repository
-add_logger(default_logger)
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
