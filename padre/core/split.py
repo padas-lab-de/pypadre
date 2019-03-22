@@ -39,7 +39,7 @@ class Splitter:
         self._num_examples = ds.size[0]
         self._strategy = options.pop("strategy", "random")
 
-        assert_condition(condition=self._strategy in ['random', 'cv', 'function', None],
+        assert_condition(condition=self._strategy in ['random', 'cv', 'function', 'index', None],
                          source=self,
                          message=f"Unknown splitting strategy {self._strategy}. "
                          f"Only 'cv', 'random', 'function' or 'None'  allowed")
@@ -81,6 +81,9 @@ class Splitter:
         if self._strategy == "function":
             assert_condition(condition=split_obj.function_pointer is not None, source=self,
                              message=f"Splitting strategy {self._strategy} requires a function provided via parameter 'fn'")
+
+        self._index_list = options.pop('index', None)
+
 
     def splits(self):
         """
@@ -134,6 +137,24 @@ class Splitter:
                         yield train[:n_v], test, train[n_v:]
                     else:
                         yield train, test, None
+
+            elif self._strategy == "index":
+                # If a list of dictionaries are given to the experiment as indices, pop each one out and return
+                for i in range(len(self._index_list)):
+                    train = self._index_list[i].get('train', None)
+                    if train is not None:
+                        train = np.array(train)
+
+                    test = self._index_list[i].get('test', None)
+                    if test is not None:
+                        test=np.array(test)
+
+                    val = self._index_list[i].get('val', None)
+                    if val is not None:
+                        val = np.array(val)
+                        
+                    yield train, test, val
+
             else:
                 raise ValueError(f"Unknown splitting strategy {self._splitting_strategy}")
 
