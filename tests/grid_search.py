@@ -1,16 +1,11 @@
 import copy
 import pprint
-
-
 from padre.experimentcreator import ExperimentCreator
-from padre.base import PadreLogger
-from padre.eventhandler import add_logger
+
 
 def main():
     from padre.app import pypadre
-    logger = PadreLogger()
-    logger.backend = pypadre.repository
-    add_logger(logger=logger)
+
     pypadre.set_printer(print)
     experiment_param_dict = dict()
     # Experiment using SVD in the pipeline
