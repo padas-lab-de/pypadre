@@ -9,6 +9,7 @@ import uuid
 from itertools import groupby
 
 import requests as req
+import numpy as np
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
 from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
@@ -490,6 +491,8 @@ class HttpBackendExperiments:
     def encode_split(self, split):
         """Encode the train, test and validation sets into boolean representation of run length encoding.
 
+        split.train_idx, split.test_idx and split.val_idx is np array or None
+
         :param split: Split instance
         :type split: <class 'padre.experiment.Split'>
         :returns: String as run length encoding
@@ -499,9 +502,8 @@ class HttpBackendExperiments:
         val_idx = split.val_idx
 
         result = "train:"
-        if train_idx:
-            train_idx.sort()
-            train_bool_list = [False] * (train_idx[-1] + 1)
+        if train_idx is not None and train_idx.size > 0:
+            train_bool_list = [False] * (np.amax(train_idx) + 1)
             for x in train_idx:
                 train_bool_list[x] = True
 
@@ -513,9 +515,8 @@ class HttpBackendExperiments:
                     result += "f" + l
 
         result += ",test:"
-        if test_idx:
-            test_idx.sort()
-            test_bool_list = [False] * (test_idx[-1] + 1)
+        if test_idx is not None and test_idx.size > 0:
+            test_bool_list = [False] * (np.amax(test_idx) + 1)
             for x in test_idx:
                 test_bool_list[x] = True
 
@@ -526,9 +527,8 @@ class HttpBackendExperiments:
                 else:
                     result += "f" + l
         result += ",val:"
-        if val_idx:
-            val_idx.sort()
-            val_bool_list = [False] * (val_idx[-1] + 1)
+        if val_idx is not None and val_idx.size > 0:
+            val_bool_list = [False] * (np.amax(val_idx) + 1)
             for x in val_idx:
                 val_bool_list[x] = True
 

@@ -5,7 +5,9 @@ All unnecessary function and http calls are mocked
 import unittest
 import uuid
 
+import numpy as np
 from mock import MagicMock
+
 
 from padre.backend.http_experiments import HttpBackendExperiments
 
@@ -33,9 +35,9 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
         split.val_idx = MagicMock()
-        split.train_idx = [2, 1, 5]  # train:f1t2f2t1
-        split.test_idx = [6, 4, 7]   # test: f4t1f1t2
-        split.val_idx = [8, 10, 9]   # val: f8t3
+        split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
+        split.test_idx = np.array([6, 4, 7])   # test: f4t1f1t2
+        split.val_idx = np.array([8, 10, 9])   # val: f8t3
         split.id = str(uuid.uuid4())
 
         result = obj.encode_split(split)
@@ -54,9 +56,9 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
         split.val_idx = MagicMock()
-        split.train_idx = [2, 1, 5]  # train:f1t2f2t1
-        split.test_idx = []   # test:
-        split.val_idx = []    # val:
+        split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
+        split.test_idx = np.array([])   # test:
+        split.val_idx = np.array([])    # val:
         split.id = str(uuid.uuid4())
 
         result = obj.encode_split(split)
@@ -75,9 +77,9 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
         split.val_idx = MagicMock()
-        split.train_idx = []
-        split.test_idx = []
-        split.val_idx = []
+        split.train_idx = np.array([])
+        split.test_idx = np.array([])
+        split.val_idx = np.array([])
         split.id = str(uuid.uuid4())
         result = obj.encode_split(split)
         self.assertIn("train:,test:,val:",
@@ -95,9 +97,9 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
         split.val_idx = MagicMock()
-        split.train_idx = [1]  # train:f1t1
-        split.test_idx = [2]   # test:f2t1
-        split.val_idx = [3]   # val:f3t1
+        split.train_idx = np.array([1])  # train:f1t1
+        split.test_idx = np.array([2])   # test:f2t1
+        split.val_idx = np.array([3])   # val:f3t1
         split.id = str(uuid.uuid4())
 
         result = obj.encode_split(split)
