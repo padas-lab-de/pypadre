@@ -5,7 +5,9 @@ All unnecessary function and http calls are mocked
 import unittest
 import uuid
 
+import numpy as np
 from mock import MagicMock
+
 
 from padre.backend.http_experiments import HttpBackendExperiments
 
@@ -32,12 +34,14 @@ class TestEncodeSplit(unittest.TestCase):
         split = MagicMock()
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
-        split.train_idx = [2, 1, 5]  # train:f1t2f2t1
-        split.test_idx = [6, 4, 7]   # test: f4t1f1t2
+        split.val_idx = MagicMock()
+        split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
+        split.test_idx = np.array([6, 4, 7])   # test: f4t1f1t2
+        split.val_idx = np.array([8, 10, 9])   # val: f8t3
         split.id = str(uuid.uuid4())
 
         result = obj.encode_split(split)
-        self.assertIn("train:f1t2f2t1,test:f4t1f1t2",
+        self.assertIn("train:f1t2f2t1,test:f4t1f1t2,val:f8t3",
                       result,
                       "Expected encoded value not returned")
 
@@ -45,18 +49,20 @@ class TestEncodeSplit(unittest.TestCase):
         """Test HttpBackendExperiments.encode_split function.
 
         Scenario:
-            1- Test expected value if test set is empty.
+            1- Test expected value if test and validation set is empty.
         """
         obj = HttpBackendExperiments(self.http_client)
         split = MagicMock()
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
-        split.train_idx = [2, 1, 5]  # train:f1t2f2t1
-        split.test_idx = []   # test:
+        split.val_idx = MagicMock()
+        split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
+        split.test_idx = np.array([])   # test:
+        split.val_idx = np.array([])    # val:
         split.id = str(uuid.uuid4())
 
         result = obj.encode_split(split)
-        self.assertIn("train:f1t2f2t1,test:",
+        self.assertIn("train:f1t2f2t1,test:,val:",
                       result,
                       "Expected encoded value not returned")
 
@@ -64,18 +70,19 @@ class TestEncodeSplit(unittest.TestCase):
         """Test HttpBackendExperiments.encode_split function.
 
         Scenario:
-            1- Test expected value if train and test set are empty.
+            1- Test expected value if train, test and validation sets are empty.
         """
         obj = HttpBackendExperiments(self.http_client)
         split = MagicMock()
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
-        split.train_idx = []  # train:
-        split.test_idx = []   # test:
+        split.val_idx = MagicMock()
+        split.train_idx = np.array([])
+        split.test_idx = np.array([])
+        split.val_idx = np.array([])
         split.id = str(uuid.uuid4())
-
         result = obj.encode_split(split)
-        self.assertIn("train:,test:",
+        self.assertIn("train:,test:,val:",
                       result,
                       "Expected encoded value not returned")
 
@@ -83,18 +90,41 @@ class TestEncodeSplit(unittest.TestCase):
         """Test HttpBackendExperiments.encode_split function.
 
         Scenario:
-            1- Test expected value if train and test sets has only one value.
+            1- Test expected value if train, test and validation sets has only one value.
         """
         obj = HttpBackendExperiments(self.http_client)
         split = MagicMock()
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
-        split.train_idx = [1]  # train:f1t1
-        split.test_idx = [2]   # test:f2t1
+        split.val_idx = MagicMock()
+        split.train_idx = np.array([1])  # train:f1t1
+        split.test_idx = np.array([2])   # test:f2t1
+        split.val_idx = np.array([3])   # val:f3t1
         split.id = str(uuid.uuid4())
 
         result = obj.encode_split(split)
-        self.assertIn("train:f1t1,test:f2t1",
+        self.assertIn("train:f1t1,test:f2t1,val:f3t1",
+                      result,
+                      "Expected encoded value not returned")
+
+    def test_encode_split_05(self):
+        """Test HttpBackendExperiments.encode_split function.
+
+        Scenario:
+            1- Test expected value if train, test and validation idx are None.
+        """
+        obj = HttpBackendExperiments(self.http_client)
+        split = MagicMock()
+        split.train_idx = MagicMock()
+        split.test_idx = MagicMock()
+        split.validation_idx = MagicMock()
+        split.train_idx = None
+        split.test_idx = None
+        split.val_idx = None
+        split.id = str(uuid.uuid4())
+
+        result = obj.encode_split(split)
+        self.assertIn("train:,test:,val:",
                       result,
                       "Expected encoded value not returned")
 

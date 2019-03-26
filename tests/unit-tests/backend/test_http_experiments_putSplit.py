@@ -5,6 +5,7 @@ All unnecessary function and http calls are mocked
 import unittest
 import uuid
 
+import numpy as np
 from mock import MagicMock, patch
 
 from padre.backend.http_experiments import HttpBackendExperiments
@@ -49,16 +50,16 @@ class TestPutSplit(unittest.TestCase):
         run.metadata = {"server_url": "padretest.com/api/runs/1"}
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
-        split.train_idx = [2, 1, 5]  # train:f1t2f2t1
-        split.test_idx = [6, 4, 7]   # test: f4t1f1t2
+        split.val_idx = None
+        split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
+        split.test_idx = np.array([6, 4, 7])   # test: f4t1f1t2
         split.id = str(uuid.uuid4())
-
 
         result = obj.put_split(MagicMock(), run, split)
         self.assertEqual(self.test_split_url,
                          result,
                          'Put split does not return url of newly created split')
-        self.assertIn('"split": "train:f1t2f2t1,test:f4t1f1t2"',
+        self.assertIn('"split": "train:f1t2f2t1,test:f4t1f1t2,val:',
                       self.http_client.do_post.call_args[1]["data"],
                       "Split not posted with expected encoded value")
 
