@@ -488,7 +488,7 @@ class HttpBackendExperiments:
             return "application/x.padre.classification.v1+protobuf"
 
     def encode_split(self, split):
-        """Encode the train and test sets into boolean representation of run length encoding.
+        """Encode the train, test and validation sets into boolean representation of run length encoding.
 
         :param split: Split instance
         :type split: <class 'padre.experiment.Split'>
@@ -496,8 +496,11 @@ class HttpBackendExperiments:
         """
         train_idx = split.train_idx
         test_idx  = split.test_idx
+        val_idx = split.val_idx
+
         result = "train:"
         if train_idx:
+            train_idx.sort()
             train_bool_list = [False] * (train_idx[-1] + 1)
             for x in train_idx:
                 train_bool_list[x] = True
@@ -511,11 +514,25 @@ class HttpBackendExperiments:
 
         result += ",test:"
         if test_idx:
+            test_idx.sort()
             test_bool_list = [False] * (test_idx[-1] + 1)
             for x in test_idx:
                 test_bool_list[x] = True
 
             for b, g in groupby(test_bool_list):
+                l = str(len(list(g)))
+                if b:
+                    result += "t" + l
+                else:
+                    result += "f" + l
+        result += ",val:"
+        if val_idx:
+            val_idx.sort()
+            val_bool_list = [False] * (val_idx[-1] + 1)
+            for x in val_idx:
+                val_bool_list[x] = True
+
+            for b, g in groupby(val_bool_list):
                 l = str(len(list(g)))
                 if b:
                     result += "t" + l
