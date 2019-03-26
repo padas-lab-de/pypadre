@@ -37,7 +37,11 @@ from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
 from padre.base import PadreLogger
-from padre.eventhandler import add_logger
+from padre.eventhandler import add_logger, trigger_event
+
+# Create the logger object
+logger = PadreLogger()
+add_logger(logger=logger)
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]
@@ -48,8 +52,6 @@ if "PADRE_CFG_FILE" in os.environ:
     _PADRE_CFG_FILE = os.environ["PADRE_CFG_FILE"]
 else:
     _PADRE_CFG_FILE = os.path.expanduser('~/.padre.cfg')
-
-logger = logging.getLogger('pypadre')
 
 def _sub_list(l, start=-1, count=9999999999999):
     start = max(start, 0)
@@ -436,7 +438,7 @@ class DatasetApp:
                 self._parent.local_backend.datasets.put(ds)
         return ds
 
-    @deprecated # use get
+    @deprecated  # use get
     def get_dataset(self, dataset_id, binary=True, format=formats.numpy,
             force_download=True, cache_it=False):
         return self.get(dataset_id, binary, format, force_download,cache_it)
@@ -452,10 +454,9 @@ class DatasetApp:
         """
         # todo implement overwrite correctly
         if upload:
-            logger.warn(condition=self._parent.offline is False, source=self,
+            trigger_event('EVENT_WARN', condition=self._parent.offline is False, source=self,
                         message="Warning: The class is set to offline put upload was set to true. "
                                 "Backend is not expected to work properly")
-
             if self.has_printer():
                 self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
             ds.id = self._parent.remote_backend.datasets.put(ds, True)
@@ -470,7 +471,6 @@ class DatasetApp:
         if isinstance(dataset_id, Dataset):
             dataset_id = dataset_id.id
         self._parent.local_backend.datasets.delete(dataset_id)
-
 
 
 class ExperimentApp:
@@ -556,6 +556,8 @@ class PadreApp:
         self._http_repo = PadreHTTPClient(**self._config.http_backend_config)
         self._file_repo = PadreFileBackend(**self._config.local_backend_config)
         self._dual_repo = DualBackend(self._file_repo, self._http_repo)
+        # Adding the backend to the logger from the config file
+        logger.backend = self._dual_repo
         self._print = printer
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
@@ -634,8 +636,3 @@ class PadreApp:
 
 import sys
 pypadre = PadreApp(printer=print) # load the default app
-
-# Create and set the logger
-logger = PadreLogger()
-logger.backend = pypadre.repository
-add_logger(logger=logger)
