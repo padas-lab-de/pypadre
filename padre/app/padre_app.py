@@ -14,7 +14,6 @@ Architecture of the module
 """
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
-import logging
 import os
 import configparser
 

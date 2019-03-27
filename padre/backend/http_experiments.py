@@ -3,7 +3,6 @@ Logic to upload experiment data to server goes here
 """
 import io
 import json
-import logging
 import tempfile
 import uuid
 from itertools import groupby
@@ -15,8 +14,7 @@ from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
 from padre import experimentcreator
 from padre.backend.serialiser import PickleSerializer
-
-logger = logging.getLogger('pypadre - http')
+from padre.eventhandler import trigger_event
 
 
 class HttpBackendExperiments:
@@ -56,7 +54,8 @@ class HttpBackendExperiments:
                     dataset_id = json.loads(response.content)["uid"]
 
             except req.HTTPError as e:
-                logger.warn("Dataset with id {%s} not found  " % str(_id))
+                trigger_event('EVENT_WARN', condition=False, source=self,
+                              message="Dataset with id {%s} not found  " % str(_id))
                 dataset_id = self._http_client.datasets.put(ds)
         return dataset_id
 
