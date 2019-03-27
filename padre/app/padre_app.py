@@ -52,6 +52,7 @@ if "PADRE_CFG_FILE" in os.environ:
 else:
     _PADRE_CFG_FILE = os.path.expanduser('~/.padre.cfg')
 
+
 def _sub_list(l, start=-1, count=9999999999999):
     start = max(start, 0)
     stop = min(start + count, len(l))
@@ -65,6 +66,7 @@ def _wheel_char(n_max):
     chars = ["/", "-", "\\", "|", "/", "-", "\\", "|"]
     for i in range(n_max):
         yield "\r" + chars[i % len(chars)]
+
 
 def dict_merge(dct, merge_dct):
     """ Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
@@ -83,10 +85,12 @@ def dict_merge(dct, merge_dct):
         else:
             dct[k] = merge_dct[k]
 
+
 def get_default_table():
     table = BeautifulTable(max_width=150, default_alignment=Alignment.ALIGN_LEFT)
     table.row_separator_char = ""
     return table
+
 
 class PadreConfig:
     """
@@ -117,7 +121,7 @@ class PadreConfig:
     3- Set value for given key in config
     4- Authenticate given user and update new token in the config
     """
-    def __init__(self, config_file: str=_PADRE_CFG_FILE, create: bool=True, config:dict=None):
+    def __init__(self, config_file: str = _PADRE_CFG_FILE, create: bool = True, config: dict = None):
         """
         PRecedence of Configurations: default gets overwritten by file which gets overwritten by config parameter
         :param config: str pointing to the config file or None if no config file should be used
@@ -134,13 +138,12 @@ class PadreConfig:
         # now merge
         self.__merge_config(config)
 
-
     def __merge_config(self, to_merge):
         # merges the provided dictionary into the config.
         if to_merge is not None:
             dict_merge(self._config, to_merge)
 
-    def __load_config (self):
+    def __load_config(self):
         """
         loads a padre configuration from the given file or from the standard file ~/.padre.cfg if no file is provided
         :param config_file: filename of config file
@@ -157,8 +160,8 @@ class PadreConfig:
         """
         return {
             "HTTP BACKEND": {
-                    "base_url": _BASE_URL,
-                     "user": "mgrani",
+                "base_url": _BASE_URL,
+                "user": "mgrani",
             },
             "LOCAL BACKEND": {
                 "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre")
@@ -199,6 +202,7 @@ class PadreConfig:
         reloads the configuration specified under the current config path
         """
         self.__load_config()
+
     def save(self) -> None:
         """
         saves the current configuration to the configured file
@@ -228,7 +232,7 @@ class PadreConfig:
         """
         if not self.config[section]:
             self.config[section] = dict()
-        self.config[section][key]=value
+        self.config[section][key] = value
 
     def get(self, key, section='HTTP BACKEND'):
         """
@@ -243,8 +247,6 @@ class PadreConfig:
         """
         Authenticate given user and update new token in the config.
 
-        :param url: url of the server
-        :type url: str
         :param user: Given user
         :type user: str
         :param passwd: Given password
@@ -272,6 +274,7 @@ class DatasetApp:
         :param search_metadata: key/value dictionaries for metadata field / value (not implemented yet)
         :param start: paging information where to start in the returned list
         :param count: number of datasets to return.
+        :param print: whether to print the details of the datasets or not.
         :return:
         """
         # todo: merge results and allow multiple repositories. all should have same signature. then iterate over repos
@@ -325,13 +328,14 @@ class DatasetApp:
                     for m in [("min", v.minmax[0]), ("max", v.minmax[1]), ("mean", v.mean),
                               ("kurtosis", v.kurtosis), ("skewness", v.skewness)]:
                         r = [m[0]]
-                        for val in m[1]: r.append(val)
+                        for val in m[1]:
+                            r.append(val)
                         table.append_row(r)
                     self._print(table)
                 else:
                     self._print("\t%s=%s" % (k, str(v)))
 
-    def search_downloads(self, name: str=None)->list:
+    def search_downloads(self, name: str = None)->list:
         """
         searches for importable datasets (as specified in the datasets file).
         :param name: regexp for filtering the names
@@ -368,8 +372,7 @@ class DatasetApp:
             dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
             yield dataset
 
-
-    def sync(self, name: str=None, mode: str = "sync"):
+    def sync(self, name: str = None, mode: str = "sync"):
         """
         syncs the specified dataset with the server.
         :param name: name of the dataset. If None is provided, all datasets are synced
@@ -381,11 +384,11 @@ class DatasetApp:
         """
         pass
 
-    @deprecated(reason="use downloads function below") # see download
+    @deprecated(reason="use downloads function below")  # see download
     def do_default_imports(self, sklearn=True):
         if sklearn:
             for ds in padre.ds_import.load_sklearn_toys():
-               self.do_import(ds)
+                self.do_import(ds)
 
     def _print(self, output, **kwargs):
         self._parent.print(output, **kwargs)
@@ -399,22 +402,22 @@ class DatasetApp:
             self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
         self._parent.remote_backend.upload_dataset(ds, True)
 
-    def upload_scratchdatasets(self,auth_token,max_threads=8,upload_graphs=True):
-        if(max_threads<1 or max_threads>50):
-            max_threads=2
+    def upload_scratchdatasets(self, auth_token, max_threads=8, upload_graphs=True):
+        if(max_threads < 1 or max_threads > 50):
+            max_threads = 2
         if("api"in _BASE_URL):
             url=_BASE_URL.strip("/api")
         else:
-            url=_BASE_URL
-        padre.ds_import.sendTop100Datasets_multi(auth_token,url,max_threads)
+            url =_BASE_URL
+        padre.ds_import.sendTop100Datasets_multi(auth_token, url, max_threads)
         print("All openml datasets are uploaded!")
         if(upload_graphs):
-            padre.ds_import.send_top_graphs(auth_token,url,max_threads>=3)
+            padre.ds_import.send_top_graphs(auth_token, url, max_threads >= 3)
 
-    def get(self, dataset_id, binary: bool =True,
-            format=formats.numpy,
-            force_download: bool =True,
-            cache_it: bool =False):
+    def get(self, dataset_id, binary: bool = True,
+            format = formats.numpy,
+            force_download: bool = True,
+            cache_it: bool = False):
         """
         fetches a dataset either from local or from remote repository.
         :param dataset_id: id of the dataset to be fetched
@@ -428,7 +431,7 @@ class DatasetApp:
         ds = None
         if isinstance(dataset_id, Dataset):
             dataset_id = dataset_id.id
-        if not force_download: # look in cache first
+        if not force_download:  # look in cache first
             ds = self._parent.local_backend.datasets.get(dataset_id)
         if ds is None and not self._parent.offline:  # no cache or not looked --> go to http client
             # ds = self._parent.remote_backend.datasets.get(dataset_id, binary, format=format)
@@ -439,23 +442,23 @@ class DatasetApp:
 
     @deprecated  # use get
     def get_dataset(self, dataset_id, binary=True, format=formats.numpy,
-            force_download=True, cache_it=False):
-        return self.get(dataset_id, binary, format, force_download,cache_it)
+                    force_download=True, cache_it=False):
+        return self.get(dataset_id, binary, format, force_download, cache_it)
 
-    def put(self, ds: Dataset, overwrite= True, upload= True)->None:
+    def put(self, ds: Dataset, overwrite=True, upload=True)->None:
         """
         puts a dataset to the local repository as well to server if upload is True
 
-        :param dataset: dataset to be uploaded
-        :type dataset: <class 'padre.core.datasets.Dataset'>
+        :param ds: dataset to be uploaded
+        :type ds: <class 'padre.core.datasets.Dataset'>
         :param overwrite: if false, datasets are not overwritten
         :param upload: True, if the dataset should be uploaded
         """
         # todo implement overwrite correctly
         if upload:
             trigger_event('EVENT_WARN', condition=self._parent.offline is False, source=self,
-                        message="Warning: The class is set to offline put upload was set to true. "
-                                "Backend is not expected to work properly")
+                          message="Warning: The class is set to offline put upload was set to true. "
+                                  "Backend is not expected to work properly")
             if self.has_printer():
                 self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
             ds.id = self._parent.remote_backend.datasets.put(ds, True)
@@ -494,8 +497,6 @@ class ExperimentApp:
             s = None
 
         self._parent.local_backend.experiments.delete_experiments(search_id=file_name, search_metadata=s)
-
-
 
     def list_experiments(self, search=None, start=-1, count=999999999, ):
         """
@@ -633,5 +634,5 @@ class PadreApp:
     def repository(self):
         return self._dual_repo
 
-import sys
+
 pypadre = PadreApp(printer=print) # load the default app
