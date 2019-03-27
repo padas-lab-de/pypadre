@@ -3,13 +3,9 @@ This file will be used to test the functionalities of the ExperimentCreator clas
 """
 from padre.app import pypadre
 from padre.experimentcreator import ExperimentCreator
-from padre.base import PadreLogger
-from padre.eventhandler import add_logger
 
 def main():
-    logger = PadreLogger()
-    logger.backend = pypadre.local_backend.experiments
-    add_logger(logger=logger)
+
     experiment_helper = ExperimentCreator()
     print(experiment_helper.get_dataset_names())
     workflow = experiment_helper.create_test_pipeline(['principal component analysis', 'linear regression'])

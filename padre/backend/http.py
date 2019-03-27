@@ -30,10 +30,9 @@ from requests_toolbelt import MultipartEncoder
 from padre.backend.http_experiments import HttpBackendExperiments
 from padre.backend.serialiser import PickleSerializer
 from padre.core.datasets import Dataset, Attribute
+from padre.eventhandler import assert_condition, trigger_event
 import padre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
-import logging
 
-logger = logging.getLogger('pypadre - http')
 
 class PadreHTTPClient:
 
@@ -58,11 +57,11 @@ class PadreHTTPClient:
         self._experiments_client = HttpBackendExperiments(self)
 
         self._access_token = token
+        trigger_event('EVENT_WARN', condition=self._access_token is not None, source=self,
+                      message="Authentication token is NONE. You need to authentication for user %s "
+                              "with your current password (or set a new user)" % self.user)
         if self._access_token is not None:
             self._default_header['Authorization'] = self._access_token
-        else:
-            logger.warning("Authentication token is NONE. You need to authentication for user %s "
-                           "with your current password (or set a new user)" % self.user)
 
     def authenticate(self, passwd="", user= None):
         if user is not None:
@@ -366,7 +365,7 @@ class HTTPBackendDatasets:
         binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](_id)
         pb_data = self.parent.do_get(binaries_url).content
         dataset = self.response_to_dataset(response_meta, pb_data)
-        logger.info("Loaded dataset " + _id + " from server:")
+        trigger_event('EVENT_LOG', source=self, message="Loaded dataset " + _id + " from server:")
         return dataset
 
     def make_proto(self, dataset, _file):
@@ -492,7 +491,7 @@ class HTTPBackendDatasets:
             dataset.set_data(df_data, atts)
 
         except ConnectionError as err:
-            logger.error("openML unreachable! \nErrormessage: " + str(err))
+            assert_condition(condition=False, source=self, message="openML unreachable! \nErrormessage: " + str(err))
 
         return dataset
 
