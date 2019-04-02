@@ -15,6 +15,7 @@ from padre.core.visitors.mappings import name_mappings
 from padre.core.visitors.mappings import supported_frameworks
 from padre.core import Experiment
 
+
 class ExperimentCreator:
     # Initialization of the experiments dict.
     # This dictionary contains all the experiments to be executed.
@@ -587,6 +588,9 @@ class ExperimentCreator:
         :return: None
         """
         import pprint
+        from padre.app.padre_app import DatasetApp
+        from padre.core.datasets import Dataset
+
         if self._experiments is None:
             return
 
@@ -601,8 +605,16 @@ class ExperimentCreator:
 
             if len(dataset) == 1:
 
+                assert_condition(condition=isinstance(dataset[0], DatasetApp) or
+                                           isinstance(dataset[0], Dataset) or isinstance(dataset[0], str),
+                                 source=self, message='Unsupported Dataset Type')
+
                 # Get the data from the dataset name
-                data = self.get_local_dataset(dataset[0])
+                if isinstance(dataset[0], DatasetApp) or isinstance(dataset[0], Dataset):
+                    data = dataset[0]
+                elif isinstance(dataset[0], str):
+                    data = self.get_local_dataset(dataset[0])
+
 
                 # Classifiers cannot work on continuous data and rejected as experiments.
                 if not np.all(np.mod(data.targets(), 1) == 0):
@@ -634,6 +646,16 @@ class ExperimentCreator:
                 # If there are multiple datasets defined for the experiment execute the experiment for each dataset
                 datasets = dataset
                 for dataset in datasets:
+
+                    assert_condition(condition=isinstance(dataset, DatasetApp) or
+                                               isinstance(dataset, Dataset) or isinstance(dataset, str),
+                                     source=self, message='Unsupported Dataset Type')
+
+                    # Get the data from the dataset name
+                    if isinstance(dataset, DatasetApp) or isinstance(dataset, Dataset):
+                        data = dataset
+                    elif isinstance(dataset, str):
+                        data = self.get_local_dataset(dataset)
 
                     # If such an experiment does not exist, discard
                     if self._experiments.get(experiment, None) is None:

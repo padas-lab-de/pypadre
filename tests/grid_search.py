@@ -11,6 +11,7 @@ def main():
     # Experiment using SVD in the pipeline
     # Setting parameters for estimator 'LSA'/Truncated SVD
     experiment_helper = ExperimentCreator()
+    dataset = experiment_helper.get_local_dataset('Diabetes')
     params = {'n_neighbors': [2,8,10], 'n_components': [3,7]}
     param_value_dict = {'isomap embedding': params}
     workflow = experiment_helper.create_test_pipeline(['isomap embedding'])
@@ -18,7 +19,7 @@ def main():
         experiment_helper.convert_alternate_estimator_names(param_value_dict)
     experiment_helper.create(name='Grid_search_experiment_1',
                              description='This is the first grid search test experiment',
-                             dataset_list='Boston_House_Prices',
+                             dataset_list=[dataset],
                              workflow=workflow, params=experiment_param_dict.get('Grid_search_experiment_1'))
 
 
