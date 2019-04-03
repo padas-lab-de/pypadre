@@ -990,3 +990,135 @@ class CompareMetrics:
             self._dir_path = self._dir_path + directory_list
         else:
             self._dir_path = directory_list
+
+
+class ComputeMetrics:
+    """
+    This class is responsible for computing the different metrics related to experiments
+    """
+
+    def pr_curve(self, y_true, y_pred, probability, label=1):
+        """
+        This function returns a list of tuples having the p value, r value and confidence value
+        :param y_true:
+        :param y_pred:
+        :param probability: A list of lists containing the probabilities for each class
+        :param label: The label for which the precision recall curve has to be computed
+        :return: a list of tuples containing (recall, precision, threshold)
+        """
+        assert_condition(condition=len(y_pred) == len(y_true) == len(probability), source=self,
+                         message="Length mismatch between y_pred, y_true and probabilities")
+        assert_condition(condition=isinstance(y_true, list) , source=self,
+                         message='Function argument y_true is not a list')
+        assert_condition(condition=isinstance(y_pred, list), source=self,
+                         message='Function argument y_pred is not a list')
+        assert_condition(condition=isinstance(probability, list), source=self,
+                         message='Function argument probabilities is not a list')
+
+        for idx in range(0, len(probability)):
+            assert_condition(condition=isinstance(probability[idx], list), source=self,
+                             message='An element at position {idx} is not a list in probabilities'.format(idx=idx+1))
+
+        pr_value = []
+        # Find out the number of classes
+        num_classes = len(probability[0])
+        if num_classes == 2:
+            # If there are only two classes, find the maximum probabilities in each probability list
+            max_probabilites = []
+            for prob in probability:
+                max_probabilites.append(max(prob))
+
+            # Find the indices corresponding to the sorted probabilities list
+            sorted_indices = sorted(range(len(max_probabilites)), key=lambda k: max_probabilites[k])
+
+            # Compute precision and recall at each of those sorted indices
+            for idx in range(0, len(sorted_indices)):
+                # Compute precision and recall up to idx
+                inner_idx = 0
+                tp = 0
+                tn = 0
+                fp = 0
+                fn = 0
+                while inner_idx <= idx:
+                    if y_pred[inner_idx] == 1 and y_true[inner_idx] == y_pred[inner_idx]:
+                        tp += 1
+
+                    elif y_pred[inner_idx] == 1 and y_true[inner_idx] == 0:
+                        fp += 1
+
+                    elif y_pred[inner_idx] == 0 and y_true[inner_idx] == 1:
+                        fn += 1
+
+                    elif y_pred[inner_idx] == 0 and y_true[inner_idx] == y_pred[inner_idx]:
+                        tn += 1
+
+                precision = tp / (tp + fp)
+                recall = tp / (tp + fn)
+                threshold = probability[idx]
+
+                pr_value.append(tuple(recall, precision, threshold))
+
+        else:
+
+            # Modify the true and predictions to only include the indices that contain the label
+            # as a true positive or a false positive
+
+            modified_y_true = []
+            modified_y_pred = []
+            modified_probabilities = []
+
+            tp = 0
+            fp = 0
+            tn = 0
+            fn = 0
+
+            for idx in range(0, len(y_pred)):
+                if y_true[idx] == label or y_pred[idx] == label:
+                    modified_y_true.append(y_true[idx])
+                    modified_y_pred.append(y_pred[idx])
+                    modified_probabilities.append(probability[idx])
+
+                    # If there are only two classes, find the maximum probabilities in each probability list
+                    max_probabilites = []
+                    for prob in probability:
+                        max_probabilites.append(max(prob))
+
+                    # Find the indices corresponding to the sorted probabilities list
+                    sorted_indices = sorted(range(len(max_probabilites)), key=lambda k: max_probabilites[k])
+
+                    # Compute precision and recall at each of those sorted indices
+                    for idx in range(0, len(sorted_indices)):
+                        # Compute precision and recall up to idx
+                        inner_idx = 0
+                        tp = 0
+                        tn = 0
+                        fp = 0
+                        fn = 0
+                        while inner_idx <= idx:
+                            if y_pred[inner_idx] == 1 and y_true[inner_idx] == y_pred[inner_idx]:
+                                tp += 1
+
+                            elif y_pred[inner_idx] == 1 and y_true[inner_idx] == 0:
+                                fp += 1
+
+                            elif y_pred[inner_idx] == 0 and y_true[inner_idx] == 1:
+                                fn += 1
+
+                            elif y_pred[inner_idx] == 0 and y_true[inner_idx] == y_pred[inner_idx]:
+                                tn += 1
+
+                        precision = tp / (tp + fp)
+                        recall = tp / (tp + fn)
+                        threshold = probability[idx]
+
+                        pr_value.append(tuple(recall, precision, threshold))
+
+
+
+
+
+
+
+
+
+
