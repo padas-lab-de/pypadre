@@ -70,7 +70,7 @@ class TestFileRepository(unittest.TestCase):
                 repo.put_dataset(i.name, i)
                 print(i)
             # Read list of datasets
-            datasets_restored = repo.list_datasets()
+            datasets_restored = repo.list()
             assert set(datasets) == set(datasets_restored), "Names not equal. "
             # Load datasets
             for n in datasets_restored:

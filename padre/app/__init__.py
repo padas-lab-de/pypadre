@@ -5,4 +5,6 @@ The package contains
 """
 
 from .padre_app import pypadre
+from .padre_app import PadreApp
+from .padre_app import PadreConfig
 

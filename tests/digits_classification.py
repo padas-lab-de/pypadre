@@ -7,7 +7,7 @@ The example is taken from <http://scikit-learn.org/stable/auto_examples/plot_dig
 import pprint
 
 from padre.ds_import import load_sklearn_toys
-from padre.experiment import Experiment
+from padre.core import Experiment
 
 
 def create_test_pipeline():
@@ -27,7 +27,7 @@ def main():
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list_datasets()
+        pypadre.datasets.list()
         ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
         ds = [i for i in load_sklearn_toys()][2]
@@ -37,7 +37,7 @@ def main():
                     description="Testing Support Vector Classification via SKLearn Pipeline",
                     dataset=ds,
                     workflow=create_test_pipeline(),
-                    backend=pypadre.file_repository.experiments)
+                    backend=pypadre.local_backend.experiments)
 
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters

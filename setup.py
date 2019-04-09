@@ -10,7 +10,13 @@ release = '0.0.1'
 setup(
     name=name,
     version=version,
-    packages=find_packages(),
+    packages=['padre']+find_packages(exclude=["tests"]),
+    package_dir={'padre': 'padre'},
+    package_data={'padre': ['res/mapping/pytorch.json', 'res/mapping/mapping.json',
+                            'core/wrappers/wrapper_mappings/mappings_torch.json',
+                            'protobuffer/binaries/1kb_mixed_dataframe.protobinV1']},
+    #packages=find_packages(),
+    include_package_data=True,
     url='',
     license='GPL',
     author='Michael Granitzer',
@@ -27,3 +33,5 @@ setup(
             'release': ('setup.py', release)}},
     # for click setup see http://click.pocoo.org/6/setuptools/
 )
+
+# todo add requirements txt for tests only

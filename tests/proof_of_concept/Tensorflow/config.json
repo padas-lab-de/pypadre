@@ -1,0 +1,50 @@
+{
+    "layer_order": [
+        "layer1",
+        "layer3",
+        "layer4"
+    ],
+    "architecture": {
+        "layer1": {
+            "type": "dense",
+            "params": {
+                "units": 10
+            }
+        },
+        "layer2": {
+            "type": "relu"
+        },
+        "layer3": {
+            "type": "dense",
+            "params": {
+                "units": 20,
+                "bias": true
+            }
+        },
+        "layer4": {
+            "type": "dense",
+            "params": {
+                "units": 3
+            }
+        }
+    },
+    "loss": {
+        "type": "MSELOSS",
+        "params": {
+            "size_average": true,
+            "reduce": true
+        }
+    },
+    "optimizer": {
+        "type": "SGD",
+        "params": {
+            "momentum": 0.9,
+            "dampening": 0,
+            "weight_decay": 0,
+            "Nesterov": false,
+            "lr": 0.01
+        }
+    },
+    "steps": 1000,
+    "batch_size": 1
+}

@@ -1,0 +1,140 @@
+{
+  "algorithms": [
+    {
+      "name": "pytorch",
+      "other_names": [],
+      "wikidata_id": "Q47509047",
+      "implementation": {
+        "pytorch": "padre.core.wrappers.wrapper_pytorch.WrapperPytorch"
+      },
+      "type": "Neural Network",
+      "hyper_parameters": {
+        "model_parameters": [
+          {
+            "name": "steps",
+            "kind_of_value": "integer",
+            "range": "Z >= 1",
+            "optional": false,
+            "description": "Number of iterations that the Neural network should be optimized by backward pass",
+            "measurement_scale": "ratio",
+            "pytorch": {
+              "path": "steps",
+              "default_value": 100
+            }
+          },
+          {
+            "name": "batch_size",
+            "kind_of_value": "integer",
+            "range": "Z >= 1",
+            "optional": false,
+            "description": "Number of samples acquired for each iteration",
+            "measurement_scale": "ratio",
+            "pytorch": {
+              "path": "batch_size",
+              "default_value": 1
+            }
+          },
+          {
+            "name": "checkpoint",
+            "kind_of_value": "integer",
+            "range": "Z >= 1",
+            "optional": true,
+            "description": "A save point for the intermediate trained model is created every N number of iterations",
+            "measurement_scale": "ratio",
+            "pytorch": {
+              "path": "checkpoint",
+              "default_value": null
+            }
+          },
+          {
+            "name": "resume",
+            "kind_of_value": "boolean",
+            "range": "{True, False}",
+            "optional": true,
+            "description": "Allows the model to resume training based on an earlier saved check point",
+            "measurement_scale": "nominal",
+            "pytorch": {
+              "path": "resume",
+              "default_value": false
+            }
+          },
+          {
+            "name": "pre_trained_model_path",
+            "kind_of_value": "string",
+            "optional": true,
+            "description": "Path of a saved model to be loaded for continuing the training",
+            "measurement_scale": "ordinal",
+            "pytorch": {
+              "path": "pre_trained_model_path",
+              "default_value": null
+            }
+          },
+          {
+            "name": "model_prefix",
+            "kind_of_value": "string",
+            "optional": true,
+            "description": "The prefix string to be given to the name of the model",
+            "measurement_scale": "ordinal",
+            "pytorch": {
+              "path": "model_prefix",
+              "default_value": "model_prefix"
+            }
+          },
+          {
+            "name": "optimizer_params",
+            "kind_of_value": "dictionary",
+            "optional": false,
+            "description": "The optimizer method chosen for the model",
+            "pytorch": {
+              "path": "optimizer_params"
+            }
+          },
+          {
+            "name": "lr_scheduler_params",
+            "kind_of_value": "dictionary containing the state of the lr_scheduler",
+            "optional": true,
+            "description": "The dictionary contains the different parameters of the lr scheduler",
+            "pytorch": {
+              "path": "lr_scheduler_params"
+            }
+          },
+          {
+            "name": "loss_params",
+            "kind_of_value": "dictionary containing the state of the loss function",
+            "optional": false,
+            "description": "The dictionary contains the different parameters of the loss function",
+            "pytorch": {
+              "path": "loss_params"
+            }
+          },
+          {
+            "name": "layer_order",
+            "kind_of_value": "list",
+            "optional": false,
+            "description": "This describes the ordering of the different layers of the network",
+            "pytorch": {
+              "path": "layer_order"
+            }
+          },
+          {
+            "name": "architecture",
+            "kind_of_value": "dictionary containing the layer names and its parameters",
+            "optional": false,
+            "description": "The dictionary contains the semantic description of each of the layers",
+            "pytorch": {
+              "path": "architecture"
+            }
+          }
+        ],
+        "optimization_parameters": [],
+        "execution_parameters": []
+      }
+    }
+  ],
+  "metadata": {
+    "author": "Michael Granitzer",
+    "library": "pytorch",
+    "library_version": "0.4.0",
+    "mapping_version": "0.1"
+  }
+}

@@ -39,9 +39,11 @@ class VisualizeResults:
 
         dir_list = self.get_immediate_subdirectories(dir_path)
 
-        for sub_directory in dir_list:
-            if os.path.exists(os.path.join(sub_directory, 'results.json')):
-                self._path_list.append(os.path.join(sub_directory, 'results.json'))
+        for run in dir_list:
+            split_list = self.get_immediate_subdirectories(run)
+            for splits in split_list:
+                if os.path.exists(os.path.join(splits, 'results.json')):
+                    self._path_list.append(os.path.join(splits, 'results.json'))
 
     def get_immediate_subdirectories(self, dir_path):
         return [os.path.join(dir_path, name) for name in os.listdir(dir_path)
@@ -181,7 +183,7 @@ def main():
             "db1adfc4-5e70-11e8-b985-080027031794.run/results.json"
 
     dir_path = '/home/chris/.pypadre/experiments/Grid_search_experiment_4.ex'
-    dir_path = filedialog.askdirectory()
+    dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Regression Experiment Directory")
     if not dir_path:
         print('Directory of Regression Experiment not chosen.')
         return
@@ -201,7 +203,7 @@ def main():
         "53bd15c0-5e86-11e8-b985-080027031794.run" \
         "/results.json"
     #dir_path = '/home/chris/.pypadre/experiments/Grid_search_experiment_3.ex'
-    dir_path = filedialog.askdirectory()
+    dir_path = filedialog.askdirectory(initialdir="~/.pypadre/experiments", title="Select Classification Experiment Directory")
     if not dir_path:
         print('Directory for classification experiment not chosen.')
         return

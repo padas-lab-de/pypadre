@@ -1,0 +1,24 @@
+# Installing virtual environment
+
+sudo apt update
+sudo apt install python3-dev python3-pip
+sudo pip3 install -U virtualenv  # system-wide install
+
+# Navigate to a folder where the virtual environment is to be created
+virtualenv --system-site-packages -p python3 ./venv # Installs the virtual environment in pwd/venv
+
+# Activate the virtual environment
+source ./venv/bin/activate
+
+# Install required packages for padre
+pip install -r /path/to/requirements.txt
+
+# Install the script in the padre folder
+./path/to/build_package.sh
+
+# Show packages installed within the virtual environment
+pip list
+
+# Deactivate the virtual environment
+deactivate
+
