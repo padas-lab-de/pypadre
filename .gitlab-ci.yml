@@ -22,7 +22,14 @@ build:
   stage: build
   script:
     - python -m unittest discover -s ./tests/unit-tests/
-release:
+    - ./build_package.sh
+  artifacts:
+    when: always
+    paths:
+      - ./wheelhouse/
+
+
+release: # Missing version bump, and deployment on some pip repo
   image: python:3.6.8-stretch
   only:
     - master
@@ -34,4 +41,4 @@ release:
   artifacts:
     when: always
     paths:
-      - ./wheelhouse/
+      - ../wheelhouse/
