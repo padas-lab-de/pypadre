@@ -1,15 +1,28 @@
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
 stages:
   - build
   - release
 
 before_script:
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
   - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install # Enforce the order of the installation
 
 maven-build:
   image: python:3.6.8-stretch
   stage: build
   script:
+    - echo "test has to start"
     - python -m unittest discover -s ./tests/unit-tests/
+    - echo "test ends"
 
 maven-release:
   image: python:3.6.8-stretch
