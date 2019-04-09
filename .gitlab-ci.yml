@@ -31,7 +31,7 @@ release:
   script:
     - python -m unittest discover -s ./tests/unit-tests/
     - ./build_package.sh
-  artifact:
+  artifacts:
     when: always
     paths:
       - ./wheelhouse/
