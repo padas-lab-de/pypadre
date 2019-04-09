@@ -15,7 +15,7 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
   - echo "install has to start"
-  - pip install -r requirements.txt # Enforce the order of the installation
+  - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install || true # Enforce the order of the installation
   - echo "install done"
 
 maven-build:
