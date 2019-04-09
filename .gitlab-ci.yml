@@ -2,16 +2,13 @@ stages:
   - build
   - release
 
-cache:
-  paths:
-    - .m2/
+before_script:
+  - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install # Enforce the order of the installation
 
-# need to validate path
 maven-build:
   image: python:3.6.8-stretch
   stage: build
   script:
-    - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install # Enforce the order of the installation
     - python -m unittest discover -s ./tests/unit-tests/
 
 maven-release:
@@ -21,6 +18,5 @@ maven-release:
   when: manual
   stage: release
   script:
-    - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install # Enforce the order of the installation
     - python -m unittest discover -s ./tests/unit-tests/
     - ./build_package.sh
