@@ -14,7 +14,9 @@ before_script:
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
+  - echo "install has to start"
   - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install # Enforce the order of the installation
+  - echo "install done"
 
 maven-build:
   image: python:3.6.8-stretch
