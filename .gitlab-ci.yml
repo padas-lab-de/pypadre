@@ -14,19 +14,15 @@ before_script:
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  - echo "install has to start"
+  - pip install sphinx
   - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install || true # Enforce the order of the installation
-  - echo "install done"
 
-maven-build:
+build:
   image: python:3.6.8-stretch
   stage: build
   script:
-    - echo "test has to start"
     - python -m unittest discover -s ./tests/unit-tests/
-    - echo "test ends"
-
-maven-release:
+release:
   image: python:3.6.8-stretch
   only:
     - master
@@ -35,3 +31,7 @@ maven-release:
   script:
     - python -m unittest discover -s ./tests/unit-tests/
     - ./build_package.sh
+  artifact:
+    when: always
+    paths:
+      - ./wheelhouse/

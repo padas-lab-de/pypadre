@@ -9,7 +9,6 @@ if [ ! -d '../wheelhouse' ]; then
     mkdir "../wheelhouse"
 fi
 pip wheel . --wheel-dir ../wheelhouse/
-pip uninstall PyPaDRE-Python-Client-for-PADAS-Data-Science-Reproducibility-Environment
-pip install $PACKAGE_NAME
+pip install --force-reinstall $PACKAGE_NAME
 
 cd $CURR_DIR
