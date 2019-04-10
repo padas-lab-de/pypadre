@@ -3,7 +3,7 @@ from sphinx.setup_command import BuildDoc
 
 cmdclass = {'build_sphinx': BuildDoc}
 
-name = 'PyPaDRE - Python Client for PADAS Data Science Reproducibility Environment'
+name = 'pypadre'
 version = '0.0.1'
 release = '0.0.1'
 
@@ -17,11 +17,11 @@ setup(
                             'protobuffer/binaries/1kb_mixed_dataframe.protobinV1']},
     #packages=find_packages(),
     include_package_data=True,
-    url='',
+    url='https://padre-lab.eu',
     license='GPL',
     author='Michael Granitzer',
     author_email='michael.granitzer@uni-passau.de',
-    description='',
+    description='PaDRe aims to solve problems about reproducibility',
     entry_points='''
        [console_scripts]
        padre=padre.app.padre_cli:main

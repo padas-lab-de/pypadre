@@ -36,8 +36,19 @@ release: # Missing version bump, and deployment on some pip repo
   when: manual
   stage: release
   script:
+    - apt-get update
+    - apt-get install --assume-yes sshpass openssh-client
     - python -m unittest discover -s ./tests/unit-tests/
-    - ./build_package.sh # Upload to a WebServer?
+    - ./build_package.sh # Upload to a WebServer / Pip server?
+    - echo "[distutils]
+        index-servers =
+        padim-pypi
+
+      [padim-pypi]
+        repository:https://pypi.padim.fim.uni-passau.de/
+        username:$PYPI_USER
+        password:$PYPI_PW" > ~/.pypirc2
+    - python3 setup.py sdist upload -r padim-pypi
   artifacts:
     when: always
     paths:
