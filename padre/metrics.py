@@ -990,3 +990,262 @@ class CompareMetrics:
             self._dir_path = self._dir_path + directory_list
         else:
             self._dir_path = directory_list
+
+
+class ComputeMetrics:
+    """
+    This class is responsible for computing the different metrics related to experiments
+    """
+
+    def compute_pr_curve(self, y_true, y_pred, probability, label=1):
+        """
+        This function returns a list of tuples having the p value, r value and confidence value
+        :param y_true:
+        :param y_pred:
+        :param probability: A list of lists containing the probabilities for each class
+        :param label: The label for which the precision recall curve has to be computed
+        :return: a list of tuples containing (recall, precision, threshold)
+        """
+        assert_condition(condition=len(y_pred) == len(y_true) == len(probability), source=self,
+                         message="Length mismatch between y_pred, y_true and probabilities")
+        assert_condition(condition=isinstance(y_true, list) , source=self,
+                         message='Function argument y_true is not a list')
+        assert_condition(condition=isinstance(y_pred, list), source=self,
+                         message='Function argument y_pred is not a list')
+        assert_condition(condition=isinstance(probability, list), source=self,
+                         message='Function argument probabilities is not a list')
+
+        for idx in range(0, len(probability)):
+            assert_condition(condition=isinstance(probability[idx], list), source=self,
+                             message='An element at position {idx} is not a list in probabilities'.format(idx=idx+1))
+
+        pr_value = []
+        # Find out the number of classes
+        num_classes = len(probability[0])
+        if num_classes == 2:
+            # If there are only two classes, find the maximum probabilities in each probability list
+            max_probabilites = []
+            for prob in probability:
+                max_probabilites.append(max(prob))
+
+            # Find the indices corresponding to the sorted probabilities list
+            sorted_indices = sorted(range(len(max_probabilites)), key=lambda k: max_probabilites[k])
+
+            # Compute precision and recall at each of those sorted indices
+            for idx in range(0, len(sorted_indices)):
+                # Compute precision and recall up to idx
+                inner_idx = 0
+                tp = 0
+                tn = 0
+                fp = 0
+                fn = 0
+                while inner_idx <= idx:
+                    if y_pred[inner_idx] == 1 and y_true[inner_idx] == y_pred[inner_idx]:
+                        tp += 1
+
+                    elif y_pred[inner_idx] == 1 and y_true[inner_idx] == 0:
+                        fp += 1
+
+                    elif y_pred[inner_idx] == 0 and y_true[inner_idx] == 1:
+                        fn += 1
+
+                    elif y_pred[inner_idx] == 0 and y_true[inner_idx] == y_pred[inner_idx]:
+                        tn += 1
+
+                precision = tp / (tp + fp)
+                recall = tp / (tp + fn)
+                threshold = probability[idx]
+
+                pr_value.append(tuple(recall, precision, threshold))
+
+        else:
+
+            # Modify the true and predictions to only include the indices that contain the label
+            # as a true positive or a false positive
+
+            modified_y_true = []
+            modified_y_pred = []
+            modified_probabilities = []
+
+            tp = 0
+            fp = 0
+            tn = 0
+            fn = 0
+
+            for idx in range(0, len(y_pred)):
+                if y_true[idx] == label or y_pred[idx] == label:
+                    modified_y_true.append(y_true[idx])
+                    modified_y_pred.append(y_pred[idx])
+                    modified_probabilities.append(probability[idx])
+
+                    # If there are only two classes, find the maximum probabilities in each probability list
+                    max_probabilites = []
+                    for prob in probability:
+                        max_probabilites.append(max(prob))
+
+                    # Find the indices corresponding to the sorted probabilities list
+                    sorted_indices = sorted(range(len(max_probabilites)), key=lambda k: max_probabilites[k])
+
+                    # Compute precision and recall at each of those sorted indices
+                    for idx in range(0, len(sorted_indices)):
+                        # Compute precision and recall up to idx
+                        inner_idx = 0
+                        tp = 0
+                        tn = 0
+                        fp = 0
+                        fn = 0
+                        while inner_idx <= idx:
+                            if y_pred[inner_idx] == 1 and y_true[inner_idx] == y_pred[inner_idx]:
+                                tp += 1
+
+                            elif y_pred[inner_idx] == 1 and y_true[inner_idx] == 0:
+                                fp += 1
+
+                            elif y_pred[inner_idx] == 0 and y_true[inner_idx] == 1:
+                                fn += 1
+
+                            elif y_pred[inner_idx] == 0 and y_true[inner_idx] == y_pred[inner_idx]:
+                                tn += 1
+
+                        precision = tp / (tp + fp)
+                        recall = tp / (tp + fn)
+                        threshold = probability[idx]
+
+                        pr_value.append(tuple(recall, precision, threshold))
+
+    def pr_curve(self, input, label=1):
+        """
+        This function extracts the splits from the experiment and obtains the precision recall curves for every split
+        :param experiment: The path to an experiment/run/split directory or a experiment object
+        :param label: Label for which precision recall curve is to be obtained in case of multiple labels, default: 1
+        :return: A list of dictionaries containing the list of tuples having the pr curve values
+        """
+
+        # If only a split is given then, set default value 0 to experiment and run in dictionary, similarly for runs
+        # Output will be a nested dictionary of experiment as outermost key, runs as the first level of nesting,
+        # and splits as the second level of nesting
+
+        pass
+
+    def validate_input_parameters(self, input, label):
+        """
+        validates the input parameters to the function
+        :param input: Can be a path to an experiment, run or split directory or an experiment, run or split object
+        :param label: Label for which the pr curve is to be calculated for multi label classification
+        :return: None
+        """
+        from padre.core.experiment import Experiment
+        from padre.core.run import Run
+        from padre.core.sklearnworkflow import SKLearnWorkflow
+        from copy import deepcopy
+
+        # Check if input type is correct
+        flag = (isinstance(input, str) or isinstance(input, Experiment) or isinstance(input, Run) or \
+               isinstance(input, SKLearnWorkflow)) and isinstance(label, int)
+
+        assert_condition(condition=flag==True, source=self, message='Incorrect input types')
+
+        flag = True
+        if isinstance(input, str):
+            flag = os.path.exists(input)
+        assert_condition(condition=flag, source=self, message='Path {path} does not exist'.format(path=input))
+
+        experiment = dict()
+
+        # Check for results.json inside the split directory if a path is given
+        if isinstance(input, str):
+            # Identify if the path is an experiment path or run path or a split path
+            if input[-2:] == 'ex':
+                # Find all sub directories that are runs
+                run_dir = self.get_valid_run_directories()
+
+                assert_condition(condition=len(run_dir) > 0, source=self,
+                                 message='Experiment directory does not contain any valid run directories')
+
+                # Find all sub directories of runs that are splits
+                split_directories = []
+                for directory in run_dir:
+                    split_directories = self.get_valid_split_directories()
+                    # Get the UUID of the run
+                    run_id = run_dir[:-4].split(sep='/')[-1]
+
+                    # If there are valid splits add it to the run
+                    if split_directories is not None:
+                        experiment[run_id] = deepcopy(split_directories)
+
+                # If there are no valid runs then raise an exception
+                assert_condition(condition=len(experiment.keys()) > 0, source=self,
+                                 message='Run directories do not contain any valid split directories')
+
+                # Check if there is at least one results file
+                results_files = []
+                for directory in split_directories:
+                    if os.path.exists(os.path.join(directory, 'results.json')):
+                        results_files.append(directory)
+
+            elif input[-3:] == 'run':
+                # Find all split directories and check if results.json is present
+                pass
+
+            elif input[-5:] == 'split':
+                # Check if results.json is present
+                pass
+
+            else:
+                assert_condition(condition=False, source=self, message='Given directory path {path} does not correspond '
+                                                                       'to an experiment, run or split '
+                                                                       'directory'.format(path=input))
+
+
+        elif isinstance(input, Experiment):
+            # Check if results variable is not empty for runs and splits within
+            pass
+
+        elif isinstance(input, Run):
+            # Check if results variable is not empty for all splits within
+            pass
+
+        elif isinstance(input, SKLearnWorkflow):
+            # Check if results have all necessary values
+            pass
+
+        else:
+            assert_condition(condition=False, source=self, message='Incorrect input parameter type given')
+
+    def get_immediate_subdirectories(self, dir_path):
+        """
+        Gets the immediate subdirectories present in the dir_path.
+
+        :param dir_path: The current experiment directory to be checked.
+
+        :return: A list of run directories present in the experiment directory.
+        """
+        return [os.path.join(dir_path, name) for name in os.listdir(dir_path)
+                if os.path.isdir(os.path.join(dir_path, name))]
+
+    def get_valid_run_directories(self, exp_dir):
+        """
+        Returns the valid run directories when the path to an experiment directory is given
+        :param exp_dir: Path to the experiment directory
+        :return: List of valid run directories
+        """
+        sub_directories = self.get_immediate_subdirectories(exp_dir)
+        run_dir = []
+        for directory in sub_directories:
+            if input[-3:] == 'run':
+                run_dir.append(directory)
+
+        return run_dir
+
+    def get_valid_split_directories(self, run_dir):
+        """
+        Returns the valid split directories when an experiment directory is given as input
+        :param run_dir: Path to a run directory
+        :return: List containing valid split directories
+        """
+        split_directories = []
+        for directory in run_dir:
+            if input[-5:] == 'split':
+                split_directories.append(directory)
+
+        return split_directories
