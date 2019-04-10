@@ -37,8 +37,8 @@ release: # Missing version bump, and deployment on some pip repo
   stage: release
   script:
     - python -m unittest discover -s ./tests/unit-tests/
-    - ./build_package.sh
+    - ./build_package.sh # Upload to a WebServer?
   artifacts:
     when: always
     paths:
-      - ../wheelhouse/
+      - ./wheelhouse/
