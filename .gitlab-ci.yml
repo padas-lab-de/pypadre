@@ -15,6 +15,7 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
   - pip install sphinx
+  - pip install twine
   - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install || true # Enforce the order of the installation
 
 build:
@@ -35,20 +36,16 @@ release: # Missing version bump, and deployment on some pip repo
     - master
   when: manual
   stage: release
+  variables:
+    TWINE_USERNAME: $PYPI_USER
+    TWINE_PASSWORD: $PYPI_PW
   script:
     - apt-get update
     - apt-get install --assume-yes sshpass openssh-client
     - python -m unittest discover -s ./tests/unit-tests/
+    - python setup.py sdist
+    - twine upload --repository-url $PYPI_URL dist/*
     - ./build_package.sh # Upload to a WebServer / Pip server?
-    - echo "[distutils]
-        index-servers =
-        padim-pypi
-
-      [padim-pypi]
-        repository:https://pypi.padim.fim.uni-passau.de/
-        username:$PYPI_USER
-        password:$PYPI_PW" > ~/.pypirc2
-    - python3 setup.py sdist upload -r padim-pypi
   artifacts:
     when: always
     paths:

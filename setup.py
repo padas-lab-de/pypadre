@@ -1,11 +1,12 @@
 from setuptools import setup, find_packages
 from sphinx.setup_command import BuildDoc
+import os
 
 cmdclass = {'build_sphinx': BuildDoc}
 
 name = 'pypadre'
-version = '0.0.1'
-release = '0.0.1'
+version = os.environ.get('VERSION')
+release = os.environ.get('VERSION')
 
 setup(
     name=name,
