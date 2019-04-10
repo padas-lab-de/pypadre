@@ -4,7 +4,13 @@ import os
 
 cmdclass = {'build_sphinx': BuildDoc}
 
+# See https://medium.com/@pypripackages/using-gitlab-pipelines-to-deploy-python-packages-in-production-and-staging-environments-8ab7dc979274
+
 name = 'pypadre'
+#if os.environ.get('CI_COMMIT_TAG'):
+#    version = os.environ['CI_COMMIT_TAG']
+#else:
+#    version = os.environ['CI_JOB_ID']
 version = os.environ.get('VERSION')
 release = os.environ.get('VERSION')
 
