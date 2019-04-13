@@ -1,11 +1,18 @@
 from setuptools import setup, find_packages
 from sphinx.setup_command import BuildDoc
+import os
 
 cmdclass = {'build_sphinx': BuildDoc}
 
-name = 'PyPaDRE - Python Client for PADAS Data Science Reproducibility Environment'
-version = '0.0.1'
-release = '0.0.1'
+# See https://medium.com/@pypripackages/using-gitlab-pipelines-to-deploy-python-packages-in-production-and-staging-environments-8ab7dc979274
+
+name = 'pypadre'
+#if os.environ.get('CI_COMMIT_TAG'):
+#    version = os.environ['CI_COMMIT_TAG']
+#else:
+#    version = os.environ['CI_JOB_ID']
+version = os.environ.get('VERSION')
+release = os.environ.get('VERSION')
 
 setup(
     name=name,
@@ -17,11 +24,11 @@ setup(
                             'protobuffer/binaries/1kb_mixed_dataframe.protobinV1']},
     #packages=find_packages(),
     include_package_data=True,
-    url='',
+    url='https://padre-lab.eu',
     license='GPL',
     author='Michael Granitzer',
     author_email='michael.granitzer@uni-passau.de',
-    description='',
+    description='PaDRe aims to solve problems about reproducibility',
     entry_points='''
        [console_scripts]
        padre=padre.app.padre_cli:main

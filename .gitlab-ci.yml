@@ -1,0 +1,52 @@
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+stages:
+  - build
+  - release
+
+before_script:
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install sphinx
+  - pip install twine
+  - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install || true # Enforce the order of the installation
+
+build:
+  image: python:3.6.8-stretch
+  stage: build
+  script:
+    - python -m unittest discover -s ./tests/unit-tests/
+    - ./build_package.sh
+  artifacts:
+    when: always
+    paths:
+      - ./wheelhouse/
+
+
+release: # Missing version bump, and deployment on some pip repo
+  image: python:3.6.8-stretch
+  only:
+    - master
+  when: manual
+  stage: release
+  variables:
+    TWINE_USERNAME: $PYPI_USER
+    TWINE_PASSWORD: $PYPI_PW
+  script:
+    - apt-get update
+    - apt-get install --assume-yes sshpass openssh-client
+    - python -m unittest discover -s ./tests/unit-tests/
+    - python setup.py sdist
+    - twine upload --repository-url $PYPI_URL dist/*
+    - ./build_package.sh # Upload to a WebServer / Pip server?
+  artifacts:
+    when: always
+    paths:
+      - ./wheelhouse/
