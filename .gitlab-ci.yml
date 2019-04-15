@@ -21,6 +21,8 @@ before_script:
 build:
   image: python:3.6.8-stretch
   stage: build
+  except:
+    - /^v.*$/
   script:
     - python -m unittest discover -s ./tests/unit-tests/
     - ./build_package.sh
@@ -34,7 +36,8 @@ release: # Missing version bump, and deployment on some pip repo
   image: python:3.6.8-stretch
   only:
     - master
-  when: manual
+  except:
+    - /^v.*$/
   stage: release
   variables:
     TWINE_USERNAME: $PYPI_USER
@@ -45,7 +48,6 @@ release: # Missing version bump, and deployment on some pip repo
     - python -m unittest discover -s ./tests/unit-tests/
     - python setup.py sdist
     - twine upload --repository-url $PYPI_URL dist/*
-    - ./build_package.sh # Upload to a WebServer / Pip server?
   artifacts:
     when: always
     paths:
