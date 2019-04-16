@@ -113,6 +113,7 @@ class ExperimentExecutor:
 
     _experiments = None
     _local_dataset = []
+    _experiment_objects = None
 
     def __init__(self, **options):
         experiments = options.get('experiments', None)
@@ -146,6 +147,18 @@ class ExperimentExecutor:
             assert_condition(condition=isinstance(experiment, dict), source=self,
                              message='Experiment should be an instance of class experiment')
             self._experiments.append(experiment)
+
+    def remove_experiments(self):
+        """
+        Remove all the experiments present in the executor class
+        :return:
+        """
+        # Remove experiment configurations
+        self._experiments = None
+
+        # Remove experiment objects
+        self._experiment_objects = None
+
 
     def initialize_dataset_names(self):
         """
