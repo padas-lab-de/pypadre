@@ -16,6 +16,7 @@ Architecture of the module
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
 import os
 import configparser
+import json
 
 import copy
 from collections import Iterable
@@ -541,6 +542,21 @@ class ExperimentApp:
             ex = Experiment(**p)
             ex.run()
             return ex
+
+    def upload_local_experiment(self, name):
+        main_path = os.path.expanduser("~/.pypadre") + "/experiments/"
+        experiment_path = os.path.join(main_path, name + ".ex")
+        json_config = os.path.join(experiment_path, "experiment.json")
+        with open(os.path.join(experiment_path, "metadata.json"), 'r') as f:
+            experiment_metadata = json.loads(f.read())
+
+        experiment_creator = ExperimentCreator()
+        experiment_creator.parse_config_file(json_config)
+        experiment_config = experiment_creator.experiments[name]
+        ex = Experiment(description=experiment_metadata["description"],
+                        workflow=experiment_config["workflow"],
+                        dataset=self._parent.local_backend.datasets.get_dataset(experiment_metadata["dataset_id"]))
+        self._parent.remote_backend.experiments.put_experiment(ex)
 
 
 class PadreApp:

@@ -175,6 +175,8 @@ class ExperimentFileRepository:
 
         self._file = open(os.path.join(dir, "log.txt"), "a")
 
+        self._data_repository.put(experiment._dataset)
+
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
@@ -192,7 +194,7 @@ class ExperimentFileRepository:
 
         workflow = None
         if load_workflow:
-            with open(os.path.join(dir, "workflow.bin"), 'r') as f:
+            with open(os.path.join(dir, "workflow.bin"), 'rb') as f:
                 workflow = self._binary_serializer.deserialize(f.read())
 
         ex = Experiment(id_=id_, workflow=workflow,
