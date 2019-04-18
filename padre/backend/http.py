@@ -60,8 +60,9 @@ class PadreHTTPClient:
         trigger_event('EVENT_WARN', condition=self._access_token is not None, source=self,
                       message="Authentication token is NONE. You need to authentication for user %s "
                               "with your current password (or set a new user)" % self.user)
-        if self._access_token is not None:
-            self._default_header['Authorization'] = self._access_token
+        # if self._access_token is not None:
+        #     self._default_header['Authorization'] = self._access_token
+        self._default_header['Authorization'] = self._access_token
 
     def authenticate(self, passwd="", user= None):
         if user is not None:

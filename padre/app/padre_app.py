@@ -544,8 +544,7 @@ class ExperimentApp:
             return ex
 
     def upload_local_experiment(self, name):
-        main_path = os.path.expanduser("~/.pypadre") + "/experiments/"
-        experiment_path = os.path.join(main_path, name + ".ex")
+        experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments", name + ".ex")
         json_config = os.path.join(experiment_path, "experiment.json")
         with open(os.path.join(experiment_path, "metadata.json"), 'r') as f:
             experiment_metadata = json.loads(f.read())
@@ -553,10 +552,29 @@ class ExperimentApp:
         experiment_creator = ExperimentCreator()
         experiment_creator.parse_config_file(json_config)
         experiment_config = experiment_creator.experiments[name]
-        ex = Experiment(description=experiment_metadata["description"],
+        ex = Experiment(name=experiment_metadata["name"],
+                        description=experiment_metadata["description"],
                         workflow=experiment_config["workflow"],
                         dataset=self._parent.local_backend.datasets.get_dataset(experiment_metadata["dataset_id"]))
         self._parent.remote_backend.experiments.put_experiment(ex)
+        for dir_name in os.listdir(experiment_path):  # Upload all runs for this experiment
+            if dir_name.endswith(".run"):
+                run_path = os.path.join(experiment_path, dir_name)
+                self.upload_local_run(ex, run_path)
+
+    def upload_local_run(self, experiment, run_path):
+        from padre.backend.serialiser import PickleSerializer
+        from padre.core import run
+        binary_serializer = PickleSerializer
+        with open(os.path.join(run_path, "metadata.json"), 'r') as f:
+            run_metadata = json.loads(f.read())
+
+        with open(os.path.join(run_path, "workflow.bin"), 'rb') as f:
+            workflow = binary_serializer.deserialize(f.read())
+
+        r = run.Run(experiment, workflow, **dict(run_metadata))
+        self._parent.remote_backend.experiments.put_run(experiment, r)
+
 
 
 class PadreApp:
