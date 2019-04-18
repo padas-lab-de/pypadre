@@ -37,7 +37,7 @@ from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
 from padre.base import PadreLogger
-from padre.eventhandler import add_logger, trigger_event
+from padre.eventhandler import add_logger, assert_condition, trigger_event
 
 # Create the logger object
 logger = PadreLogger()
@@ -544,7 +544,11 @@ class ExperimentApp:
             return ex
 
     def upload_local_experiment(self, name):
+        import shutil
+
         experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments", name + ".ex")
+        assert_condition(condition=os.path.exists(os.path.abspath(experiment_path)),
+                         message='Experiment not found')
         json_config = os.path.join(experiment_path, "experiment.json")
         with open(os.path.join(experiment_path, "metadata.json"), 'r') as f:
             experiment_metadata = json.loads(f.read())
@@ -557,10 +561,12 @@ class ExperimentApp:
                         workflow=experiment_config["workflow"],
                         dataset=self._parent.local_backend.datasets.get_dataset(experiment_metadata["dataset_id"]))
         self._parent.remote_backend.experiments.put_experiment(ex)
-        for dir_name in os.listdir(experiment_path):  # Upload all runs for this experiment
-            if dir_name.endswith(".run"):
-                run_path = os.path.join(experiment_path, dir_name)
-                self.upload_local_run(ex, run_path)
+        list_of_runs = list(filter(lambda x: x.endswith(".run"), os.listdir(experiment_path)))
+        for run_name in list_of_runs:  # Upload all runs for this experiment
+            run_path = os.path.join(experiment_path, run_name)
+            self.upload_local_run(ex, run_path)
+        shutil.rmtree(experiment_path)
+
 
     def upload_local_run(self, experiment, run_path):
         from padre.backend.serialiser import PickleSerializer
@@ -574,6 +580,27 @@ class ExperimentApp:
 
         r = run.Run(experiment, workflow, **dict(run_metadata))
         self._parent.remote_backend.experiments.put_run(experiment, r)
+        list_of_splits = list(filter(lambda x: x.endswith(".split"), os.listdir(run_path)))
+        for num, split_name in enumerate(list_of_splits):  # Upload all splits for this run
+            split_path = os.path.join(run_path, split_name)
+            self.upload_local_split(experiment, r, split_path, num)
+
+    def upload_local_split(self, experiment, run, split_path, num):
+        from padre.core import split
+        import numpy as np
+        with open(os.path.join(split_path, "results.json"), 'r') as f:
+            results = json.loads(f.read())
+
+        train_idx = results.get("train_idx", None)
+        test_idx = results.get("test_idx", None)
+        val_idx = results.get("val_idx", None)
+
+        train_idx = np.array(train_idx) if type(train_idx) is list else train_idx
+        test_idx = np.array(test_idx) if type(test_idx) is list else test_idx
+        val_idx = np.array(val_idx) if type(val_idx) is list else val_idx
+
+        s = split.Split(run, num, train_idx, val_idx, test_idx, **run.metadata)
+        self._parent.remote_backend.experiments.put_split(experiment, run, s)
 
 
 
