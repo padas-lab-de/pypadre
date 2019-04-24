@@ -44,6 +44,7 @@ if __name__ == '__main__':
     ds = load_csv('/home/christofer/PycharmProjects/TwitterCrawler/datasets/merged/twitterbot.csv',
                   target_features=['bot'],
                   description='Crawled Twitter data for identifying bots')
+    #pypadre.datasets.put(ds, upload=True)
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
