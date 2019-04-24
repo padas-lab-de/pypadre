@@ -17,6 +17,8 @@ import tempfile
 import json
 import requests
 import uuid
+
+from deprecated import deprecated
 from multiprocessing import Process
 from padre.core.datasets import Dataset, Attribute
 from padre.eventhandler import assert_condition, trigger_event
@@ -60,7 +62,8 @@ def _create_dataset(bunch, type,source):
     return dataset
 
 
-def load_csv(path_dataset,path_target=None,target_features=[],originalSource="imported by csv",
+@deprecated(reason ="use updated load_csv function")
+def load_csv_file(path_dataset,path_target=None,target_features=[],originalSource="imported by csv",
              description="imported form csv",type="multivariate"):
     """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
 
@@ -114,7 +117,8 @@ def load_csv(path_dataset,path_target=None,target_features=[],originalSource="im
     return dataset
 
 
-def load_csv_new(csv_path, targets=None, name=None, description="imported form csv", source="csvĺoaded", type="Multivariat"):
+def load_csv(csv_path, targets=None, name=None, description="imported form csv", source="csvloaded",
+             type="Multivariat"):
     """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
 
     Args:
@@ -141,7 +145,7 @@ def load_csv_new(csv_path, targets=None, name=None, description="imported form c
         name = dataset_path_list[-1].split('.csv')[0]
 
     data = pd.read_csv(csv_path)
-    meta =dict()
+    meta = dict()
     meta["id"] = str(uuid.uuid4())
     meta["name"] = name
     meta["description"] = description
@@ -151,7 +155,8 @@ def load_csv_new(csv_path, targets=None, name=None, description="imported form c
     meta["published"] = True
 
     dataset = Dataset(None, **meta)
-    trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True, source='ds_import.load_csv',
+    trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True,
+                  source='ds_import.load_csv',
                   message='Non-numeric data values found. Program may crash if not handled by estimators')
 
     for col_name in targets:
@@ -162,7 +167,6 @@ def load_csv_new(csv_path, targets=None, name=None, description="imported form c
         atts.append(Attribute(name=feature,
                               measurementLevel="Ratio" if feature in targets else None,
                               defaultTargetAttribute=feature in targets))
-
     dataset.set_data(data,atts)
     return dataset
 
