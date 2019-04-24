@@ -201,7 +201,7 @@ class TestGetIdByName(unittest.TestCase):
         """
 
         response = self.obj.get_id_by_name("test", self.entity)
-        self.assertIn(self.entity + "/search?search=name?:test",
+        self.assertIn(self.entity + "/search?search=name:test",
                       self.http_client.do_get.call_args[0][0],
                       "do_get not called with expected arg")
         self.assertEqual(self.test_value,
