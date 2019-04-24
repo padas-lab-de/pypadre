@@ -68,7 +68,7 @@ class HttpBackendExperiments:
         :returns: id of instance or None
         """
         id_ = None
-        url = self.get_base_url() + self._http_client.paths["search"](entity) +"name?:" + name
+        url = self.get_base_url() + self._http_client.paths["search"](entity) +"name:" + name
         if self._http_client.has_token():
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
