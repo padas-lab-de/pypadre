@@ -187,7 +187,7 @@ class TestGetIdByName(unittest.TestCase):
         get_mock = MagicMock()
         self.entity = "datasets"
         self.test_value = "1"
-        data = {"_embedded": {self.entity: [{"uid": self.test_value}]}}
+        data = {"_embedded": {self.entity: [{"uid": self.test_value, "name": "test"}]}}
         get_mock.content = json.dumps(data)
         self.http_client.do_get = MagicMock(return_value=get_mock)
 
