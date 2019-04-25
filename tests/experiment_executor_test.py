@@ -33,7 +33,8 @@ def main():
     # THIRD TEST EXPERIMENT WITH MULTIPLE DATASETS
     params_pca = {'num_components': [2, 3, 4, 5, 6]}
     params_svr = {'C': [0.5, 1.0, 1.5],
-                  'poly_degree': [1, 2, 3]}
+                  'poly_degree': [1, 2, 3],
+                  'tolerance': [1,3]}
     params_dict = {'SVR': params_svr, 'pca': params_pca}
     workflow = experiment_creator.create_test_pipeline(['pca', 'SVR'])
     params_dict = experiment_creator.convert_alternate_estimator_names(params_dict)
