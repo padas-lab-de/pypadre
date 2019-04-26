@@ -60,8 +60,7 @@ class PadreHTTPClient:
         trigger_event('EVENT_WARN', condition=self._access_token is not None, source=self,
                       message="Authentication token is NONE. You need to authentication for user %s "
                               "with your current password (or set a new user)" % self.user)
-        if self._access_token is not None:
-            self._default_header['Authorization'] = self._access_token
+        self._default_header['Authorization'] = self._access_token
 
     def authenticate(self, passwd="", user= None):
         if user is not None:
@@ -206,9 +205,11 @@ class PadreHTTPClient:
         data = {
             "username": self.user,
             "password": passwd,
-            "grant_type": "password"
+            "grant_type": "password",
+            "scope": "read write"
         }
-        api = PadreHTTPClient.paths["padre-api"] + urlparse(self.get_base_url()).netloc
+        parsed_base_url = urlparse(self.get_base_url())
+        api = parsed_base_url.scheme + PadreHTTPClient.paths["padre-api"] + parsed_base_url.netloc
         try:
             csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
             url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
@@ -498,7 +499,7 @@ class HTTPBackendDatasets:
 
 
 PadreHTTPClient.paths = {
-    "padre-api": "http://padre-api:@",
+    "padre-api": "://padre-api:@",
     "datasets": "/datasets",
     "experiments": "/experiments",
     "experiment": lambda id: "/experiments/" + id + "/",
