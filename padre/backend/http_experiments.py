@@ -68,11 +68,14 @@ class HttpBackendExperiments:
         :returns: id of instance or None
         """
         id_ = None
-        url = self.get_base_url() + self._http_client.paths["search"](entity) +"name?:" + name
+        url = self.get_base_url() + self._http_client.paths["search"](entity) +"name:" + name
         if self._http_client.has_token():
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
-                id_ = response["_embedded"][entity][0]["uid"]
+                first_entity = response["_embedded"][entity][0]
+                if first_entity["name"] != name:  # Todo: After fixing url encoding for special chars remove this
+                    return None
+                id_ = first_entity["uid"]
         return id_
 
     def create_project(self, name):

@@ -187,7 +187,7 @@ class TestGetIdByName(unittest.TestCase):
         get_mock = MagicMock()
         self.entity = "datasets"
         self.test_value = "1"
-        data = {"_embedded": {self.entity: [{"uid": self.test_value}]}}
+        data = {"_embedded": {self.entity: [{"uid": self.test_value, "name": "test"}]}}
         get_mock.content = json.dumps(data)
         self.http_client.do_get = MagicMock(return_value=get_mock)
 
@@ -201,7 +201,7 @@ class TestGetIdByName(unittest.TestCase):
         """
 
         response = self.obj.get_id_by_name("test", self.entity)
-        self.assertIn(self.entity + "/search?search=name?:test",
+        self.assertIn(self.entity + "/search?search=name:test",
                       self.http_client.do_get.call_args[0][0],
                       "do_get not called with expected arg")
         self.assertEqual(self.test_value,

@@ -17,6 +17,8 @@ import tempfile
 import json
 import requests
 import uuid
+
+from deprecated import deprecated
 from multiprocessing import Process
 from padre.core.datasets import Dataset, Attribute
 from padre.eventhandler import assert_condition, trigger_event
@@ -60,7 +62,8 @@ def _create_dataset(bunch, type,source):
     return dataset
 
 
-def load_csv(path_dataset,path_target=None,target_features=[],originalSource="imported by csv",
+@deprecated(reason ="use updated load_csv function")
+def load_csv_file(path_dataset,path_target=None,target_features=[],originalSource="imported by csv",
              description="imported form csv",type="multivariate"):
     """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
 
@@ -110,6 +113,60 @@ def load_csv(path_dataset,path_target=None,target_features=[],originalSource="im
     for feature in data.columns.values:
         atts.append(Attribute(feature,None, None, None,feature in targets,None,None))
 
+    dataset.set_data(data,atts)
+    return dataset
+
+
+def load_csv(csv_path, targets=None, name=None, description="imported form csv", source="csvloaded",
+             type="Multivariat"):
+    """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
+
+    Args:
+        csv_path (str): The path of the csv-file
+        targets (list): The column names of the target features of the csv-file.
+        name(str): Optional name of dataset
+        source(str): original source - should be url
+        type(str): type of dataset
+
+    Returns:
+        padre.Dataset() A dataset containing the data of the .csv file
+
+    """
+    assert_condition(condition=os.path.exists(os.path.abspath(csv_path)), source='ds_import.load_csv',
+                     message='Dataset path does not exist')
+
+    if targets is None:
+        targets = []
+    trigger_event('EVENT_WARN', condition=len(targets) == 0, source='ds_import.load_csv',
+                  message='No targets defined. Program will crash when used for supervised learning')
+
+    dataset_path_list = csv_path.split('/')
+    if name is None:
+        name = dataset_path_list[-1].split('.csv')[0]
+
+    data = pd.read_csv(csv_path)
+    meta = dict()
+    meta["id"] = str(uuid.uuid4())
+    meta["name"] = name
+    meta["description"] = description
+    meta["originalSource"]="http://" + source
+    meta["version"] = 1
+    meta["type"] = type
+    meta["published"] = True
+
+    dataset = Dataset(None, **meta)
+    trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True,
+                  source='ds_import.load_csv',
+                  message='Non-numeric data values found. Program may crash if not handled by estimators')
+
+    for col_name in targets:
+        data[col_name] = data[col_name].astype('category')
+        data[col_name] = data[col_name].cat.codes
+    atts = []
+    for feature in data.columns.values:
+        atts.append(Attribute(name=feature,
+                              measurementLevel="Ratio" if feature in targets else None,
+                              defaultTargetAttribute=feature in targets))
     dataset.set_data(data,atts)
     return dataset
 

@@ -8,12 +8,13 @@ The experiments could be run
 5. Use a queueing system
 """
 from padre.core import Experiment
+from padre.core.datasets import Dataset
 from padre.ds_import import load_sklearn_toys
 import threading
 import time
 from copy import deepcopy
 from sklearn.externals.joblib import Parallel, delayed
-from padre.eventhandler import trigger_event
+from padre.eventhandler import trigger_event, assert_condition
 
 
 EXPERIMENT_EXECUTION_QUEUE = []
@@ -112,11 +113,52 @@ class ExperimentExecutor:
 
     _experiments = None
     _local_dataset = []
+    _experiment_objects = None
 
     def __init__(self, **options):
-        self._experiments = options.get('experiments', None)
+        experiments = options.get('experiments', None)
+        assert_condition(condition=
+                         isinstance(experiments, list) or isinstance(experiments, dict) or experiments is None,
+                         source=self, message='Wrong parameter type provided')
+        if self._experiments is None:
+            self._experiments = []
+        for experiment in experiments:
+            assert_condition(condition=isinstance(experiment, dict), source=self,
+                             message='Experiment should be an instance of class experiment')
+            self._experiments.append(experiment)
+
         self._experiment_objects = []
         self._local_dataset = self.initialize_dataset_names()
+
+    def add_experiments(self, experiments=None):
+        """
+        Add experiments to the experiment executor class
+        :param experiments: Experiments to be added for execution. Could be a list or an experiment class object
+        :return: None
+        """
+        assert_condition(condition=experiments is not None, source=self, message='Experiments parameter cannot be None')
+        assert_condition(condition=isinstance(experiments, list) or isinstance(experiments, Experiment),
+                         source=self, message='Wrong parameter type provided')
+
+        if isinstance(experiments, Experiment):
+            experiments = [experiments]
+
+        for experiment in experiments:
+            assert_condition(condition=isinstance(experiment, dict), source=self,
+                             message='Experiment should be an instance of class experiment')
+            self._experiments.append(experiment)
+
+    def remove_experiments(self):
+        """
+        Remove all the experiments present in the executor class
+        :return:
+        """
+        # Remove experiment configurations
+        self._experiments = None
+
+        # Remove experiment objects
+        self._experiment_objects = None
+
 
     def initialize_dataset_names(self):
         """
@@ -189,7 +231,13 @@ class ExperimentExecutor:
             trigger_event('EVENT_LOG_EXPERIMENT_PROGRESS', curr_value=curr_experiment, limit=limit, phase='start')
             name = experiment_dict.get('name')
             desc = experiment_dict.get('description')
-            dataset = self.get_local_dataset(experiment_dict.get('dataset'))
+            dataset = experiment_dict.get('dataset')
+            assert_condition(condition=isinstance(dataset, str) or isinstance(dataset, Dataset), source=self,
+                             message='Dataset is of incorrect parameter type')
+
+            if isinstance(dataset, str):
+                dataset = self.get_local_dataset(experiment_dict.get('dataset'))
+
             workflow = experiment_dict.get('workflow')
             backend = experiment_dict.get('backend')
             strategy = experiment_dict.get('strategy', 'random')

@@ -42,12 +42,13 @@ if __name__ == '__main__':
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = load_csv('/home/christofer/PycharmProjects/TwitterCrawler/datasets/merged/twitterbot.csv',
-                  target_features=['bot'],
+                  targets=['bot'],
                   description='Crawled Twitter data for identifying bots')
+    #pypadre.datasets.put(ds, upload=True)
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="random")
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="cv")
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
