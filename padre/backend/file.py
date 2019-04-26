@@ -10,11 +10,12 @@ import re
 import shutil
 import uuid
 
+import numpy as np
 from deprecated import deprecated
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
 from padre.core.datasets import Dataset, Attribute
-from padre.core import Experiment
+from padre.core import Experiment, Run, Split
 
 
 def _get_path(root_dir, name, create=True):
@@ -183,7 +184,8 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
-    def get_experiment(self, id_, load_workflow=True):
+    @deprecated("Use get_experiment instead")
+    def get_local_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
 
         with open(os.path.join(dir, "metadata.json"), 'r') as f:
@@ -200,6 +202,22 @@ class ExperimentFileRepository:
         ex = Experiment(id_=id_, workflow=workflow,
                         dataset=self._data_repository.get_dataset(metadata["dataset_id"]))
         ex.set_hyperparameters(hyperparameters)
+        return ex
+
+    def get_experiment(self, id_):
+        from padre.experimentcreator import ExperimentCreator
+        dir = os.path.join(self.root_dir, *self._dir(id_))
+        json_config = os.path.join(dir, "experiment.json")
+        with open(os.path.join(dir, "metadata.json"), 'r') as f:
+            metadata = self._metadata_serializer.deserialize(f.read())
+
+        experiment_creator = ExperimentCreator()
+        experiment_creator.parse_config_file(json_config)
+        experiment_config = experiment_creator.experiments[metadata["name"]]
+        ex = Experiment(name=metadata["name"],
+                        description=metadata["description"],
+                        workflow=experiment_config["workflow"],
+                        dataset=self._data_repository.get(metadata["dataset_id"]))
         return ex
 
     def list_runs(self, experiment_id, search_id=None, search_metadata=None):
@@ -254,7 +272,8 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
-    def get_run(self, ex_id, run_id):
+    @deprecated("Use get_run instead")
+    def get_local_run(self, ex_id, run_id):
         """
         get the run with the particular id from the experiment.
         :param ex_id:
@@ -267,6 +286,17 @@ class ExperimentFileRepository:
             metadata = self._metadata_serializer.deserialize(f.read())
 
         return None
+
+    def get_run(self, ex_id, run_id):
+        dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id))
+        with open(os.path.join(dir, "metadata.json"), 'r') as f:
+            metadata = self._metadata_serializer.deserialize(f.read())
+
+        with open(os.path.join(dir, "workflow.bin"), 'rb') as f:
+            workflow = self._binary_serializer.deserialize(f.read())
+        ex = self.get_experiment(ex_id)
+        r = Run(ex, workflow, **dict(metadata))
+        return r
 
     def list_splits(self, experiment_id, run_id, search_id=None, search_metadata=None):
         """
@@ -299,7 +329,8 @@ class ExperimentFileRepository:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
         self._split_dir = dir
 
-    def get_split(self, ex_id, run_id, split_id):
+    @deprecated("Use get split instead")
+    def get_local_split(self, ex_id, run_id, split_id):
         """
         get the run with the particular id from the experiment.
         :param ex_id:
@@ -312,6 +343,22 @@ class ExperimentFileRepository:
             metadata = self._metadata_serializer.deserialize(f.read())
 
         return None
+
+    def get_split(self, ex_id, run_id, split_id, num=0):
+        dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
+        with open(os.path.join(dir_, "results.json"), 'r') as f:
+            results = self._metadata_serializer.deserialize(f.read())
+
+        train_idx = results.get("train_idx", None)
+        test_idx = results.get("test_idx", None)
+        val_idx = results.get("val_idx", None)
+
+        train_idx = np.array(train_idx) if type(train_idx) is list else train_idx
+        test_idx = np.array(test_idx) if type(test_idx) is list else test_idx
+        val_idx = np.array(val_idx) if type(val_idx) is list else val_idx
+        r = self.get_run(ex_id, run_id)
+        s = Split(r, num, train_idx, val_idx, test_idx, **r.metadata)
+        return s
 
     def put_results(self, experiment, run, split, results):
         """
