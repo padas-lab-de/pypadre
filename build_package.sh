@@ -3,6 +3,7 @@ CURR_DIR=`pwd`
 PACKAGE_NAME="./wheelhouse/pypadre-0.0.0-py3-none-any.whl"
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+echo $CURR_DIR
 echo $SCRIPT_DIR
 cd $SCRIPT_DIR
 
@@ -13,7 +14,6 @@ pip install sphinx
 pip wheel . --wheel-dir ./wheelhouse/
 pip install --force-reinstall $PACKAGE_NAME
 
-mkdir ../test_folder
 cd ../test_folder
 python3 ../PyPadre/padre_package_test.py
 
