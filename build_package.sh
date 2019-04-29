@@ -15,6 +15,6 @@ pip install --force-reinstall $PACKAGE_NAME
 
 mkdir ../test_folder
 cd ../test_folder
-python3 padre_package_test.py
+python3 ../PyPadre/padre_package_test.py
 
 cd $CURR_DIR
