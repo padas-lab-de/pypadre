@@ -22,7 +22,7 @@ setup(
     packages=['padre']+find_packages(exclude=["tests"]),
     package_dir={'padre': 'padre'},
     package_data={'padre': ['padre/res/mapping/pytorch.json', 'padre/res/mapping/mapping.json',
-                            'core/wrappers/wrapper_mappings/mappings_torch.json',
+                            'padre/core/wrappers/wrapper_mappings/mappings_torch.json',
                             'protobuffer/binaries/1kb_mixed_dataframe.protobinV1']},
     #packages=find_packages(),
     include_package_data=True,
