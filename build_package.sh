@@ -10,7 +10,8 @@ if [ ! -d './wheelhouse' ]; then
     mkdir "./wheelhouse"
 fi
 pip install sphinx
-pip wheel . --wheel-dir ../wheelhouse/
+pip wheel . --wheel-dir ./wheelhouse/
 pip install --force-reinstall $PACKAGE_NAME
+python
 
 cd $CURR_DIR
