@@ -205,19 +205,18 @@ class ExperimentFileRepository:
         return ex
 
     def get_experiment(self, id_):
-        from padre.experimentcreator import ExperimentCreator
-        dir = os.path.join(self.root_dir, *self._dir(id_))
-        json_config = os.path.join(dir, "experiment.json")
-        with open(os.path.join(dir, "metadata.json"), 'r') as f:
+        dir_ = os.path.join(self.root_dir, *self._dir(id_))
+        with open(os.path.join(dir_, "workflow.bin"), 'rb') as f:
+            workflow = self._binary_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "experiment.json"), 'r') as f:
+            configuration = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
-
-        experiment_creator = ExperimentCreator()
-        experiment_creator.parse_config_file(json_config)
-        experiment_config = experiment_creator.experiments[metadata["name"]]
-        ex = Experiment(name=metadata["name"],
-                        description=metadata["description"],
-                        workflow=experiment_config["workflow"],
-                        dataset=self._data_repository.get(metadata["dataset_id"]))
+        experiment_params = configuration
+        experiment_params[id_]["workflow"] = workflow.pipeline
+        experiment_params[id_]["dataset"] = self._data_repository.get(metadata["dataset_id"])
+        ex = Experiment(**experiment_params[id_])
+        ex.experiment_configuration = configuration
         return ex
 
     def list_runs(self, experiment_id, search_id=None, search_metadata=None):
@@ -346,8 +345,11 @@ class ExperimentFileRepository:
 
     def get_split(self, ex_id, run_id, split_id, num=0):
         dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
+
         with open(os.path.join(dir_, "results.json"), 'r') as f:
             results = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "metrics.json"), 'r') as f:
+            metrics = self._metadata_serializer.deserialize(f.read())
 
         train_idx = results.get("train_idx", None)
         test_idx = results.get("test_idx", None)
@@ -358,6 +360,8 @@ class ExperimentFileRepository:
         val_idx = np.array(val_idx) if type(val_idx) is list else val_idx
         r = self.get_run(ex_id, run_id)
         s = Split(r, num, train_idx, val_idx, test_idx, **r.metadata)
+        s.run.workflow.results = results
+        s.run.workflow.metrics = metrics
         return s
 
     def put_results(self, experiment, run, split, results):

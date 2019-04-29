@@ -27,11 +27,10 @@ from beautifultable.enums import Alignment
 from scipy.stats.stats import DescribeResult
 
 from padre.core.datasets import formats, Dataset
-
+from padre import ds_import
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.backend.dual_backend import DualBackend
-import padre.ds_import
 from padre.experimentcreator import ExperimentCreator
 from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
@@ -342,7 +341,6 @@ class DatasetApp:
         :param name: regexp for filtering the names
         :return: list of possible imports
         """
-        from padre import ds_import
         oml_key = self._parent.config.get("oml_key", "GENERAL")
         root_dir = self._parent.config.get("root_dir", "LOCAL BACKEND")
         datasets = ds_import.search_oml_datasets(name, root_dir, oml_key)
@@ -352,23 +350,12 @@ class DatasetApp:
             datasets_list.append(datasets[key])
         return datasets_list
 
-    @deprecated("Use download with list of sources")
-    def download_external(self, source: str, name: str) -> Iterable:
-        """
-        Downloads the dataset defined by name from source and stores it into the local file backend.
-        :param source: name of the source
-        :param name:
-        :return: returns a iterator of dataset objects
-        """
-        # todo implement using a generator pattern to avoid loading every dataset in main memory
-        pass
-
     def download(self, sources: list) -> Iterable:
         """
-        Downloads the datasets their information provided as list provided as list from oml
+        Downloads the datasets from information provided as list from oml
         :return: returns a iterator of dataset objects
         """
-        # todo: Extend support for other dataset sources
+        # todo: Extend support for more dataset sources other than openML
         for dataset_source in sources:
             dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
             yield dataset
@@ -388,7 +375,7 @@ class DatasetApp:
     @deprecated(reason="use downloads function below")  # see download
     def do_default_imports(self, sklearn=True):
         if sklearn:
-            for ds in padre.ds_import.load_sklearn_toys():
+            for ds in ds_import.load_sklearn_toys():
                 self.do_import(ds)
 
     def _print(self, output, **kwargs):
@@ -410,10 +397,10 @@ class DatasetApp:
             url=_BASE_URL.strip("/api")
         else:
             url =_BASE_URL
-        padre.ds_import.sendTop100Datasets_multi(auth_token, url, max_threads)
+        ds_import.sendTop100Datasets_multi(auth_token, url, max_threads)
         print("All openml datasets are uploaded!")
         if(upload_graphs):
-            padre.ds_import.send_top_graphs(auth_token, url, max_threads >= 3)
+            ds_import.send_top_graphs(auth_token, url, max_threads >= 3)
 
     def get(self, dataset_id, binary: bool = True,
             format = formats.numpy,
@@ -474,6 +461,10 @@ class DatasetApp:
         if isinstance(dataset_id, Dataset):
             dataset_id = dataset_id.id
         self._parent.local_backend.datasets.delete(dataset_id)
+
+    def import_from_csv(self, csv_path, targets, name, description):
+        """Load dataset from csv file"""
+        return ds_import.load_csv(csv_path, targets, name, description)
 
 
 class ExperimentApp:

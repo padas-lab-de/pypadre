@@ -139,7 +139,7 @@ class HttpBackendExperiments:
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
              "name": experiment.metadata["name"]}
         ]}
-        experiment_data["configuration"] = {}
+        experiment_data["configuration"] = experiment.experiment_configuration
 
         url = self.create_experiment(experiment_data)
         experiment.metadata["server_url"] = url
