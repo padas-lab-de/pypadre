@@ -19,7 +19,7 @@ print('VERSION:{version}'.format(version=version))
 setup(
     name=name,
     version=version,
-    packages=['padre']+find_packages(exclude=["tests"]),
+    packages=['padre']+find_packages(exclude=["tests", "tests.*"]),
     package_dir={'padre': 'padre'},
     package_data={'padre': ['padre/res/mapping/pytorch.json', 'padre/res/mapping/mapping.json',
                             'padre/core/wrappers/wrapper_mappings/mappings_torch.json',
