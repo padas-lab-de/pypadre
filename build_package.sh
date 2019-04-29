@@ -15,6 +15,6 @@ pip wheel . --wheel-dir ./wheelhouse/
 pip install --force-reinstall $PACKAGE_NAME
 
 cd ../test_folder
-python3 ../PyPadre/padre_package_test.py
+python3 ../PyPaDRe/padre_package_test.py
 
 cd $CURR_DIR
