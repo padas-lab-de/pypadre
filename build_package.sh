@@ -12,6 +12,6 @@ fi
 pip install sphinx
 pip wheel . --wheel-dir ./wheelhouse/
 pip install --force-reinstall $PACKAGE_NAME
-python ./tests/example.py
+python padre_package_test.py
 
 cd $CURR_DIR
