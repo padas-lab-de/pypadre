@@ -1366,7 +1366,7 @@
             }
         },
         "SOFTMIN": {
-            "path": "torch.nn.Softmax",
+            "path": "torch.nn.Softmin",
             "params": {
                 "dim": {
                     "type": [
@@ -1378,7 +1378,7 @@
             }
         },
         "SOFTMAX": {
-            "path": "torch.nn.Softmin",
+            "path": "torch.nn.Softmax",
             "params": {
                 "dim": {
                     "type": [
