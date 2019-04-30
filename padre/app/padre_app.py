@@ -537,7 +537,6 @@ class ExperimentApp:
             return run()
         else:
             p = ex_params.copy()
-            p["backend"] = self._parent.local_backend.experiments
             ex = Experiment(**p)
             ex.run()
             return ex
