@@ -10,7 +10,10 @@ import numpy as np
 import os
 import pandas as pd
 from padre.eventhandler import assert_condition
+from padre.eventhandler import trigger_event, assert_condition
 
+REGRESSION = 'regression'
+CLASSIFICATION = 'classification'
 
 class ReevaluationMetrics:
     """
@@ -89,10 +92,10 @@ class ReevaluationMetrics:
             assert_condition(condition=prediction_type is None, source=self,
                              message='No prediction type present in ' + split_path)
 
-            if prediction_type == 'regression':
+            if prediction_type == REGRESSION:
                 metrics = self.compute_regression_metrics(results)
 
-            elif prediction_type == 'classification':
+            elif prediction_type == CLASSIFICATION:
                 metrics = self.compute_classification_metrics(results)
 
             assert_condition(condition=metrics is not None, source=self,
@@ -671,7 +674,7 @@ class CompareMetrics:
                     display_columns.insert(3, '.'.join([key, param]))
 
         if len(self._metrics_display) == 0:
-            if self._metrics.get(list(self._metrics.keys())[0]).get('type') == 'regression':
+            if self._metrics.get(list(self._metrics.keys())[0]).get('type') == REGRESSION:
                 display_columns = display_columns + regression_metrics
             else:
                 display_columns = display_columns + classification_metrics
@@ -706,7 +709,7 @@ class CompareMetrics:
                                 val = self._curr_listed_estimators.get(run)
                                 data_row['.'.join([key, param])] = val.get(key).get(param, '-')
 
-                if metrics.get('type', None) == 'regression':
+                if metrics.get('type', None) == REGRESSION:
                     for metric in regression_metrics:
                         data_row[metric] = metrics.get(metric, '-')
 
@@ -833,10 +836,30 @@ class CompareMetrics:
             return
 
         if len(self._metrics_display) == 0:
-            if self._metrics.get(list(self._metrics.keys())[0]).get('type') == 'regression':
+            if self._metrics.get(list(self._metrics.keys())[0]).get('type') == REGRESSION:
                 display_columns = display_columns + regression_metrics
-            else:
+            elif self._metrics.get(list(self._metrics.keys())[0]).get('type') == CLASSIFICATION:
                 display_columns = display_columns + classification_metrics
+            else:
+                # This means that the first metrics is empty or did not have a type associated.
+                # So, it is necessary to iterate over all the metrics to find a type
+                idx = 1
+                metric_keys = list(self._metrics.keys())
+                length = len(metric_keys)
+
+                # Break when a type is found
+                while self._metrics.get(metric_keys[idx]).get('type') == None and idx < length:
+                    idx = idx + 1
+
+                # Check whether any metrics are present in the given experiments, else throw error
+                assert_condition(condition=idx < length, source=self, message='No metrics found for given experiments')
+
+                # For the identified type set the metrics
+                if self._metrics.get(metric_keys[idx]).get('type') == REGRESSION:
+                    display_columns = display_columns + regression_metrics
+
+                else:
+                    display_columns = display_columns + classification_metrics
 
         else:
             display_columns = display_columns + self._metrics_display
@@ -872,7 +895,7 @@ class CompareMetrics:
                                 val = self._curr_listed_estimators.get(run)
                                 data_row['.'.join([key, param])] = val.get(key).get(param, '-')
 
-                if metrics.get('type', None) == 'regression':
+                if metrics.get('type', None) == REGRESSION:
                     for metric in regression_metrics:
                         data_row[metric] = metrics.get(metric, '-')
 
@@ -895,12 +918,12 @@ class CompareMetrics:
 
         # Update only those columns that are present in the data frame
         assert_condition(condition=metrics is not None, source=self, message='Could not compute metrics')
-        if metrics.get('type', None) == 'regression':
+        if metrics.get('type', None) == REGRESSION:
             for metric in regression_metrics:
                 if df.get(metric, None) is not None:
                     df[metric] = df[metric].astype(float)
 
-        elif metrics.get('type', None) == 'classification':
+        elif metrics.get('type', None) == CLASSIFICATION:
             for metric in classification_metrics:
                 if df.get(metric, None) is not None:
                     df[metric] = df[metric].astype(float)
