@@ -539,29 +539,28 @@ class ExperimentApp:
         experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments",
                                        experiment_name + ".ex")
         assert_condition(
-            condition=experiment_name.strip() != "" and
-                      os.path.exists(os.path.abspath(experiment_path)),
+            condition=experiment_name.strip() != "" and os.path.exists(os.path.abspath(experiment_path)),
             source=self,
             message='Experiment not found')
         ex = self._parent.local_backend.experiments.get_experiment(experiment_name)
         self._parent.remote_backend.experiments.put_experiment(ex)
 
-        list_of_runs = list(filter(lambda x: x.endswith(".run"), os.listdir(experiment_path)))
+        list_of_runs = filter(lambda x: x.endswith(".run"), os.listdir(experiment_path))
         for run_name in list_of_runs:  # Upload all runs for this experiment
             run_path = os.path.join(experiment_path, run_name)
             r = self._parent.local_backend.experiments.get_run(experiment_name,
                                                                run_name.split(".")[0])
             self._parent.remote_backend.experiments.put_run(ex, r)
 
-            list_of_splits = list(filter(lambda x: x.endswith(".split"), os.listdir(run_path)))
+            list_of_splits = filter(lambda x: x.endswith(".split"), os.listdir(run_path))
             for num, split_name in enumerate(list_of_splits):  # Upload all splits for this run
                 s = self._parent.local_backend.experiments.get_split(experiment_name,
-                                                                     run_name,
-                                                                     split_name,
+                                                                     run_name.split(".")[0],
+                                                                     split_name.split(".")[0],
                                                                      num)
                 self._parent.remote_backend.experiments.put_split(ex, r, s)
-                self._parent.remote_backend.experiments.put_results(ex, r, s, s.run.workflow.results)
-                self._parent.remote_backend.experiments.put_metrics(ex, r, s, s.run.workflow.metrics)
+                self._parent.remote_backend.experiments.put_results(ex, r, s, s.run.results)
+                self._parent.remote_backend.experiments.put_metrics(ex, r, s, s.run.metrics)
 
         self._parent.remote_backend.experiments.put_experiment_configuration(ex)
         shutil.rmtree(experiment_path)

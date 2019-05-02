@@ -4,7 +4,7 @@
   Currently we distinguish between a FileRepository and a HTTPRepository.
   In addition, the module defines serialiser for the individual binary data sets
 """
-
+import copy
 import os
 import re
 import shutil
@@ -212,7 +212,7 @@ class ExperimentFileRepository:
             configuration = self._metadata_serializer.deserialize(f.read())
         with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
-        experiment_params = configuration
+        experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
         experiment_params[id_]["dataset"] = self._data_repository.get(metadata["dataset_id"])
         ex = Experiment(**experiment_params[id_])
@@ -360,8 +360,8 @@ class ExperimentFileRepository:
         val_idx = np.array(val_idx) if type(val_idx) is list else val_idx
         r = self.get_run(ex_id, run_id)
         s = Split(r, num, train_idx, val_idx, test_idx, **r.metadata)
-        s.run.workflow.results = results
-        s.run.workflow.metrics = metrics
+        s.run.results = results
+        s.run.metrics = metrics
         return s
 
     def put_results(self, experiment, run, split, results):

@@ -119,6 +119,7 @@ class HttpBackendExperiments:
         experiment_data["algorithm"] = "http://padre.de/algorithm/1"
         experiment_data["executable"] = "http://padre.de/executable/1"
         experiment_data["sourceCode"] = "http://padre.de/executable/1"
+        experiment_data["metadata"] = experiment.metadata
         experiment_data["published"] = True
         experiment_data["uuid"] = str(uuid.uuid4())
         experiment_data["uid"] = 0
