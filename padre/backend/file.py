@@ -117,7 +117,7 @@ class ExperimentFileRepository:
                 r.append(str(split_num)+".split")
         return r
 
-    def list_experiments(self, search_id=".*", search_metadata=None):
+    def list_experiments(self, search_id="", search_metadata=None):
         """
         list the experiments available
         :param search_id:
