@@ -69,7 +69,7 @@ class SKLearnWorkflow:
         else:
             # do logging here
             if ctx.has_testset() and self.is_inferencer():
-
+                y_predicted_probabilities = None
                 y = ctx.test_targets.reshape((len(ctx.test_targets),))
                 # todo: check if we can estimate probabilities, scores or hard decisions
                 # this also changes the result type to be written.
@@ -78,6 +78,8 @@ class SKLearnWorkflow:
                 y_predicted = np.asarray(self._pipeline.predict(ctx.test_features))
                 results = {'predicted': y_predicted.tolist(),
                            'truth': y.tolist()}
+
+                modified_results = dict()
 
                 trigger_event('EVENT_LOG_RESULTS', source=ctx, mode='probability', pred=y_predicted, truth=y,
                               probabilities=None, scores=None, transforms=None, clustering=None)
@@ -139,6 +141,23 @@ class SKLearnWorkflow:
                 results['training_sample_count'] = len(train_idx)
                 results['testing_sample_count'] = len(test_idx)
 
+                if y_predicted_probabilities is None:
+                    for idx in range(0, len(test_idx)):
+                        prop = dict()
+                        prop['truth'] = int(y[idx])
+                        prop['predicted'] = int(y_predicted[idx])
+                        prop['probabilities'] = dict()
+                        modified_results[test_idx[idx]] = deepcopy(prop)
+
+                else:
+                    for idx in range(0, len(test_idx)):
+                        prop = dict()
+                        prop['truth'] = int(y[idx])
+                        prop['probabilities'] = y_predicted_probabilities[idx].tolist()
+                        prop['predicted'] = int(y_predicted[idx])
+                        modified_results[test_idx[idx]] = deepcopy(prop)
+
+                results['predictions'] = modified_results
                 self._results = deepcopy(results)
                 estimator_parameters = ctx.run.experiment.hyperparameters()
 
