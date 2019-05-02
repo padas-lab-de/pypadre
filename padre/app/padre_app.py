@@ -535,7 +535,11 @@ class ExperimentApp:
             return ex
 
     def upload_local_experiment(self, experiment_name):
-        """Upload given experiment with all runs and splits"""
+        """Upload given experiment with all runs and splits
+
+        Upload all runs, splits, results and metrics to the server and then remove experiment from local
+        file system.
+        """
         experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments",
                                        experiment_name + ".ex")
         assert_condition(

@@ -205,6 +205,11 @@ class ExperimentFileRepository:
         return ex
 
     def get_experiment(self, id_):
+        """Load experiment from local file system
+
+        :param id_: Id or name of the experiment
+        :return: Experiment instance
+        """
         dir_ = os.path.join(self.root_dir, *self._dir(id_))
         with open(os.path.join(dir_, "workflow.bin"), 'rb') as f:
             workflow = self._binary_serializer.deserialize(f.read())
@@ -271,22 +276,13 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
-    @deprecated("Use get_run instead")
-    def get_local_run(self, ex_id, run_id):
-        """
-        get the run with the particular id from the experiment.
-        :param ex_id:
-        :param run_id:
-        :return:
-        """
-        dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id))
-
-        with open(os.path.join(dir, "metadata.json"), 'r') as f:
-            metadata = self._metadata_serializer.deserialize(f.read())
-
-        return None
-
     def get_run(self, ex_id, run_id):
+        """Load Run with particular id from the experiment from local file system
+
+        :param ex_id: Related experiment name for run
+        :param run_id: Run name
+        :return: Run instance
+        """
         dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id))
         with open(os.path.join(dir, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
@@ -328,22 +324,15 @@ class ExperimentFileRepository:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
         self._split_dir = dir
 
-    @deprecated("Use get split instead")
-    def get_local_split(self, ex_id, run_id, split_id):
-        """
-        get the run with the particular id from the experiment.
-        :param ex_id:
-        :param run_id:
-        :return:
-        """
-        dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
-
-        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
-            metadata = self._metadata_serializer.deserialize(f.read())
-
-        return None
-
     def get_split(self, ex_id, run_id, split_id, num=0):
+        """Load Split from local file system
+
+        :param ex_id: Related experiment name for split
+        :param run_id: Related run name for split
+        :param split_id: Split name
+        :param num: Split number
+        :return: Split instance
+        """
         dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
 
         with open(os.path.join(dir_, "results.json"), 'r') as f:
