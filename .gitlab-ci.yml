@@ -32,23 +32,23 @@ build:
       - ./wheelhouse/
 
 
-release: # Missing version bump, and deployment on some pip repo
-  image: python:3.6.8-stretch
-  only:
-    - master
-  except:
-    - /^v.*$/
-  stage: release
-  variables:
-    TWINE_USERNAME: $PYPI_USER
-    TWINE_PASSWORD: $PYPI_PW
-  script:
-    - apt-get update
-    - apt-get install --assume-yes sshpass openssh-client
-    - python -m unittest discover -s ./tests/unit-tests/
-    - python setup.py sdist
-    - twine upload --repository-url $PYPI_URL dist/*
-  artifacts:
-    when: always
-    paths:
-      - ./wheelhouse/
+#release: # Missing version bump, and deployment on some pip repo
+#  image: python:3.6.8-stretch
+#  only:
+#    - master
+#  except:
+#    - /^v.*$/
+#  stage: release
+#  variables:
+#    TWINE_USERNAME: $PYPI_USER
+#    TWINE_PASSWORD: $PYPI_PW
+#  script:
+#    - apt-get update
+#    - apt-get install --assume-yes sshpass openssh-client
+#    - python -m unittest discover -s ./tests/unit-tests/
+#    - python setup.py sdist
+#    - twine upload --repository-url $PYPI_URL dist/*
+#  artifacts:
+#    when: always
+#    paths:
+#      - ./wheelhouse/
