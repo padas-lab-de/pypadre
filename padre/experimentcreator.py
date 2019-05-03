@@ -451,6 +451,10 @@ class ExperimentCreator:
                 data_dict['workflow'] = workflow
                 data_dict['strategy'] = strategy
                 if params is not None:
+                    """
+                    Convert the names of the alternate names of the parameters to actual names of the parameters
+                    """
+                    params = self.convert_alternate_estimator_names(params_dict=params)
                     # Iterate through the parameters and convert the parameters to a list if they are not a list
                     for estimator in params:
                         estimator_params = params.get(estimator)

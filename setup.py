@@ -14,14 +14,15 @@ name = 'pypadre'
 version = os.environ.get('VERSION')
 release = os.environ.get('VERSION')
 
+print('VERSION:{version}'.format(version=version))
+
 setup(
     name=name,
     version=version,
-    packages=['padre']+find_packages(exclude=["tests"]),
+    packages=['padre']+find_packages(exclude=["tests", "tests.*"]),
     package_dir={'padre': 'padre'},
-    package_data={'padre': ['res/mapping/pytorch.json', 'res/mapping/mapping.json',
-                            'core/wrappers/wrapper_mappings/mappings_torch.json',
-                            'protobuffer/binaries/1kb_mixed_dataframe.protobinV1']},
+    package_data={'padre': ['padre/res/mapping/pytorch.json', 'padre/res/mapping/mapping.json',
+                            'padre/core/wrappers/wrapper_mappings/mappings_torch.json']},
     #packages=find_packages(),
     include_package_data=True,
     url='https://padre-lab.eu',
