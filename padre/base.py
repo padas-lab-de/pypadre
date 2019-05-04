@@ -557,6 +557,10 @@ class MetadataEntity:
     def metadata(self):
         return self._metadata
 
+    @metadata.setter
+    def metadata(self, metadata):
+        self._metadata = metadata
+
 
 class _timer_priorities(_const):
     """

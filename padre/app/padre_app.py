@@ -16,7 +16,6 @@ Architecture of the module
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
 import os
 import configparser
-import shutil
 
 import copy
 from collections import Iterable
@@ -90,6 +89,8 @@ def get_default_table():
     table = BeautifulTable(max_width=150, default_alignment=Alignment.ALIGN_LEFT)
     table.row_separator_char = ""
     return table
+
+
 
 
 class PadreConfig:
@@ -545,28 +546,70 @@ class ExperimentApp:
             condition=experiment_name.strip() != "" and os.path.exists(os.path.abspath(experiment_path)),
             source=self,
             message='Experiment not found')
-        ex = self._parent.local_backend.experiments.get_experiment(experiment_name)
-        self._parent.remote_backend.experiments.put_experiment(ex)
+        remote_experiments_ = self._parent.remote_backend.experiments
+        local_experiments_ = self._parent.local_backend.experiments
+        ex = local_experiments_.get_experiment(experiment_name)
+        self.validate_and_upload(remote_experiments_.put_experiment, ex)
 
         list_of_runs = filter(lambda x: x.endswith(".run"), os.listdir(experiment_path))
         for run_name in list_of_runs:  # Upload all runs for this experiment
             run_path = os.path.join(experiment_path, run_name)
-            r = self._parent.local_backend.experiments.get_run(experiment_name,
-                                                               run_name.split(".")[0])
-            self._parent.remote_backend.experiments.put_run(ex, r)
+            r = local_experiments_.get_run(experiment_name,
+                                           run_name.split(".")[0])
+            self.validate_and_upload(remote_experiments_.put_run, ex, r)
 
             list_of_splits = filter(lambda x: x.endswith(".split"), os.listdir(run_path))
-            for num, split_name in enumerate(list_of_splits):  # Upload all splits for this run
-                s = self._parent.local_backend.experiments.get_split(experiment_name,
-                                                                     run_name.split(".")[0],
-                                                                     split_name.split(".")[0],
-                                                                     num)
-                self._parent.remote_backend.experiments.put_split(ex, r, s)
-                self._parent.remote_backend.experiments.put_results(ex, r, s, s.run.results)
-                self._parent.remote_backend.experiments.put_metrics(ex, r, s, s.run.metrics)
+            for split_name in list_of_splits:  # Upload all splits for this run
+                s = local_experiments_.get_split(experiment_name,
+                                                 run_name.split(".")[0],
+                                                 split_name.split(".")[0])
+                if self.validate_and_upload(remote_experiments_.put_split, ex, r, s):
+                    remote_experiments_.put_results(ex, r, s, s.run.results[0])
+                    remote_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
 
-        self._parent.remote_backend.experiments.put_experiment_configuration(ex)
-        shutil.rmtree(experiment_path)
+    def validate_and_upload(self, put_fn, experiment, run=None, split=None):
+        """
+        Upload only new experiment, run or split to server.
+
+        Upload only those experiment, run or split to server which are not already uploaded.
+        Criteria to check for it is, if server_url attribute in metadata is empty then it means
+        this experiment(or run or split) does not exists on the server. After uploading them
+        update its server_url in metadata
+        TODO: Check if experiment, run or split can downloaded from one server and uploaded to other
+
+        :param put_fn: Callable function from http backend which can be either put_experiment,
+            put_run or put_split.
+        :type put_fn: <class 'method'>
+        :param experiment: Experiment to be uploaded
+        :type experiment: <class 'padre.core.experiment.Experiment'>
+        :param run: Run to be uploaded
+        :type run: <class 'padre.core.run.Run'>
+        :param split: Split to be uploaded
+        :type split: <class 'padre.core.split.Split'>
+        :return: Boolean whether experiment, run or split is uploaded or not
+        """
+        local_experiments_ = self._parent.local_backend.experiments
+        server_url = ""
+        if split is not None:
+            if split.metadata["server_url"].strip() == "":
+                server_url = put_fn(experiment, run, split)
+                local_experiments_.update_metadata({"server_url": server_url},
+                                                   experiment.id,
+                                                   run.id,
+                                                   split.number + "_" + split.id)
+        elif run is not None:
+            if run.metadata["server_url"].strip() == "":
+                server_url = put_fn(experiment, run)
+                local_experiments_.update_metadata({"server_url": server_url},
+                                                   experiment.id, run.id)
+        else:
+            if experiment.metadata["server_url"].strip() == "":
+                server_url = put_fn(experiment)
+                local_experiments_.update_metadata({"server_url": server_url},
+                                                   experiment.id)
+        if server_url == "":
+            return False
+        return True
 
 
 class PadreApp:
