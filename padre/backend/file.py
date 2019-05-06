@@ -263,7 +263,7 @@ class ExperimentFileRepository:
         os.mkdir(dir)
 
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
-            f.write(self._metadata_serializer.serialise(experiment.metadata))
+            f.write(self._metadata_serializer.serialise(run.metadata))
 
         #Commented for pytorch integration
 
@@ -321,7 +321,7 @@ class ExperimentFileRepository:
             shutil.rmtree(dir)
         os.mkdir(dir)
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
-            f.write(self._metadata_serializer.serialise(experiment.metadata))
+            f.write(self._metadata_serializer.serialise(split.metadata))
         self._split_dir = dir
 
     def get_split(self, ex_id, run_id, split_id, num=0):

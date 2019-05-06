@@ -473,9 +473,7 @@ class HTTPBackendDatasets:
             meta["published"] = True
             dataset = Dataset(meta["id"], **meta)
             raw_data = arff.load(open(load.data_file, encoding='utf-8'))
-            df_attributes = raw_data['attributes']
             attribute_list = [att[0] for att in raw_data["attributes"]]
-
             df_data = pd.DataFrame(data=raw_data['data'])
             df_data.columns = attribute_list
             target_features = load.default_target_attribute.split(",")
@@ -483,7 +481,6 @@ class HTTPBackendDatasets:
                 df_data[col_name] = df_data[col_name].astype('category')
                 df_data[col_name] = df_data[col_name].cat.codes
 
-            dataset = Dataset(None, **meta)
             atts = []
             for feature in df_data.columns.values:
                 atts.append(Attribute(name=feature,
