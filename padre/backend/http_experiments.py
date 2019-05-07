@@ -119,6 +119,7 @@ class HttpBackendExperiments:
         experiment_data["algorithm"] = "http://padre.de/algorithm/1"
         experiment_data["executable"] = "http://padre.de/executable/1"
         experiment_data["sourceCode"] = "http://padre.de/executable/1"
+        experiment_data["metadata"] = experiment.metadata
         experiment_data["published"] = True
         experiment_data["uuid"] = str(uuid.uuid4())
         experiment_data["uid"] = 0
@@ -139,7 +140,7 @@ class HttpBackendExperiments:
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
              "name": experiment.metadata["name"]}
         ]}
-        experiment_data["configuration"] = {}
+        experiment_data["configuration"] = experiment.experiment_configuration
 
         url = self.create_experiment(experiment_data)
         experiment.metadata["server_url"] = url

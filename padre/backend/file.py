@@ -220,8 +220,9 @@ class ExperimentFileRepository:
         experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
         experiment_params[id_]["dataset"] = self._data_repository.get(metadata["dataset_id"])
-        ex = Experiment(**experiment_params[id_])
+        ex = Experiment(ex_id=id_, **experiment_params[id_])
         ex.experiment_configuration = configuration
+        ex.metadata = metadata
         return ex
 
     def list_runs(self, experiment_id, search_id=None, search_metadata=None):
@@ -263,7 +264,7 @@ class ExperimentFileRepository:
         os.mkdir(dir)
 
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
-            f.write(self._metadata_serializer.serialise(experiment.metadata))
+            f.write(self._metadata_serializer.serialise(run.metadata))
 
         #Commented for pytorch integration
 
@@ -283,14 +284,15 @@ class ExperimentFileRepository:
         :param run_id: Run name
         :return: Run instance
         """
-        dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id))
-        with open(os.path.join(dir, "metadata.json"), 'r') as f:
+        dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id))
+        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
 
-        with open(os.path.join(dir, "workflow.bin"), 'rb') as f:
+        with open(os.path.join(dir_, "workflow.bin"), 'rb') as f:
             workflow = self._binary_serializer.deserialize(f.read())
         ex = self.get_experiment(ex_id)
-        r = Run(ex, workflow, **dict(metadata))
+        r = Run(ex, workflow, run_id=run_id, **dict(metadata))
+        r.metadata = metadata
         return r
 
     def list_splits(self, experiment_id, run_id, search_id=None, search_metadata=None):
@@ -321,10 +323,10 @@ class ExperimentFileRepository:
             shutil.rmtree(dir)
         os.mkdir(dir)
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
-            f.write(self._metadata_serializer.serialise(experiment.metadata))
+            f.write(self._metadata_serializer.serialise(split.metadata))
         self._split_dir = dir
 
-    def get_split(self, ex_id, run_id, split_id, num=0):
+    def get_split(self, ex_id, run_id, split_id):
         """Load Split from local file system
 
         :param ex_id: Related experiment name for split
@@ -339,6 +341,8 @@ class ExperimentFileRepository:
             results = self._metadata_serializer.deserialize(f.read())
         with open(os.path.join(dir_, "metrics.json"), 'r') as f:
             metrics = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
+            metadata = self._metadata_serializer.deserialize(f.read())
 
         train_idx = results.get("train_idx", None)
         test_idx = results.get("test_idx", None)
@@ -348,10 +352,11 @@ class ExperimentFileRepository:
         test_idx = np.array(test_idx) if type(test_idx) is list else test_idx
         val_idx = np.array(val_idx) if type(val_idx) is list else val_idx
         r = self.get_run(ex_id, run_id)
-        s = Split(r, num, train_idx, val_idx, test_idx, **r.metadata)
-        s.run.results = results
-        s.run.metrics = metrics
-
+        num = results["split_num"]
+        s = Split(r, num, train_idx, val_idx, test_idx, split_id=split_id, **r.metadata)
+        s.run.results.append(results)
+        s.run.metrics.append(metrics)
+        s.metadata = metadata
         return s
 
     def put_results(self, experiment, run, split, results):
@@ -482,6 +487,21 @@ class ExperimentFileRepository:
             path = os.path.join(self._split_dir,modelname)
             torch.save(model, path)
 
+    def update_metadata(self, data_dict, ex_id, run_id=None, split_id=None):
+        """
+        Update metadata property of either experiment, run or split
+
+        :param data_dict: Dictionary containing key, value pairs for metadata e-g {"server_url": "url"}
+        :param ex_id: Experiment id for which metadata should be updated
+        :param run_id: Run id for which metadata should be updated
+        :param split_id: Split id for which metadata should be updated
+        """
+        dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
+        with open(os.path.join(dir_, "metadata.json"), 'r+') as f:
+            metadata = self._metadata_serializer.deserialize(f.read())
+            metadata.update(data_dict)
+            f.seek(0)
+            f.write(self._metadata_serializer.serialise(metadata))
 
 
 class DatasetFileRepository(object):

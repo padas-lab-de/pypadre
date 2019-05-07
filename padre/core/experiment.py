@@ -166,6 +166,10 @@ class Experiment(MetadataEntity):
     def experiment_configuration(self):
         return self._experiment_configuration
 
+    @experiment_configuration.setter
+    def experiment_configuration(self, configuration):
+        self._experiment_configuration = configuration
+
     @workflow.setter
     def workflow(self, w):
         self._set_workflow(w)

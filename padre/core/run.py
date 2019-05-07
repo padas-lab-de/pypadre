@@ -66,9 +66,17 @@ class Run(MetadataEntity):
     def results(self):
         return self._results
 
+    @results.setter
+    def results(self, results):
+        self._results = results
+
     @property
     def metrics(self):
         return self._metrics
+
+    @metrics.setter
+    def metrics(self, metrics):
+        self._metrics = metrics
 
     @property
     def hyperparameters(self):

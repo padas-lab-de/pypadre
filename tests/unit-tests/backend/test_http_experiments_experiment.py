@@ -116,6 +116,7 @@ class TestPutExperiment(unittest.TestCase):
                                        {'param1':
                                             {'hyper_parameters': {'model_parameters': {'First Type': 'Type name'}}}
                                         })
+        ex.experiment_configuration = {}
 
         result = obj.put_experiment(ex)
         self.assertEqual(self.test_experiment_url,
