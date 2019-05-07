@@ -230,7 +230,6 @@ class ExperimentExecutor:
             curr_experiment += 1
             trigger_event('EVENT_LOG_EXPERIMENT_PROGRESS', curr_value=curr_experiment, limit=limit, phase='start')
             name = experiment_dict.get('name')
-            desc = experiment_dict.get('description')
             dataset = experiment_dict.get('dataset')
             assert_condition(condition=isinstance(dataset, str) or isinstance(dataset, Dataset), source=self,
                              message='Dataset is of incorrect parameter type')
@@ -238,19 +237,13 @@ class ExperimentExecutor:
             if isinstance(dataset, str):
                 dataset = self.get_local_dataset(experiment_dict.get('dataset'))
 
-            workflow = experiment_dict.get('workflow')
-            backend = experiment_dict.get('backend')
-            strategy = experiment_dict.get('strategy', 'random')
-            params = experiment_dict.get('params')
 
+            exp_params = deepcopy(experiment_dict)
+            exp_params['dataset'] = dataset
+            params = exp_params.pop('params', None)
             trigger_event('EVENT_LOG', message='Executing experiment: {name}'.format(name=name), source=self)
             c1 = time.time()
-            ex = Experiment(name=name,
-                            description=desc,
-                            dataset=dataset,
-                            workflow=workflow,
-                            backend=backend,
-                            strategy=strategy)
+            ex = Experiment(**exp_params)
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
