@@ -352,7 +352,7 @@ class ExperimentFileRepository:
         test_idx = np.array(test_idx) if type(test_idx) is list else test_idx
         val_idx = np.array(val_idx) if type(val_idx) is list else val_idx
         r = self.get_run(ex_id, run_id)
-        num, split_id = split_id.split("_")
+        num = results["split_num"]
         s = Split(r, num, train_idx, val_idx, test_idx, split_id=split_id, **r.metadata)
         s.run.results.append(results)
         s.run.metrics.append(metrics)

@@ -596,7 +596,7 @@ class ExperimentApp:
                 local_experiments_.update_metadata({"server_url": server_url},
                                                    experiment.id,
                                                    run.id,
-                                                   split.number + "_" + split.id)
+                                                   split.id)
         elif run is not None:
             if run.metadata["server_url"].strip() == "":
                 server_url = put_fn(experiment, run)
