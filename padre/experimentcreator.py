@@ -251,13 +251,23 @@ class ExperimentCreator:
                              message=''.join([estimator_name + ' does not exist in the workflow']))
             return None
         available_params = self._parameters.get(estimator_name)
+
+        actual_parameter_names = []
+        for param_name in self._parameters.get(estimator_name):
+            actual_parameter_names.append(
+                self._param_implementation.get('.'.join([estimator_name, param_name])))
+
         for param in param_val_dict:
-            if param not in available_params:
-                assert_condition(condition=False, source=self,
-                                 message=''.join([param + ' is not present for estimator ' + estimator_name]))
-            else:
+            if param in available_params:
                 actual_param_name = self._param_implementation.get('.'.join([estimator_name, param]))
                 estimator.set_params(**{actual_param_name: param_val_dict.get(param)})
+
+            elif param in actual_parameter_names:
+                estimator.set_params(**{param: param_val_dict.get(param)})
+
+            else:
+                assert_condition(condition=False, source=self,
+                                 message=''.join([param + ' is not present for estimator ' + estimator_name]))
 
         return estimator
 
@@ -494,11 +504,10 @@ class ExperimentCreator:
         if name is None:
             assert_condition(condition=False, source=self, message='Dataset name is empty')
             return None
-        if name in self._local_dataset:
-            return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
-        else:
-            assert_condition(condition=False, source=self, message=name + ' Local Dataset not found')
-            return None
+
+        assert_condition(condition=name in self._local_dataset, source=self, message=name + ' Local Dataset not found')
+
+        return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
 
     def get_dataset_names(self):
         """

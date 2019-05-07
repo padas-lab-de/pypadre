@@ -29,7 +29,8 @@ def _get_path(root_dir, name, create=True):
 def _dir_list(root_dir, matcher, strip_postfix=""):
     files = [f for f in os.listdir(root_dir) if f.endswith(strip_postfix)]
     if matcher is not None:
-        files = [f for f in files if matcher in f]
+        rid = re.compile(matcher)
+        files = [f for f in files if rid.match(f)]
 
     if len(strip_postfix) == 0:
         return files
@@ -118,7 +119,7 @@ class ExperimentFileRepository:
                 r.append(str(split_num)+".split")
         return r
 
-    def list_experiments(self, search_id="", search_metadata=None):
+    def list_experiments(self, search_id=".*", search_metadata=None):
         """
         list the experiments available
         :param search_id:
@@ -315,7 +316,7 @@ class ExperimentFileRepository:
         if split.id is None:  # this is a new experiment
             split.id = uuid.uuid4()
 
-        split_id = str(split.number) + "_" + str(split.id)
+        split_id = str(split.id)
 
         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split_id))
         if os.path.exists(dir):
@@ -369,7 +370,7 @@ class ExperimentFileRepository:
 
         :return: None
         """
-        split_id = str(split.number) + "_" + str(split.id)
+        split_id = str(split.id)
         dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split_id))
         with open(os.path.join(dir_, "results.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(results))
@@ -385,7 +386,7 @@ class ExperimentFileRepository:
 
         :return: None
         """
-        split_id = str(split.number) + "_" + str(split.id)
+        split_id = str(split.id)
         dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split_id))
         with open(os.path.join(dir_, "metrics.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(metrics))
@@ -530,7 +531,7 @@ class DatasetFileRepository(object):
         """
         # todo apply the search metadata filter.
         dirs = _dir_list(self.root_dir, search_name)
-        return [self.get(dir, metadata_only=True) for dir in dirs]
+        return dirs #[self.get(dir, metadata_only=True) for dir in dirs]
 
 
     def put(self, dataset: Dataset)-> None:
@@ -540,7 +541,7 @@ class DatasetFileRepository(object):
         :param dataset: dataset to put.
         :return:
         """
-        _dir = _get_path(self.root_dir, str(dataset.id))
+        _dir = _get_path(self.root_dir, str(dataset.name))
         try:
             if dataset.has_data():
                 with open(os.path.join(_dir, "data.bin"), 'wb') as f:

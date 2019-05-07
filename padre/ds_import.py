@@ -138,7 +138,7 @@ def load_csv(csv_path, targets=None, name=None, description="imported form csv",
 
     if targets is None:
         targets = []
-    trigger_event('EVENT_WARN', condition=len(targets) == 0, source='ds_import.load_csv',
+    trigger_event('EVENT_WARN', condition=len(targets)>0, source='ds_import.load_csv',
                   message='No targets defined. Program will crash when used for supervised learning')
 
     dataset_path_list = csv_path.split('/')
