@@ -108,7 +108,7 @@ class Splitter:
                     yield i
             elif self._strategy == "function":
                 train, test, val = split_obj.function_pointer(idx)
-                yield train, test, []
+                yield train, test, val
             elif self._strategy == "random":
                 # for i in range(self._n_folds):
                 if not self._no_shuffle:  # Reshuffle every "fold"
