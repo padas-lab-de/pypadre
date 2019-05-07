@@ -4,17 +4,18 @@
   Currently we distinguish between a FileRepository and a HTTPRepository.
   In addition, the module defines serialiser for the individual binary data sets
 """
-
+import copy
 import os
 import re
 import shutil
 import uuid
 
+import numpy as np
 from deprecated import deprecated
 
 from padre.backend.serialiser import JSonSerializer, PickleSerializer
 from padre.core.datasets import Dataset, Attribute
-from padre.core import Experiment
+from padre.core import Experiment, Run, Split
 
 
 def _get_path(root_dir, name, create=True):
@@ -28,7 +29,8 @@ def _get_path(root_dir, name, create=True):
 def _dir_list(root_dir, matcher, strip_postfix=""):
     files = [f for f in os.listdir(root_dir) if f.endswith(strip_postfix)]
     if matcher is not None:
-        files = [f for f in files if matcher in f]
+        rid = re.compile(matcher)
+        files = [f for f in files if rid.match(f)]
 
     if len(strip_postfix) == 0:
         return files
@@ -117,7 +119,7 @@ class ExperimentFileRepository:
                 r.append(str(split_num)+".split")
         return r
 
-    def list_experiments(self, search_id="", search_metadata=None):
+    def list_experiments(self, search_id=".*", search_metadata=None):
         """
         list the experiments available
         :param search_id:
@@ -174,13 +176,16 @@ class ExperimentFileRepository:
 
         self._file = open(os.path.join(dir, "log.txt"), "a")
 
+        self._data_repository.put(experiment._dataset)
+
         with open(os.path.join(dir, "metadata.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
-    def get_experiment(self, id_, load_workflow=True):
+    @deprecated("Use get_experiment instead")
+    def get_local_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
 
         with open(os.path.join(dir, "metadata.json"), 'r') as f:
@@ -191,12 +196,32 @@ class ExperimentFileRepository:
 
         workflow = None
         if load_workflow:
-            with open(os.path.join(dir, "workflow.bin"), 'r') as f:
+            with open(os.path.join(dir, "workflow.bin"), 'rb') as f:
                 workflow = self._binary_serializer.deserialize(f.read())
 
         ex = Experiment(id_=id_, workflow=workflow,
                         dataset=self._data_repository.get_dataset(metadata["dataset_id"]))
         ex.set_hyperparameters(hyperparameters)
+        return ex
+
+    def get_experiment(self, id_):
+        """Load experiment from local file system
+
+        :param id_: Id or name of the experiment
+        :return: Experiment instance
+        """
+        dir_ = os.path.join(self.root_dir, *self._dir(id_))
+        with open(os.path.join(dir_, "workflow.bin"), 'rb') as f:
+            workflow = self._binary_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "experiment.json"), 'r') as f:
+            configuration = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
+            metadata = self._metadata_serializer.deserialize(f.read())
+        experiment_params = copy.deepcopy(configuration)
+        experiment_params[id_]["workflow"] = workflow.pipeline
+        experiment_params[id_]["dataset"] = self._data_repository.get(metadata["dataset_id"])
+        ex = Experiment(**experiment_params[id_])
+        ex.experiment_configuration = configuration
         return ex
 
     def list_runs(self, experiment_id, search_id=None, search_metadata=None):
@@ -252,18 +277,21 @@ class ExperimentFileRepository:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
     def get_run(self, ex_id, run_id):
-        """
-        get the run with the particular id from the experiment.
-        :param ex_id:
-        :param run_id:
-        :return:
+        """Load Run with particular id from the experiment from local file system
+
+        :param ex_id: Related experiment name for run
+        :param run_id: Run name
+        :return: Run instance
         """
         dir = os.path.join(self.root_dir, *self._dir(ex_id, run_id))
-
         with open(os.path.join(dir, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
 
-        return None
+        with open(os.path.join(dir, "workflow.bin"), 'rb') as f:
+            workflow = self._binary_serializer.deserialize(f.read())
+        ex = self.get_experiment(ex_id)
+        r = Run(ex, workflow, **dict(metadata))
+        return r
 
     def list_splits(self, experiment_id, run_id, search_id=None, search_metadata=None):
         """
@@ -296,19 +324,35 @@ class ExperimentFileRepository:
             f.write(self._metadata_serializer.serialise(experiment.metadata))
         self._split_dir = dir
 
-    def get_split(self, ex_id, run_id, split_id):
-        """
-        get the run with the particular id from the experiment.
-        :param ex_id:
-        :param run_id:
-        :return:
+    def get_split(self, ex_id, run_id, split_id, num=0):
+        """Load Split from local file system
+
+        :param ex_id: Related experiment name for split
+        :param run_id: Related run name for split
+        :param split_id: Split name
+        :param num: Split number
+        :return: Split instance
         """
         dir_ = os.path.join(self.root_dir, *self._dir(ex_id, run_id, split_id))
 
-        with open(os.path.join(dir_, "metadata.json"), 'r') as f:
-            metadata = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "results.json"), 'r') as f:
+            results = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "metrics.json"), 'r') as f:
+            metrics = self._metadata_serializer.deserialize(f.read())
 
-        return None
+        train_idx = results.get("train_idx", None)
+        test_idx = results.get("test_idx", None)
+        val_idx = results.get("val_idx", None)
+
+        train_idx = np.array(train_idx) if type(train_idx) is list else train_idx
+        test_idx = np.array(test_idx) if type(test_idx) is list else test_idx
+        val_idx = np.array(val_idx) if type(val_idx) is list else val_idx
+        r = self.get_run(ex_id, run_id)
+        s = Split(r, num, train_idx, val_idx, test_idx, **r.metadata)
+        s.run.results = results
+        s.run.metrics = metrics
+
+        return s
 
     def put_results(self, experiment, run, split, results):
         """
@@ -467,7 +511,7 @@ class DatasetFileRepository(object):
         """
         # todo apply the search metadata filter.
         dirs = _dir_list(self.root_dir, search_name)
-        return [self.get(dir, metadata_only=True) for dir in dirs]
+        return dirs #[self.get(dir, metadata_only=True) for dir in dirs]
 
 
     def put(self, dataset: Dataset)-> None:
@@ -477,7 +521,7 @@ class DatasetFileRepository(object):
         :param dataset: dataset to put.
         :return:
         """
-        _dir = _get_path(self.root_dir, str(dataset.id))
+        _dir = _get_path(self.root_dir, str(dataset.name))
         try:
             if dataset.has_data():
                 with open(os.path.join(_dir, "data.bin"), 'wb') as f:
