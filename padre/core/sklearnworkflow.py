@@ -140,6 +140,7 @@ class SKLearnWorkflow:
                 results['test_idx'] = test_idx
                 results['training_sample_count'] = len(train_idx)
                 results['testing_sample_count'] = len(test_idx)
+                results['split_num'] = ctx.number
 
                 if y_predicted_probabilities is None:
                     for idx in range(0, len(test_idx)):

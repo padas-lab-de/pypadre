@@ -314,7 +314,7 @@ class ExperimentFileRepository:
         if split.id is None:  # this is a new experiment
             split.id = uuid.uuid4()
 
-        split_id = str(split.number) + "_" + str(split.id)
+        split_id = str(split.id)
 
         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split_id))
         if os.path.exists(dir):
@@ -365,7 +365,7 @@ class ExperimentFileRepository:
 
         :return: None
         """
-        split_id = str(split.number) + "_" + str(split.id)
+        split_id = str(split.id)
         dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split_id))
         with open(os.path.join(dir_, "results.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(results))
@@ -381,7 +381,7 @@ class ExperimentFileRepository:
 
         :return: None
         """
-        split_id = str(split.number) + "_" + str(split.id)
+        split_id = str(split.id)
         dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split_id))
         with open(os.path.join(dir_, "metrics.json"), 'w') as f:
             f.write(self._metadata_serializer.serialise(metrics))
