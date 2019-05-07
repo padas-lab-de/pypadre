@@ -511,7 +511,7 @@ class DatasetFileRepository(object):
         """
         # todo apply the search metadata filter.
         dirs = _dir_list(self.root_dir, search_name)
-        return [self.get(dir, metadata_only=True) for dir in dirs]
+        return dirs #[self.get(dir, metadata_only=True) for dir in dirs]
 
 
     def put(self, dataset: Dataset)-> None:
@@ -521,7 +521,7 @@ class DatasetFileRepository(object):
         :param dataset: dataset to put.
         :return:
         """
-        _dir = _get_path(self.root_dir, str(dataset.id))
+        _dir = _get_path(self.root_dir, str(dataset.name))
         try:
             if dataset.has_data():
                 with open(os.path.join(_dir, "data.bin"), 'wb') as f:
