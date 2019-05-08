@@ -528,6 +528,7 @@ class DatasetFileRepository(object):
         for directory in directories:
             if os.path.exists(os.path.join(self.root_dir, directory, 'metadata.json')) and \
                     os.path.exists(os.path.join(self.root_dir, directory, 'data.bin')):
+
                 # if the json file exists check if the tag id exists within the json
                 with open(os.path.join(self.root_dir, directory, 'metadata.json'), 'r') as f:
                     metadata = json.loads(f.read())
@@ -536,7 +537,7 @@ class DatasetFileRepository(object):
                     dataset_tuple = (directory, metadata.get('id', None))
                     dataset_list.append(dataset_tuple)
 
-        return  dataset_list
+        return dataset_list
 
 
     def put(self, dataset: Dataset)-> None:
