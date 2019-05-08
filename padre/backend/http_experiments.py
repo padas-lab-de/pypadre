@@ -174,11 +174,22 @@ class HttpBackendExperiments:
         """
         experiment = None
         if self._http_client.has_token():
-            if not ex.isdigit():  # url of the experiment
-                url = self._http_client.base + ex
+            if self._http_client.is_valid_url(ex):  # url of the experiment
+                url = ex
+                response = json.loads(self._http_client.do_get(url, **{}).content)
+            elif ex.isdigit():
+                url = self._http_client.get_base_url() + self._http_client.paths['experiment'](ex)
+                response = json.loads(self._http_client.do_get(url, **{}).content)
             else:
-                url = self.get_base_url() + self._http_client.paths['experiment'](ex)
-            response = json.loads(self._http_client.do_get(url, **{}).content)
+                url = self._http_client.get_base_url() + self._http_client.paths['search']("experiments") + "name:" + ex
+                response = json.loads(self._http_client.do_get(url, **{}).content)
+                if "_embedded" in response:
+                    response = response["_embedded"]["experiments"][0]  # Get first experiment
+                else:
+                    trigger_event('EVENT_ERROR', condition=False, source=self,
+                                  message="Experiment with name {%s} not found  " % ex)
+                    return experiment
+
             ds = self._http_client.datasets.get(str(response["dataset"]["uid"]))
             configuration = response["configuration"]
             keys = list(configuration.keys())

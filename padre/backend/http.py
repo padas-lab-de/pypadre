@@ -193,6 +193,22 @@ class PadreHTTPClient:
             url = url[0:-1]
         return url
 
+    def is_valid_url(self, url):
+        """
+        Validate if a url is valid.
+
+        :param url: String containing url
+        :returns: Boolean
+        """
+        result = False
+        try:
+            parsed = urlparse(url)
+            if all([parsed.scheme, parsed.netloc]):
+                result = True
+        except:
+            return result
+        return result
+
     def get_access_token(self,  passwd=None):
         """Get access token.
 
