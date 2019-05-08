@@ -14,6 +14,7 @@ from google.protobuf.internal.encoder import _VarintBytes
 from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
 from padre import experimentcreator
+from padre.core import Experiment
 from padre.backend.serialiser import PickleSerializer
 from padre.eventhandler import trigger_event
 
@@ -167,29 +168,32 @@ class HttpBackendExperiments:
         The function returns an experiment class, which is loaded from file.
 
         :param ex: Id or url of the experiment
-        :return: Dict containing experiment configuration
+        :return: Returns experiment instance or none
         # todo: Return experiment instance according to above documentation
         """
-        experiment = {}
+        experiment = None
         if self._http_client.has_token():
             if not ex.isdigit():  # url of the experiment
                 url = self._http_client.base + ex
             else:
                 url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             response = json.loads(self._http_client.do_get(url, **{}).content)
+            ds = self._http_client.datasets.get(str(response["dataset"]["uid"]))
             conf = response["configuration"]
             keys = list(conf.keys())
             if len(keys) > 0:  # If configuration not empty
                 name = keys[0]
                 conf = conf[name]
                 experiment_creator = experimentcreator.ExperimentCreator()
+                conf["dataset"] = ds
                 experiment_creator.create(conf["name"],
                                           conf["description"],
                                           [conf["dataset"]],
                                           conf["workflow"],
                                           conf["params"])
-
-                experiment = experiment_creator.experiments[name]
+                w = experiment_creator.create_test_pipeline(conf["workflow"])
+                conf["workflow"] = w
+                experiment = Experiment(**conf)
         return experiment
 
     def list_experiments(self, search=None, search_metadata=None, start=-1, count=999999999):
