@@ -53,6 +53,7 @@ def main():
                               )
 
     experiment_creator.parse_config_file('experiment.json')
+    experiment_creator.clear_experiments('Executor Test 3(Diabetes)')
 
     experiments_list = experiment_creator.createExperimentList()
     experiments_executor = ExperimentExecutor(experiments=experiments_list)
