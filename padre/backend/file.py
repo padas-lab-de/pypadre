@@ -219,7 +219,8 @@ class ExperimentFileRepository:
             metadata = self._metadata_serializer.deserialize(f.read())
         experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
-        experiment_params[id_]["dataset"] = self._data_repository.get(metadata["dataset_id"])
+        dataset_name = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
+        experiment_params[id_]["dataset"] = self._data_repository.get(dataset_name)
         ex = Experiment(ex_id=id_, **experiment_params[id_])
         ex.experiment_configuration = configuration
         ex.metadata = metadata
@@ -559,6 +560,20 @@ class DatasetFileRepository(object):
 
         return dataset_list
 
+    def get_dataset_name_by_id(self, dataset_id):
+        """
+        Return dataset name for given dataset id
+
+        :param dataset_id: Dataset id for which dataset name should searched
+        :type dataset_id: str
+        :return: String containing dataset name or empty string if its not found
+        """
+        dataset_name = ""
+        for name, id_ in self.get_dataset_name_id():
+            if id_ == dataset_id:
+                dataset_name = name
+                break
+        return dataset_name
 
     def put(self, dataset: Dataset)-> None:
         """
