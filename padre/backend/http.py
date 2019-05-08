@@ -503,6 +503,7 @@ PadreHTTPClient.paths = {
     "projects": "/projects",
     "results": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results",
     "runs": "/runs",
+    "run": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id,
     "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
     "run-splits": "/runSplits",
     "run-split": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id,

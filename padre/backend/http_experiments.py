@@ -5,6 +5,7 @@ import io
 import json
 import tempfile
 import uuid
+from collections import OrderedDict
 from itertools import groupby
 
 import requests as req
@@ -14,7 +15,7 @@ from google.protobuf.internal.encoder import _VarintBytes
 from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
 from padre import experimentcreator
-from padre.core import Experiment
+from padre.core import Experiment, Run, Split
 from padre.backend.serialiser import PickleSerializer
 from padre.eventhandler import trigger_event
 
@@ -179,11 +180,11 @@ class HttpBackendExperiments:
                 url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             response = json.loads(self._http_client.do_get(url, **{}).content)
             ds = self._http_client.datasets.get(str(response["dataset"]["uid"]))
-            conf = response["configuration"]
-            keys = list(conf.keys())
+            configuration = response["configuration"]
+            keys = list(configuration.keys())
             if len(keys) > 0:  # If configuration not empty
                 name = keys[0]
-                conf = conf[name]
+                conf = configuration[name]
                 experiment_creator = experimentcreator.ExperimentCreator()
                 conf["dataset"] = ds
                 experiment_creator.create(conf["name"],
@@ -191,9 +192,17 @@ class HttpBackendExperiments:
                                           [conf["dataset"]],
                                           conf["workflow"],
                                           conf["params"])
-                w = experiment_creator.create_test_pipeline(conf["workflow"])
-                conf["workflow"] = w
-                experiment = Experiment(**conf)
+                conf["workflow"] = experiment_creator.create_test_pipeline(conf["workflow"])
+                experiment = Experiment(ex_id=conf["name"], **conf)
+                run_split = OrderedDict()
+                for run in response["runs"]:
+                    split_ids = list()
+                    for split in run["splits"]:
+                        split_ids.append(split["uid"] + ".split")
+                    run_split[run["uid"] + ".run"] = split_ids
+                experiment.run_split_dict = run_split
+                experiment.metadata = response["metadata"]
+                experiment.experiment_configuration = configuration
         return experiment
 
     def list_experiments(self, search=None, search_metadata=None, start=-1, count=999999999):
@@ -262,6 +271,27 @@ class HttpBackendExperiments:
         run.metadata["server_url"] = location
         return location
 
+    def get_run(self, ex_id, run_id):
+        """
+        Get run from server.
+
+        Todo: Use run metadata instead of experiment metadata as run is identified by unique server_url
+
+        :param ex_id:
+        :param run_id:
+        :return: Return run instance
+        """
+        run_url = self._http_client.get_base_url() + self._http_client.paths['run'](ex_id, run_id)
+        run_model_url = self._http_client.get_base_url() + self._http_client.paths["run-models"](ex_id, run_id)
+        r = None
+        if self._http_client.has_token():
+            run_response = json.loads(self._http_client.do_get(run_url, **{}).content)
+            model_response = self._http_client.do_get(run_model_url, **{})
+            workflow = self._binary_serializer.deserialize(model_response.content)
+            ex = self.get_experiment(ex_id)
+            r = Run(ex, workflow, run_id=run_id, **ex.metadata)
+        return r
+
     def put_split(self, experiment, run, split):
         """
         Put split information on the server.
@@ -288,6 +318,25 @@ class HttpBackendExperiments:
             location = response.headers["location"]
         split.metadata["server_url"] = location
         return location
+
+    def get_split(self, ex_id, run_id, split_id):
+        """
+        Get split from the server.
+
+        :param ex_id:
+        :param run_id:
+        :param split_id:
+        :return: Split instance
+        """
+        s = None
+        split_url = self.get_base_url() + self._http_client.paths["split"](split_id)
+        results_url = self.get_base_url() + self._http_client.paths["results"](ex_id, run_id, split_id)
+        if self._http_client.has_token():
+            split_response = json.loads(self._http_client.do_get(split_url, **{}).content)
+            results_response = self._http_client.do_get(results_url, **{})
+            r = self.get_run(ex_id, run_id)
+        return s
+
 
     def put_results(self, experiment, run, split, results):
         """
