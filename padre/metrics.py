@@ -539,6 +539,13 @@ class CompareMetrics:
                         params = estimator_group.get(estimator)
                         default_params = estimator_default_values.get(estimator)
                         for param in params:
+                            # When running the show metrics function back to back, the unique estimators will be
+                            # populated while the default params will be empty. This causes a crash.
+                            # So if the default values are not populated, then add them to the dictionary
+                            if default_params is None:
+                                estimator_default_values[estimator] = estimator_group.get(estimator)
+                                default_params = estimator_default_values.get(estimator)
+
                             if default_params.get(param) != params.get(param):
                                 param_set = self._unique_estimators.get(estimator).get(param)
                                 param_set = param_set.union({params.get(param)})
