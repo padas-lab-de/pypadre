@@ -3,6 +3,7 @@ Logic to upload experiment data to server goes here
 """
 import io
 import json
+import re
 import tempfile
 import uuid
 from collections import OrderedDict
@@ -344,10 +345,13 @@ class HttpBackendExperiments:
         results_url = self.get_base_url() + self._http_client.paths["results"](ex_id, run_id, split_id)
         if self._http_client.has_token():
             split_response = json.loads(self._http_client.do_get(split_url, **{}).content)
-            results_response = self._http_client.do_get(results_url, **{})
+            decode_split = self.decode_split(split_response["split"])
+            # results_response = self._http_client.do_get(results_url, **{})
             r = self.get_run(ex_id, run_id)
+            s = Split(
+                r, 0, decode_split["train"], decode_split["val"], decode_split["test"],
+                split_id=split_response["uid"], **r.metadata)
         return s
-
 
     def put_results(self, experiment, run, split, results):
         """
@@ -608,9 +612,47 @@ class HttpBackendExperiments:
 
         return result
 
+    def decode_split(self, encoded_split):
+        """
+        Decode encoded split into list of indices for train, test and validation data
+
+        :param encoded_split: Encoded string for example train:f1t1,test:f2t1,val:f3t1
+        :type encoded_split: str
+        :return: Dictionary containing decoded lists for each train, test and val sets
+        """
+        result = dict()
+        pattern = re.compile(r"f\d{1,}|t\d{1,}")
+        for section in encoded_split.split(","):
+            name, value = section.split(":")
+            res = self.decode_list(pattern.findall(value))
+            result[name] = res
+        return result
+
+    def decode_list(self, list_of_encodings):
+        """
+        Decode list of encodings into list of indices
+
+        :param list_of_encodings: for example: ["f2", "t1"]
+        :return: Numpy array of dataset indices or None
+        """
+        result = []
+        counter = 0
+        for encoding in list_of_encodings:
+            if encoding[0] == "f":
+                counter += int(encoding[1:])
+            if encoding[0] == "t":
+                item = int(encoding[1:])
+                result = result + list(range(counter, counter + item))
+                counter += item
+        if not result:
+            return None
+        return np.array(result)
+
     def put_experiment_configuration(self, experiment):
         """
-        Writes the experiment configuration to the HTTP Client
+        Writes the experiment configuration to the server.
+        Also write experiment metadata to server which has updated server_url.
+
         :param experiment: Experiment to be written
         :return:
         """
@@ -619,6 +661,7 @@ class HttpBackendExperiments:
         e_id = experiment.metadata["server_url"].split("/")[-1]
         update_split_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
         data["configuration"] = experiment.experiment_configuration
+        data["metadata"] = experiment.metadata
         if self._http_client.has_token():
             response = self._http_client.do_patch(update_split_url,
                                                   **{"data": json.dumps(data)})
