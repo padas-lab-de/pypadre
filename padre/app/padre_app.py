@@ -534,6 +534,47 @@ class ExperimentApp:
             ex.run()
             return ex
 
+    def download_remote_experiment(self, ex_id):
+        remote_experiments_ = self._parent.remote_backend.experiments
+        local_experiments_ = self._parent.local_backend.experiments
+        ex = remote_experiments_.get_experiment(ex_id)
+        self.validate_and_download(ex)
+        for run_id, split_ids in ex.run_split_dict.items():
+            r = remote_experiments_.get_run(ex_id, run_id.split(".run")[0])
+            self.validate_and_download(ex, r)
+            for split_id in split_ids:
+                s = remote_experiments_.get_split(ex_id, run_id.split(".run")[0], split_id.split(".split")[0])
+                if self.validate_and_download(ex, r, s):
+                    local_experiments_.put_results(ex, r, s, s.run.results[0])
+                    local_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
+
+    def validate_and_download(self, experiment, run=None, split=None):
+        import json
+        downloaded = False
+        local_experiments_ = self._parent.local_backend.experiments
+        if split is not None:
+            split_path = os.path.join(local_experiments_.root_dir, experiment.id + ".ex", run.id + ".run", split.id + ".split")
+            if not os.path.exists(os.path.abspath(split_path)):
+                local_experiments_.put_split(split)
+                downloaded = True
+        if run is not None:
+            run_path = os.path.join(local_experiments_.root_dir, experiment.id + ".ex", run.id + ".run")
+            if not os.path.exists(os.path.abspath(run_path)):
+                local_experiments_.put_run(run)
+                downloaded = True
+        else:
+            experiment_path = os.path.join(local_experiments_.root_dir, experiment.id + ".ex")
+            if not os.path.exists(os.path.abspath(experiment_path)):
+                local_experiments_.put_experiment(experiment)
+                downloaded = True
+            elif os.path.exists(os.path.abspath(experiment_path)):
+                with open(os.path.join(experiment_path, "metadata.json"), "r") as f:
+                    experiment_metadata = json.loads(f.read())
+                    if experiment_metadata["server_url"] == "":
+                        local_experiments_.put_experiment(experiment)
+                        downloaded = True
+        return downloaded
+
     def upload_local_experiment(self, experiment_name):
         """Upload given experiment with all runs and splits
 

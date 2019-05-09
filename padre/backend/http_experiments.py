@@ -351,6 +351,8 @@ class HttpBackendExperiments:
             s = Split(
                 r, 0, decode_split["train"], decode_split["val"], decode_split["test"],
                 split_id=split_response["uid"], **r.metadata)
+
+            s.run.metrics.append(split_response["metrics"])
         return s
 
     def put_results(self, experiment, run, split, results):
