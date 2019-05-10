@@ -125,11 +125,12 @@ def load_csv(csv_path, targets=None, name=None, description="imported form csv",
         csv_path (str): The path of the csv-file
         targets (list): The column names of the target features of the csv-file.
         name(str): Optional name of dataset
+        description(str): Optional description of the dataset
         source(str): original source - should be url
         type(str): type of dataset
 
     Returns:
-        padre.Dataset() A dataset containing the data of the .csv file
+        <class 'padre.datasets.Dataset'> A dataset containing the data of the .csv file
 
     """
     assert_condition(condition=os.path.exists(os.path.abspath(csv_path)), source='ds_import.load_csv',
@@ -137,7 +138,7 @@ def load_csv(csv_path, targets=None, name=None, description="imported form csv",
 
     if targets is None:
         targets = []
-    trigger_event('EVENT_WARN', condition=len(targets) == 0, source='ds_import.load_csv',
+    trigger_event('EVENT_WARN', condition=len(targets)>0, source='ds_import.load_csv',
                   message='No targets defined. Program will crash when used for supervised learning')
 
     dataset_path_list = csv_path.split('/')

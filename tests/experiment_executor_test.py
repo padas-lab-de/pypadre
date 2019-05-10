@@ -3,6 +3,10 @@ from padre.experimentcreator import ExperimentCreator
 from padre.app import pypadre
 from padre.eventhandler import trigger_event
 
+def split(idx):
+    # Do a 70:30 split
+    limit = int(.7 * len(idx))
+    return idx[0:limit], idx[limit:], None
 
 def main():
 
@@ -18,6 +22,7 @@ def main():
                               description='This is the first executor search test experiment',
                               dataset_list=['Diabetes', 'Boston_House_Prices', 'Iris'],
                               workflow=workflow,
+                              keep_splits=True,
                               params=param_value_dict)
 
     # SECOND TEST EXPERIMENT WITH SINGLE DATASET
@@ -28,6 +33,8 @@ def main():
                               description='This is the second executor search test experiment',
                               dataset_list=['Iris'],
                               workflow=workflow,
+                              strategy='function',
+                              function=split,
                               params=param_value_dict)
 
     # THIRD TEST EXPERIMENT WITH MULTIPLE DATASETS
@@ -46,6 +53,7 @@ def main():
                               )
 
     experiment_creator.parse_config_file('experiment.json')
+    experiment_creator.clear_experiments('Executor Test 3(Diabetes)')
 
     experiments_list = experiment_creator.createExperimentList()
     experiments_executor = ExperimentExecutor(experiments=experiments_list)

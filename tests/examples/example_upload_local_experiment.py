@@ -1,5 +1,5 @@
 """
-This file shows an example on how to use the pypadre app.
+This file shows an example on how to upload local experiment to server.
 """
 from padre.ds_import import load_sklearn_toys
 import pprint
@@ -36,23 +36,15 @@ if __name__ == '__main__':
     if ds is None:
         ds = [i for i in load_sklearn_toys()][4]
     print(ds)
-    ex = Experiment(name="Test Experiment SVM",
+    experiment_name = "Test Experiment SVM upload local"
+    ex = Experiment(name=experiment_name,
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="cv",
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="random",
                     function=split)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
-    pypadre.metrics_evaluator.add_experiments([ex, ex])
-    print(pypadre.metrics_evaluator.show_metrics())
-    '''
-    print("========Available experiments=========")
-    for idx, ex in enumerate(pypadre.experiments.list_experiments()):
-        print("%d: %s" % (idx, str(ex)))
-        for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
-            print("\tRun: %s"%str(run))
-    '''
-    # ex.report_results() # last step, but we can also look that up on the server
-
+    pypadre.config.authenticate("hmafnan", "test")
+    pypadre.experiments.upload_local_experiment(experiment_name)

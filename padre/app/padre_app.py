@@ -26,17 +26,16 @@ from beautifultable.enums import Alignment
 from scipy.stats.stats import DescribeResult
 
 from padre.core.datasets import formats, Dataset
-
+from padre import ds_import
 from padre.backend.file import DatasetFileRepository, PadreFileBackend
 from padre.backend.http import PadreHTTPClient
 from padre.backend.dual_backend import DualBackend
-import padre.ds_import
 from padre.experimentcreator import ExperimentCreator
 from padre.core import Experiment
 from padre.metrics import ReevaluationMetrics
 from padre.metrics import CompareMetrics
 from padre.base import PadreLogger
-from padre.eventhandler import add_logger, trigger_event
+from padre.eventhandler import add_logger, assert_condition, trigger_event
 
 # Create the logger object
 logger = PadreLogger()
@@ -90,6 +89,8 @@ def get_default_table():
     table = BeautifulTable(max_width=150, default_alignment=Alignment.ALIGN_LEFT)
     table.row_separator_char = ""
     return table
+
+
 
 
 class PadreConfig:
@@ -341,7 +342,6 @@ class DatasetApp:
         :param name: regexp for filtering the names
         :return: list of possible imports
         """
-        from padre import ds_import
         oml_key = self._parent.config.get("oml_key", "GENERAL")
         root_dir = self._parent.config.get("root_dir", "LOCAL BACKEND")
         datasets = ds_import.search_oml_datasets(name, root_dir, oml_key)
@@ -351,23 +351,12 @@ class DatasetApp:
             datasets_list.append(datasets[key])
         return datasets_list
 
-    @deprecated("Use download with list of sources")
-    def download_external(self, source: str, name: str) -> Iterable:
-        """
-        Downloads the dataset defined by name from source and stores it into the local file backend.
-        :param source: name of the source
-        :param name:
-        :return: returns a iterator of dataset objects
-        """
-        # todo implement using a generator pattern to avoid loading every dataset in main memory
-        pass
-
     def download(self, sources: list) -> Iterable:
         """
-        Downloads the datasets their information provided as list provided as list from oml
+        Downloads the datasets from information provided as list from oml
         :return: returns a iterator of dataset objects
         """
-        # todo: Extend support for other dataset sources
+        # todo: Extend support for more dataset sources other than openML
         for dataset_source in sources:
             dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
             yield dataset
@@ -387,7 +376,7 @@ class DatasetApp:
     @deprecated(reason="use downloads function below")  # see download
     def do_default_imports(self, sklearn=True):
         if sklearn:
-            for ds in padre.ds_import.load_sklearn_toys():
+            for ds in ds_import.load_sklearn_toys():
                 self.do_import(ds)
 
     def _print(self, output, **kwargs):
@@ -409,10 +398,10 @@ class DatasetApp:
             url=_BASE_URL.strip("/api")
         else:
             url =_BASE_URL
-        padre.ds_import.sendTop100Datasets_multi(auth_token, url, max_threads)
+        ds_import.sendTop100Datasets_multi(auth_token, url, max_threads)
         print("All openml datasets are uploaded!")
         if(upload_graphs):
-            padre.ds_import.send_top_graphs(auth_token, url, max_threads >= 3)
+            ds_import.send_top_graphs(auth_token, url, max_threads >= 3)
 
     def get(self, dataset_id, binary: bool = True,
             format = formats.numpy,
@@ -473,6 +462,10 @@ class DatasetApp:
         if isinstance(dataset_id, Dataset):
             dataset_id = dataset_id.id
         self._parent.local_backend.datasets.delete(dataset_id)
+
+    def import_from_csv(self, csv_path, targets, name, description):
+        """Load dataset from csv file"""
+        return ds_import.load_csv(csv_path, targets, name, description)
 
 
 class ExperimentApp:
@@ -540,6 +533,83 @@ class ExperimentApp:
             ex = Experiment(**p)
             ex.run()
             return ex
+
+    def upload_local_experiment(self, experiment_name):
+        """Upload given experiment with all runs and splits
+
+        Upload all runs, splits, results and metrics to the server and then remove experiment from local
+        file system.
+        """
+        experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments",
+                                       experiment_name + ".ex")
+        assert_condition(
+            condition=experiment_name.strip() != "" and os.path.exists(os.path.abspath(experiment_path)),
+            source=self,
+            message='Experiment not found')
+        remote_experiments_ = self._parent.remote_backend.experiments
+        local_experiments_ = self._parent.local_backend.experiments
+        ex = local_experiments_.get_experiment(experiment_name)
+        self.validate_and_upload(remote_experiments_.put_experiment, ex)
+
+        list_of_runs = filter(lambda x: x.endswith(".run"), os.listdir(experiment_path))
+        for run_name in list_of_runs:  # Upload all runs for this experiment
+            run_path = os.path.join(experiment_path, run_name)
+            r = local_experiments_.get_run(experiment_name,
+                                           run_name.split(".")[0])
+            self.validate_and_upload(remote_experiments_.put_run, ex, r)
+
+            list_of_splits = filter(lambda x: x.endswith(".split"), os.listdir(run_path))
+            for split_name in list_of_splits:  # Upload all splits for this run
+                s = local_experiments_.get_split(experiment_name,
+                                                 run_name.split(".")[0],
+                                                 split_name.split(".")[0])
+                if self.validate_and_upload(remote_experiments_.put_split, ex, r, s):
+                    remote_experiments_.put_results(ex, r, s, s.run.results[0])
+                    remote_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
+
+    def validate_and_upload(self, put_fn, experiment, run=None, split=None):
+        """
+        Upload only new experiment, run or split to server.
+
+        Upload only those experiment, run or split to server which are not already uploaded.
+        Criteria to check for it is, if server_url attribute in metadata is empty then it means
+        this experiment(or run or split) does not exists on the server. After uploading them
+        update its server_url in metadata
+        TODO: Check if experiment, run or split can downloaded from one server and uploaded to other
+
+        :param put_fn: Callable function from http backend which can be either put_experiment,
+            put_run or put_split.
+        :type put_fn: <class 'method'>
+        :param experiment: Experiment to be uploaded
+        :type experiment: <class 'padre.core.experiment.Experiment'>
+        :param run: Run to be uploaded
+        :type run: <class 'padre.core.run.Run'>
+        :param split: Split to be uploaded
+        :type split: <class 'padre.core.split.Split'>
+        :return: Boolean whether experiment, run or split is uploaded or not
+        """
+        local_experiments_ = self._parent.local_backend.experiments
+        server_url = ""
+        if split is not None:
+            if split.metadata["server_url"].strip() == "":
+                server_url = put_fn(experiment, run, split)
+                local_experiments_.update_metadata({"server_url": server_url},
+                                                   experiment.id,
+                                                   run.id,
+                                                   split.id)
+        elif run is not None:
+            if run.metadata["server_url"].strip() == "":
+                server_url = put_fn(experiment, run)
+                local_experiments_.update_metadata({"server_url": server_url},
+                                                   experiment.id, run.id)
+        else:
+            if experiment.metadata["server_url"].strip() == "":
+                server_url = put_fn(experiment)
+                local_experiments_.update_metadata({"server_url": server_url},
+                                                   experiment.id)
+        if server_url == "":
+            return False
+        return True
 
 
 class PadreApp:

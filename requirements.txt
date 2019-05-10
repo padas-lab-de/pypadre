@@ -22,5 +22,4 @@ vega_datasets==0.7.0
 notebook==5.7.4
 seaborn==0.9.0
 matplotlib==3.0.0
-pypadre-ontology==0.2.21
-pypadre-protobuf==0.2.21
+Sphinx==2.0.1

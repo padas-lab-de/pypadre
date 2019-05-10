@@ -4,7 +4,6 @@
         "description": "Grid search experiment with SVR with dataset Boston_House_Prices",
         "strategy": "random",
         "dataset": "Boston_House_Prices",
-        "backend": "default",
         "workflow": [
             "principal component analysis",
             "epsilon-support vector regression"
