@@ -1,6 +1,7 @@
 """
 Logic to upload experiment data to server goes here
 """
+import copy
 import io
 import json
 import re
@@ -196,14 +197,9 @@ class HttpBackendExperiments:
             keys = list(configuration.keys())
             if len(keys) > 0:  # If configuration not empty
                 name = keys[0]
-                conf = configuration[name]
+                conf = copy.deepcopy(configuration[name])
                 experiment_creator = experimentcreator.ExperimentCreator()
                 conf["dataset"] = ds
-                experiment_creator.create(conf["name"],
-                                          conf["description"],
-                                          [conf["dataset"]],
-                                          conf["workflow"],
-                                          conf["params"])
                 conf["workflow"] = experiment_creator.create_test_pipeline(conf["workflow"])
                 experiment = Experiment(ex_id=conf["name"], **conf)
                 run_split = OrderedDict()
@@ -331,10 +327,10 @@ class HttpBackendExperiments:
         split.metadata["server_url"] = location
         return location
 
-    def get_split(self, ex_id, run_id, split_id):
+    def get_split(self, ex_id, run_id, split_id, num=0):
         """
         Get split from the server.
-
+        Todo: Use split num from results instead of hard coding it.
         :param ex_id:
         :param run_id:
         :param split_id:
@@ -349,7 +345,7 @@ class HttpBackendExperiments:
             # results_response = self._http_client.do_get(results_url, **{})
             r = self.get_run(ex_id, run_id)
             s = Split(
-                r, 0, decode_split["train"], decode_split["val"], decode_split["test"],
+                r, num, decode_split["train"], decode_split["val"], decode_split["test"],
                 split_id=split_response["uid"], **r.metadata)
 
             s.run.metrics.append(split_response["metrics"])
