@@ -503,6 +503,33 @@ class ExperimentFileRepository:
             f.seek(0)
             f.write(self._metadata_serializer.serialise(metadata))
 
+    def validate_and_save(self, experiment, run=None, split=None):
+        saved = False
+        if split is not None:
+            dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+            if not os.path.exists(os.path.abspath(dir_)):
+                self.put_split(experiment, run, split)
+                saved = True
+        elif run is not None:
+            dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id))
+            if not os.path.exists(os.path.abspath(dir_)):
+                self.put_run(experiment, run)
+                saved = True
+        else:
+            dir_ = os.path.join(self.root_dir, *self._dir(experiment.id))
+            if not os.path.exists(os.path.abspath(dir_)):
+                self.put_experiment(experiment)
+                self.put_experiment_configuration(experiment)
+                saved = True
+            elif os.path.exists(os.path.abspath(dir_)):
+                with open(os.path.join(dir_, "metadata.json"), "r") as f:
+                    experiment_metadata = self._metadata_serializer.deserialize(f.read())
+                    if experiment_metadata["server_url"] == "":
+                        self.put_experiment(experiment)
+                        self.put_experiment_configuration(experiment)
+                        saved = True
+        return saved
+
 
 class DatasetFileRepository(object):
     """

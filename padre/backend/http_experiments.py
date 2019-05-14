@@ -338,17 +338,16 @@ class HttpBackendExperiments:
         """
         s = None
         split_url = self.get_base_url() + self._http_client.paths["split"](split_id)
-        results_url = self.get_base_url() + self._http_client.paths["results"](ex_id, run_id, split_id)
         if self._http_client.has_token():
             split_response = json.loads(self._http_client.do_get(split_url, **{}).content)
             decode_split = self.decode_split(split_response["split"])
-            # results_response = self._http_client.do_get(results_url, **{})
             r = self.get_run(ex_id, run_id)
             s = Split(
                 r, num, decode_split["train"], decode_split["val"], decode_split["test"],
                 split_id=split_response["uid"], **r.metadata)
 
             s.run.metrics.append(split_response["metrics"])
+            s.run.results.append(self.get_results(r.experiment, r, s, split_response["metrics"]["type"]))
         return s
 
     def put_results(self, experiment, run, split, results):
@@ -378,6 +377,57 @@ class HttpBackendExperiments:
                     fields={"field0": ("fname", file, self.get_content_type(results["type"]))})
                 response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
         return response
+
+    def get_results(self, experiment, run, split, experiment_type):
+        """
+        Get split results from server.
+
+        Results are formatted in original after downloading them from server.
+        Json end point for split results is used to get results from server.
+
+        :param experiment: Experiment which is downloaded from server
+        :type experiment: <class 'padre.experiment.Experiment'>
+        :param run: Run which is downloaded from server
+        :type run: <class 'padre.experiment.Run'>
+        :param split: Split which is downloaded from server
+        :type split: <class 'padre.experiment.Split'>
+        :param experiment_type: regression or classification, which is then used to get compatible protobuf content type
+        :type experiment_type: str
+        :return: Dictionary containing results
+        :rtype: dict
+        """
+        results = dict()
+        experiment_id = experiment.id
+        if not experiment_id.isdigit():
+            experiment_id = experiment.metadata["server_url"].split("/")[-1]
+        content_type = self.get_content_type(experiment_type)
+        results_url = self.get_base_url() + self._http_client.paths["results-json"](experiment_id, run.id, split.id)
+        results_response = json.loads(
+            self._http_client.do_get(results_url, **{"params": [("format", content_type)]}).content)
+        results["type"] = experiment_type
+        if split.train_idx is not None:
+            results["train_idx"] = split.train_idx.tolist()
+        if split.test_idx is not None:
+            results["test_idx"] = split.test_idx.tolist()
+        if split.val_idx is not None:
+            results["val_idx"] = split.val_idx.tolist()
+        results["truth"] = list()
+        results["predicted"] = list()
+        results["probabilities"] = list()
+        results["predictions"] = dict()
+        for entry in results_response["rows"]:
+            prediction = dict()
+            truth = float("".join(entry["data"]["truth"]))
+            predicted = float("".join(entry["data"]["predictions"]))
+            probabilities = list(map(float, entry["data"]["score"]))
+            prediction["truth"] = truth
+            prediction["predicted"] = predicted
+            prediction["probabilities"] = probabilities
+            results["predictions"][entry["index"]] = prediction
+            results["truth"].append(truth)
+            results["predicted"].append(predicted)
+            results["probabilities"].append(probabilities)
+        return results
 
     def put_metrics(self, experiment, run, split, metrics):
         rs_id = split.metadata["server_url"].split("/")[-1]
@@ -664,5 +714,53 @@ class HttpBackendExperiments:
             response = self._http_client.do_patch(update_split_url,
                                                   **{"data": json.dumps(data)})
         return response
+
+    def validate_and_save(self, experiment, run=None, split=None, local_experiments=None):
+        """
+        Upload only new experiment, run or split to server.
+
+        Upload only those experiment, run or split to server which are not already uploaded.
+        Criteria to check for it is, if server_url attribute in metadata is empty then it means
+        this experiment(or run or split) does not exists on the server. After uploading them
+        update its server_url in metadata
+        TODO: Check if experiment, run or split can downloaded from one server and uploaded to other
+
+        :param put_fn: Callable function from http backend which can be either put_experiment,
+            put_run or put_split.
+        :type put_fn: <class 'method'>
+        :param experiment: Experiment to be uploaded
+        :type experiment: <class 'padre.core.experiment.Experiment'>
+        :param run: Run to be uploaded
+        :type run: <class 'padre.core.run.Run'>
+        :param split: Split to be uploaded
+        :type split: <class 'padre.core.split.Split'>
+        :param local_experiments: Instance of local backend experiments
+        :type local_experiments:
+        :return: Boolean whether experiment, run or split is uploaded or not
+        """
+        server_url = ""
+        if split is not None:
+            if split.metadata["server_url"].strip() == "":
+                server_url = self.put_split(experiment, run, split)
+                if local_experiments is not None:
+                    local_experiments.update_metadata({"server_url": server_url},
+                                                       experiment.id,
+                                                       run.id,
+                                                       split.id)
+        elif run is not None:
+            if run.metadata["server_url"].strip() == "":
+                server_url = self.put_run(experiment, run)
+                if local_experiments is not None:
+                    local_experiments.update_metadata({"server_url": server_url},
+                                                       experiment.id, run.id)
+        else:
+            if experiment.metadata["server_url"].strip() == "":
+                server_url = self.put_experiment(experiment)
+                if local_experiments is not None:
+                    local_experiments.update_metadata({"server_url": server_url},
+                                                       experiment.id)
+        if server_url == "":
+            return False
+        return True
 
 

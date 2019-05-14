@@ -518,6 +518,7 @@ PadreHTTPClient.paths = {
     "experiment": lambda id: "/experiments/" + id + "/",
     "projects": "/projects",
     "results": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results",
+    "results-json": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results/json",
     "runs": "/runs",
     "run": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id,
     "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
