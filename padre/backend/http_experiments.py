@@ -99,12 +99,12 @@ class HttpBackendExperiments:
         """Create experiment on server"""
         url = self.get_base_url() + self._http_client.paths["experiments"]
         location = ''
-        if isinstance(data, dict):
-            data = json.dumps(data)
         if self._http_client.has_token():
-            response = self._http_client.do_post(url, **{"data": data})
+            response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             self.experiment_id = response.headers['Location'].split('/')[-1]
             location = response.headers['Location']
+            data["metadata"]["server_url"] = location
+            self._http_client.do_patch(location, **{"data": json.dumps({"metadata": data["metadata"]})})
         return location
 
     def put_experiment(self, experiment, append_runs=None):
@@ -707,11 +707,10 @@ class HttpBackendExperiments:
         response = None
         data = dict()
         e_id = experiment.metadata["server_url"].split("/")[-1]
-        update_split_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
+        experiment_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
         data["configuration"] = experiment.experiment_configuration
-        data["metadata"] = experiment.metadata
         if self._http_client.has_token():
-            response = self._http_client.do_patch(update_split_url,
+            response = self._http_client.do_patch(experiment_url,
                                                   **{"data": json.dumps(data)})
         return response
 
@@ -735,7 +734,7 @@ class HttpBackendExperiments:
         :param split: Split to be uploaded
         :type split: <class 'padre.core.split.Split'>
         :param local_experiments: Instance of local backend experiments
-        :type local_experiments:
+        :type local_experiments: <class 'padre.backend.file.ExperimentFileRepository'>
         :return: Boolean whether experiment, run or split is uploaded or not
         """
         server_url = ""
@@ -759,8 +758,6 @@ class HttpBackendExperiments:
                 if local_experiments is not None:
                     local_experiments.update_metadata({"server_url": server_url},
                                                        experiment.id)
-        if server_url == "":
-            return False
-        return True
+        return server_url
 
 

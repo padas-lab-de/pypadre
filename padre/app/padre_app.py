@@ -571,14 +571,14 @@ class ExperimentApp:
         remote_experiments_ = self._parent.remote_backend.experiments
         local_experiments_ = self._parent.local_backend.experiments
         ex = local_experiments_.get_experiment(experiment_name)
-        remote_experiments_.validate_and_save(ex, local_experiments=local_experiments_)
+        ex.metadata["server_url"] = remote_experiments_.validate_and_save(ex, local_experiments=local_experiments_)
 
         list_of_runs = filter(lambda x: x.endswith(".run"), os.listdir(experiment_path))
         for run_name in list_of_runs:  # Upload all runs for this experiment
             run_path = os.path.join(experiment_path, run_name)
             r = local_experiments_.get_run(experiment_name,
                                            run_name.split(".")[0])
-            remote_experiments_.validate_and_save(ex, r, local_experiments=local_experiments_)
+            r.metadata["server_url"] = remote_experiments_.validate_and_save(ex, r, local_experiments=local_experiments_)
 
             list_of_splits = filter(lambda x: x.endswith(".split"), os.listdir(run_path))
             for split_name in list_of_splits:  # Upload all splits for this run
