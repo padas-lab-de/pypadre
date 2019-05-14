@@ -11,7 +11,7 @@ virtualenv --system-site-packages -p python3 ./venv # Installs the virtual envir
 source ./venv/bin/activate
 
 # Install required packages for padre
-pip install -r /path/to/requirements.txt
+pip install -r /path/to/requirements.txt --extra-index-url https://pypi:<password>@pypi.padim.fim.uni-passau.de/
 
 # Install the script in the padre folder
 ./path/to/build_package.sh

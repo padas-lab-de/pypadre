@@ -941,12 +941,72 @@ class ExperimentCreator:
         if isinstance(experiments, str):
             if self._experiments.get(experiments, None) is not None:
                 self._experiments.pop(experiments)
+            else:
+                # If multiple datasets are listed, experiments would have the dataset name listed within paranthesis
+                # So search if any of the experiment names match the given list and remove only the dataset
+                experiment_names= list(self._experiments.keys())
+                for name in experiment_names:
+                    if name in experiments:
+                        # Remove the dataset
+                        experiment = self._experiments.get(name)
+                        # Get the dataset
+                        dataset = experiments.split('(')[-1]
+                        dataset = dataset[:-1]
+                        if len(dataset) == 0 or len(dataset) == len(experiments):
+                            continue
+                        datasets = experiment.get('dataset')
+                        if dataset in datasets:
+                            datasets.remove(dataset)
+                            experiment['dataset'] = datasets
+                            if len(datasets) > 0:
+                                self._experiments[name] = experiment
+                            else:
+                                self._experiments.pop(name)
+
 
         if isinstance(experiments, list):
             for experiment_name in experiments:
                 if isinstance(experiment_name, str):
                     if self._experiments.get(experiment_name, None) is not None:
                         self._experiments.pop(experiment_name)
+
+
+                else:
+
+                    # If multiple datasets are listed, experiments would have the dataset name listed within paranthesis
+
+                    # So search if any of the experiment names match the given list and remove only the dataset
+
+                    experiment_names = list(self._experiments.keys())
+
+                    for name in experiment_names:
+
+                        if name in experiments:
+
+                            # Remove the dataset
+
+                            experiment = self._experiments.get(name)
+
+                            # Get the dataset
+
+                            dataset = experiments.split('(')[-1]
+
+                            dataset = dataset[:-1]
+
+                            if len(dataset) == 0 or len(dataset) == len(experiment_name):
+                                continue
+
+                            datasets = experiment.get('dataset')
+
+                            if dataset in datasets:
+                                datasets.remove(dataset)
+
+                                experiment['dataset'] = datasets
+
+                                if len(datasets) > 0:
+                                    self._experiments[name] = experiment
+                                else:
+                                    self._experiments.pop(name)
 
 
 

@@ -219,7 +219,8 @@ class ExperimentFileRepository:
             metadata = self._metadata_serializer.deserialize(f.read())
         experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
-        experiment_params[id_]["dataset"] = self._data_repository.get(metadata["dataset_id"])
+        dataset_name = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
+        experiment_params[id_]["dataset"] = self._data_repository.get(dataset_name)
         ex = Experiment(ex_id=id_, **experiment_params[id_])
         ex.experiment_configuration = configuration
         ex.metadata = metadata
@@ -560,6 +561,46 @@ class DatasetFileRepository(object):
         dirs = _dir_list(self.root_dir, search_name)
         return dirs #[self.get(dir, metadata_only=True) for dir in dirs]
 
+    def get_dataset_name_id(self):
+        """
+        Lists all the dataset names along with the id of the datasets
+        :return: List of tuples containing the dataset name and id
+        """
+        import json
+        dataset_list = []
+
+        # Get the names of all the datasets
+        directories = os.listdir(self.root_dir)
+
+        # Check the metadata of all the datasets and append them to the tuple
+        for directory in directories:
+            if os.path.exists(os.path.join(self.root_dir, directory, 'metadata.json')) and \
+                    os.path.exists(os.path.join(self.root_dir, directory, 'data.bin')):
+
+                # if the json file exists check if the tag id exists within the json
+                with open(os.path.join(self.root_dir, directory, 'metadata.json'), 'r') as f:
+                    metadata = json.loads(f.read())
+
+                if metadata.get('id', None) is not None:
+                    dataset_tuple = (directory, metadata.get('id', None))
+                    dataset_list.append(dataset_tuple)
+
+        return dataset_list
+
+    def get_dataset_name_by_id(self, dataset_id):
+        """
+        Return dataset name for given dataset id
+
+        :param dataset_id: Dataset id for which dataset name should searched
+        :type dataset_id: str
+        :return: String containing dataset name or empty string if its not found
+        """
+        dataset_name = ""
+        for name, id_ in self.get_dataset_name_id():
+            if id_ == dataset_id:
+                dataset_name = name
+                break
+        return dataset_name
 
     def put(self, dataset: Dataset)-> None:
         """
