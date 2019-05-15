@@ -256,6 +256,7 @@ class HttpBackendExperiments:
         run_data = dict()
         run_data["clientAddress"] = self.get_base_url()
         run_data["uid"] = str(run.id)
+        run_data["metadata"] = run.metadata
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
@@ -276,7 +277,9 @@ class HttpBackendExperiments:
                            "application/octet-stream")})
             headers = {"Content-Type": data.content_type}
             self._http_client.do_post(run_model_url, **{"data": data, "headers": headers})
-        run.metadata["server_url"] = location
+            run.metadata["server_url"] = location
+            self._http_client.do_patch(location, **{"data": json.dumps({"metadata": run.metadata})})
+
         return location
 
     def get_run(self, ex_id, run_id):
@@ -320,10 +323,13 @@ class HttpBackendExperiments:
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
         data["split"] = self.encode_split(split)
+        data["metadata"] = split.metadata
         data["metrics"] = {}
         if self._http_client.has_token():
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
+            split.metadata["server_url"] = location
+            self._http_client.do_patch(location, **{"data": json.dumps({"metadata": split.metadata})})
         split.metadata["server_url"] = location
         return location
 
@@ -343,11 +349,11 @@ class HttpBackendExperiments:
             decode_split = self.decode_split(split_response["split"])
             r = self.get_run(ex_id, run_id)
             s = Split(
-                r, num, decode_split["train"], decode_split["val"], decode_split["test"],
+                r, split_response["splitNum"], decode_split["train"], decode_split["val"], decode_split["test"],
                 split_id=split_response["uid"], **r.metadata)
 
             s.run.metrics.append(split_response["metrics"])
-            s.run.results.append(self.get_results(r.experiment, r, s, split_response["metrics"]["type"]))
+            s.run.results.append(self.get_results(r.experiment, r, s, split_response))
         return s
 
     def put_results(self, experiment, run, split, results):
@@ -369,6 +375,7 @@ class HttpBackendExperiments:
         r_id = run.metadata["server_url"].split("/")[-1]
         e_id = experiment.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["results"](e_id, r_id, rs_id)
+        update_split_url = self.get_base_url() + self._http_client.paths["split"](rs_id)
         response = None
         if bool(results) and self._http_client.has_token():
             with tempfile.TemporaryFile() as temp_file:
@@ -376,9 +383,15 @@ class HttpBackendExperiments:
                 m = MultipartEncoder(
                     fields={"field0": ("fname", file, self.get_content_type(results["type"]))})
                 response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+            patch_data = {
+                "splitNum": results["split_num"],
+                "trainingSampleCount": results["training_sample_count"],
+                "testingSampleCount": results["testing_sample_count"]
+            }
+            self._http_client.do_patch(update_split_url, **{"data": json.dumps(patch_data)})
         return response
 
-    def get_results(self, experiment, run, split, experiment_type):
+    def get_results(self, experiment, run, split, split_server_data):
         """
         Get split results from server.
 
@@ -391,8 +404,8 @@ class HttpBackendExperiments:
         :type run: <class 'padre.experiment.Run'>
         :param split: Split which is downloaded from server
         :type split: <class 'padre.experiment.Split'>
-        :param experiment_type: regression or classification, which is then used to get compatible protobuf content type
-        :type experiment_type: str
+        :param split_server_data: Split data from server
+        :type split_server_data: dict
         :return: Dictionary containing results
         :rtype: dict
         """
@@ -400,11 +413,16 @@ class HttpBackendExperiments:
         experiment_id = experiment.id
         if not experiment_id.isdigit():
             experiment_id = experiment.metadata["server_url"].split("/")[-1]
+        experiment_type = split_server_data["metrics"]["type"]
         content_type = self.get_content_type(experiment_type)
         results_url = self.get_base_url() + self._http_client.paths["results-json"](experiment_id, run.id, split.id)
         results_response = json.loads(
             self._http_client.do_get(results_url, **{"params": [("format", content_type)]}).content)
         results["type"] = experiment_type
+        results["dataset"] = split_server_data["metrics"]["dataset"]
+        results["split_num"] = split_server_data["splitNum"]
+        results["training_sample_count"] = split_server_data["trainingSampleCount"]
+        results["testing_sample_count"] = split_server_data["testingSampleCount"]
         if split.train_idx is not None:
             results["train_idx"] = split.train_idx.tolist()
         if split.test_idx is not None:
