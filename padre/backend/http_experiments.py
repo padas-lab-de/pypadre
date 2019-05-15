@@ -333,7 +333,7 @@ class HttpBackendExperiments:
         split.metadata["server_url"] = location
         return location
 
-    def get_split(self, ex_id, run_id, split_id, num=0):
+    def get_split(self, ex_id, run_id, split_id):
         """
         Get split from the server.
         Todo: Use split num from results instead of hard coding it.
