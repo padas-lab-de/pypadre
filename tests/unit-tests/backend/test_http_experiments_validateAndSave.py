@@ -1,12 +1,11 @@
 """
 This file contains tests covering backend.http_experiments.HttpBackendExperiments.validate_and_save function
 """
-import copy
 import unittest
 
 from mock import MagicMock, call
 
-from padre.app import pypadre
+from padre.backend.http_experiments import HttpBackendExperiments
 
 
 class ValidateAndSave(unittest.TestCase):
@@ -14,11 +13,13 @@ class ValidateAndSave(unittest.TestCase):
     def setUp(self):
         """Create mock objects"""
         self.returned_url = "http://test.com/api/object/id"
-        self._local_experiments = copy.deepcopy(pypadre.local_backend.experiments)
-        self._remote_experiments = copy.deepcopy(pypadre.remote_backend.experiments)
+        self.http_client = MagicMock()
+        self.http_client.has_token = MagicMock(return_value=False)
+        self._remote_experiments = HttpBackendExperiments(self.http_client)
         self._remote_experiments.put_experiment = MagicMock(return_value=self.returned_url)
         self._remote_experiments.put_run = MagicMock(return_value=self.returned_url)
         self._remote_experiments.put_split = MagicMock(return_value=self.returned_url)
+        self._local_experiments = MagicMock()
         self._local_experiments.update_metadata = MagicMock()
 
     def test_validate_and_save_01(self):
@@ -122,5 +123,4 @@ class ValidateAndSave(unittest.TestCase):
                          "Update metadata not called with expected arguments for split")
 
     def tearDown(self):
-        """Remove pypadre object after test"""
         pass
