@@ -501,6 +501,9 @@ class CompareMetrics:
         # need to be displayed
         estimator_default_values = dict()
 
+        if isinstance(self._experiments, list) and len(self._experiments) == 0:
+            return
+
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
         for curr_experiment in self._experiments:
@@ -593,10 +596,10 @@ class CompareMetrics:
         :return:
         """
 
-        if self._dir_path is not None:
+        if self._dir_path is not None or (isinstance(self._dir_path, list) and len(self._dir_path) == 0):
             self.get_unique_estimators_parameter_names_from_directories()
 
-        if self._experiments is not None:
+        if self._experiments is not None or (isinstance(self._experiments, list) and len(self._experiments) == 0):
             self.get_unique_estimators_parameter_names_from_experiments()
 
     def read_split_metrics_from_directories(self):
@@ -660,10 +663,10 @@ class CompareMetrics:
         self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
 
     def read_split_metrics(self):
-        if self._dir_path is not None:
+        if self._dir_path is not None or (isinstance(self._dir_path, list) and len(self._dir_path) == 0):
             self.read_split_metrics_from_directories()
 
-        if self._experiments is not None:
+        if self._experiments is not None or (isinstance(self._experiments, list) and len(self._experiments) == 0):
             self.read_split_metrics_from_experiments()
 
     def compute_results(self):
