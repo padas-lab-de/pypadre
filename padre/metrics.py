@@ -410,6 +410,9 @@ class CompareMetrics:
         # need to be displayed
         estimator_default_values = dict()
 
+        if isinstance(self._dir_path, list) and len(self._dir_path) == 0:
+            return
+
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
         for curr_experiment in self._dir_path:
