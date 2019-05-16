@@ -522,13 +522,6 @@ class ExperimentFileRepository:
                 self.put_experiment(experiment)
                 self.put_experiment_configuration(experiment)
                 saved = True
-            elif os.path.exists(os.path.abspath(dir_)):
-                with open(os.path.join(dir_, "metadata.json"), "r") as f:
-                    experiment_metadata = self._metadata_serializer.deserialize(f.read())
-                    if experiment_metadata["server_url"] == "":
-                        self.put_experiment(experiment)
-                        self.put_experiment_configuration(experiment)
-                        saved = True
         return saved
 
 

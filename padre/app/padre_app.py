@@ -547,11 +547,11 @@ class ExperimentApp:
         if not ex_id.isdigit():
             ex_id = ex.metadata["server_url"].split("/")[-1]
         local_experiments_.validate_and_save(ex)
-        for run_id, split_ids in ex.run_split_dict.items():
-            r = remote_experiments_.get_run(ex_id, run_id.split(".run")[0])
+        for run_id in remote_experiments_.get_experiment_run_idx(ex_id):
+            r = remote_experiments_.get_run(ex_id, run_id)
             local_experiments_.validate_and_save(ex, r)
-            for num, split_id in enumerate(split_ids):
-                s = remote_experiments_.get_split(ex_id, run_id.split(".run")[0], split_id.split(".split")[0], num)
+            for split_id in remote_experiments_.get_run_split_idx(ex_id, run_id):
+                s = remote_experiments_.get_split(ex_id, run_id, split_id)
                 if local_experiments_.validate_and_save(ex, r, s):
                     local_experiments_.put_results(ex, r, s, s.run.results[0])
                     local_experiments_.put_metrics(ex, r, s, s.run.metrics[0])

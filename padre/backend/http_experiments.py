@@ -202,13 +202,6 @@ class HttpBackendExperiments:
                 conf["dataset"] = ds
                 conf["workflow"] = experiment_creator.create_test_pipeline(conf["workflow"])
                 experiment = Experiment(ex_id=conf["name"], **conf)
-                run_split = OrderedDict()
-                for run in response["runs"]:
-                    split_ids = list()
-                    for split in run["splits"]:
-                        split_ids.append(split["uid"] + ".split")
-                    run_split[run["uid"] + ".run"] = split_ids
-                experiment.run_split_dict = run_split
                 experiment.metadata = response["metadata"]
                 experiment.experiment_configuration = configuration
         return experiment
@@ -303,6 +296,22 @@ class HttpBackendExperiments:
             r = Run(ex, workflow, run_id=run_id, **ex.metadata)
         return r
 
+    def get_experiment_run_idx(self, ex_id):
+        """
+        Get run ids for the given experiment id
+        :param ex_id: Experiment id for which run ids should be returned
+        :type ex_id: str
+        :return: list of run ids for the given experiment
+        """
+        run_ids = []
+        url = self._http_client.get_base_url() + self._http_client.paths['experiment-runs'](ex_id)
+        if self._http_client.has_token():
+            response = json.loads(self._http_client.do_get(url, **{}).content)
+            if "_embedded" in response:
+                for run in response["_embedded"]["runs"]:
+                    run_ids.append(run["uid"])
+        return run_ids
+
     def put_split(self, experiment, run, split):
         """
         Put split information on the server.
@@ -355,6 +364,25 @@ class HttpBackendExperiments:
             s.run.metrics.append(split_response["metrics"])
             s.run.results.append(self.get_results(r.experiment, r, s, split_response))
         return s
+
+    def get_run_split_idx(self, ex_id, run_id):
+        """
+        Get split ids for the given run and experiment ids
+
+        :param ex_id: Experiment id for which split ids should be returned
+        :type ex_id: str
+        :param run_id: Run id for which split ids should be returned
+        :type run_id: str
+        :return: list of split ids for the given run and experiment
+        """
+        split_ids = []
+        url = self._http_client.get_base_url() + self._http_client.paths['experiment-run-splits'](ex_id, run_id)
+        if self._http_client.has_token():
+            response = json.loads(self._http_client.do_get(url, **{}).content)
+            if "_embedded" in response:
+                for split in response["_embedded"]["runSplits"]:
+                    split_ids.append(split["uid"])
+        return split_ids
 
     def put_results(self, experiment, run, split, results):
         """
@@ -607,7 +635,7 @@ class HttpBackendExperiments:
         :return: None
         """
         if type(value) == float:
-            pb_instance.float_t = value
+            pb_instance.double_t = value
         elif type(value) == int:
             pb_instance.int32_t = value
 
