@@ -468,6 +468,7 @@ class Experiment(MetadataEntity):
         import importlib
 
         modules = list()
+        modules.append('padre')
         module_version_info = dict()
 
         estimators = self._workflow._pipeline.named_steps
