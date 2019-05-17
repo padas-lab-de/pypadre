@@ -247,9 +247,10 @@ class CompareMetrics:
     """
 
     _dir_path = []
+    _root_path = ''
     _experiments = None
 
-    def __init__(self, dir_path=None, file_path=None, experiments_list=None):
+    def __init__(self, dir_path=None, file_path=None, experiments_list=None, root_path=None):
         """
         The constructor that initializes the object with all the required paths.
 
@@ -266,6 +267,9 @@ class CompareMetrics:
 
         if experiments_list is not None:
             self._experiments = experiments_list
+
+        if root_path is not None:
+            self._root_path = root_path
 
         self._run_dir = []
         # This dictionary contains the metrics read from all the metrics.json file
@@ -450,6 +454,9 @@ class CompareMetrics:
                         self._run_estimators[estimator].append(run_id)
                         params = estimator_group.get(estimator)
                         default_params = estimator_default_values.get(estimator)
+                        if default_params is None:
+                            estimator_default_values[estimator] = estimator_group.get(estimator)
+                            default_params = estimator_default_values.get(estimator)
                         for param in params:
                             if default_params.get(param) != params.get(param):
                                 param_set = self._unique_estimators.get(estimator).get(param)
@@ -1000,6 +1007,42 @@ class CompareMetrics:
             self._experiments = self._experiments + experiment_list
         else:
             self._experiments = experiment_list
+
+    def add_experiment_by_name(self, experiments):
+        """
+        Adds a list of experiments for computing metrics. These experiments should be present in the default config path
+        :param experiments: List of experiment names for computing metrics
+        :return:
+        """
+        assert_condition(condition=isinstance(experiments, list) or isinstance(experiments, str),
+                         source=self, message='Incorrect input parameter type.')
+        directory_list = []
+
+        root_path = os.path.join(self._root_path, 'experiments')
+
+        if isinstance(experiments, list):
+            for directory in experiments:
+                assert_condition(condition=isinstance(directory, str), source=self,
+                                 message='An object in the list is not of the type string')
+                # Check if such an experiment exists in the path
+                path = os.path.join(root_path, directory)
+                if os.path.exists(path):
+                    directory_list.append(path)
+
+        else:
+            assert_condition(condition=isinstance(experiments, str), source=self,
+                             message='Incorrect parameter type')
+            # Check if such an experiment exists in the path
+            path = os.path.join(root_path, experiments)
+            if os.path.exists(path):
+                directory_list.append(path)
+            directory_list = [path]
+
+        if self._dir_path is not None:
+            self._dir_path = self._dir_path + directory_list
+        else:
+            self._dir_path = directory_list
+
 
     def add_experiment_directory(self, directory_list):
         """

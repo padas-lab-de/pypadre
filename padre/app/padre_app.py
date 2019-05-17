@@ -631,7 +631,7 @@ class PadreApp:
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
         self._experiment_creator = ExperimentCreator()
-        self._metrics_evaluator = CompareMetrics()
+        self._metrics_evaluator = CompareMetrics(root_path=self._config.local_backend_config.get('root_dir', None))
         self._metrics_reevaluator = ReevaluationMetrics()
 
     @property
