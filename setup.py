@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 from sphinx.setup_command import BuildDoc
+import re
 import os
 
 cmdclass = {'build_sphinx': BuildDoc}
@@ -11,8 +12,18 @@ name = 'pypadre'
 #    version = os.environ['CI_COMMIT_TAG']
 #else:
 #    version = os.environ['CI_JOB_ID']
-version = os.environ.get('VERSION')
-release = os.environ.get('VERSION')
+VERSIONFILE="padre/_version.py"
+verstrline = open(VERSIONFILE, "rt").read()
+VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+result = re.search(VSRE, verstrline, re.M)
+if result:
+    version=result.group(1)
+    release=version
+else:
+    raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
+
+#version = os.environ.get('VERSION')
+#release = os.environ.get('VERSION')
 
 print('VERSION:{version}'.format(version=version))
 
