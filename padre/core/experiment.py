@@ -116,7 +116,7 @@ class Experiment(MetadataEntity):
         self._experiment_configuration = None
 
         # If a preprocessing step is required to be executed on the whole dataset, add the workflow
-        self._preprocessed_workflow = options.get('preprocessing', None)
+        self._preprocessed_workflow = options.pop('preprocessing', None)
 
         # Deep copy the modified dataset to the variable after preprocessing
         self._preprocessed_dataset = None
@@ -352,13 +352,14 @@ class Experiment(MetadataEntity):
         :return: None
         """
         from copy import deepcopy
+        import numpy as np
 
         # Preprocess the data
-        preprocessed_data = self._preprocessed_workflow.fit(self.dataset.data, self.dataset.targets)
+        preprocessed_data = self._preprocessed_workflow.fit_transform(self.dataset.data, self.dataset.targets)
         # Copy the dataset so that metadata and attributes remain consistent
         self._preprocessed_dataset = deepcopy(self.dataset)
-        # Replace the data only
-        self._preprocessed_dataset.replace_data(preprocessed_data)
+        # Replace the data by concatenating with the targets
+        self._preprocessed_dataset._binary._data = preprocessed_data
         # Set flag
         self._preprocessed = True
 
