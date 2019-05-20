@@ -534,6 +534,28 @@ class ExperimentApp:
             ex.run()
             return ex
 
+    def download_remote_experiment(self, ex_id):
+        """
+        Download experiment, run and split from server it does not exists on local directory
+
+        :param ex_id: Can be experiment name or experiment id
+        :return: None
+        """
+        remote_experiments_ = self._parent.remote_backend.experiments
+        local_experiments_ = self._parent.local_backend.experiments
+        ex = remote_experiments_.get_experiment(ex_id)
+        if not ex_id.isdigit():
+            ex_id = ex.metadata["server_url"].split("/")[-1]
+        local_experiments_.validate_and_save(ex)
+        for run_id in remote_experiments_.get_experiment_run_idx(ex_id):
+            r = remote_experiments_.get_run(ex_id, run_id)
+            local_experiments_.validate_and_save(ex, r)
+            for split_id in remote_experiments_.get_run_split_idx(ex_id, run_id):
+                s = remote_experiments_.get_split(ex_id, run_id, split_id)
+                if local_experiments_.validate_and_save(ex, r, s):
+                    local_experiments_.put_results(ex, r, s, s.run.results[0])
+                    local_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
+
     def upload_local_experiment(self, experiment_name):
         """Upload given experiment with all runs and splits
 
@@ -549,67 +571,23 @@ class ExperimentApp:
         remote_experiments_ = self._parent.remote_backend.experiments
         local_experiments_ = self._parent.local_backend.experiments
         ex = local_experiments_.get_experiment(experiment_name)
-        self.validate_and_upload(remote_experiments_.put_experiment, ex)
+        ex.metadata["server_url"] = remote_experiments_.validate_and_save(ex, local_experiments=local_experiments_)
 
         list_of_runs = filter(lambda x: x.endswith(".run"), os.listdir(experiment_path))
         for run_name in list_of_runs:  # Upload all runs for this experiment
             run_path = os.path.join(experiment_path, run_name)
             r = local_experiments_.get_run(experiment_name,
                                            run_name.split(".")[0])
-            self.validate_and_upload(remote_experiments_.put_run, ex, r)
+            r.metadata["server_url"] = remote_experiments_.validate_and_save(ex, r, local_experiments=local_experiments_)
 
             list_of_splits = filter(lambda x: x.endswith(".split"), os.listdir(run_path))
             for split_name in list_of_splits:  # Upload all splits for this run
                 s = local_experiments_.get_split(experiment_name,
                                                  run_name.split(".")[0],
                                                  split_name.split(".")[0])
-                if self.validate_and_upload(remote_experiments_.put_split, ex, r, s):
+                if remote_experiments_.validate_and_save(ex, r, s, local_experiments=local_experiments_):
                     remote_experiments_.put_results(ex, r, s, s.run.results[0])
                     remote_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
-
-    def validate_and_upload(self, put_fn, experiment, run=None, split=None):
-        """
-        Upload only new experiment, run or split to server.
-
-        Upload only those experiment, run or split to server which are not already uploaded.
-        Criteria to check for it is, if server_url attribute in metadata is empty then it means
-        this experiment(or run or split) does not exists on the server. After uploading them
-        update its server_url in metadata
-        TODO: Check if experiment, run or split can downloaded from one server and uploaded to other
-
-        :param put_fn: Callable function from http backend which can be either put_experiment,
-            put_run or put_split.
-        :type put_fn: <class 'method'>
-        :param experiment: Experiment to be uploaded
-        :type experiment: <class 'padre.core.experiment.Experiment'>
-        :param run: Run to be uploaded
-        :type run: <class 'padre.core.run.Run'>
-        :param split: Split to be uploaded
-        :type split: <class 'padre.core.split.Split'>
-        :return: Boolean whether experiment, run or split is uploaded or not
-        """
-        local_experiments_ = self._parent.local_backend.experiments
-        server_url = ""
-        if split is not None:
-            if split.metadata["server_url"].strip() == "":
-                server_url = put_fn(experiment, run, split)
-                local_experiments_.update_metadata({"server_url": server_url},
-                                                   experiment.id,
-                                                   run.id,
-                                                   split.id)
-        elif run is not None:
-            if run.metadata["server_url"].strip() == "":
-                server_url = put_fn(experiment, run)
-                local_experiments_.update_metadata({"server_url": server_url},
-                                                   experiment.id, run.id)
-        else:
-            if experiment.metadata["server_url"].strip() == "":
-                server_url = put_fn(experiment)
-                local_experiments_.update_metadata({"server_url": server_url},
-                                                   experiment.id)
-        if server_url == "":
-            return False
-        return True
 
 
 class PadreApp:

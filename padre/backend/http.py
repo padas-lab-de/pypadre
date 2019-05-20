@@ -193,6 +193,22 @@ class PadreHTTPClient:
             url = url[0:-1]
         return url
 
+    def is_valid_url(self, url):
+        """
+        Validate if a url is valid.
+
+        :param url: String containing url
+        :returns: Boolean
+        """
+        result = False
+        try:
+            parsed = urlparse(url)
+            if all([parsed.scheme, parsed.netloc]):
+                result = True
+        except:
+            return result
+        return result
+
     def get_access_token(self,  passwd=None):
         """Get access token.
 
@@ -502,8 +518,12 @@ PadreHTTPClient.paths = {
     "experiment": lambda id: "/experiments/" + id + "/",
     "projects": "/projects",
     "results": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results",
+    "results-json": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results/json",
+    "experiment-runs": lambda e_id: "/experiments/" + e_id + "/runs/",
     "runs": "/runs",
+    "run": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id,
     "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
+    "experiment-run-splits": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits",
     "run-splits": "/runSplits",
     "run-split": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id,
     "search": lambda entity: "/" + entity + "/search?search=",

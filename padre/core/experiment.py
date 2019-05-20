@@ -146,6 +146,10 @@ class Experiment(MetadataEntity):
     def run_split_dict(self):
         return self._run_split_dict
 
+    @run_split_dict.setter
+    def run_split_dict(self, run_split_dict):
+        self._run_split_dict = run_split_dict
+
     @property
     def dataset(self):
         return self._dataset

@@ -1,35 +1,39 @@
 """
-This file contains tests covering app.padre_app.ExperimentApp.validate_and_upload function
+This file contains tests covering backend.http_experiments.HttpBackendExperiments.validate_and_save function
 """
-import copy
 import unittest
 
 from mock import MagicMock, call
 
-from padre.app import pypadre
+from padre.backend.http_experiments import HttpBackendExperiments
 
 
-class ValidateAndUpload(unittest.TestCase):
-    """Test ExperimentApp.validate_and_upload function"""
+class ValidateAndSave(unittest.TestCase):
+    """Test HttpBackendExperiments.validate_and_save function"""
     def setUp(self):
         """Create mock objects"""
         self.returned_url = "http://test.com/api/object/id"
-        self.put_fn = MagicMock(return_value=self.returned_url)
-        self.pypadre = copy.deepcopy(pypadre)
-        self.pypadre.local_backend.experiments.update_metadata = MagicMock()
+        self.http_client = MagicMock()
+        self.http_client.has_token = MagicMock(return_value=False)
+        self._remote_experiments = HttpBackendExperiments(self.http_client)
+        self._remote_experiments.put_experiment = MagicMock(return_value=self.returned_url)
+        self._remote_experiments.put_run = MagicMock(return_value=self.returned_url)
+        self._remote_experiments.put_split = MagicMock(return_value=self.returned_url)
+        self._local_experiments = MagicMock()
+        self._local_experiments.update_metadata = MagicMock()
 
-    def test_validate_and_upload_01(self):
-        """test app.padre_app.Experiment.validate_and_update function for experiment
+    def test_validate_and_save_01(self):
+        """test HttpBackendExperiments.validate_and_save function for experiment
 
         Scenario: Upload experiment which is already uploaded
         """
         experiment = MagicMock()
         experiment.metadata = {"server_url": "http://test.com"}
-        response = self.pypadre.experiments.validate_and_upload(self.put_fn, experiment)
+        response = self._remote_experiments.validate_and_save(experiment, local_experiments=self._local_experiments)
         self.assertFalse(response, "Experiment which already exists on server is upload")
 
-    def test_validate_and_upload_02(self):
-        """test app.padre_app.Experiment.validate_and_update function for experiment
+    def test_validate_and_save_02(self):
+        """test HttpBackendExperiments.validate_and_save function for experiment
 
         Scenario: Upload experiment which is not already uploaded
         """
@@ -38,26 +42,27 @@ class ValidateAndUpload(unittest.TestCase):
         experiment.metadata = {"server_url": ""}
         experiment_id = "3"
         experiment.id = experiment_id
-        response = self.pypadre.experiments.validate_and_upload(self.put_fn, experiment)
+        response = self._remote_experiments.validate_and_save(experiment, local_experiments=self._local_experiments)
         self.assertTrue(response, "Experiment which not exists on server is not upload")
         expected = [call({"server_url": self.returned_url}, experiment_id)]
         self.assertEqual(expected,
-                         self.pypadre.local_backend.experiments.update_metadata.call_args_list,
+                         self._local_experiments.update_metadata.call_args_list,
                          "Update metadata not called with expected arguments")
 
-    def test_validate_and_upload_03(self):
-        """test app.padre_app.Experiment.validate_and_update function for run
+    def test_validate_and_save_03(self):
+        """test HttpBackendExperiments.validate_and_save function for run
 
         Scenario: Upload run which is already uploaded
         """
         experiment = MagicMock()
         run = MagicMock()
         run.metadata = {"server_url": "http://testrun.com"}
-        response = self.pypadre.experiments.validate_and_upload(self.put_fn, experiment, run)
+        response = self._remote_experiments.validate_and_save(
+            experiment, run, local_experiments=self._local_experiments)
         self.assertFalse(response, "Run which already exists on server is upload")
 
-    def test_validate_and_upload_04(self):
-        """test app.padre_app.Experiment.validate_and_update function for run
+    def test_validate_and_save_04(self):
+        """test HttpBackendExperiments.validate_and_save function for run
 
         Scenario: Upload run which is not already uploaded
         """
@@ -70,15 +75,16 @@ class ValidateAndUpload(unittest.TestCase):
         run.metadata = {"server_url": ""}
         run_id = "4"
         run.id = run_id
-        response = self.pypadre.experiments.validate_and_upload(self.put_fn, experiment, run)
+        response = self._remote_experiments.validate_and_save(
+            experiment, run, local_experiments=self._local_experiments)
         self.assertTrue(response, "Run which not exists on server is not upload")
         expected = [call({"server_url": self.returned_url}, experiment_id, run_id)]
         self.assertEqual(expected,
-                         self.pypadre.local_backend.experiments.update_metadata.call_args_list,
+                         self._local_experiments.update_metadata.call_args_list,
                          "Update metadata not called with expected arguments for run")
 
-    def test_validate_and_upload_05(self):
-        """test app.padre_app.Experiment.validate_and_update function for split
+    def test_validate_and_save_05(self):
+        """test HttpBackendExperiments.validate_and_save function for split
 
         Scenario: Upload split which is already uploaded
         """
@@ -86,11 +92,12 @@ class ValidateAndUpload(unittest.TestCase):
         run = MagicMock()
         split = MagicMock()
         split.metadata = {"server_url": "http://testsplit.com"}
-        response = self.pypadre.experiments.validate_and_upload(self.put_fn, experiment, run)
+        response = self._remote_experiments.validate_and_save(
+            experiment, run, split, local_experiments=self._local_experiments)
         self.assertFalse(response, "Run which already exists on server is upload")
 
-    def test_validate_and_upload_06(self):
-        """test app.padre_app.Experiment.validate_and_update function for split
+    def test_validate_and_save_06(self):
+        """test HttpBackendExperiments.validate_and_save function for split
 
         Scenario: Upload split which is not already uploaded
         """
@@ -107,13 +114,13 @@ class ValidateAndUpload(unittest.TestCase):
         split.metadata = {"server_url": ""}
         split_id = "5"
         split.id = split_id
-        response = self.pypadre.experiments.validate_and_upload(self.put_fn, experiment, run, split)
+        response = self._remote_experiments.validate_and_save(
+            experiment, run, split, local_experiments=self._local_experiments)
         self.assertTrue(response, "Split which not exists on server is not upload")
         expected = [call({"server_url": self.returned_url}, experiment_id, run_id, split_id)]
         self.assertEqual(expected,
-                         self.pypadre.local_backend.experiments.update_metadata.call_args_list,
+                         self._local_experiments.update_metadata.call_args_list,
                          "Update metadata not called with expected arguments for split")
 
     def tearDown(self):
-        """Remove pypadre object after test"""
-        del self.pypadre
+        pass
