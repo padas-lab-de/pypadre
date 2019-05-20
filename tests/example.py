@@ -45,8 +45,9 @@ if __name__ == '__main__':
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
-    #pypadre.metrics_evaluator.add_experiments([ex, ex])
-    pypadre.metrics_evaluator.add_experiment_by_name('Test Experiment SVM')
+    pypadre.metrics_evaluator.add_experiments([ex, ex])
+    print(pypadre.metrics_evaluator.show_metrics())
+    pypadre.metrics_evaluator.add_experiments('Test Experiment SVM')
     print(pypadre.metrics_evaluator.show_metrics())
     '''
     print("========Available experiments=========")
