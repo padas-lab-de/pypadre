@@ -39,13 +39,14 @@ if __name__ == '__main__':
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="cv",
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="random",
                     function=split)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
-    pypadre.metrics_evaluator.add_experiments([ex, ex])
+    #pypadre.metrics_evaluator.add_experiments([ex, ex])
+    pypadre.metrics_evaluator.add_experiment_by_name('Test Experiment SVM')
     print(pypadre.metrics_evaluator.show_metrics())
     '''
     print("========Available experiments=========")
