@@ -983,7 +983,64 @@ class CompareMetrics:
         df = self.display_results()
         return df
 
-    def add_experiments(self, experiment_list):
+    def add_experiments(self, experiments):
+        """
+        Adds a list of experiments for comparing the metrics
+        :param experiments: List of experiment objects, paths or experiment names.
+        :return: None
+        """
+        from padre.core.experiment import Experiment
+        experiment_directory = []
+        experiment_objects =[]
+        experiment_names = []
+
+        if isinstance(experiments, list):
+            for experiment in experiments:
+
+                trigger_event('EVENT_WARN', condition=isinstance(experiment, Experiment) or isinstance(experiment, str),
+                              source=self,
+                              message='Incorrect parameter in list. Only strings or experiment objects allowed')
+
+                if isinstance(experiment, Experiment):
+                    experiment_objects.append(experiment)
+
+                elif isinstance(experiment, str):
+                    if os.path.exists(experiment):
+                        experiment_directory.append(experiment)
+
+                    else:
+                        experiment_names.append(experiment)
+
+                else:
+                    pass
+
+            if len(experiment_objects) > 0:
+                self.add_experiment_objects(experiment_objects)
+
+            if len(experiment_directory) > 0:
+                self.add_experiment_directory(experiment_directory)
+
+            if len(experiment_names) > 0:
+                self.add_experiment_by_name(experiment_names)
+
+        else:
+            assert_condition(condition=isinstance(experiments, Experiment) or isinstance(experiments, str), source=self,
+                             message='Incorrect parameter type for comparing experiments. '
+                                     'Only strings or experiment objects allowed')
+            if isinstance(experiments, Experiment):
+                self.add_experiment_objects(experiments)
+
+            elif isinstance(experiments, str):
+                if os.path.exists(experiments):
+                    self.add_experiment_directory(experiments)
+
+                else:
+                    self.add_experiment_by_name(experiments)
+
+            else:
+                pass
+
+    def add_experiment_objects(self, experiment_list):
         """
         Adds a list of experiment objects to the current list
         :param experiment_list: A list of experiment objects
