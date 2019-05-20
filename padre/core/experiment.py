@@ -359,7 +359,9 @@ class Experiment(MetadataEntity):
         # Copy the dataset so that metadata and attributes remain consistent
         self._preprocessed_dataset = deepcopy(self.dataset)
         # Replace the data by concatenating with the targets
-        self._preprocessed_dataset._binary._data = preprocessed_data
+        #self._preprocessed_dataset._binary._data = preprocessed_data
+        self._preprocessed_dataset.replace_data(preprocessed_data[...,:-1],  # Data excluding target column
+                                                 self._preprocessed_dataset.attributes)
         # Set flag
         self._preprocessed = True
 

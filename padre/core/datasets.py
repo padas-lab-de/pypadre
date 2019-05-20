@@ -661,6 +661,7 @@ class Dataset(MetadataEntity):
             self._binary = PandasContainer(data, self.attributes)
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):
+            data = np.append(data, self.targets(), axis=1)
             self._binary = NumpyContainer(data, self.attributes)
             self._binary_format = formats.numpy
         elif isinstance(data, nx.Graph):
