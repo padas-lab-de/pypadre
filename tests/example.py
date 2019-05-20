@@ -49,7 +49,6 @@ if __name__ == '__main__':
     print(pypadre.metrics_evaluator.show_metrics())
     pypadre.metrics_evaluator.add_experiments('Test Experiment SVM')
     print(pypadre.metrics_evaluator.show_metrics())
-
     '''
     print("========Available experiments=========")
     for idx, ex in enumerate(pypadre.experiments.list_experiments()):
