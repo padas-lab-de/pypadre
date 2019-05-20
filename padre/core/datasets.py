@@ -610,8 +610,11 @@ class Dataset(MetadataEntity):
         returns a tuple (data, attributes) which can be used to call set_data at a later point in time and thus support
         lazy loading.
         :param data: binary data in a supported format (numpy, pandas, networkx):
-                    size must be num_datasets x num_attributes. If data is a function, it is expected that the function is called later.
-        :param attributes: Description for attributes or None. If none, the attributes will be estimated as good as possible
+                    size must be num_datasets x num_attributes. If data is a function,
+                    it is expected that the function is called later.
+        :param attributes: Description for attributes or None.
+                           If none, the attributes will be estimated as good as possible
+
         """
         self._binary = None
         self._binary_format = None
@@ -635,6 +638,36 @@ class Dataset(MetadataEntity):
         else:
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
         self._fill_metedata()
+
+    def replace_data(self, data, attributes=None):
+        """
+        Function is used to hold a temporary dataset of preprocessed data
+        :param data: binary data in a supported format (numpy, pandas, networkx):
+                    size must be num_datasets x num_attributes. If data is a function,
+                    it is expected that the function is called later.
+        :return: None
+        """
+        self._binary = None
+        self._binary_format = None
+        if data is None:
+            self._binary_format = None
+            self._binary = AttributeOnlyContainer(attributes)
+        elif hasattr(data, '__call__'):
+            self._binary_loader_fn = data
+            return
+        elif isinstance(data, pd.DataFrame):
+            # Remove non numerical attributes
+            # TODO: Bring in support for nominal and ordinal attributes too
+            self._binary = PandasContainer(data, self.attributes)
+            self._binary_format = formats.pandas
+        elif isinstance(data, np.ndarray):
+            self._binary = NumpyContainer(data, self.attributes)
+            self._binary_format = formats.numpy
+        elif isinstance(data, nx.Graph):
+            self._binary = GraphContainer(data, self.attributes)
+            self._binary_format = formats.graph
+        else:
+            raise ValueError("Unknown data format. Type %s not known." % (type(data)))
 
     def __str__(self):
         return str(self.id) +"_"+ str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
