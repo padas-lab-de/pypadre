@@ -1024,16 +1024,33 @@ class CompareMetrics:
             for directory in experiments:
                 assert_condition(condition=isinstance(directory, str), source=self,
                                  message='An object in the list is not of the type string')
+
+                # If only the name is given, add .ex to the end of experiment name.
+                # Experiment directories are stored with .ex as suffix
+
+                if directory[:-3] != '.ex':
+                    path = os.path.join(root_path, directory+'.ex')
+
+                else:
+                    path = os.path.join(root_path, directory)
+
                 # Check if such an experiment exists in the path
-                path = os.path.join(root_path, directory)
                 if os.path.exists(path):
                     directory_list.append(path)
 
         else:
             assert_condition(condition=isinstance(experiments, str), source=self,
                              message='Incorrect parameter type')
+
+            # If only the name is given, add .ex to the end of experiment name.
+            # Experiment directories are stored with .ex as suffix
+            if experiments[:-3] != '.ex':
+                path = os.path.join(root_path, experiments+'.ex')
+
+            else:
+                path = os.path.join(root_path, experiments)
+
             # Check if such an experiment exists in the path
-            path = os.path.join(root_path, experiments)
             if os.path.exists(path):
                 directory_list.append(path)
             directory_list = [path]
