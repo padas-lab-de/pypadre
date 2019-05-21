@@ -667,7 +667,7 @@ class Dataset(MetadataEntity):
             x=alt.X(x_attr, title=x_title),
             y=alt.Y(y_attr, title=y_title),
             color=target
-        )
+        ).interactive()
         return chart.to_json()
 
     def get_chart_from_json(self, visualisation):
