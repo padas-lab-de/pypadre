@@ -1,2 +1,3 @@
 recursive-include padre/res *.json
 recursive-include padre/core/wrappers/wrapper_mappings *.json
+include requirements.txt
