@@ -666,8 +666,8 @@ class Dataset(MetadataEntity):
         chart = alt.Chart(data).mark_point().encode(
             x=alt.X(x_attr, title=x_title),
             y=alt.Y(y_attr, title=y_title),
-            color=target
-        ).interactive()
+            color=target + ":N"
+        ).properties(title=self.name).interactive()
         return chart.to_json()
 
     def get_chart_from_json(self, visualisation):
