@@ -153,7 +153,10 @@ class PadreConfig:
         config = configparser.ConfigParser()
         if os.path.exists(self._config_file):
             config.read(self._config_file)
-            self.__merge_config(dict(config._sections))
+            config_data = dict(config._sections)
+            if config.has_option("GENERAL", "offline"):
+                config_data["GENERAL"]["offline"] = config.getboolean("GENERAL", "offline")
+            self.__merge_config(config_data)
 
     def default(self):
         """
