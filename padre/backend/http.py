@@ -385,6 +385,24 @@ class HTTPBackendDatasets:
         trigger_event('EVENT_LOG', source=self, message="Loaded dataset " + _id + " from server:")
         return dataset
 
+    def put_visualisation(self, id_, visualisation):
+        """
+        Upload visualisation for given data set id.
+
+        :param id_: Data set id for which visualisation should be uploaded
+        :type id_: str
+        :param visualisation: json configuration
+        :type visualisation: json
+        :return:
+        """
+        response = None
+        data = dict()
+        dataset_url = self.parent.get_base_url() + + PadreHTTPClient.paths["dataset"](id_)
+        data["visualisation"] = visualisation
+        if self.parent.has_token():
+            response = self.parent.do_patch(dataset_url, **{"data": json.dumps(data)})
+        return response
+
     def make_proto(self, dataset, _file):
         from padre.backend.protobuffer import proto_organizer
         pd_dataframe = dataset._binary.pandas_repr()
