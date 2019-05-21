@@ -4,6 +4,7 @@ Module containing python classes for managing data sets
 - TODO allow group based management of binary files similar to hdF5
 
 """
+import altair as alt
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -568,6 +569,16 @@ class Dataset(MetadataEntity):
         """
         return self._binary_format
 
+    def get_target_attribute(self):
+        """
+        Return default target attribute
+        :return:
+        """
+        for attr in self.attributes:
+            if attr["defaultTargetAttribute"]:
+                return attr["name"]
+        return None
+
     @property
     def num_attributes(self):
         if self.has_data():
@@ -635,6 +646,38 @@ class Dataset(MetadataEntity):
         else:
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
         self._fill_metedata()
+
+    def get_scatter_plot(self, x_attr, y_attr, x_title=None, y_title=None):
+        """
+        Get scatter plot of vega lite specification
+
+        :param x_attr: Data set attribute
+        :param y_attr: Data set attribute
+        :param x_title: Title for x axis
+        :param y_title: Title for y axis
+        :return: Vega lite json specification
+        """
+        data = self.data
+        target = self.get_target_attribute()
+        if x_title is None:
+            x_title = x_attr[0].upper() + x_attr[1:]
+        if y_title is None:
+            y_title = y_attr[0].upper() + y_attr[1:]
+        chart = alt.Chart(data).mark_point().encode(
+            x=alt.X(x_attr, title=x_title),
+            y=alt.Y(y_attr, title=y_title),
+            color=target
+        )
+        return chart.to_json()
+
+    def get_chart_from_json(self, visualisation):
+        """
+        Get altair Chart from json to render in notebook
+        :param visualisation: Json specification of vega lite
+        :return: Altair Chart
+        :rtype: <class 'altair.vegalite.v2.api.Chart'>
+        """
+        return alt.Chart.from_json(visualisation)
 
     def __str__(self):
         return str(self.id) +"_"+ str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
