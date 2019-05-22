@@ -355,13 +355,12 @@ class Experiment(MetadataEntity):
         import numpy as np
 
         # Preprocess the data
-        preprocessed_data = self._preprocessed_workflow.fit_transform(self.dataset.data, self.dataset.targets)
+        preprocessed_data = self._preprocessed_workflow.fit_transform(self.dataset.features(), self.dataset.targets)
         # Copy the dataset so that metadata and attributes remain consistent
         self._preprocessed_dataset = deepcopy(self.dataset)
         # Replace the data by concatenating with the targets
         #self._preprocessed_dataset._binary._data = preprocessed_data
-        self._preprocessed_dataset.replace_data(preprocessed_data[...,:-1],  # Data excluding target column
-                                                 self._preprocessed_dataset.attributes)
+        self._preprocessed_dataset.replace_data(preprocessed_data)
         # Set flag
         self._preprocessed = True
 

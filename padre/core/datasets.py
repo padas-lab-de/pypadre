@@ -639,7 +639,7 @@ class Dataset(MetadataEntity):
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
         self._fill_metedata()
 
-    def replace_data(self, data, attributes=None):
+    def replace_data(self, data):
         """
         Function is used to hold a temporary dataset of preprocessed data
         :param data: binary data in a supported format (numpy, pandas, networkx):
@@ -647,11 +647,10 @@ class Dataset(MetadataEntity):
                     it is expected that the function is called later.
         :return: None
         """
-        self._binary = None
-        self._binary_format = None
+
         if data is None:
             self._binary_format = None
-            self._binary = AttributeOnlyContainer(attributes)
+            self._binary = AttributeOnlyContainer(self.attributes)
         elif hasattr(data, '__call__'):
             self._binary_loader_fn = data
             return
@@ -661,7 +660,10 @@ class Dataset(MetadataEntity):
             self._binary = PandasContainer(data, self.attributes)
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):
+            # Append the target data to the original data
             data = np.append(data, self.targets(), axis=1)
+
+            # Create a new numpy container with the old attributes
             self._binary = NumpyContainer(data, self.attributes)
             self._binary_format = formats.numpy
         elif isinstance(data, nx.Graph):
