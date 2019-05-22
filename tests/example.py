@@ -14,6 +14,13 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+def create_preprocessing_pipeline():
+    from sklearn.pipeline import Pipeline
+    from sklearn.decomposition import PCA
+    # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+    estimators = [('PCA', PCA())]
+    return Pipeline(estimators)
+
 def split(idx):
     # Do a 70:30 split
     limit = int(.7 * len(idx))

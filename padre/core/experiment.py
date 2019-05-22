@@ -114,6 +114,16 @@ class Experiment(MetadataEntity):
         self._metrics = []
         self._hyperparameters = []
         self._experiment_configuration = None
+
+        # If a preprocessing step is required to be executed on the whole dataset, add the workflow
+        self._preprocessed_workflow = options.pop('preprocessing', None)
+
+        # Deep copy the modified dataset to the variable after preprocessing
+        self._preprocessed_dataset = None
+
+        # Set the flag after preprocessing is complete
+        self._preprocessed = False
+
         split_obj.function_pointer = options.pop('function', None)
         super().__init__(options.pop("ex_id", None), **options)
 
@@ -152,7 +162,10 @@ class Experiment(MetadataEntity):
 
     @property
     def dataset(self):
-        return self._dataset
+        if not self._preprocessed:
+            return self._dataset
+        else:
+            return self._preprocessed_dataset
 
     @dataset.setter
     def dataset(self, ds):
@@ -209,10 +222,6 @@ class Experiment(MetadataEntity):
     def workflow(self):
         return self._workflow
 
-    @property
-    def dataset(self):
-        return self._dataset
-
     def run(self, append_runs: bool = False):
         """
         runs the experiment
@@ -256,6 +265,9 @@ class Experiment(MetadataEntity):
         assert_condition(condition=parameters is None or isinstance(parameters, dict),
                          source=self,
                          message='Incorrect parameter type to the execute function')
+
+        if self._preprocessed_workflow is not None:
+            self.preprocess()
 
         if parameters is None:
             self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
@@ -337,6 +349,25 @@ class Experiment(MetadataEntity):
 
         # Fire event
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
+
+    def preprocess(self):
+        """
+        Runs the preprocessing pipeline and populates the preprocessed dataset
+        :return: None
+        """
+        from copy import deepcopy
+        import numpy as np
+
+        # Preprocess the data
+        preprocessed_data = self._preprocessed_workflow.fit_transform(self.dataset.features(), self.dataset.targets)
+        # Copy the dataset so that metadata and attributes remain consistent
+        self._preprocessed_dataset = deepcopy(self.dataset)
+        # Replace the data by concatenating with the targets
+        #self._preprocessed_dataset._binary._data = preprocessed_data
+        self._preprocessed_dataset.replace_data(preprocessed_data)
+        # Set flag
+        self._preprocessed = True
+
 
     def create_experiment_configuration_dict(self, params=None, single_run=False):
         """
