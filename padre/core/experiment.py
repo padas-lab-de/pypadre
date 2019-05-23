@@ -368,7 +368,6 @@ class Experiment(MetadataEntity):
         # Set flag
         self._preprocessed = True
 
-
     def create_experiment_configuration_dict(self, params=None, single_run=False):
         """
         This function creates a dictionary that can be written as a JSON file for replicating the experiments.
@@ -394,6 +393,11 @@ class Experiment(MetadataEntity):
         experiment_dict['strategy'] = strategy
         experiment_dict['dataset'] = dataset
         experiment_dict['workflow'] = workflow
+
+        # If there is a preprocessing pipeline, add it to the configuration
+        if self._preprocessed is True:
+            preprocessing_workflow = list(self._preprocessed_workflow.named_steps.keys())
+            experiment_dict['preprocessing'] = preprocessing_workflow
 
         if single_run is True:
             estimator_dict = dict()
