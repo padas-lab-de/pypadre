@@ -862,6 +862,10 @@ class ExperimentCreator:
             description = exp_params.get('description', None)
             pipeline = exp_params.get('workflow', None)
             dataset = exp_params.get('dataset', None)
+            strategy = exp_params.get('strategy', None)
+            keep_splits = exp_params.get('keep_splits', False)
+            function = exp_params.get('function', None)
+            preprocessing = exp_params.get('preprocessing', None)
             params = exp_params.get('params', None)
 
             # Create the pipeline and if it is not possible move to next experiment
@@ -869,11 +873,22 @@ class ExperimentCreator:
             if workflow is None:
                 trigger_event('EVENT_WARN', condition=False, source=self,
                               message='Workflow is empty. Workflow was not created')
-
                 continue
 
-            self.create(name=name, description=description,workflow=workflow, dataset_list=dataset,
-                        params=params)
+            if preprocessing is not None:
+                preprocessing = self.create_test_pipeline(preprocessing)
+
+                if preprocessing is None:
+                    trigger_event('EVENT_WARN', condition=preprocessing is not None, source=self,
+                                  message='Preprocessing workflow is empty. Workflow was not created')
+                    continue
+
+            if function is not None:
+                function = importlib.import_module(function)
+
+            self.create(name=name, description=description, workflow=workflow, dataset_list=dataset,
+                        params=params, strategy=strategy, keep_splits=keep_splits, function=function,
+                        preprocessing=preprocessing)
 
         return True
 
