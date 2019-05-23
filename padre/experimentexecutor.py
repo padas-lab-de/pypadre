@@ -159,7 +159,6 @@ class ExperimentExecutor:
         # Remove experiment objects
         self._experiment_objects = None
 
-
     def initialize_dataset_names(self):
         """
         The function returns all the datasets currently available to the user. It can be from the server and also the
