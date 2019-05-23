@@ -546,7 +546,8 @@ class Experiment(MetadataEntity):
         from padre.core.visitors.mappings import name_mappings, alternate_name_mappings
         import numpy as np
 
-        assert_condition(condition=options.get('workflow', None) is not None, source=self, message="Workflow cannot be none")
+        assert_condition(condition=options.get('workflow', None) is not None, source=self,
+                         message="Workflow cannot be none")
         assert_condition(condition=options.get('description', None) is not None, source=self,
                          message="Description cannot be none")
         assert_condition(condition=isinstance(options.get("keep_runs", True), bool), source=self,
@@ -554,7 +555,7 @@ class Experiment(MetadataEntity):
         assert_condition(condition=isinstance(options.get("keep_splits", True), bool), source=self,
                          message='keep_splits parameter has to be of type bool')
         assert_condition(condition=isinstance(options.get('sk_learn_stepwise', False), bool), source=self,
-                         message = 'keep_splits parameter has to be of type bool')
+                         message='keep_splits parameter has to be of type bool')
         assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
                          message='Workflow does not have a fit function')
         assert_condition(condition=isinstance(options.get('name', 'noname'), str) or options.get('name') is None,
@@ -565,6 +566,11 @@ class Experiment(MetadataEntity):
                          message="Dataset cannot be none")
         assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
                          source=self, message='Experiment dataset is not of type Dataset')
+        assert_condition(condition=options.get('preprocessing', None) is None or hasattr(options.get('preprocessing',
+                                                                                                     dict()),
+                                                                                         'fit_transform') is True,
+                         source=self,
+                         message='Preprocessing workflow does not have a fit_transform function')
 
         # Check if all estimator names are present in the name mappings
         workflow = options.get('workflow')
