@@ -661,7 +661,9 @@ class Dataset(MetadataEntity):
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):
             # Append the target data to the original data
-            data = np.append(data, self.targets(), axis=1)
+            # If the transformation includes labels that have been transformed then no need to append the targets
+            if data.shape[1] == self.features().shape[1]:
+                data = np.append(data, self.targets(), axis=1)
 
             # Create a new numpy container with the old attributes
             self._binary = NumpyContainer(data, self.attributes)
