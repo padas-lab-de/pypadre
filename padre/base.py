@@ -435,12 +435,12 @@ class PadreLogger(LoggerBase):
         if self._backend:
             self._backend.log_progress(message=message, curr_value=curr_value, limit=limit, phase=phase)
 
-    def log_model(self, model, framework, modelname, finalmodel=False):
+    def log_model(self, model, framework, filename, finalmodel=False):
         """
         Logs an intermediate model to the backend
         :param model: Model to be logged
+        :param filename: Name of the intermediate model
         :param framework: Framework of the model
-        :param modelname: Name of the intermediate model
         :param finalmodel: Boolean value indicating whether the model is the final one or not
         :return:
         """
