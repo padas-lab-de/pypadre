@@ -409,9 +409,8 @@ class WrapperPytorch:
                 state['model'] = self.model.state_dict()
                 state['optimizer'] = self.optimizer.state_dict()
                 #torch.save(state, save_file_name)
-                trigger_event('EVENT_LOG_MODEL', model=state, modelname=save_file_name,
+                trigger_event('EVENT_LOG_MODEL', model=state, filename=save_file_name,
                               framework=framework, finalmodel=False)
-
 
             step = step + 1
             self.on_end_iteration()
@@ -423,7 +422,7 @@ class WrapperPytorch:
         state['model'] = self.model.state_dict()
         state['optimizer'] = self.optimizer.state_dict()
         #torch.save(state, save_file_name)
-        trigger_event('EVENT_LOG_MODEL', model=state, modelname=save_file_name,
+        trigger_event('EVENT_LOG_MODEL', model=state, filename=save_file_name,
                       framework=framework, finalmodel=True)
 
     def predict(self, x):

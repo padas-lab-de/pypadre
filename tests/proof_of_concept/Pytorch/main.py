@@ -1,4 +1,4 @@
-from padre.core.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
+from pypa_pytorch.pytorch import WrapperPytorch, CallBack
 from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets

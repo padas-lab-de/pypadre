@@ -673,11 +673,11 @@ class Dataset(MetadataEntity):
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
 
     def __str__(self):
-        return str(self.id) +"_"+ str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
+        return str(self.id) + "_" + str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
 
 
 def _check_profiling_datatype(content):
-    if(isinstance(content,dict)):
+    if isinstance(content,dict):
         for key in content.keys():
             if key == "histogram" or key == "mini_histogram" or content[key] is np.nan:
                 content[key]=None
