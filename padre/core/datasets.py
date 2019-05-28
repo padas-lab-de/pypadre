@@ -671,8 +671,10 @@ class Dataset(MetadataEntity):
             self._binary = PandasContainer(data, self.attributes)
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):
-            # Append the target data to the original data
-            data = np.append(data, self.targets(), axis=1)
+            # Append the target data to the original data if targets are not modified
+            # If targets are modified, pass the incoming data as both features and targets
+            if data.shape[1] != self.data.shape[1:]:
+                data = np.append(data, self.targets(), axis=1)
 
             # Create a new numpy container with the old attributes
             self._binary = NumpyContainer(data, self.attributes)
@@ -716,11 +718,11 @@ class Dataset(MetadataEntity):
         return alt.Chart.from_json(visualisation)
 
     def __str__(self):
-        return str(self.id) +"_"+ str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
+        return str(self.id) + "_" + str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
 
 
 def _check_profiling_datatype(content):
-    if(isinstance(content,dict)):
+    if isinstance(content,dict):
         for key in content.keys():
             if key == "histogram" or key == "mini_histogram" or content[key] is np.nan:
                 content[key]=None

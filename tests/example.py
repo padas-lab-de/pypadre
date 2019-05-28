@@ -47,7 +47,7 @@ if __name__ == '__main__':
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
                     workflow=create_test_pipeline(), keep_splits=True, strategy="random",
-                    function=split)
+                    function=split, preprocessing=create_preprocessing_pipeline())
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report

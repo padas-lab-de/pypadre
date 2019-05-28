@@ -868,7 +868,7 @@ class CompareMetrics:
                 length = len(metric_keys)
 
                 # Break when a type is found
-                while self._metrics.get(metric_keys[idx]).get('type') == None and idx < length:
+                while idx < length and self._metrics.get(metric_keys[idx]).get('type') is None:
                     idx = idx + 1
 
                 # Check whether any metrics are present in the given experiments, else throw error
