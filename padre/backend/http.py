@@ -269,7 +269,7 @@ class PadreHTTPClient:
     def online(self):
         """
         sets the current online status of the client
-        :return: True, if requests are are passed to the server
+        :return: True, if requests are passed to the server
         """
         return self._online
 

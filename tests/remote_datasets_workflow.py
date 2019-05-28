@@ -1,7 +1,7 @@
 from padre.app.padre_app import pypadre
 
 assert pypadre.offline
-pypadre.config.authenticate("hmafnan", "test")
+pypadre.authenticate("hmafnan", "test")
 assert pypadre.offline == False
 
 list_of_datasets = pypadre.local_backend.datasets.list()
