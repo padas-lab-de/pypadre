@@ -247,22 +247,6 @@ class PadreConfig:
         """
         return self._config[section][key]
 
-    def authenticate(self, user=None, passwd=None):
-        """
-        Authenticate given user and update new token in the config.
-
-        :param user: Given user
-        :type user: str
-        :param passwd: Given password
-        :type passwd: str
-        """
-        self.http_backend_config["user"]=user
-        http = PadreHTTPClient(**self.http_backend_config)
-        token = http.authenticate(passwd, user)
-        self.set('token', token)
-        self.save()
-        self.general["offline"] = False
-
 
 class DatasetApp:
     """
@@ -602,8 +586,8 @@ class PadreApp:
             self._config = PadreConfig()
         else:
             self._config = config
-#        self._offline = "offline" not in self._config.general or self._config.general["offline"]
-        self._http_repo = PadreHTTPClient(**self._config.http_backend_config)
+        self._offline = "offline" not in self._config.general or self._config.general["offline"]
+        self._http_repo = PadreHTTPClient(**self._config.http_backend_config, online=not self.offline)
         self._file_repo = PadreFileBackend(**self._config.local_backend_config)
         self._dual_repo = DualBackend(self._file_repo, self._http_repo)
         # Adding the backend to the logger from the config file
@@ -621,7 +605,7 @@ class PadreApp:
         sets the current offline / online status of the app. Permanent changes need to be done via the config.
         :return: True, if requests are not passed to the server
         """
-        return self._config.general["offline"]
+        return self._offline
 
     @offline.setter
     def offline(self, offline):
@@ -683,6 +667,24 @@ class PadreApp:
     @property
     def repository(self):
         return self._dual_repo
+
+    def authenticate(self, user, passwd):
+        """
+        Authenticate user to the server
+        If authenticated successfully then set app and http client online and save token in config
+
+        :param user: User name
+        :param passwd: password for given user
+        :return: Token
+        """
+        token = self.remote_backend.authenticate(passwd, user)
+        if token is not None:
+            self.config.set('token', token)
+            self.config.save()
+            self.offline = False
+            self.config.general["offline"] = self.offline
+            self.remote_backend.online = not self.offline
+        return token
 
 
 pypadre = PadreApp(printer=print) # load the default app

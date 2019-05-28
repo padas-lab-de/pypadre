@@ -46,5 +46,5 @@ if __name__ == '__main__':
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
-    pypadre.config.authenticate("hmafnan", "test")
+    pypadre.authenticate("hmafnan", "test")
     pypadre.experiments.upload_local_experiment(experiment_name)

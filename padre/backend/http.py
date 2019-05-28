@@ -37,6 +37,7 @@ import padre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
 class PadreHTTPClient:
 
     def __init__(self, base_url="http://localhost:8080/api", user="", token=None
+                 , online=False
                  , silent_codes=None
                  , default_header={'content-type': 'application/hal+json'}):
         if base_url.endswith("/"):
@@ -48,6 +49,7 @@ class PadreHTTPClient:
         self._data_serializer = PickleSerializer
         self._default_header = default_header
         self._access_token = None
+        self._online = online
         if silent_codes is None:
             self.silent_codes = []
         else:
@@ -264,6 +266,18 @@ class PadreHTTPClient:
         return result
 
     @property
+    def online(self):
+        """
+        sets the current online status of the client
+        :return: True, if requests are passed to the server
+        """
+        return self._online
+
+    @online.setter
+    def online(self, online):
+        self._online = online
+
+    @property
     def experiments(self):
         return self._experiments_client
 
@@ -332,7 +346,6 @@ class HTTPBackendDatasets:
             self._parent.do_put(link,
                         headers={},  # let request handle the content type
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
-
 
     def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
         """
@@ -462,7 +475,6 @@ class HTTPBackendDatasets:
         else:
             dataset.set_data(df_data, atts)
         return dataset
-
 
     def load_oml_dataset(self, did):
         """Load dataset from openML with given id.

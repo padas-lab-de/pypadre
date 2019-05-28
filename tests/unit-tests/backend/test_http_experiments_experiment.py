@@ -141,8 +141,7 @@ class TestDeleteExperiment(unittest.TestCase):
         """
         mock_token.return_value = None
         self.test_experiment_id = '3'
-        self.http_client = PadreHTTPClient(user='test')
-        self.http_client.has_token = MagicMock(return_value=True)
+        self.http_client = PadreHTTPClient(user='test', online=True)
         self.http_client.do_delete = MagicMock()
 
     @patch('padre.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
@@ -183,8 +182,7 @@ class TestGetIdByName(unittest.TestCase):
         mock_create_project.return_value = None
         mock_get_id.return_value = None
         self.test_experiment_id = '3'
-        self.http_client = PadreHTTPClient(user='test')
-        self.http_client.has_token = MagicMock(return_value=True)
+        self.http_client = PadreHTTPClient(user='test', online=True)
         get_mock = MagicMock()
         self.entity = "datasets"
         self.test_value = "1"

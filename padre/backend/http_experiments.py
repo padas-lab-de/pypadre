@@ -50,7 +50,7 @@ class HttpBackendExperiments:
         _id = ds.metadata.get("uid", None)
         get_url = self._http_client.get_base_url() + self._http_client.paths["dataset"](str(_id))
         dataset_id = None
-        if self._http_client.has_token():
+        if self._http_client.online:
             try:
                 if _id is None:  # Uid not given
                     dataset_id = self.get_id_by_name(ds.metadata.get("name"), self._http_client.paths["datasets"][1:])
@@ -73,7 +73,7 @@ class HttpBackendExperiments:
         """
         id_ = None
         url = self.get_base_url() + self._http_client.paths["search"](entity) +"name:" + name
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 first_entity = response["_embedded"][entity][0]
@@ -90,7 +90,7 @@ class HttpBackendExperiments:
         """
         url = self.get_base_url() + self._http_client.paths["projects"]
         data = {"name": name, "owner": self._http_client.user}
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             return response.headers['Location'].split('/')[-1]
         return None
@@ -99,7 +99,7 @@ class HttpBackendExperiments:
         """Create experiment on server"""
         url = self.get_base_url() + self._http_client.paths["experiments"]
         location = ''
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             self.experiment_id = response.headers['Location'].split('/')[-1]
             location = response.headers['Location']
@@ -159,7 +159,7 @@ class HttpBackendExperiments:
 
         # todo: Implement delete by experiment name
         """
-        if ex.isdigit() and self._http_client.has_token():
+        if ex.isdigit() and self._http_client.online:
             url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             return self._http_client.do_delete(url, **{})
 
@@ -175,7 +175,7 @@ class HttpBackendExperiments:
         # todo: Return experiment instance according to above documentation
         """
         experiment = None
-        if self._http_client.has_token():
+        if self._http_client.online:
             if self._http_client.is_valid_url(ex):  # url of the experiment
                 url = ex
                 response = json.loads(self._http_client.do_get(url, **{}).content)
@@ -225,7 +225,7 @@ class HttpBackendExperiments:
             url = self.get_base_url() + self._http_client.paths["search"]("experiments") + "name?:" + search + "&size=" + str(count)
         else:
             url = self.get_base_url() + self._http_client.paths["experiments"] + "?size=" + str(count)
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 experiments = response["_embedded"]["experiments"]
@@ -258,7 +258,7 @@ class HttpBackendExperiments:
         }]
         run_data["experimentId"] = experiment_id
         url = self.get_base_url() + self._http_client.paths["runs"]
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_post(url, **{"data": json.dumps(run_data)})
             location = response.headers["location"]
             run_id = location.split("/")[-1]
@@ -288,7 +288,7 @@ class HttpBackendExperiments:
         run_url = self._http_client.get_base_url() + self._http_client.paths['run'](ex_id, run_id)
         run_model_url = self._http_client.get_base_url() + self._http_client.paths["run-models"](ex_id, run_id)
         r = None
-        if self._http_client.has_token():
+        if self._http_client.online:
             run_response = json.loads(self._http_client.do_get(run_url, **{}).content)
             model_response = self._http_client.do_get(run_model_url, **{})
             workflow = self._binary_serializer.deserialize(model_response.content)
@@ -305,7 +305,7 @@ class HttpBackendExperiments:
         """
         run_ids = []
         url = self._http_client.get_base_url() + self._http_client.paths['experiment-runs'](ex_id)
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 for run in response["_embedded"]["runs"]:
@@ -334,7 +334,7 @@ class HttpBackendExperiments:
         data["split"] = self.encode_split(split)
         data["metadata"] = split.metadata
         data["metrics"] = {}
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
             split.metadata["server_url"] = location
@@ -353,7 +353,7 @@ class HttpBackendExperiments:
         """
         s = None
         split_url = self.get_base_url() + self._http_client.paths["split"](split_id)
-        if self._http_client.has_token():
+        if self._http_client.online:
             split_response = json.loads(self._http_client.do_get(split_url, **{}).content)
             decode_split = self.decode_split(split_response["split"])
             r = self.get_run(ex_id, run_id)
@@ -377,7 +377,7 @@ class HttpBackendExperiments:
         """
         split_ids = []
         url = self._http_client.get_base_url() + self._http_client.paths['experiment-run-splits'](ex_id, run_id)
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 for split in response["_embedded"]["runSplits"]:
@@ -405,7 +405,7 @@ class HttpBackendExperiments:
         url = self.get_base_url() + self._http_client.paths["results"](e_id, r_id, rs_id)
         update_split_url = self.get_base_url() + self._http_client.paths["split"](rs_id)
         response = None
-        if bool(results) and self._http_client.has_token():
+        if bool(results) and self._http_client.online:
             with tempfile.TemporaryFile() as temp_file:
                 file = self.make_proto(results, temp_file)
                 m = MultipartEncoder(
@@ -479,7 +479,7 @@ class HttpBackendExperiments:
         rs_id = split.metadata["server_url"].split("/")[-1]
         update_split_url = self.get_base_url() + self._http_client.paths["split"](rs_id)
         response = None
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_patch(update_split_url,
                                                   **{"data": json.dumps({"metrics": metrics})})
         return response
@@ -755,7 +755,7 @@ class HttpBackendExperiments:
         e_id = experiment.metadata["server_url"].split("/")[-1]
         experiment_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
         data["configuration"] = experiment.experiment_configuration
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_patch(experiment_url,
                                                   **{"data": json.dumps(data)})
         return response

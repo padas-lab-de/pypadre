@@ -77,7 +77,7 @@ def authenticate(ctx, user, passwd):
     To generate new token in config. Authenticate with given credentials, in case credentials
     are not provided default credentials will be used.
     """
-    ctx.obj["pypadre"].config.authenticate(user, passwd)
+    ctx.obj["pypadre"].authenticate(user, passwd)
 
 
 #################################
