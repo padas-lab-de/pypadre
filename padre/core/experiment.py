@@ -356,14 +356,13 @@ class Experiment(MetadataEntity):
         :return: None
         """
         from copy import deepcopy
-        import numpy as np
 
         # Preprocess the data
         preprocessed_data = self._preprocessed_workflow.fit_transform(self.dataset.features(), self.dataset.targets)
         # Copy the dataset so that metadata and attributes remain consistent
         self._preprocessed_dataset = deepcopy(self.dataset)
+
         # Replace the data by concatenating with the targets
-        #self._preprocessed_dataset._binary._data = preprocessed_data
         self._preprocessed_dataset.replace_data(preprocessed_data)
         # Set flag
         self._preprocessed = True
@@ -432,9 +431,6 @@ class Experiment(MetadataEntity):
 
         return complete_experiment_dict
 
-
-
-
     @property
     def runs(self):
         if self._runs is not None:
@@ -458,6 +454,14 @@ class Experiment(MetadataEntity):
     @property
     def hyperparameters_combinations(self):
         return self._hyperparameters
+
+    @property
+    def requires_preprocessing(self):
+        return self._preprocessed
+
+    @property
+    def preprocessing_workflow(self):
+        return self._preprocessed_workflow
 
     def __str__(self):
         s = []
