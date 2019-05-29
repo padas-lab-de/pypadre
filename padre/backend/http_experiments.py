@@ -201,6 +201,7 @@ class HttpBackendExperiments:
                 experiment_creator = experimentcreator.ExperimentCreator()
                 conf["dataset"] = ds
                 conf["workflow"] = experiment_creator.create_test_pipeline(conf["workflow"])
+                conf["preprocessing"] = experiment_creator.create_test_pipeline(conf["preprocessing"])
                 experiment = Experiment(ex_id=conf["name"], **conf)
                 experiment.metadata = response["metadata"]
                 experiment.experiment_configuration = configuration

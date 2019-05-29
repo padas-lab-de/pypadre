@@ -523,10 +523,13 @@ class ExperimentApp:
 
     def download_remote_experiment(self, ex_id):
         """
-        Download experiment, run and split from server it does not exists on local directory
+        Download experiment, run and split from server if it does not exists on local directory
+        Download all runs, splits, results and metrics from the server associated with the experiment.
+        Downloaded experiment will be saved in the local file system.
 
-        :param ex_id: Can be experiment name or experiment id
-        :return: None
+        :param ex_id: Can be experiment name or experiment id or experiment url.
+        :return: Experiment
+        Todo: In case ex_id is name of experiment and if two experiments with this name exists on the server first one will be downloaded
         """
         remote_experiments_ = self._parent.remote_backend.experiments
         local_experiments_ = self._parent.local_backend.experiments
@@ -542,12 +545,16 @@ class ExperimentApp:
                 if local_experiments_.validate_and_save(ex, r, s):
                     local_experiments_.put_results(ex, r, s, s.run.results[0])
                     local_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
+        return ex
 
     def upload_local_experiment(self, experiment_name):
-        """Upload given experiment with all runs and splits
+        """Upload given experiment with all runs and splits.
 
-        Upload all runs, splits, results and metrics to the server and then remove experiment from local
-        file system.
+        Upload all runs, splits, results and metrics to the server associated with the experiment.
+        If any experiment, run or split is already uploaded then it will be not be uploaded second time.
+
+        :param experiment_name: Name of the experiment on local system
+        :return: Experiment
         """
         experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments",
                                        experiment_name + ".ex")
@@ -575,6 +582,7 @@ class ExperimentApp:
                 if remote_experiments_.validate_and_save(ex, r, s, local_experiments=local_experiments_):
                     remote_experiments_.put_results(ex, r, s, s.run.results[0])
                     remote_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
+        return ex
 
 
 class PadreApp:

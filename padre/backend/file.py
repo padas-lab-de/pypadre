@@ -220,8 +220,11 @@ class ExperimentFileRepository:
             configuration = self._metadata_serializer.deserialize(f.read())
         with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "preprocessing_workflow.bin"), 'rb') as f:
+            preprocessing_workflow = self._binary_serializer.deserialize(f.read())
         experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
+        experiment_params[id_]["preprocessing"] = preprocessing_workflow
         dataset_name = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
         experiment_params[id_]["dataset"] = self._data_repository.get(dataset_name)
         ex = Experiment(ex_id=id_, **experiment_params[id_])
