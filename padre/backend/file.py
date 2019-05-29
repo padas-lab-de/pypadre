@@ -142,7 +142,6 @@ class ExperimentFileRepository:
         for d in dirs:
             shutil.rmtree(_get_path(self.root_dir, d, False))
 
-
     def put_experiment(self, experiment, append_runs=False, allow_overwrite=True):
         """
         Stores an experiment to the file. Only metadata, hyperparameter and the workflow is stored.
@@ -183,6 +182,10 @@ class ExperimentFileRepository:
 
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
+
+        if experiment.requires_preprocessing:
+            with open(os.path.join(dir, "preprocessing_workflow.bin"), 'wb') as f:
+                f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
 
     @deprecated("Use get_experiment instead")
     def get_local_experiment(self, id_, load_workflow=True):
