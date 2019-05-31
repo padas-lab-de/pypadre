@@ -247,9 +247,10 @@ class CompareMetrics:
     """
 
     _dir_path = []
+    _root_path = ''
     _experiments = None
 
-    def __init__(self, dir_path=None, file_path=None, experiments_list=None):
+    def __init__(self, dir_path=None, file_path=None, experiments_list=None, root_path=None):
         """
         The constructor that initializes the object with all the required paths.
 
@@ -266,6 +267,9 @@ class CompareMetrics:
 
         if experiments_list is not None:
             self._experiments = experiments_list
+
+        if root_path is not None:
+            self._root_path = root_path
 
         self._run_dir = []
         # This dictionary contains the metrics read from all the metrics.json file
@@ -410,6 +414,9 @@ class CompareMetrics:
         # need to be displayed
         estimator_default_values = dict()
 
+        if isinstance(self._dir_path, list) and len(self._dir_path) == 0:
+            return
+
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
         for curr_experiment in self._dir_path:
@@ -447,6 +454,9 @@ class CompareMetrics:
                         self._run_estimators[estimator].append(run_id)
                         params = estimator_group.get(estimator)
                         default_params = estimator_default_values.get(estimator)
+                        if default_params is None:
+                            estimator_default_values[estimator] = estimator_group.get(estimator)
+                            default_params = estimator_default_values.get(estimator)
                         for param in params:
                             if default_params.get(param) != params.get(param):
                                 param_set = self._unique_estimators.get(estimator).get(param)
@@ -497,6 +507,9 @@ class CompareMetrics:
         # so that only those parameters that are different across estimators
         # need to be displayed
         estimator_default_values = dict()
+
+        if isinstance(self._experiments, list) and len(self._experiments) == 0:
+            return
 
         # Get a single run directory from the experiment to identify the parameters that vary
         # in that experiment
@@ -590,10 +603,10 @@ class CompareMetrics:
         :return:
         """
 
-        if self._dir_path is not None:
+        if self._dir_path is not None or (isinstance(self._dir_path, list) and len(self._dir_path) == 0):
             self.get_unique_estimators_parameter_names_from_directories()
 
-        if self._experiments is not None:
+        if self._experiments is not None or (isinstance(self._experiments, list) and len(self._experiments) == 0):
             self.get_unique_estimators_parameter_names_from_experiments()
 
     def read_split_metrics_from_directories(self):
@@ -657,10 +670,10 @@ class CompareMetrics:
         self._display_run = copy.deepcopy(list(self._run_split_dict.keys()))
 
     def read_split_metrics(self):
-        if self._dir_path is not None:
+        if self._dir_path is not None or (isinstance(self._dir_path, list) and len(self._dir_path) == 0):
             self.read_split_metrics_from_directories()
 
-        if self._experiments is not None:
+        if self._experiments is not None or (isinstance(self._experiments, list) and len(self._experiments) == 0):
             self.read_split_metrics_from_experiments()
 
     def compute_results(self):
@@ -855,7 +868,7 @@ class CompareMetrics:
                 length = len(metric_keys)
 
                 # Break when a type is found
-                while self._metrics.get(metric_keys[idx]).get('type') == None and idx < length:
+                while idx < length and self._metrics.get(metric_keys[idx]).get('type') is None:
                     idx = idx + 1
 
                 # Check whether any metrics are present in the given experiments, else throw error
@@ -970,7 +983,64 @@ class CompareMetrics:
         df = self.display_results()
         return df
 
-    def add_experiments(self, experiment_list):
+    def add_experiments(self, experiments):
+        """
+        Adds a list of experiments for comparing the metrics
+        :param experiments: List of experiment objects, paths or experiment names.
+        :return: None
+        """
+        from padre.core.experiment import Experiment
+        experiment_directory = []
+        experiment_objects =[]
+        experiment_names = []
+
+        if isinstance(experiments, list):
+            for experiment in experiments:
+
+                trigger_event('EVENT_WARN', condition=isinstance(experiment, Experiment) or isinstance(experiment, str),
+                              source=self,
+                              message='Incorrect parameter in list. Only strings or experiment objects allowed')
+
+                if isinstance(experiment, Experiment):
+                    experiment_objects.append(experiment)
+
+                elif isinstance(experiment, str):
+                    if os.path.exists(experiment):
+                        experiment_directory.append(experiment)
+
+                    else:
+                        experiment_names.append(experiment)
+
+                else:
+                    pass
+
+            if len(experiment_objects) > 0:
+                self.add_experiment_objects(experiment_objects)
+
+            if len(experiment_directory) > 0:
+                self.add_experiment_directory(experiment_directory)
+
+            if len(experiment_names) > 0:
+                self.add_experiment_by_name(experiment_names)
+
+        else:
+            assert_condition(condition=isinstance(experiments, Experiment) or isinstance(experiments, str), source=self,
+                             message='Incorrect parameter type for comparing experiments. '
+                                     'Only strings or experiment objects allowed')
+            if isinstance(experiments, Experiment):
+                self.add_experiment_objects(experiments)
+
+            elif isinstance(experiments, str):
+                if os.path.exists(experiments):
+                    self.add_experiment_directory(experiments)
+
+                else:
+                    self.add_experiment_by_name(experiments)
+
+            else:
+                pass
+
+    def add_experiment_objects(self, experiment_list):
         """
         Adds a list of experiment objects to the current list
         :param experiment_list: A list of experiment objects
@@ -994,6 +1064,59 @@ class CompareMetrics:
             self._experiments = self._experiments + experiment_list
         else:
             self._experiments = experiment_list
+
+    def add_experiment_by_name(self, experiments):
+        """
+        Adds a list of experiments for computing metrics. These experiments should be present in the default config path
+        :param experiments: List of experiment names for computing metrics
+        :return:
+        """
+        assert_condition(condition=isinstance(experiments, list) or isinstance(experiments, str),
+                         source=self, message='Incorrect input parameter type.')
+        directory_list = []
+
+        root_path = os.path.join(self._root_path, 'experiments')
+
+        if isinstance(experiments, list):
+            for directory in experiments:
+                assert_condition(condition=isinstance(directory, str), source=self,
+                                 message='An object in the list is not of the type string')
+
+                # If only the name is given, add .ex to the end of experiment name.
+                # Experiment directories are stored with .ex as suffix
+
+                if directory[:-3] != '.ex':
+                    path = os.path.join(root_path, directory+'.ex')
+
+                else:
+                    path = os.path.join(root_path, directory)
+
+                # Check if such an experiment exists in the path
+                if os.path.exists(path):
+                    directory_list.append(path)
+
+        else:
+            assert_condition(condition=isinstance(experiments, str), source=self,
+                             message='Incorrect parameter type')
+
+            # If only the name is given, add .ex to the end of experiment name.
+            # Experiment directories are stored with .ex as suffix
+            if experiments[:-3] != '.ex':
+                path = os.path.join(root_path, experiments+'.ex')
+
+            else:
+                path = os.path.join(root_path, experiments)
+
+            # Check if such an experiment exists in the path
+            if os.path.exists(path):
+                directory_list.append(path)
+            directory_list = [path]
+
+        if self._dir_path is not None:
+            self._dir_path = self._dir_path + directory_list
+        else:
+            self._dir_path = directory_list
+
 
     def add_experiment_directory(self, directory_list):
         """

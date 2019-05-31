@@ -1,10 +1,13 @@
 """
 Logic to upload experiment data to server goes here
 """
+import copy
 import io
 import json
+import re
 import tempfile
 import uuid
+from collections import OrderedDict
 from itertools import groupby
 
 import requests as req
@@ -14,6 +17,7 @@ from google.protobuf.internal.encoder import _VarintBytes
 from padre.backend.protobuffer.protobuf import resultV1_pb2 as proto
 
 from padre import experimentcreator
+from padre.core import Experiment, Run, Split
 from padre.backend.serialiser import PickleSerializer
 from padre.eventhandler import trigger_event
 
@@ -46,7 +50,7 @@ class HttpBackendExperiments:
         _id = ds.metadata.get("uid", None)
         get_url = self._http_client.get_base_url() + self._http_client.paths["dataset"](str(_id))
         dataset_id = None
-        if self._http_client.has_token():
+        if self._http_client.online:
             try:
                 if _id is None:  # Uid not given
                     dataset_id = self.get_id_by_name(ds.metadata.get("name"), self._http_client.paths["datasets"][1:])
@@ -69,7 +73,7 @@ class HttpBackendExperiments:
         """
         id_ = None
         url = self.get_base_url() + self._http_client.paths["search"](entity) +"name:" + name
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 first_entity = response["_embedded"][entity][0]
@@ -86,7 +90,7 @@ class HttpBackendExperiments:
         """
         url = self.get_base_url() + self._http_client.paths["projects"]
         data = {"name": name, "owner": self._http_client.user}
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             return response.headers['Location'].split('/')[-1]
         return None
@@ -95,12 +99,12 @@ class HttpBackendExperiments:
         """Create experiment on server"""
         url = self.get_base_url() + self._http_client.paths["experiments"]
         location = ''
-        if isinstance(data, dict):
-            data = json.dumps(data)
-        if self._http_client.has_token():
-            response = self._http_client.do_post(url, **{"data": data})
+        if self._http_client.online:
+            response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             self.experiment_id = response.headers['Location'].split('/')[-1]
             location = response.headers['Location']
+            data["metadata"]["server_url"] = location
+            self._http_client.do_patch(location, **{"data": json.dumps({"metadata": data["metadata"]})})
         return location
 
     def put_experiment(self, experiment, append_runs=None):
@@ -155,7 +159,7 @@ class HttpBackendExperiments:
 
         # todo: Implement delete by experiment name
         """
-        if ex.isdigit() and self._http_client.has_token():
+        if ex.isdigit() and self._http_client.online:
             url = self.get_base_url() + self._http_client.paths['experiment'](ex)
             return self._http_client.do_delete(url, **{})
 
@@ -167,29 +171,40 @@ class HttpBackendExperiments:
         The function returns an experiment class, which is loaded from file.
 
         :param ex: Id or url of the experiment
-        :return: Dict containing experiment configuration
+        :return: Returns experiment instance or none
         # todo: Return experiment instance according to above documentation
         """
-        experiment = {}
-        if self._http_client.has_token():
-            if not ex.isdigit():  # url of the experiment
-                url = self._http_client.base + ex
+        experiment = None
+        if self._http_client.online:
+            if self._http_client.is_valid_url(ex):  # url of the experiment
+                url = ex
+                response = json.loads(self._http_client.do_get(url, **{}).content)
+            elif ex.isdigit():
+                url = self._http_client.get_base_url() + self._http_client.paths['experiment'](ex)
+                response = json.loads(self._http_client.do_get(url, **{}).content)
             else:
-                url = self.get_base_url() + self._http_client.paths['experiment'](ex)
-            response = json.loads(self._http_client.do_get(url, **{}).content)
-            conf = response["configuration"]
-            keys = list(conf.keys())
+                url = self._http_client.get_base_url() + self._http_client.paths['search']("experiments") + "name:" + ex
+                response = json.loads(self._http_client.do_get(url, **{}).content)
+                if "_embedded" in response:
+                    response = response["_embedded"]["experiments"][0]  # Get first experiment
+                else:
+                    trigger_event('EVENT_ERROR', condition=False, source=self,
+                                  message="Experiment with name {%s} not found  " % ex)
+                    return experiment
+
+            ds = self._http_client.datasets.get(str(response["dataset"]["uid"]))
+            configuration = response["configuration"]
+            keys = list(configuration.keys())
             if len(keys) > 0:  # If configuration not empty
                 name = keys[0]
-                conf = conf[name]
+                conf = copy.deepcopy(configuration[name])
                 experiment_creator = experimentcreator.ExperimentCreator()
-                experiment_creator.create(conf["name"],
-                                          conf["description"],
-                                          [conf["dataset"]],
-                                          conf["workflow"],
-                                          conf["params"])
-
-                experiment = experiment_creator.experiments[name]
+                conf["dataset"] = ds
+                conf["workflow"] = experiment_creator.create_test_pipeline(conf["workflow"])
+                conf["preprocessing"] = experiment_creator.create_test_pipeline(conf["preprocessing"])
+                experiment = Experiment(ex_id=conf["name"], **conf)
+                experiment.metadata = response["metadata"]
+                experiment.experiment_configuration = configuration
         return experiment
 
     def list_experiments(self, search=None, search_metadata=None, start=-1, count=999999999):
@@ -211,7 +226,7 @@ class HttpBackendExperiments:
             url = self.get_base_url() + self._http_client.paths["search"]("experiments") + "name?:" + search + "&size=" + str(count)
         else:
             url = self.get_base_url() + self._http_client.paths["experiments"] + "?size=" + str(count)
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = json.loads(self._http_client.do_get(url, **{}).content)
             if "_embedded" in response:
                 experiments = response["_embedded"]["experiments"]
@@ -235,6 +250,7 @@ class HttpBackendExperiments:
         run_data = dict()
         run_data["clientAddress"] = self.get_base_url()
         run_data["uid"] = str(run.id)
+        run_data["metadata"] = run.metadata
         run_data["hyperparameterValues"] = [{"component":
             {"description": experiment.metadata["description"],
              "hyperparameters": self.build_hyperparameters_list(experiment.hyperparameters()),
@@ -243,7 +259,7 @@ class HttpBackendExperiments:
         }]
         run_data["experimentId"] = experiment_id
         url = self.get_base_url() + self._http_client.paths["runs"]
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_post(url, **{"data": json.dumps(run_data)})
             location = response.headers["location"]
             run_id = location.split("/")[-1]
@@ -255,8 +271,47 @@ class HttpBackendExperiments:
                            "application/octet-stream")})
             headers = {"Content-Type": data.content_type}
             self._http_client.do_post(run_model_url, **{"data": data, "headers": headers})
-        run.metadata["server_url"] = location
+            run.metadata["server_url"] = location
+            self._http_client.do_patch(location, **{"data": json.dumps({"metadata": run.metadata})})
+
         return location
+
+    def get_run(self, ex_id, run_id):
+        """
+        Get run from server.
+
+        Todo: Use run metadata instead of experiment metadata as run is identified by unique server_url
+
+        :param ex_id:
+        :param run_id:
+        :return: Return run instance
+        """
+        run_url = self._http_client.get_base_url() + self._http_client.paths['run'](ex_id, run_id)
+        run_model_url = self._http_client.get_base_url() + self._http_client.paths["run-models"](ex_id, run_id)
+        r = None
+        if self._http_client.online:
+            run_response = json.loads(self._http_client.do_get(run_url, **{}).content)
+            model_response = self._http_client.do_get(run_model_url, **{})
+            workflow = self._binary_serializer.deserialize(model_response.content)
+            ex = self.get_experiment(ex_id)
+            r = Run(ex, workflow, run_id=run_id, **ex.metadata)
+        return r
+
+    def get_experiment_run_idx(self, ex_id):
+        """
+        Get run ids for the given experiment id
+        :param ex_id: Experiment id for which run ids should be returned
+        :type ex_id: str
+        :return: list of run ids for the given experiment
+        """
+        run_ids = []
+        url = self._http_client.get_base_url() + self._http_client.paths['experiment-runs'](ex_id)
+        if self._http_client.online:
+            response = json.loads(self._http_client.do_get(url, **{}).content)
+            if "_embedded" in response:
+                for run in response["_embedded"]["runs"]:
+                    run_ids.append(run["uid"])
+        return run_ids
 
     def put_split(self, experiment, run, split):
         """
@@ -278,12 +333,57 @@ class HttpBackendExperiments:
         data["clientAddress"] = self.get_base_url()
         data["runId"] = r_id
         data["split"] = self.encode_split(split)
+        data["metadata"] = split.metadata
         data["metrics"] = {}
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_post(url, **{"data": json.dumps(data)})
             location = response.headers["location"]
+            split.metadata["server_url"] = location
+            self._http_client.do_patch(location, **{"data": json.dumps({"metadata": split.metadata})})
         split.metadata["server_url"] = location
         return location
+
+    def get_split(self, ex_id, run_id, split_id):
+        """
+        Get split from the server.
+        Todo: Use split num from results instead of hard coding it.
+        :param ex_id:
+        :param run_id:
+        :param split_id:
+        :return: Split instance
+        """
+        s = None
+        split_url = self.get_base_url() + self._http_client.paths["split"](split_id)
+        if self._http_client.online:
+            split_response = json.loads(self._http_client.do_get(split_url, **{}).content)
+            decode_split = self.decode_split(split_response["split"])
+            r = self.get_run(ex_id, run_id)
+            s = Split(
+                r, split_response["splitNum"], decode_split["train"], decode_split["val"], decode_split["test"],
+                split_id=split_response["uid"], **r.metadata)
+
+            s.run.metrics.append(split_response["metrics"])
+            s.run.results.append(self.get_results(r.experiment, r, s, split_response))
+        return s
+
+    def get_run_split_idx(self, ex_id, run_id):
+        """
+        Get split ids for the given run and experiment ids
+
+        :param ex_id: Experiment id for which split ids should be returned
+        :type ex_id: str
+        :param run_id: Run id for which split ids should be returned
+        :type run_id: str
+        :return: list of split ids for the given run and experiment
+        """
+        split_ids = []
+        url = self._http_client.get_base_url() + self._http_client.paths['experiment-run-splits'](ex_id, run_id)
+        if self._http_client.online:
+            response = json.loads(self._http_client.do_get(url, **{}).content)
+            if "_embedded" in response:
+                for split in response["_embedded"]["runSplits"]:
+                    split_ids.append(split["uid"])
+        return split_ids
 
     def put_results(self, experiment, run, split, results):
         """
@@ -304,20 +404,83 @@ class HttpBackendExperiments:
         r_id = run.metadata["server_url"].split("/")[-1]
         e_id = experiment.metadata["server_url"].split("/")[-1]
         url = self.get_base_url() + self._http_client.paths["results"](e_id, r_id, rs_id)
+        update_split_url = self.get_base_url() + self._http_client.paths["split"](rs_id)
         response = None
-        if bool(results) and self._http_client.has_token():
+        if bool(results) and self._http_client.online:
             with tempfile.TemporaryFile() as temp_file:
                 file = self.make_proto(results, temp_file)
                 m = MultipartEncoder(
                     fields={"field0": ("fname", file, self.get_content_type(results["type"]))})
                 response = self._http_client.do_post(url, **{"data": m, "headers": {"Content-Type": m.content_type}})
+            patch_data = {
+                "splitNum": results["split_num"],
+                "trainingSampleCount": results["training_sample_count"],
+                "testingSampleCount": results["testing_sample_count"]
+            }
+            self._http_client.do_patch(update_split_url, **{"data": json.dumps(patch_data)})
         return response
+
+    def get_results(self, experiment, run, split, split_server_data):
+        """
+        Get split results from server.
+
+        Results are formatted in original after downloading them from server.
+        Json end point for split results is used to get results from server.
+
+        :param experiment: Experiment which is downloaded from server
+        :type experiment: <class 'padre.experiment.Experiment'>
+        :param run: Run which is downloaded from server
+        :type run: <class 'padre.experiment.Run'>
+        :param split: Split which is downloaded from server
+        :type split: <class 'padre.experiment.Split'>
+        :param split_server_data: Split data from server
+        :type split_server_data: dict
+        :return: Dictionary containing results
+        :rtype: dict
+        """
+        results = dict()
+        experiment_id = experiment.id
+        if not experiment_id.isdigit():
+            experiment_id = experiment.metadata["server_url"].split("/")[-1]
+        experiment_type = split_server_data["metrics"]["type"]
+        content_type = self.get_content_type(experiment_type)
+        results_url = self.get_base_url() + self._http_client.paths["results-json"](experiment_id, run.id, split.id)
+        results_response = json.loads(
+            self._http_client.do_get(results_url, **{"params": [("format", content_type)]}).content)
+        results["type"] = experiment_type
+        results["dataset"] = split_server_data["metrics"]["dataset"]
+        results["split_num"] = split_server_data["splitNum"]
+        results["training_sample_count"] = split_server_data["trainingSampleCount"]
+        results["testing_sample_count"] = split_server_data["testingSampleCount"]
+        if split.train_idx is not None:
+            results["train_idx"] = split.train_idx.tolist()
+        if split.test_idx is not None:
+            results["test_idx"] = split.test_idx.tolist()
+        if split.val_idx is not None:
+            results["val_idx"] = split.val_idx.tolist()
+        results["truth"] = list()
+        results["predicted"] = list()
+        results["probabilities"] = list()
+        results["predictions"] = dict()
+        for entry in results_response["rows"]:
+            prediction = dict()
+            truth = float("".join(entry["data"]["truth"]))
+            predicted = float("".join(entry["data"]["predictions"]))
+            probabilities = list(map(float, entry["data"]["score"]))
+            prediction["truth"] = truth
+            prediction["predicted"] = predicted
+            prediction["probabilities"] = probabilities
+            results["predictions"][entry["index"]] = prediction
+            results["truth"].append(truth)
+            results["predicted"].append(predicted)
+            results["probabilities"].append(probabilities)
+        return results
 
     def put_metrics(self, experiment, run, split, metrics):
         rs_id = split.metadata["server_url"].split("/")[-1]
         update_split_url = self.get_base_url() + self._http_client.paths["split"](rs_id)
         response = None
-        if self._http_client.has_token():
+        if self._http_client.online:
             response = self._http_client.do_patch(update_split_url,
                                                   **{"data": json.dumps({"metrics": metrics})})
         return response
@@ -473,7 +636,7 @@ class HttpBackendExperiments:
         :return: None
         """
         if type(value) == float:
-            pb_instance.float_t = value
+            pb_instance.double_t = value
         elif type(value) == int:
             pb_instance.int32_t = value
 
@@ -544,20 +707,104 @@ class HttpBackendExperiments:
 
         return result
 
+    def decode_split(self, encoded_split):
+        """
+        Decode encoded split into list of indices for train, test and validation data
+
+        :param encoded_split: Encoded string for example train:f1t1,test:f2t1,val:f3t1
+        :type encoded_split: str
+        :return: Dictionary containing decoded lists for each train, test and val sets
+        """
+        result = dict()
+        pattern = re.compile(r"f\d{1,}|t\d{1,}")
+        for section in encoded_split.split(","):
+            name, value = section.split(":")
+            res = self.decode_list(pattern.findall(value))
+            result[name] = res
+        return result
+
+    def decode_list(self, list_of_encodings):
+        """
+        Decode list of encodings into list of indices
+
+        :param list_of_encodings: for example: ["f2", "t1"]
+        :return: Numpy array of dataset indices or None
+        """
+        result = []
+        counter = 0
+        for encoding in list_of_encodings:
+            if encoding[0] == "f":
+                counter += int(encoding[1:])
+            if encoding[0] == "t":
+                item = int(encoding[1:])
+                result = result + list(range(counter, counter + item))
+                counter += item
+        if not result:
+            return None
+        return np.array(result)
+
     def put_experiment_configuration(self, experiment):
         """
-        Writes the experiment configuration to the HTTP Client
+        Writes the experiment configuration to the server.
+        Also write experiment metadata to server which has updated server_url.
+
         :param experiment: Experiment to be written
         :return:
         """
         response = None
         data = dict()
         e_id = experiment.metadata["server_url"].split("/")[-1]
-        update_split_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
+        experiment_url = self.get_base_url() + self._http_client.paths["experiment"](e_id)
         data["configuration"] = experiment.experiment_configuration
-        if self._http_client.has_token():
-            response = self._http_client.do_patch(update_split_url,
+        if self._http_client.online:
+            response = self._http_client.do_patch(experiment_url,
                                                   **{"data": json.dumps(data)})
         return response
+
+    def validate_and_save(self, experiment, run=None, split=None, local_experiments=None):
+        """
+        Upload only new experiment, run or split to server.
+
+        Upload only those experiment, run or split to server which are not already uploaded.
+        Criteria to check for it is, if server_url attribute in metadata is empty then it means
+        this experiment(or run or split) does not exists on the server. After uploading them
+        update its server_url in metadata
+        TODO: Check if experiment, run or split can downloaded from one server and uploaded to other
+
+        :param put_fn: Callable function from http backend which can be either put_experiment,
+            put_run or put_split.
+        :type put_fn: <class 'method'>
+        :param experiment: Experiment to be uploaded
+        :type experiment: <class 'padre.core.experiment.Experiment'>
+        :param run: Run to be uploaded
+        :type run: <class 'padre.core.run.Run'>
+        :param split: Split to be uploaded
+        :type split: <class 'padre.core.split.Split'>
+        :param local_experiments: Instance of local backend experiments
+        :type local_experiments: <class 'padre.backend.file.ExperimentFileRepository'>
+        :return: Boolean whether experiment, run or split is uploaded or not
+        """
+        server_url = ""
+        if split is not None:
+            if split.metadata["server_url"].strip() == "":
+                server_url = self.put_split(experiment, run, split)
+                if local_experiments is not None:
+                    local_experiments.update_metadata({"server_url": server_url},
+                                                       experiment.id,
+                                                       run.id,
+                                                       split.id)
+        elif run is not None:
+            if run.metadata["server_url"].strip() == "":
+                server_url = self.put_run(experiment, run)
+                if local_experiments is not None:
+                    local_experiments.update_metadata({"server_url": server_url},
+                                                       experiment.id, run.id)
+        else:
+            if experiment.metadata["server_url"].strip() == "":
+                server_url = self.put_experiment(experiment)
+                if local_experiments is not None:
+                    local_experiments.update_metadata({"server_url": server_url},
+                                                       experiment.id)
+        return server_url
 
 

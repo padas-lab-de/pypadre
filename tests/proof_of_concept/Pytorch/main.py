@@ -1,4 +1,5 @@
-from padre.core.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
+from pypa_pytorch import Wrapper
+from pypa_pytorch import CallBack
 from padre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
@@ -38,7 +39,7 @@ def main():
     with open('classification.json') as json_data:
         params = json.load(json_data)
 
-    obj = WrapperPytorch(params=params)
+    obj = Wrapper(params=params)
     estimators = [('pytorch', obj)]
     workflow = Pipeline(estimators)
     obj.set_callbacks([TestCallbacks()])

@@ -14,6 +14,13 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+def create_preprocessing_pipeline():
+    from sklearn.pipeline import Pipeline
+    from sklearn.decomposition import PCA
+    # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+    estimators = [('PCA', PCA())]
+    return Pipeline(estimators)
+
 def split(idx):
     # Do a 70:30 split
     limit = int(.7 * len(idx))
@@ -39,13 +46,15 @@ if __name__ == '__main__':
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="cv",
-                    function=split)
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="random",
+                    function=split, preprocessing=create_preprocessing_pipeline())
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
     pypadre.metrics_evaluator.add_experiments([ex, ex])
+    print(pypadre.metrics_evaluator.show_metrics())
+    pypadre.metrics_evaluator.add_experiments('Test Experiment SVM')
     print(pypadre.metrics_evaluator.show_metrics())
     '''
     print("========Available experiments=========")

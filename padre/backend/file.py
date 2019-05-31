@@ -142,7 +142,6 @@ class ExperimentFileRepository:
         for d in dirs:
             shutil.rmtree(_get_path(self.root_dir, d, False))
 
-
     def put_experiment(self, experiment, append_runs=False, allow_overwrite=True):
         """
         Stores an experiment to the file. Only metadata, hyperparameter and the workflow is stored.
@@ -184,6 +183,10 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
+        if experiment.requires_preprocessing:
+            with open(os.path.join(dir, "preprocessing_workflow.bin"), 'wb') as f:
+                f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
+
     @deprecated("Use get_experiment instead")
     def get_local_experiment(self, id_, load_workflow=True):
         dir = os.path.join(self.root_dir, *self._dir(id_))
@@ -217,8 +220,11 @@ class ExperimentFileRepository:
             configuration = self._metadata_serializer.deserialize(f.read())
         with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
+        with open(os.path.join(dir_, "preprocessing_workflow.bin"), 'rb') as f:
+            preprocessing_workflow = self._binary_serializer.deserialize(f.read())
         experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
+        experiment_params[id_]["preprocessing"] = preprocessing_workflow
         dataset_name = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
         experiment_params[id_]["dataset"] = self._data_repository.get(dataset_name)
         ex = Experiment(ex_id=id_, **experiment_params[id_])
@@ -503,6 +509,26 @@ class ExperimentFileRepository:
             metadata.update(data_dict)
             f.seek(0)
             f.write(self._metadata_serializer.serialise(metadata))
+
+    def validate_and_save(self, experiment, run=None, split=None):
+        saved = False
+        if split is not None:
+            dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split.id))
+            if not os.path.exists(os.path.abspath(dir_)):
+                self.put_split(experiment, run, split)
+                saved = True
+        elif run is not None:
+            dir_ = os.path.join(self.root_dir, *self._dir(experiment.id, run.id))
+            if not os.path.exists(os.path.abspath(dir_)):
+                self.put_run(experiment, run)
+                saved = True
+        else:
+            dir_ = os.path.join(self.root_dir, *self._dir(experiment.id))
+            if not os.path.exists(os.path.abspath(dir_)):
+                self.put_experiment(experiment)
+                self.put_experiment_configuration(experiment)
+                saved = True
+        return saved
 
 
 class DatasetFileRepository(object):

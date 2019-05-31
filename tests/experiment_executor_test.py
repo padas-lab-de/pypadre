@@ -3,10 +3,12 @@ from padre.experimentcreator import ExperimentCreator
 from padre.app import pypadre
 from padre.eventhandler import trigger_event
 
+
 def split(idx):
     # Do a 70:30 split
     limit = int(.7 * len(idx))
     return idx[0:limit], idx[limit:], None
+
 
 def main():
 
@@ -18,12 +20,14 @@ def main():
     params = {'num_neighbours': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'num_components': [2, 3, 4, 5, 6, 7]}
     param_value_dict = {'isomap embedding': params}
     workflow = experiment_creator.create_test_pipeline(['isomap embedding'])
+    preprocessing = experiment_creator.create_test_pipeline(['PCA'])
     experiment_creator.create(name='Executor Test 1',
                               description='This is the first executor search test experiment',
                               dataset_list=['Diabetes', 'Boston_House_Prices', 'Iris'],
                               workflow=workflow,
                               keep_splits=True,
-                              params=param_value_dict)
+                              params=param_value_dict,
+                              preprocessing=preprocessing)
 
     # SECOND TEST EXPERIMENT WITH SINGLE DATASET
     params = {'num_neighbours': [1, 4, 5], 'num_components': [4, 5, 6]}

@@ -610,8 +610,11 @@ class Dataset(MetadataEntity):
         returns a tuple (data, attributes) which can be used to call set_data at a later point in time and thus support
         lazy loading.
         :param data: binary data in a supported format (numpy, pandas, networkx):
-                    size must be num_datasets x num_attributes. If data is a function, it is expected that the function is called later.
-        :param attributes: Description for attributes or None. If none, the attributes will be estimated as good as possible
+                    size must be num_datasets x num_attributes. If data is a function,
+                    it is expected that the function is called later.
+        :param attributes: Description for attributes or None.
+                           If none, the attributes will be estimated as good as possible
+
         """
         self._binary = None
         self._binary_format = None
@@ -636,12 +639,47 @@ class Dataset(MetadataEntity):
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
         self._fill_metedata()
 
+    def replace_data(self, data):
+        """
+        Function is used to hold a temporary dataset of preprocessed data
+        :param data: binary data in a supported format (numpy, pandas, networkx):
+                    size must be num_datasets x num_attributes. If data is a function,
+                    it is expected that the function is called later.
+        :return: None
+        """
+
+        if data is None:
+            self._binary_format = None
+            self._binary = AttributeOnlyContainer(self.attributes)
+        elif hasattr(data, '__call__'):
+            self._binary_loader_fn = data
+            return
+        elif isinstance(data, pd.DataFrame):
+            # Remove non numerical attributes
+            # TODO: Bring in support for nominal and ordinal attributes too
+            self._binary = PandasContainer(data, self.attributes)
+            self._binary_format = formats.pandas
+        elif isinstance(data, np.ndarray):
+            # Append the target data to the original data if targets are not modified
+            # If targets are modified, pass the incoming data as both features and targets
+            if data.shape[1] != self.data.shape[1:]:
+                data = np.append(data, self.targets(), axis=1)
+
+            # Create a new numpy container with the old attributes
+            self._binary = NumpyContainer(data, self.attributes)
+            self._binary_format = formats.numpy
+        elif isinstance(data, nx.Graph):
+            self._binary = GraphContainer(data, self.attributes)
+            self._binary_format = formats.graph
+        else:
+            raise ValueError("Unknown data format. Type %s not known." % (type(data)))
+
     def __str__(self):
-        return str(self.id) +"_"+ str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
+        return str(self.id) + "_" + str(self.name) + ": " + str(self.type) + ", " + str(self.size) + ", " + str(self.binary_format())
 
 
 def _check_profiling_datatype(content):
-    if(isinstance(content,dict)):
+    if isinstance(content,dict):
         for key in content.keys():
             if key == "histogram" or key == "mini_histogram" or content[key] is np.nan:
                 content[key]=None

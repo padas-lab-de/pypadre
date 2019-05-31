@@ -424,7 +424,7 @@ class ExperimentCreator:
         return deepcopy(obj)
 
     def create(self, name, description, dataset_list=None, workflow=None, params=None, strategy='random',
-               keep_splits=False, function=None):
+               keep_splits=False, function=None, preprocessing=None):
         """
         This function adds an experiment to the dictionary.
 
@@ -433,6 +433,11 @@ class ExperimentCreator:
         :param dataset_list: The names of the datasets to be used for the experiment
         :param workflow: The scikit pipeline to be used for the experiment.
         :param params: Parameters for the estimator, optional.
+        :param strategy: Splitting strategy
+        :param keep_splits: Whether to preserve the old splits or erase the previous experiment and start afresh
+        :param function: Custom splitting function if necessary
+        :param preprocessing: Preprocessing workflow so that the user can add a preprocessing function
+                              that works on the entire dataset once
 
         :return: None
         """
@@ -462,6 +467,8 @@ class ExperimentCreator:
                 data_dict['workflow'] = workflow
                 data_dict['strategy'] = strategy
                 data_dict['keep_splits'] = keep_splits
+                if preprocessing is not None:
+                    data_dict['preprocessing'] = preprocessing
 
                 # If a custom function is the splitting strategy then pass the function pointer also
                 if strategy == 'function':
@@ -490,7 +497,8 @@ class ExperimentCreator:
                                  message='Error creating experiment. Experiment name has to be unique.')
                 if self._experiments.get(name, None) is not None:
                     assert_condition(condition=False, source=self, message=''.join(['Experiment name: ', name,
-                                                  ' already present. Experiment name should be unique']))
+                                                                                    ' already present. Experiment name '
+                                                                                    'should be unique']))
 
         else:
             trigger_event('EVENT_WARN', condition=False, source=self,
@@ -634,7 +642,6 @@ class ExperimentCreator:
                     data = dataset[0]
                 elif isinstance(dataset[0], str):
                     data = self.get_local_dataset(dataset[0])
-
 
                 # Classifiers cannot work on continuous data and rejected as experiments.
                 if not np.all(np.mod(data.targets(), 1) == 0):
@@ -855,6 +862,10 @@ class ExperimentCreator:
             description = exp_params.get('description', None)
             pipeline = exp_params.get('workflow', None)
             dataset = exp_params.get('dataset', None)
+            strategy = exp_params.get('strategy', None)
+            keep_splits = exp_params.get('keep_splits', False)
+            function = exp_params.get('function', None)
+            preprocessing = exp_params.get('preprocessing', None)
             params = exp_params.get('params', None)
 
             # Create the pipeline and if it is not possible move to next experiment
@@ -862,11 +873,22 @@ class ExperimentCreator:
             if workflow is None:
                 trigger_event('EVENT_WARN', condition=False, source=self,
                               message='Workflow is empty. Workflow was not created')
-
                 continue
 
-            self.create(name=name, description=description,workflow=workflow, dataset_list=dataset,
-                        params=params)
+            if preprocessing is not None:
+                preprocessing = self.create_test_pipeline(preprocessing)
+
+                if preprocessing is None:
+                    trigger_event('EVENT_WARN', condition=preprocessing is not None, source=self,
+                                  message='Preprocessing workflow is empty. Workflow was not created')
+                    continue
+
+            if function is not None:
+                function = importlib.import_module(function)
+
+            self.create(name=name, description=description, workflow=workflow, dataset_list=dataset,
+                        params=params, strategy=strategy, keep_splits=keep_splits, function=function,
+                        preprocessing=preprocessing)
 
         return True
 

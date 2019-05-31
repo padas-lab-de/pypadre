@@ -48,6 +48,8 @@ class TestPutSplit(unittest.TestCase):
         split = MagicMock()
         run.metadata = MagicMock()
         run.metadata = {"server_url": "padretest.com/api/runs/1"}
+        split.metadata = MagicMock()
+        split.metadata = {"server_url": "padretest.com/api/runs/1"}
         split.train_idx = MagicMock()
         split.test_idx = MagicMock()
         split.val_idx = None

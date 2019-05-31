@@ -7,8 +7,6 @@ import uuid
 import unittest
 
 
-from mock import patch
-
 from padre.app import pypadre
 from padre.backend.serialiser import JSonSerializer
 from padre.core import Experiment
@@ -32,14 +30,12 @@ class TestUpdateMetadata(unittest.TestCase):
 
     All unnecessary function calls and http calls are mocked
     """
-    @patch('padre.backend.http.PadreHTTPClient.has_token')
-    def setUp(self, has_token):
+    def setUp(self):
         """Initializing http client and other attributes for test.
 
         All non related function calls and http calls will be mocked for this purpose.
         """
         self._metadata_serializer = JSonSerializer
-        has_token.return_value = False
         self.experiment_name = "Test Experiment metadata update " + str(uuid.uuid4())[0:10]
         ex = Experiment(name=self.experiment_name,
                         description="Testing Support Vector Machines via SKLearn Pipeline",

@@ -37,6 +37,7 @@ import padre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
 class PadreHTTPClient:
 
     def __init__(self, base_url="http://localhost:8080/api", user="", token=None
+                 , online=False
                  , silent_codes=None
                  , default_header={'content-type': 'application/hal+json'}):
         if base_url.endswith("/"):
@@ -48,6 +49,7 @@ class PadreHTTPClient:
         self._data_serializer = PickleSerializer
         self._default_header = default_header
         self._access_token = None
+        self._online = online
         if silent_codes is None:
             self.silent_codes = []
         else:
@@ -193,6 +195,22 @@ class PadreHTTPClient:
             url = url[0:-1]
         return url
 
+    def is_valid_url(self, url):
+        """
+        Validate if a url is valid.
+
+        :param url: String containing url
+        :returns: Boolean
+        """
+        result = False
+        try:
+            parsed = urlparse(url)
+            if all([parsed.scheme, parsed.netloc]):
+                result = True
+        except:
+            return result
+        return result
+
     def get_access_token(self,  passwd=None):
         """Get access token.
 
@@ -246,6 +264,18 @@ class PadreHTTPClient:
         if response.status_code == 200:
             result = True
         return result
+
+    @property
+    def online(self):
+        """
+        sets the current online status of the client
+        :return: True, if requests are passed to the server
+        """
+        return self._online
+
+    @online.setter
+    def online(self, online):
+        self._online = online
 
     @property
     def experiments(self):
@@ -316,7 +346,6 @@ class HTTPBackendDatasets:
             self._parent.do_put(link,
                         headers={},  # let request handle the content type
                         files={"file": io.BytesIO(self._parent._data_serializer.serialise(dataset.data))})
-
 
     def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
         """
@@ -447,7 +476,6 @@ class HTTPBackendDatasets:
             dataset.set_data(df_data, atts)
         return dataset
 
-
     def load_oml_dataset(self, did):
         """Load dataset from openML with given id.
 
@@ -502,8 +530,12 @@ PadreHTTPClient.paths = {
     "experiment": lambda id: "/experiments/" + id + "/",
     "projects": "/projects",
     "results": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results",
+    "results-json": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id + "/results/json",
+    "experiment-runs": lambda e_id: "/experiments/" + e_id + "/runs/",
     "runs": "/runs",
+    "run": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id,
     "run-models": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/model",
+    "experiment-run-splits": lambda e_id, r_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits",
     "run-splits": "/runSplits",
     "run-split": lambda e_id, r_id, rs_id: "/experiments/" + e_id + "/runs/" + r_id + "/splits/" + rs_id,
     "search": lambda entity: "/" + entity + "/search?search=",
