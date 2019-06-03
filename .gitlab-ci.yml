@@ -29,7 +29,7 @@ build:
   artifacts:
     when: always
     paths:
-      - ./dist/*
+      - ./dist/pypadre*
 
 
 #release: # Missing version bump, and deployment on some pip repo
