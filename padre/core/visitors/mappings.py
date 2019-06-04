@@ -44,8 +44,8 @@ packages = pip.get_installed_distributions()
 
 # Iterate through packages
 for package in packages:
-    if str(package).startswith('pypa-'):
-        package_name = str(package).split(sep=' ')[0].replace('-', '_')
+    if str(package).lower().startswith('pypa-'):
+        package_name = str(package).lower().split(sep=' ')[0].replace('-', '_')
         module = importlib.import_module(package_name)
         if hasattr(module, 'get_mappings'):
             data = module.get_mappings()
