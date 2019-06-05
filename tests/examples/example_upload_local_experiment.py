@@ -15,6 +15,14 @@ def create_test_pipeline():
     return Pipeline(estimators)
 
 
+def create_preprocessing_pipeline():
+    from sklearn.pipeline import Pipeline
+    from sklearn.decomposition import PCA
+    # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+    estimators = [('PCA', PCA())]
+    return Pipeline(estimators)
+
+
 def split(idx):
     # Do a 70:30 split
     limit = int(.7 * len(idx))
@@ -40,7 +48,7 @@ if __name__ == '__main__':
     experiment_name = "Test Experiment SVM upload local"
     ex = Experiment(name=experiment_name,
                     description="Testing Support Vector Machines via SKLearn Pipeline",
-                    dataset=ds,
+                    dataset=ds, preprocessing=create_preprocessing_pipeline(),
                     workflow=create_test_pipeline(), keep_splits=True, strategy="random",
                     function=split)
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
