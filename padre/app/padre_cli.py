@@ -5,7 +5,7 @@ Command Line Interface for PADRE.
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
 import os
 import click
-from padre.app import pypadre, PadreApp, PadreConfig
+from padre.app import p_app, PadreApp, PadreConfig
 
 #################################
 #######      MAIN      ##########

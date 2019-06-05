@@ -1,6 +1,5 @@
 from padre.experimentexecutor import ExperimentExecutor
 from padre.experimentcreator import ExperimentCreator
-from padre.app import pypadre
 from padre.eventhandler import trigger_event
 
 

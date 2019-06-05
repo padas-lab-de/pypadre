@@ -841,7 +841,7 @@ class ExperimentCreator:
 
         import os
         import json
-        from padre.app import pypadre
+        from padre.app import p_app
 
         if not (os.path.exists(filename)):
             trigger_event('EVENT_WARN', condition=False, source=self,

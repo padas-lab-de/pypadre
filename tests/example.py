@@ -14,12 +14,14 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+
 def create_preprocessing_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
     estimators = [('PCA', PCA())]
     return Pipeline(estimators)
+
 
 def split(idx):
     # Do a 70:30 split
@@ -28,15 +30,15 @@ def split(idx):
 
 
 if __name__ == '__main__':
-    from padre.app import pypadre
-    pypadre.set_printer(print)
+    from padre.app import p_app
+    p_app.set_printer(print)
 
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list()
-        ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
+        p_app.datasets.list()
+        ds = p_app.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
         ds = [i for i in load_sklearn_toys()][4]
 
@@ -52,10 +54,10 @@ if __name__ == '__main__':
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
-    pypadre.metrics_evaluator.add_experiments([ex, ex])
-    print(pypadre.metrics_evaluator.show_metrics())
-    pypadre.metrics_evaluator.add_experiments('Test Experiment SVM')
-    print(pypadre.metrics_evaluator.show_metrics())
+    p_app.metrics_evaluator.add_experiments([ex, ex])
+    print(p_app.metrics_evaluator.show_metrics())
+    p_app.metrics_evaluator.add_experiments('Test Experiment SVM')
+    print(p_app.metrics_evaluator.show_metrics())
     '''
     print("========Available experiments=========")
     for idx, ex in enumerate(pypadre.experiments.list_experiments()):

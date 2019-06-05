@@ -1,8 +1,8 @@
 """
 This file will be used to test the functionalities of the ExperimentCreator class and the metrics class
 """
-from padre.app import pypadre
 from padre.experimentcreator import ExperimentCreator
+
 
 def main():
 
@@ -16,18 +16,18 @@ def main():
                                        'principal component analysis.whiten:[False, True]')
     print(experiment_helper.get_param_values('Test Experiment PCA Linear'))
     experiment_helper.create(name='Test Experiment PCA Linear',
-                                        description='Test Experiment with pca and linear regression',
-                                        dataset_list=None,
-                                        workflow=workflow)
+                             description='Test Experiment with pca and linear regression',
+                             dataset_list=None,
+                             workflow=workflow)
 
     workflow = experiment_helper.create_test_pipeline(['logistic regression'])
     params_logistic_pca = {'penalty_norm': ['l1', 'l2']}
     params_dict_logistic = {'logistic regression': params_logistic_pca}
     experiment_helper.set_param_values('Test Experiment PCA Logistic', params_dict_logistic)
     experiment_helper.create(name='Test Experiment PCA Logistic',
-                                        description='Test Experiment with pca and logistic regression',
-                                        dataset_list='Boston_House_Prices',
-                                        workflow=workflow)
+                             description='Test Experiment with pca and logistic regression',
+                             dataset_list='Boston_House_Prices',
+                             workflow=workflow)
     experiment_helper.execute()
 
     experiment = ['Test Experiment PCA Linear', 'Test Experiment PCA Logistic']

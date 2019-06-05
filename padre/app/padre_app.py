@@ -695,4 +695,4 @@ class PadreApp:
         return token
 
 
-pypadre = PadreApp(printer=print) # load the default app
+p_app = PadreApp(printer=print)  # load the default app

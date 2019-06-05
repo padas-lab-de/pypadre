@@ -484,9 +484,9 @@ class HTTPBackendDatasets:
         :return: Padre compatible dataset
         :rtype: <class 'padre.datasets.Dataset'>
         """
-        from padre.app.padre_app import pypadre
-        path = os.path.expanduser(pypadre.config.get("root_dir", "LOCAL BACKEND")) + '/temp/openml'
-        oml.config.apikey = pypadre.config.get("oml_key", "GENERAL")
+        from padre.app.padre_app import p_app
+        path = os.path.expanduser(p_app.config.get("root_dir", "LOCAL BACKEND")) + '/temp/openml'
+        oml.config.apikey = p_app.config.get("oml_key", "GENERAL")
         oml.config.cache_directory = path
         dataset = None
         try:
