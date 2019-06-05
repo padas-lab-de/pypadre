@@ -3,7 +3,7 @@ This file shows an example on how to use PyPaDRE via decorators defining multipe
 
 Note: it is a proof of concept now rather than a test.
 """
-from padre import *
+from pypadre import *
 from tests.experiments.decorator_import.ex1 import *
 from tests.experiments.decorator_import.ex2 import *
 

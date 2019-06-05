@@ -1,20 +1,20 @@
 """File for some testings"""
-from padre import ds_import
+from pypadre import ds_import
 
 if __name__ == '__main__':
-    from padre.app.padre_app import pypadre
-    pypadre.offline = True # work only local
+    from pypadre.app.padre_app import p_app
+    p_app.offline = True # work only local
     # pypadre._http_repo.authenticate("test", "mgrani")
     print("Available datasets:")
-    datasets = pypadre.datasets.list(prnt=True)
+    datasets = p_app.datasets.list(prnt=True)
     for ds in datasets:
-        pypadre.datasets.delete(ds, False)
+        p_app.datasets.delete(ds, False)
     print("Available datasets after deletion:")
-    pypadre.datasets.list(prnt=True)
+    p_app.datasets.list(prnt=True)
     for ds in ds_import.load_sklearn_toys():
-        pypadre.datasets.put(ds, upload=False)
-    datasets = pypadre.datasets.list()
+        p_app.datasets.put(ds, upload=False)
+    datasets = p_app.datasets.list()
     for ds in datasets:
-        dataset = pypadre.datasets.get(ds, force_download=False)
-        pypadre.datasets.print_dataset_details(dataset)
-    print(pypadre.offline)
+        dataset = p_app.datasets.get(ds, force_download=False)
+        p_app.datasets.print_dataset_details(dataset)
+    print(p_app.offline)

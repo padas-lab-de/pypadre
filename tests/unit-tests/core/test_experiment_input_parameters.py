@@ -1,8 +1,9 @@
-from padre.core import Experiment
-from padre.eventhandler import assert_condition, add_logger
-from padre.app import pypadre
+from pypadre.core import Experiment
+from pypadre.eventhandler import assert_condition, add_logger
+from pypadre.app import p_app
 import numpy as np
 import unittest
+
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
@@ -12,12 +13,14 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+
 def get_toy_dataset_classification():
-    from padre.ds_import import load_sklearn_toys
+    from pypadre.ds_import import load_sklearn_toys
     return [i for i in load_sklearn_toys()][1]
 
+
 def get_toy_dataset_regression():
-    from padre.ds_import import load_sklearn_toys
+    from pypadre.ds_import import load_sklearn_toys
     return [i for i in load_sklearn_toys()][0]
 
 
@@ -88,26 +91,26 @@ class TestExperiment(unittest.TestCase):
                         description="Experiment with incorrect estimator in parameters",
                         workflow=create_test_pipeline(),
                         dataset=get_toy_dataset_classification())
-        parameters = dict();
+        parameters = dict()
         parameters['good'] = {'night': 'morning'}
         self.assertRaises(ValueError, ex.execute, parameters=parameters)
 
     def test_experiment_continous_data_with_classifier_estimator(self):
         self.assertRaises(ValueError, Experiment, name='Test_Regression_dataset_with_classification_estimator',
-                        description='Experiment with a regression dataset passed to a classification estimator',
-                        workflow=create_test_pipeline(), dataset=get_toy_dataset_regression())
+                          description='Experiment with a regression dataset passed to a classification estimator',
+                          workflow=create_test_pipeline(), dataset=get_toy_dataset_regression())
 
     def test_experiment_one_row_dataset(self):
-        from padre.ds_import import load_pandas_df
+        from pypadre.ds_import import load_pandas_df
         import pandas as pd
         # Creating a random dataset
         data = np.random.random_sample((1, 11))
         df = pd.DataFrame(data)
         ds = load_pandas_df(df)
         self.assertRaises(ValueError, Experiment, name='Test_Single_Row_Dataset',
-                        description='Experiment with a single row as dataset',
-                        workflow=create_test_pipeline(),
-                        dataset=ds)
+                          description='Experiment with a single row as dataset',
+                          workflow=create_test_pipeline(),
+                          dataset=ds)
 
 
 

@@ -25,11 +25,11 @@ build:
     - /^v.*$/
   script:
     - python -m unittest discover -s ./tests/unit-tests/
-    - ./build_package.sh
+    - python setup.py sdist
   artifacts:
     when: always
     paths:
-      - ./wheelhouse/
+      - ./dist/pypadre*
 
 
 #release: # Missing version bump, and deployment on some pip repo
