@@ -5,7 +5,7 @@ import unittest
 
 from mock import MagicMock, call
 
-from padre.backend.http_experiments import HttpBackendExperiments
+from pypadre.backend.http_experiments import HttpBackendExperiments
 
 
 class ValidateAndSave(unittest.TestCase):

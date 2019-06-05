@@ -1,9 +1,9 @@
 """
 This file shows an example on how to upload local experiment to server.
 """
-from padre.ds_import import load_sklearn_toys
+from pypadre.ds_import import load_sklearn_toys
 import pprint
-from padre.core import Experiment
+from pypadre.core import Experiment
 
 
 def create_test_pipeline():
@@ -14,6 +14,7 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+
 def split(idx):
     # Do a 70:30 split
     limit = int(.7 * len(idx))
@@ -21,15 +22,15 @@ def split(idx):
 
 
 if __name__ == '__main__':
-    from padre.app import pypadre
-    pypadre.set_printer(print)
+    from pypadre.app import p_app
+    p_app.set_printer(print)
 
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list()
-        ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
+        p_app.datasets.list()
+        ds = p_app.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
         ds = [i for i in load_sklearn_toys()][4]
 
@@ -46,5 +47,5 @@ if __name__ == '__main__':
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
-    pypadre.authenticate("hmafnan", "test")
-    pypadre.experiments.upload_local_experiment(experiment_name)
+    p_app.authenticate("hmafnan", "test")
+    p_app.experiments.upload_local_experiment(experiment_name)

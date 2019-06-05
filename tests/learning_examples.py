@@ -10,10 +10,10 @@ import numpy as np
 from sklearn import linear_model, decomposition, manifold
 from sklearn.svm import SVC, SVR
 
-from padre.ds_import import load_sklearn_toys
-from padre.core import Experiment
-from padre.base import PadreLogger
-from padre.eventhandler import add_logger
+from pypadre.ds_import import load_sklearn_toys
+from pypadre.core import Experiment
+from pypadre.base import PadreLogger
+from pypadre.eventhandler import add_logger
 
 
 # TODO: Method to log errors from outside the experiment class too
@@ -226,27 +226,27 @@ class experimentHelper:
     def experiments(self):
         return self._experiments
 
+
 def main():
     """
     Get the dataset from load_sklearn_toys
     The dataset index is 3
     """
-    from padre.app import pypadre
-    pypadre.set_printer(print)
+    from pypadre.app import p_app
+    p_app.set_printer(print)
     logger = PadreLogger()
-    logger.backend = pypadre.repository
+    logger.backend = p_app.repository
     add_logger(logger=logger)
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list_datasets()
-        ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
+        p_app.datasets.list_datasets()
+        ds = p_app.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
         ds = [i for i in load_sklearn_toys()][2]
 
     experiment_helper = experimentHelper()
-
 
     # ex.report_results() # last step, but we can also look that up on the server
 
@@ -344,9 +344,9 @@ def main():
         ex.run()  # run the experiment and report
 
     print("========Available experiments=========")
-    for idx, ex in enumerate(pypadre.experiments.list_experiments()):
+    for idx, ex in enumerate(p_app.experiments.list_experiments()):
         print("%d: %s" % (idx, str(ex)))
-        for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
+        for idx2, run in enumerate(p_app.experiments.list_runs(ex)):
             print("\tRun: %s" % str(run))
 
 

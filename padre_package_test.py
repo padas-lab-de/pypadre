@@ -1,8 +1,9 @@
-from padre.app import pypadre
-from padre.ds_import import load_sklearn_toys
-from padre.core import Experiment
-from padre.base import PadreLogger
-from padre.eventhandler import add_logger
+from pypadre.app import p_app
+from pypadre.ds_import import load_sklearn_toys
+from pypadre.core import Experiment
+from pypadre.base import PadreLogger
+from pypadre.eventhandler import add_logger
+
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
@@ -12,10 +13,11 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+
 def main():
 
     logger = PadreLogger()
-    logger.backend = pypadre.repository
+    logger.backend = p_app.repository
     add_logger(logger=logger)
     ds = [i for i in load_sklearn_toys()][2]
     ex = Experiment(name="Test Experiment SVM",

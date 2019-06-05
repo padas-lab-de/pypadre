@@ -1,10 +1,10 @@
 import sys
-from padre.app import pypadre
-pypadre.config.authenticate("cfellicious", "test")
-
+from pypadre.app import p_app
+p_app.config.authenticate("cfellicious", "test")
 import uuid
 import pprint
-from padre.core import Experiment
+from pypadre.core import Experiment
+
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
@@ -17,7 +17,7 @@ def create_test_pipeline():
 
 did = "1"
 print("Datasets %s on server" % did)
-ds = pypadre.remote_backend.datasets.get(did)
+ds = p_app.remote_backend.datasets.get(did)
 print(ds)
 test_experiment_name = "Test Experiment SVM " + str(uuid.uuid4())[0:9] # Unique name for experiment
 ex = Experiment(name=test_experiment_name,
@@ -30,8 +30,8 @@ conf = ex.configuration()  # configuration, which has been automatically extract
 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
 ex.execute()  # run the experiment and report
 
-pypadre.metrics_evaluator.add_experiments([ex])
+p_app.metrics_evaluator.add_experiments([ex])
 
-experiments = pypadre.remote_backend.experiments.list_experiments(test_experiment_name)
-experiment_instance = pypadre.remote_backend.experiments.get_experiment("1")
+experiments = p_app.remote_backend.experiments.list_experiments(test_experiment_name)
+experiment_instance = p_app.remote_backend.experiments.get_experiment("1")
 print(experiment_instance)
