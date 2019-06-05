@@ -1,11 +1,11 @@
 from pypa_pytorch import Wrapper
 from pypa_pytorch import CallBack
-from padre.ds_import import load_sklearn_toys
+from pypadre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
 import torch
-from padre.core import Experiment
-from padre.app import pypadre
+from pypadre.core import Experiment
+from pypadre.app import p_app
 
 
 class TestCallbacks(CallBack):
@@ -26,7 +26,7 @@ class TestCallbacks(CallBack):
 
 
 def main():
-    layers = []
+    layers = list()
     layers.append(torch.nn.Linear(4, 20))
     layers.append(torch.nn.ReLU())
     layers.append(torch.nn.Linear(20, 10))

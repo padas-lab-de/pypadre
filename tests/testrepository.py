@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-import padre.backend.file as parep
-import padre.ds_import as dsimp
+import pypadre.backend.file as parep
+import pypadre.ds_import as dsimp
 
 
 # todo renew file repository

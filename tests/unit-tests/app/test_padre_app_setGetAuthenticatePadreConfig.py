@@ -8,7 +8,7 @@ import uuid
 
 import configparser
 
-from padre.app.padre_app import PadreConfig
+from pypadre.app.padre_app import PadreConfig
 
 
 class TestSetAndGet(unittest.TestCase):

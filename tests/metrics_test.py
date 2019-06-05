@@ -1,10 +1,8 @@
 
 from tkinter import filedialog
-from padre.metrics import CompareMetrics
-from padre.metrics import ReevaluationMetrics
+from pypadre.metrics import CompareMetrics
+from pypadre.metrics import ReevaluationMetrics
 
-import numpy as np
-import pandas as pd
 
 def main():
     # Load the results folder

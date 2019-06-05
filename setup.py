@@ -5,8 +5,8 @@ import os
 
 cmdclass = {'build_sphinx': BuildDoc}
 
-name = 'padre'
-VERSIONFILE="padre/_version.py"
+name = 'pypadre'
+VERSIONFILE="pypadre/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 result = re.search(VSRE, verstrline, re.M)
@@ -47,10 +47,10 @@ install_requires =["msgpack_numpy==0.4.1",
 setup(
     name=name,
     version=version,
-    packages=['padre']+find_packages(exclude=["tests", "tests.*"]),
-    package_dir={'padre': 'padre'},
-    package_data={'padre': ['padre/res/mapping/pytorch.json', 'padre/res/mapping/mapping.json',
-                            'padre/core/wrappers/wrapper_mappings/mappings_torch.json']},
+    packages=['pypadre']+find_packages(exclude=["tests", "tests.*"]),
+    package_dir={'pypadre': 'pypadre'},
+    package_data={'pypadre': ['pypadre/res/mapping/pytorch.json', 'pypadre/res/mapping/mapping.json',
+                            'pypadre/core/wrappers/wrapper_mappings/mappings_torch.json']},
     #packages=find_packages(),
     include_package_data=True,
     url='https://padre-lab.eu',
@@ -60,7 +60,7 @@ setup(
     description='PaDRe aims to solve problems about reproducibility',
     entry_points='''
        [console_scripts]
-       padre=padre.app.padre_cli:main
+       pypadre=pypadre.app.padre_cli:main
    ''',
     install_requires=install_requires,
    command_options={

@@ -9,10 +9,10 @@ import shutil
 import unittest
 import uuid
 
-from padre.app import pypadre
-from padre.core import Experiment
-from padre.ds_import import load_sklearn_toys
-from padre.backend.serialiser import JSonSerializer
+from pypadre.app import p_app
+from pypadre.core import Experiment
+from pypadre.ds_import import load_sklearn_toys
+from pypadre.backend.serialiser import JSonSerializer
 
 
 class TestFileGetExperiment(unittest.TestCase):
@@ -27,14 +27,14 @@ class TestFileGetExperiment(unittest.TestCase):
         Test ExperimentFileRepository.get_experiment
 
         Scenarios:
-            - get_experiment returns an instance of  <class 'padre.experiment.Experiment'>
+            - get_experiment returns an instance of  <class 'pypadre.experiment.Experiment'>
             - get_experiment associates correct dataset with experiment
             - get_experiment loads expected metadata with the experiment
             - get_experiment loads experiment with expected name
             - get_experiment loads expected experiment configuration
         """
-        loaded_experiment = pypadre.local_backend.experiments.get_experiment(self.experiment.name)
-        self.assertIsInstance(loaded_experiment, Experiment, "Not an instance of padre.experiment.Experiment")
+        loaded_experiment = p_app.local_backend.experiments.get_experiment(self.experiment.name)
+        self.assertIsInstance(loaded_experiment, Experiment, "Not an instance of pypadre.experiment.Experiment")
         self.assertEqual(self.experiment.metadata["dataset_id"],
                          loaded_experiment.metadata["dataset_id"],
                          "Dataset id dont match for both experiments")
@@ -49,13 +49,13 @@ class TestFileGetExperiment(unittest.TestCase):
     def tearDown(self) -> None:
         """Delete experiment and dataset which is created for this experiment from local file system"""
         metadata_serializer = JSonSerializer
-        experiment_path = os.path.join(pypadre.local_backend.root_dir,
+        experiment_path = os.path.join(p_app.local_backend.root_dir,
                                        "experiments",
                                        self.experiment.name.strip() + ".ex")
         if os.path.exists(os.path.abspath(experiment_path)):
             shutil.rmtree(experiment_path)
 
-        dataset_root_path = os.path.join(pypadre.local_backend.root_dir, "datasets")
+        dataset_root_path = os.path.join(p_app.local_backend.root_dir, "datasets")
         list_of_datasets = os.listdir(dataset_root_path)
         for dataset_name in list_of_datasets:
             metadata_path = os.path.join(dataset_root_path, dataset_name, "metadata.json")

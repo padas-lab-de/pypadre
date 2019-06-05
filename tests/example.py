@@ -1,9 +1,9 @@
 """
 This file shows an example on how to use the pypadre app.
 """
-from padre.ds_import import load_sklearn_toys
+from pypadre.ds_import import load_sklearn_toys
 import pprint
-from padre.core import Experiment
+from pypadre.core import Experiment
 
 
 def create_test_pipeline():
@@ -30,7 +30,7 @@ def split(idx):
 
 
 if __name__ == '__main__':
-    from padre.app import p_app
+    from pypadre.app import p_app
     p_app.set_printer(print)
 
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
@@ -60,9 +60,9 @@ if __name__ == '__main__':
     print(p_app.metrics_evaluator.show_metrics())
     '''
     print("========Available experiments=========")
-    for idx, ex in enumerate(pypadre.experiments.list_experiments()):
+    for idx, ex in enumerate(p_app.experiments.list_experiments()):
         print("%d: %s" % (idx, str(ex)))
-        for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
+        for idx2, run in enumerate(p_app.experiments.list_runs(ex)):
             print("\tRun: %s"%str(run))
     '''
     # ex.report_results() # last step, but we can also look that up on the server

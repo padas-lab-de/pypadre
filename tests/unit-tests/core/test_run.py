@@ -1,8 +1,9 @@
-from padre.core import Experiment, Run
-from padre.eventhandler import assert_condition, add_logger
-from padre.app import pypadre
+from pypadre.core import Experiment, Run
+from pypadre.eventhandler import assert_condition, add_logger
+from pypadre.app import p_app
 import numpy as np
 import unittest
+
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
@@ -12,9 +13,11 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+
 def get_toy_dataset():
-    from padre.ds_import import load_sklearn_toys
+    from pypadre.ds_import import load_sklearn_toys
     return [i for i in load_sklearn_toys()][2]
+
 
 class TestRun(unittest.TestCase):
 
