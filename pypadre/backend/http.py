@@ -398,6 +398,33 @@ class HTTPBackendDatasets:
         trigger_event('EVENT_LOG', source=self, message="Loaded dataset " + _id + " from server:")
         return dataset
 
+    def put_visualisation(self, id_, visualisation, description=None, supported_types=None):
+        """
+        Upload visualisation for given data set id.
+
+        :param id_: Data set id for which visualisation should be uploaded
+        :type id_: str
+        :param visualisation: vega-lite specification
+        :type visualisation: json
+        :param description: Description of the visualisation
+        :type description: str
+        :param supported_types: Supported types
+        :type supported_types: list
+        :return: Http response or None
+        """
+        if description is None:
+            description = "Visualization schema for dataset(%s)" % str(id_)
+        if supported_types is None:
+            supported_types = ["Multivariate data"]
+        data = {"schema": visualisation,
+                "description": description,
+                "supportedTypes": supported_types}
+        response = None
+        dataset_visualization_url = self.parent.get_base_url() + PadreHTTPClient.paths["dataset-visualization"](str(id_))
+        if self.parent.online:
+            response = self.parent.do_post(dataset_visualization_url, **{"data": json.dumps(data)})
+        return response
+
     def make_proto(self, dataset, _file):
         from pypadre.backend.protobuffer import proto_organizer
         pd_dataframe = dataset._binary.pandas_repr()
@@ -542,7 +569,9 @@ PadreHTTPClient.paths = {
     "splits": "/splits",
     "split": lambda id: "/splits/" + id,
     "dataset": lambda id: "/datasets/" + id + "/",
+    "dataset-visualization": lambda did: "/datasets/" + did + "/visualizations",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',
+    "visualizations": "/visualizations"
 }
 
 
