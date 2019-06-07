@@ -1,11 +1,9 @@
-from padre.core.wrappers.wrapper_tensorflow import WrapperTensorFlow
-from padre.ds_import import load_sklearn_toys
+from pypadre.core.wrappers.wrapper_tensorflow import WrapperTensorFlow
+from pypadre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
-import torch
-import numpy as np
-from padre.core import Experiment
-from padre.app import pypadre
+from pypadre.core import Experiment
+from pypadre.app import p_app
 
 
 def main():
@@ -25,8 +23,7 @@ def main():
     ex = Experiment(name="Tensorflow",
                     description="Testing Torch via SKLearn Pipeline",
                     dataset=ds,
-                    workflow=workflow,
-                    backend=pypadre.local_backend.experiments)
+                    workflow=workflow)
     ex.run()
     '''
     Sample network dictionary creation

@@ -1,5 +1,5 @@
 """
-This file contains tests covering padre.ds_import.load_csv
+This file contains tests covering pypadre.ds_import.load_csv
 All unnecessary function calls are mocked
 """
 import unittest
@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from mock import MagicMock, patch
 
-from padre import ds_import
+from pypadre import ds_import
 
 
 class TestLoadCSV01(unittest.TestCase):
@@ -22,8 +22,8 @@ class TestLoadCSV01(unittest.TestCase):
         """
         self.file_name = "test.csv"
 
-    @patch('padre.ds_import.assert_condition')
-    @patch('padre.ds_import.pd.read_csv')
+    @patch('pypadre.ds_import.assert_condition')
+    @patch('pypadre.ds_import.pd.read_csv')
     def test_load_csv_01(self, mocked_csv, mocked_assert):
         """Test target attributes for ds_import.load_csv function.
 
@@ -41,8 +41,8 @@ class TestLoadCSV01(unittest.TestCase):
             self.assertTrue(result.attributes[target].name in targets,
                             "Expected target attribute not matches")
 
-    @patch('padre.ds_import.assert_condition')
-    @patch('padre.ds_import.pd.read_csv')
+    @patch('pypadre.ds_import.assert_condition')
+    @patch('pypadre.ds_import.pd.read_csv')
     def test_load_csv_02(self, mocked_csv, mocked_assert):
         """Test target attributes for ds_import.load_csv function.
 
@@ -78,9 +78,8 @@ class TestLoadCSV02(unittest.TestCase):
         self.file_name = "test.csv"
         self.description = "test description"
 
-
-    @patch('padre.ds_import.assert_condition')
-    @patch('padre.ds_import.pd.read_csv')
+    @patch('pypadre.ds_import.assert_condition')
+    @patch('pypadre.ds_import.pd.read_csv')
     def test_load_csv_01(self, mocked_csv, mocked_assert):
         """Test metadata attributes for ds_import.load_csv function.
 

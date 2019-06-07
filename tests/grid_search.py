@@ -1,12 +1,12 @@
 import copy
 import pprint
-from padre.experimentcreator import ExperimentCreator
+from pypadre.experimentcreator import ExperimentCreator
 
 
 def main():
-    from padre.app import pypadre
+    from pypadre.app import p_app
 
-    pypadre.set_printer(print)
+    p_app.set_printer(print)
     experiment_param_dict = dict()
     # Experiment using SVD in the pipeline
     # Setting parameters for estimator 'LSA'/Truncated SVD
@@ -21,8 +21,6 @@ def main():
                              description='This is the first grid search test experiment',
                              dataset_list=[dataset],
                              workflow=workflow, params=experiment_param_dict.get('Grid_search_experiment_1'))
-
-
 
     params_isomap = {'n_neighbors': [2, 8, 10], 'n_components': [3, 7]}
     params_pca = {'n_components': [4, 5]}

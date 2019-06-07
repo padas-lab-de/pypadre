@@ -1,11 +1,11 @@
 """
 This file shows an example on how to use the pypadre app.
 """
-from padre.ds_import import load_sklearn_toys
-from padre.base import PadreLogger
-from padre.eventhandler import add_logger
+from pypadre.ds_import import load_sklearn_toys
+from pypadre.base import PadreLogger
+from pypadre.eventhandler import add_logger
 import pprint
-from padre.core import Experiment
+from pypadre.core import Experiment
 
 
 def create_test_pipeline():
@@ -16,6 +16,7 @@ def create_test_pipeline():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
+
 def split(idx):
     # Do a 70:30 split
     limit = int(.7 * len(idx))
@@ -23,15 +24,15 @@ def split(idx):
 
 
 if __name__ == '__main__':
-    from padre.app import pypadre
-    pypadre.set_printer(print)
+    from pypadre.app import p_app
+    p_app.set_printer(print)
 
     # NOTE: Server MUST BE RUNNING!!! See Padre Server!
     # Start PADRE Server and run
     ds = None
     try:
-        pypadre.datasets.list()
-        ds = pypadre.datasets.get_dataset("http://localhost:8080/api/datasets/5")
+        p_app.datasets.list()
+        ds = p_app.datasets.get_dataset("http://localhost:8080/api/datasets/5")
     except:
         ds = [i for i in load_sklearn_toys()][4]
 
@@ -62,7 +63,6 @@ if __name__ == '__main__':
                           49]
     index.append(deepcopy(index_item))
 
-
     ex = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
@@ -72,13 +72,13 @@ if __name__ == '__main__':
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
     ex.execute()  # run the experiment and report
 
-    pypadre.metrics_evaluator.add_experiments([ex, ex])
-    print(pypadre.metrics_evaluator.show_metrics())
+    p_app.metrics_evaluator.add_experiments([ex, ex])
+    print(p_app.metrics_evaluator.show_metrics())
     '''
     print("========Available experiments=========")
-    for idx, ex in enumerate(pypadre.experiments.list_experiments()):
+    for idx, ex in enumerate(p_app.experiments.list_experiments()):
         print("%d: %s" % (idx, str(ex)))
-        for idx2, run in enumerate(pypadre.experiments.list_runs(ex)):
+        for idx2, run in enumerate(p_app.experiments.list_runs(ex)):
             print("\tRun: %s"%str(run))
     '''
     # ex.report_results() # last step, but we can also look that up on the server

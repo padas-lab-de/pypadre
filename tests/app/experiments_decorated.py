@@ -4,13 +4,13 @@ the module defines two fast experiments under the name test_AppExp and test_AppE
 The test can be used by importing thsi module and running pypadre.experiments.run(decorated=ture)
 ```
 from tests.app.experiments_decorated import *
-ex = pypadre.experiments.run(decorated=True)
+ex = p_app.experiments.run(decorated=True)
 ```
 """
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
-from padre import *
-from padre.ds_import import load_sklearn_toys
+from pypadre import *
+from pypadre.ds_import import load_sklearn_toys
 
 
 @Workflow(exp_name="test_AppExp",

@@ -6,8 +6,8 @@ Note: it is a proof of concept now rather than a test.
 # Note that we want to include all decorator at once using package import
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
-from padre import *
-from padre.ds_import import load_sklearn_toys
+from pypadre import *
+from pypadre.ds_import import load_sklearn_toys
 
 
 @Workflow(exp_name="Test",
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     exs = run()  # run the experiment and report
     for ex in exs:
         for r in ex.runs:
-            print (ex.name+": "+str(r))
+            print(ex.name+": "+str(r))

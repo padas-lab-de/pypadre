@@ -1,7 +1,7 @@
-from padre.ds_import import load_sklearn_toys
+from pypadre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
-from padre import *
+from pypadre import *
 
 @Workflow(exp_name="Test2",
           description="Test2 experiment with decorators")
