@@ -404,24 +404,25 @@ class HTTPBackendDatasets:
 
         :param id_: Data set id for which visualisation should be uploaded
         :type id_: str
-        :param visualisation: json configuration
+        :param visualisation: vega-lite specification
         :type visualisation: json
-        :return:
+        :param description: Description of the visualisation
+        :type description: str
+        :param supported_types: Supported types
+        :type supported_types: list
+        :return: Http response or None
         """
         if description is None:
-            description = "Visualization for schema for dataset"
+            description = "Visualization schema for dataset(%s)" % str(id_)
         if supported_types is None:
             supported_types = ["Multivariate data"]
         data = {"schema": visualisation,
                 "description": description,
                 "supportedTypes": supported_types}
-
-        visualization_url = self.parent.get_base_url() + PadreHTTPClient.paths["visualizations"]
-        response = self.parent.do_post(visualization_url, **{"data": json.dumps(data)})
-        vid = json.loads(response.content)["uid"]
-        dataset_visualization_url = self.parent.get_base_url() + PadreHTTPClient.paths["dataset-visualization"](id_, vid)
-        if self.parent.has_token():
-            response = self.parent.do_post(dataset_visualization_url, **{"data": json.dumps({})})
+        response = None
+        dataset_visualization_url = self.parent.get_base_url() + PadreHTTPClient.paths["dataset-visualization"](str(id_))
+        if self.parent.online:
+            response = self.parent.do_post(dataset_visualization_url, **{"data": json.dumps(data)})
         return response
 
     def make_proto(self, dataset, _file):
@@ -568,7 +569,7 @@ PadreHTTPClient.paths = {
     "splits": "/splits",
     "split": lambda id: "/splits/" + id,
     "dataset": lambda id: "/datasets/" + id + "/",
-    "dataset-visualization": lambda did, vid: "​/html​/datasets​/" + did + "​/visualizations​/" + vid,
+    "dataset-visualization": lambda did: "/datasets/" + did + "/visualizations",
     "binaries": lambda id: "/datasets/" + id + '/binaries/',
     "visualizations": "/visualizations"
 }
