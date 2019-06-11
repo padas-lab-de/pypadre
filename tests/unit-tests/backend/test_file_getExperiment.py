@@ -31,6 +31,7 @@ class TestFileGetExperiment(unittest.TestCase):
             - get_experiment associates correct dataset with experiment
             - get_experiment loads expected metadata with the experiment
             - get_experiment loads experiment with expected name
+            - get_experiment loads experiment with expected id
             - get_experiment loads expected experiment configuration
         """
         loaded_experiment = p_app.local_backend.experiments.get_experiment(self.experiment.name)
@@ -40,7 +41,10 @@ class TestFileGetExperiment(unittest.TestCase):
                          "Dataset id dont match for both experiments")
         self.assertEqual(self.experiment.name,
                          loaded_experiment.name,
-                         "Dataset id not match for both experiments")
+                         "Experiment name not matches for both experiments")
+        self.assertEqual(self.experiment.id,
+                         loaded_experiment.id,
+                         "Experiment id not matches for both experiments")
         self.assertDictEqual(self.experiment.metadata, loaded_experiment.metadata,
                              "Meta data not matches for both experiments")
         self.assertDictEqual(self.experiment.experiment_configuration, loaded_experiment.experiment_configuration,

@@ -705,7 +705,7 @@ class Dataset(MetadataEntity):
             x=alt.X(x_attr, title=x_title),
             y=alt.Y(y_attr, title=y_title),
             color=target + ":N"
-        ).properties(title=self.name).interactive()
+        ).properties(title="%s dataset visualization for %s and %s" % (self.name, x_attr, y_attr)).interactive()
         return chart.to_json()
 
     def get_chart_from_json(self, visualisation):
