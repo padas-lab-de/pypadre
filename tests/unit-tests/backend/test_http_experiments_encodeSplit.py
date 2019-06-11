@@ -9,7 +9,7 @@ import numpy as np
 from mock import MagicMock
 
 
-from padre.backend.http_experiments import HttpBackendExperiments
+from pypadre.backend.http_experiments import HttpBackendExperiments
 
 
 class TestEncodeSplit(unittest.TestCase):

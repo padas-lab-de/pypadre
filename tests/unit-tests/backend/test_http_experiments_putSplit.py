@@ -8,7 +8,7 @@ import uuid
 import numpy as np
 from mock import MagicMock, patch
 
-from padre.backend.http_experiments import HttpBackendExperiments
+from pypadre.backend.http_experiments import HttpBackendExperiments
 
 
 class TestPutSplit(unittest.TestCase):
@@ -28,13 +28,12 @@ class TestPutSplit(unittest.TestCase):
         self.http_client.base = 'padretest.com/api'
         self.http_client.has_token = MagicMock(return_value=True)
 
-
         mocked_post_split = MagicMock()
         mocked_post_split.headers = {'location': self.test_split_url}
 
         self.http_client.do_post = MagicMock(return_value=mocked_post_split)
 
-    @patch('padre.backend.http_experiments.HttpBackendExperiments.get_or_create_project')
+    @patch('pypadre.backend.http_experiments.HttpBackendExperiments.get_or_create_project')
     def test_put_split(self, mock_project):
         """Test HttpBackendExperiments.put_split function.
 

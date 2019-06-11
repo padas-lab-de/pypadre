@@ -1,10 +1,11 @@
-from padre.core.wrappers.wrapper_pytorch import WrapperPytorch, CallBack
-from padre.ds_import import load_sklearn_toys
+from pypa_pytorch import Wrapper
+from pypa_pytorch import CallBack
+from pypadre.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
 import torch
-from padre.core import Experiment
-from padre.app import pypadre
+from pypadre.core import Experiment
+from pypadre.app import p_app
 
 
 class TestCallbacks(CallBack):
@@ -25,7 +26,7 @@ class TestCallbacks(CallBack):
 
 
 def main():
-    layers = []
+    layers = list()
     layers.append(torch.nn.Linear(4, 20))
     layers.append(torch.nn.ReLU())
     layers.append(torch.nn.Linear(20, 10))
@@ -38,7 +39,7 @@ def main():
     with open('classification.json') as json_data:
         params = json.load(json_data)
 
-    obj = WrapperPytorch(params=params)
+    obj = Wrapper(params=params)
     estimators = [('pytorch', obj)]
     workflow = Pipeline(estimators)
     obj.set_callbacks([TestCallbacks()])

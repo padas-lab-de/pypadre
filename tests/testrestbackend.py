@@ -4,10 +4,10 @@ import unittest
 
 import numpy as np
 
-import padre.backend.file as parep
-import padre.ds_import as dsimp
-import padre.utils as pu
-from padre.backend.http import PadreHTTPClient
+import pypadre.backend.file as parep
+import pypadre.ds_import as dsimp
+import pypadre.utils as pu
+from pypadre.backend.http import PadreHTTPClient
 
 _test_data = {
       "name": "testdata",
@@ -20,6 +20,7 @@ _test_json = {
       "float": 0.91
     }
 
+
 # todo requires that the server is running somewhere
 # todo check if server is running, otherwise skip test
 class TestHTTPBackend(unittest.TestCase):
@@ -30,11 +31,7 @@ class TestHTTPBackend(unittest.TestCase):
         print(self.client.do_get("datasets"))
 
 
-
-
 class TestRestRepository(unittest.TestCase):
-
-
 
     def test_import_sklearn(self):
         if True:

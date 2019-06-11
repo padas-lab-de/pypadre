@@ -7,12 +7,10 @@ import uuid
 import unittest
 
 
-from mock import patch
-
-from padre.app import pypadre
-from padre.backend.serialiser import JSonSerializer
-from padre.core import Experiment
-from padre.ds_import import load_sklearn_toys
+from pypadre.app import p_app
+from pypadre.backend.serialiser import JSonSerializer
+from pypadre.core import Experiment
+from pypadre.ds_import import load_sklearn_toys
 
 
 def create_test_pipeline():
@@ -32,14 +30,12 @@ class TestUpdateMetadata(unittest.TestCase):
 
     All unnecessary function calls and http calls are mocked
     """
-    @patch('padre.backend.http.PadreHTTPClient.has_token')
-    def setUp(self, has_token):
+    def setUp(self):
         """Initializing http client and other attributes for test.
 
         All non related function calls and http calls will be mocked for this purpose.
         """
         self._metadata_serializer = JSonSerializer
-        has_token.return_value = False
         self.experiment_name = "Test Experiment metadata update " + str(uuid.uuid4())[0:10]
         ex = Experiment(name=self.experiment_name,
                         description="Testing Support Vector Machines via SKLearn Pipeline",
@@ -47,14 +43,14 @@ class TestUpdateMetadata(unittest.TestCase):
                         workflow=create_test_pipeline(), keep_splits=True, strategy="random",
                         function=split)
         ex.execute()
-        self.experiment_path = os.path.join(pypadre.local_backend.root_dir,
+        self.experiment_path = os.path.join(p_app.local_backend.root_dir,
                                             "experiments",
                                             self.experiment_name.strip() + ".ex")
 
     def test_update_metadata(self):
         """Test metadata is updated for experiment."""
         url = "http://test.com/api/experiments/ex_id"
-        pypadre.local_backend.experiments.update_metadata({"server_url": url}, self.experiment_name)
+        p_app.local_backend.experiments.update_metadata({"server_url": url}, self.experiment_name)
         with open(os.path.join(self.experiment_path, "metadata.json"), 'r') as f:
             self.experiment_metadata = self._metadata_serializer.deserialize(f.read())
             self.assertEqual(url, self.experiment_metadata["server_url"], "Metadata not updated for experiment")
@@ -64,7 +60,7 @@ class TestUpdateMetadata(unittest.TestCase):
         if os.path.exists(os.path.abspath(self.experiment_path)):
             shutil.rmtree(self.experiment_path)
 
-        dataset_root_path = os.path.join(pypadre.local_backend.root_dir, "datasets")
+        dataset_root_path = os.path.join(p_app.local_backend.root_dir, "datasets")
         list_of_datasets = os.listdir(dataset_root_path)
         for dataset_name in list_of_datasets:
             metadata_path = os.path.join(dataset_root_path, dataset_name, "metadata.json")

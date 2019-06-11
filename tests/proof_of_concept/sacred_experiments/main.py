@@ -1,6 +1,6 @@
 from sacred import Experiment
-from padre.experimentcreator import ExperimentCreator
-from padre.app import pypadre
+from pypadre.experimentcreator import ExperimentCreator
+from pypadre.app import p_app
 
 ex = Experiment('PyPaDRe')
 
@@ -13,7 +13,7 @@ def my_config():
     dataset = 'Boston_House_Prices'
     params_linear_pca = {'num_components': [4, 5, 6, 7, 10]}
     params_dict_linear = {'principal component analysis': params_linear_pca}
-    backend = pypadre.local_backend.experiments
+    backend = p_app.local_backend.experiments
 
     params = dict()
     params['name'] = name
