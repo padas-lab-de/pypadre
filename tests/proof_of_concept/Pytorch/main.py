@@ -26,11 +26,6 @@ class TestCallbacks(CallBack):
 
 
 def main():
-    layers = list()
-    layers.append(torch.nn.Linear(4, 20))
-    layers.append(torch.nn.ReLU())
-    layers.append(torch.nn.Linear(20, 10))
-    layers.append(torch.nn.Linear(10, 1))
 
     params = dict()
     params['lr'] = 0.01
