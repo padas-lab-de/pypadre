@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
-from sphinx.setup_command import BuildDoc
+# from sphinx.setup_command import BuildDoc
 import re
 import os
 
-cmdclass = {'build_sphinx': BuildDoc}
+# cmdclass = {'build_sphinx': BuildDoc}
 
 name = 'pypadre'
 VERSIONFILE="pypadre/_version.py"
@@ -50,7 +50,7 @@ setup(
     packages=['pypadre']+find_packages(exclude=["tests", "tests.*"]),
     package_dir={'pypadre': 'pypadre'},
     package_data={'pypadre': ['pypadre/res/mapping/pytorch.json', 'pypadre/res/mapping/mapping.json',
-                            'pypadre/core/wrappers/wrapper_mappings/mappings_torch.json']},
+                              'pypadre/core/wrappers/wrapper_mappings/mappings_torch.json']},
     #packages=find_packages(),
     include_package_data=True,
     url='https://padre-lab.eu',
