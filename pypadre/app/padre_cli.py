@@ -39,32 +39,42 @@ def pypadre_cli(ctx, config_file, base_url):
 
 @pypadre_cli.command(name="get_config_param")
 @click.option('--param', default=None, help='Get value of given param')
+@click.option('--section', default=None, help='Get value from given section')
 @click.pass_context
-def get_config_param(ctx, param):
+def get_config_param(ctx, param, section):
     """
     Get given param from config file.
     """
-    result = ctx.obj["pypadre"].config.get(param)
+    if section is None:
+        result = ctx.obj["pypadre"].config.get(param)
+    else:
+        result = ctx.obj["pypadre"].config.get(param, section)
     print(result)
 
 
 @pypadre_cli.command(name="set_config_param")
 @click.option('--param', nargs=2, default=None, help='key value pair as tuple')
+@click.option('--section', default=None, help='Set key, value for given section')
 @click.pass_context
-def set_config_param(ctx, param):
+def set_config_param(ctx, param, section):
     """
     Sets key, value in config. param must be a tuple
     """
-    ctx.obj["pypadre"].config.set(param[0], param[1])
+    if section is None:
+        ctx.obj["pypadre"].config.set(param[0], param[1])
+    else:
+        ctx.obj["pypadre"].config.set(param[0], param[1], section)
+    ctx.obj["pypadre"].config.save()
 
 
 @pypadre_cli.command(name="list_config_params")
+@click.option('--section', default=None, help='Get list of params from given section')
 @click.pass_context
-def list_config_params(ctx):
+def list_config_params(ctx, section):
     """
     List all values in config
     """
-    result = ctx.obj["pypadre"].config.list()
+    result = ctx.obj["pypadre"].config.config[section].keys()
     print(result)
 
 

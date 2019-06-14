@@ -17,29 +17,33 @@ Configuration file is placed at ~/.padre.cfg
 Expected values in config are following
 
 
-[HTTP]
+[HTTP BACKEND]
 
 user = username
-
-passwd = user_password
 
 base_url = http://localhost:8080/api
 
 token = oauth_token
 
-[FILE_CACHE]
+[LOCAL BACKEND]
 
 root_dir = ~/.pypadre/
+
+[GENERAL]
+
+offline = True
+
+oml_key = openml_key_here
 
 
 
 Implemented functionality
 -------------------------
 
-#. Get list of dicts containing key, value pairs for all sections in config
-#. Get value for given key.
-#. Set value for given key in config
-#. Authenticate given user and update new token in the config
+#. Get all sections from config
+#. Get value for given key for given section(default HTTP BACKEND).
+#. Set value for key in config for given section(default HTTP BACKEND)
+#. Save config
 
 
 Using config through CLI
@@ -48,12 +52,13 @@ Using config through CLI
 #. Use **get_config_param** command to get value of given param
 
    * param: name of attribute
+   * section: name of the section, if its None then default section will be used
+
 #. Use **set_config_param** command to set value of given param
 
-   * param: must me be a tuple of key value pair
-#. Use **get_config_params** command to get list of all params
-#. Use **authenticate** to set new token in config. If no params are provided default settings will be used
+   * param: must be a tuple of key value pair
+   * section: name of the section, if its None then default section will be used
 
-   * url: Url of server api default None
-   * user: User name on server default None
-   * passwd: Password for given user default None
+#. Use **list_config_params** command to get list of all params for given section
+
+    * section: name of the section
