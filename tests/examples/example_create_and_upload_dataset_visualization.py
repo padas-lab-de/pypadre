@@ -1,7 +1,7 @@
 """
 This example is to create and upload dataset scatter plot to server
-For this example we will download iris dataset from openml and upload it server then create scatter plots for this
-dataset and visualization to server
+For this example we will download iris dataset from openml and upload it to Padre server
+then create scatter plots and upload specification to server
 """
 from pypadre.app import p_app
 

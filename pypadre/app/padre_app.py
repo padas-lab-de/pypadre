@@ -528,6 +528,7 @@ class ExperimentApp:
         Downloaded experiment will be saved in the local file system.
 
         :param ex_id: Can be experiment name or experiment id or experiment url.
+        :type ex_id: int or str
         :return: Experiment
         Todo: In case ex_id is name of experiment and if two experiments with this name exists on the server first one will be downloaded
         """
@@ -551,9 +552,14 @@ class ExperimentApp:
         """Upload given experiment with all runs and splits.
 
         Upload all runs, splits, results and metrics to the server associated with the experiment.
-        If any experiment, run or split is already uploaded then it will be not be uploaded second time.
+        If any experiment, run or split is already uploaded then it will not be uploaded second time.
+
+        To check uniqueness on server: Before uploading check if its server_url in metadata is not empty if its
+        empty then upload it to server and after uploading experiment, run or split update its url in the metadata
+        so that its not uploaded second time.
 
         :param experiment_name: Name of the experiment on local system
+        :type experiment_name: str
         :return: Experiment
         """
         experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments",
