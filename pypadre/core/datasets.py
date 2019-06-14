@@ -100,6 +100,34 @@ class NumpyContainer:
         return ret
 
 
+class NumpyContainerMultiDimensional(NumpyContainer):
+
+    def __init__(self, data, targets, attributes=None):
+        self._shape = data.shape
+        if attributes is None:
+            self._attributes = [Attribute(i, "RATIO") for i in range(len(attributes))]
+            self._data = data
+            self._targets_idx = None
+            self._features_idx = np.arange(self._shape[1])
+        else:
+
+            self._data = data
+            self._targets = targets
+            self._attributes = attributes
+            self._targets_idx = np.array([idx for idx, a in enumerate(attributes) if a.defaultTargetAttribute])
+            self._features_idx = np.array([idx for idx, a in enumerate(attributes) if not a.defaultTargetAttribute])
+            assert set(self._features_idx).isdisjoint(set(self._targets_idx)) and \
+                   set(self._features_idx).union(set(self._targets_idx)) == set([idx for idx in range(len(attributes))])
+
+    @property
+    def targets(self):
+        return self._targets
+
+    @property
+    def features(self):
+        return self._data
+
+
 class GraphContainer:
 
     def __init__(self, data, attributes=None):
@@ -649,6 +677,16 @@ class Dataset(MetadataEntity):
         else:
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
         self._fill_metedata()
+
+    def set_data_multidimensional(self, features, targets, attributes=None):
+        """
+        Sets the data for multidimensional feature vectors like images
+        :param features: Input features
+        :param targets: Targets
+        :param attributes: Attribute list
+        :return:
+        """
+        self._binary = NumpyContainerMultiDimensional(features, targets, attributes)
 
     def replace_data(self, data):
         """
