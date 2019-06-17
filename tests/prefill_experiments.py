@@ -114,7 +114,7 @@ def main():
                                     workflow=workflow,
                                     dataset_list='Diabetes')
 
-    workflow = pypadre.experiment_creator.create_test_pipeline(['PLS Regession'])
+    workflow = p_app.experiment_creator.create_test_pipeline(['PLS Regession'])
     params = {'num_components': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
     params_dict = {'PLS Regession': params}
     p_app.experiment_creator.create(name='PLS Regression',

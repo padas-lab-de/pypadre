@@ -170,8 +170,10 @@ def load_csv(csv_path, targets=None, name=None, description="imported form csv",
     dataset.set_data(data,atts)
     return dataset
 
+
 def load_pandas_df(pandas_df,target_features=[]):
-    """Takes a pandas dataframe and a list of the names of target columns and creates a padre-Dataset.
+    """
+    Takes a pandas dataframe and a list of the names of target columns and creates a padre-Dataset.
 
     Args:
         pandas_df (str): The pandas dataset.
@@ -201,6 +203,37 @@ def load_pandas_df(pandas_df,target_features=[]):
         atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
                               defaultTargetAttribute=feature in target_features, context=None))
     dataset.set_data(pandas_df, atts)
+    return dataset
+
+
+def load_numpy_array_multidimensional(features, targets, columns=None, target_features=None):
+    """
+    Takes a multidimensional numpy array and creates a dataset out of it
+    :param features: The input n dimensional numpy array
+    :param targets: The targets corresponding to every feature
+    :param columns: Array of data column names
+    :param target_features: Target features column names
+    :return: A dataset object
+    """
+    meta = dict()
+
+    meta["name"] = "numpy_imported"
+    meta["description"] = "imported by numpy multidimensional"
+    meta["originalSource"] = ""
+    meta["creator"] = ""
+    meta["version"] = ""
+    meta["context"] = {}
+    meta["type"] = "multivariate"
+    dataset = Dataset(None, **meta)
+    atts = []
+
+    if len(target_features) == 0:
+        targets = [0] * len(features)
+
+    for feature in columns:
+        atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
+                              defaultTargetAttribute=feature in target_features, context=None))
+    dataset.set_data_multidimensional(features, targets, atts)
     return dataset
 
 
