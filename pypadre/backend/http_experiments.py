@@ -109,10 +109,16 @@ class HttpBackendExperiments:
 
     def put_experiment(self, experiment, append_runs=None):
         """
-        Upload experiment to server
+        Upload experiment to server with hyperparameters, configuration and metadata.
+
+        Before uploading experiment makes sure related dataset and project already exists on server.
+
         :param experiment: Experiment instance
-        :type experiment: <class 'padre.experiment.Experiment'>
-        :return: None
+        :type experiment: <class 'padre.core.experiment.Experiment'>
+        :returns: Url for newly created experiment on server
+        :rtype: str
+
+        Todo: Handle append_runs argument
         """
 
         dataset_dict = experiment.dataset
@@ -164,15 +170,20 @@ class HttpBackendExperiments:
             return self._http_client.do_delete(url, **{})
 
     def get_experiment(self, ex):
-        """
-        Downloads the experiment given by ex, where ex is a string with the id or url of the
-        experiment. The experiment is downloaded from the server and stored in the local file store
-        if the server version is newer than the local version or no local version exists.
-        The function returns an experiment class, which is loaded from file.
+        """Downloads the experiment given by ex, where ex is a string with the id or url of the
+        experiment.
+
+        Returns experiment with metadata, configuration and dataset downloaded from server while
+        experiment creator is used to create test pipelines for workflow and preprocessing using experiment
+        configuration.
 
         :param ex: Id or url of the experiment
-        :return: Returns experiment instance or none
-        # todo: Return experiment instance according to above documentation
+        :returns: Returns experiment instance or none
+        :rtype: <class 'padre.core.experiment.Experiment'> or None
+        Todo:  Implement according to the following description.
+                The experiment is downloaded from the server and stored in the local file store if the
+                server version is newer than the local version or no local version exists.
+                The function returns an experiment class, which is loaded from file.
         """
         experiment = None
         if self._http_client.online:
@@ -213,12 +224,15 @@ class HttpBackendExperiments:
         If search string is provided then search based on experiment name
         otherwise get list of all experiments
 
-        Todo: We will later define a synatx to search also associated metadata (e.g. "description:search_string").
         :param search: Name of experiment
         :type search: str
         :param start: start index of sublist
         :param count: end index of sublist
-        :return: list of experiments containing experiment names
+        :returns: list of experiments containing experiment names
+        :rtype: list
+
+        Todo: We will later define a synatx to search also associated metadata (e.g. "description:search_string").
+
         """
         experiments = []
         start = max(start, 0)
@@ -239,10 +253,10 @@ class HttpBackendExperiments:
         """
         Put run information on server and also upload workflow for this new run on the server as binary.
 
-        :param experiment:
-        :type experiment: <class 'pypadre.experiment.Experiment'>
-        :param run:
-        :type run: <class 'pypadre.experiment.Run'>
+        :param experiment: Experiment instance
+        :type experiment: <class 'pypadre.core.experiment.Experiment'>
+        :param run: Run instance
+        :type run: <class 'pypadre.core.run.Run'>
         :return: Return url of run at the server.
         """
         location = ""
@@ -278,13 +292,14 @@ class HttpBackendExperiments:
 
     def get_run(self, ex_id, run_id):
         """
-        Get run from server.
+        Get run from server including workflow.
+
+        :param ex_id: Id of the experiment
+        :param run_id: Id of the run
+        :returns: Return run instance or None if client is not online
+        :rtype: <class 'pypadre.core.run.Run'>
 
         Todo: Use run metadata instead of experiment metadata as run is identified by unique server_url
-
-        :param ex_id:
-        :param run_id:
-        :return: Return run instance
         """
         run_url = self._http_client.get_base_url() + self._http_client.paths['run'](ex_id, run_id)
         run_model_url = self._http_client.get_base_url() + self._http_client.paths["run-models"](ex_id, run_id)
@@ -317,12 +332,14 @@ class HttpBackendExperiments:
         """
         Put split information on the server.
 
+        Dataset splits of indices will be encoded before upload
+
         :param experiment:
-        :type experiment: <class 'pypadre.experiment.Experiment'>
+        :type experiment: <class 'pypadre.core.experiment.Experiment'>
         :param run:
-        :type run: <class 'pypadre.experiment.Run'>
+        :type run: <class 'pypadre.core.run.Run'>
         :param split:
-        :type split: <class 'pypadre.experiment.Split'>
+        :type split: <class 'pypadre.core.split.Split'>
         :return: Return url of run-split at server
         """
         location = ""
@@ -345,12 +362,14 @@ class HttpBackendExperiments:
 
     def get_split(self, ex_id, run_id, split_id):
         """
-        Get split from the server.
-        Todo: Use split num from results instead of hard coding it.
-        :param ex_id:
-        :param run_id:
-        :param split_id:
-        :return: Split instance
+        Get split from the server with metadata, metrics and results.
+        Dataset splits will be decoded into list of indices.
+
+        :param ex_id: Experiment id
+        :param run_id: Run id
+        :param split_id: Split id
+        :return: Split instance or None if http client is not online
+        :rtype: <class 'pypadre.core.split.Split'>
         """
         s = None
         split_url = self.get_base_url() + self._http_client.paths["split"](split_id)

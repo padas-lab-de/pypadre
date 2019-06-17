@@ -1,9 +1,11 @@
 """
 This file shows an example on how to upload local experiment to server.
 """
-from pypadre.ds_import import load_sklearn_toys
 import pprint
+import uuid
+
 from pypadre.core import Experiment
+from pypadre.ds_import import load_sklearn_toys
 
 
 def create_test_pipeline():
@@ -30,7 +32,7 @@ if __name__ == '__main__':
     p_app.set_printer(print)
     ds = [i for i in load_sklearn_toys()][4]
     print(ds)
-    experiment_name = "Test Experiment SVM upload local"
+    experiment_name = "Test Experiment SVM upload local " + str(uuid.uuid4())[0:15]
     ex = Experiment(name=experiment_name,
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds, preprocessing=create_preprocessing_pipeline(),
@@ -42,4 +44,4 @@ if __name__ == '__main__':
 
     # Authenticate and upload
     p_app.authenticate("hmafnan", "test")
-    p_app.experiments.upload_local_experiment(experiment_name)
+    p_app.experiments.push(experiment_name)

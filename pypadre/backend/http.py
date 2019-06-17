@@ -65,6 +65,17 @@ class PadreHTTPClient:
         self._default_header['Authorization'] = self._access_token
 
     def authenticate(self, passwd="", user= None):
+        """Authenticate user and retrieve token
+
+        If current token is None or invalid, retrieve and set new token in request header
+
+        :param passwd: Password for the user
+        :type passwd: str
+        :param user: User name if not provided then current user name will be used
+        :type user: str
+        :type passwd: str
+        :returns: Token
+        """
         if user is not None:
             self.user = user
         if self._access_token is None \
@@ -216,6 +227,8 @@ class PadreHTTPClient:
 
         First get csrf token then use csrf to get oauth token.
 
+        :param passwd: Password for the current user
+        :type passwd: str
         :returns: Bearer token
         :rtype: str
         """
