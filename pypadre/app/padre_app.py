@@ -521,7 +521,7 @@ class ExperimentApp:
             ex.run()
             return ex
 
-    def download_remote_experiment(self, ex_id):
+    def pull(self, ex_id):
         """
         Download experiment, run and split from server if it does not exists on local directory
         Download all runs, splits, results and metrics from the server associated with the experiment.
@@ -548,7 +548,7 @@ class ExperimentApp:
                     local_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
         return ex
 
-    def upload_local_experiment(self, experiment_name):
+    def push(self, experiment_name):
         """Upload given experiment with all runs and splits.
 
         Upload all runs, splits, results and metrics to the server associated with the experiment.
@@ -589,6 +589,10 @@ class ExperimentApp:
                     remote_experiments_.put_results(ex, r, s, s.run.results[0])
                     remote_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
         return ex
+
+    def sync(self, name):
+        """Todo: Implement after discussion on issue#67"""
+        pass
 
 
 class PadreApp:
