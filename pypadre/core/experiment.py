@@ -117,6 +117,7 @@ class Experiment(MetadataEntity):
 
         # If a preprocessing step is required to be executed on the whole dataset, add the workflow
         self._preprocessed_workflow = options.pop('preprocessing', None)
+        self._keep_attributes = options.pop('keep_attributes', True)
 
         # Deep copy the modified dataset to the variable after preprocessing
         self._preprocessed_dataset = None
@@ -363,7 +364,7 @@ class Experiment(MetadataEntity):
         self._preprocessed_dataset = deepcopy(self.dataset)
 
         # Replace the data by concatenating with the targets
-        self._preprocessed_dataset.replace_data(preprocessed_data)
+        self._preprocessed_dataset.replace_data(preprocessed_data, self._keep_attributes)
         # Set flag
         self._preprocessed = True
 
