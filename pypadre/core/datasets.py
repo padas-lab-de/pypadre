@@ -688,12 +688,15 @@ class Dataset(MetadataEntity):
         """
         self._binary = NumpyContainerMultiDimensional(features, targets, attributes)
 
-    def replace_data(self, data):
+    def replace_data(self, data, keep_atts=True):
         """
         Function is used to hold a temporary dataset of preprocessed data
         :param data: binary data in a supported format (numpy, pandas, networkx):
                     size must be num_datasets x num_attributes. If data is a function,
                     it is expected that the function is called later.
+        :param keep_atts: a boolean parameter set by the user to precise whether the
+                    attributes will be changed after preprocessing or not.
+
         :return: None
         """
 
@@ -706,16 +709,41 @@ class Dataset(MetadataEntity):
         elif isinstance(data, pd.DataFrame):
             # Remove non numerical attributes
             # TODO: Bring in support for nominal and ordinal attributes too
-            self._binary = PandasContainer(data, self.attributes)
+            if keep_atts:
+                # if attributes are not changed (In most cases) we append the targets to data
+                # since transformers only return the features
+                if data.columns.values.shape[0] != len(self.attributes):
+                    target_att = []
+                    for att in self.attributes:
+                        if att.defaultTargetAttribute:
+                            target_att.append(att.name)
+                    data[target_att] = self.targets()
+                self._binary = PandasContainer(data, self.attributes)
+            else:
+                attributes = []
+                for i, feature in enumerate(data.columns.values):
+                    attributes.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
+                                                defaultTargetAttribute=(i == data.columns.values.shape[0] - 1),
+                                                context=None))
+                self._binary = PandasContainer(data, attributes)
             self._binary_format = formats.pandas
         elif isinstance(data, np.ndarray):
             # Append the target data to the original data if targets are not modified
             # If targets are modified, pass the incoming data as both features and targets
-            if data.shape[1] != self.data.shape[1:]:
-                data = np.append(data, self.targets(), axis=1)
+            if keep_atts:
+                # if attributes are not changed (In most cases) we append the targets to data
+                # since transformers only return the features
+                if data.shape[1] != self.data.shape[1:]:
+                    data = np.append(data, self.targets(), axis=1)
+                self._binary = NumpyContainer(data, self.attributes)
+            else:
+                attributes = []
+                for i in range(data.shape[1]):
+                    attributes.append(Attribute(name=i, measurementLevel=None, unit=None, description=None,
+                                                defaultTargetAttribute=(i == data.shape[1] - 1),
+                                                context=None))
+                self._binary = NumpyContainer(data, attributes)
 
-            # Create a new numpy container with the old attributes
-            self._binary = NumpyContainer(data, self.attributes)
             self._binary_format = formats.numpy
         elif isinstance(data, nx.Graph):
             self._binary = GraphContainer(data, self.attributes)
