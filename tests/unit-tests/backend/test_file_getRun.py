@@ -1,6 +1,6 @@
 """
-This file contains tests covering backend.file.ExperimentFileRepository.get_experiment
-Test all scenarios if expected experiment is loaded from local file system
+This file contains tests covering backend.file.ExperimentFileRepository.get_run
+Test all scenarios for expected run which is loaded from local file system
 
 """
 import os
@@ -10,45 +10,40 @@ import unittest
 import uuid
 
 from pypadre.app import p_app
-from pypadre.core import Experiment
+from pypadre.core import Experiment, Run
 from pypadre.ds_import import load_sklearn_toys
 from pypadre.backend.serialiser import JSonSerializer
 
 
-class TestFileGetExperiment(unittest.TestCase):
-    """Test file.ExperimentFileRepository.get_experiment with all scenarios
+class TestFileGetRun(unittest.TestCase):
+    """Test file.ExperimentFileRepository.get_run with all possible scenarios
     """
 
     def setUp(self):
         self.experiment = self.create_experiment()
 
-    def test_get_experiment(self):
+    def test_get_run(self):
         """
-        Test ExperimentFileRepository.get_experiment
+        Test ExperimentFileRepository.get_run
 
         Scenarios:
-            - get_experiment returns an instance of  <class 'pypadre.experiment.Experiment'>
-            - get_experiment associates correct dataset with experiment
-            - get_experiment loads expected metadata with the experiment
-            - get_experiment loads experiment with expected name
-            - get_experiment loads experiment with expected id
-            - get_experiment loads expected experiment configuration
+            - get_run returns an instance of  <class 'pypadre.core.run.Run'>
+            - get_run loads expected metadata with the run
+            - get_run loads run with expected name
+            - get_run loads run with expected id
+            - loaded run is associated with expected experiment
         """
-        loaded_experiment = p_app.local_backend.experiments.get_experiment(self.experiment.name)
-        self.assertIsInstance(loaded_experiment, Experiment, "Not an instance of pypadre.experiment.Experiment")
-        self.assertEqual(self.experiment.metadata["dataset_id"],
-                         loaded_experiment.metadata["dataset_id"],
-                         "Dataset id dont match for both experiments")
-        self.assertEqual(self.experiment.name,
-                         loaded_experiment.name,
-                         "Experiment name not matches for both experiments")
-        self.assertEqual(self.experiment.id,
-                         loaded_experiment.id,
-                         "Experiment id not matches for both experiments")
-        self.assertDictEqual(self.experiment.metadata, loaded_experiment.metadata,
-                             "Meta data not matches for both experiments")
-        self.assertDictEqual(self.experiment.experiment_configuration, loaded_experiment.experiment_configuration,
-                             "Experiment configuration not matches for both experiments")
+        actual_run = self.experiment.runs[0]
+        run_id = str(actual_run.id)
+        loaded_run = p_app.local_backend.experiments.get_run(self.experiment.id, run_id)
+
+        self.assertIsInstance(loaded_run, Run, "Not an instance of pypadre.core.run.Run")
+        self.assertEqual(actual_run.name, loaded_run.name, "Run name not matches for both runs")
+        self.assertEqual(run_id, loaded_run.id, "Run id not matches for both runs")
+        self.assertEqual(actual_run.experiment.id, loaded_run.experiment.id,
+                         "Expected experiment id for run not matches")
+        self.assertDictEqual(actual_run.metadata, loaded_run.metadata,
+                             "Run metadata not matches with expected metadata")
 
     def tearDown(self) -> None:
         """Delete experiment and dataset which is created for this experiment from local file system"""

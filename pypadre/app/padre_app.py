@@ -521,13 +521,14 @@ class ExperimentApp:
             ex.run()
             return ex
 
-    def download_remote_experiment(self, ex_id):
+    def pull(self, ex_id):
         """
         Download experiment, run and split from server if it does not exists on local directory
         Download all runs, splits, results and metrics from the server associated with the experiment.
         Downloaded experiment will be saved in the local file system.
 
         :param ex_id: Can be experiment name or experiment id or experiment url.
+        :type ex_id: int or str
         :return: Experiment
         Todo: In case ex_id is name of experiment and if two experiments with this name exists on the server first one will be downloaded
         """
@@ -547,13 +548,18 @@ class ExperimentApp:
                     local_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
         return ex
 
-    def upload_local_experiment(self, experiment_name):
+    def push(self, experiment_name):
         """Upload given experiment with all runs and splits.
 
         Upload all runs, splits, results and metrics to the server associated with the experiment.
-        If any experiment, run or split is already uploaded then it will be not be uploaded second time.
+        If any experiment, run or split is already uploaded then it will not be uploaded second time.
+
+        To check uniqueness on server: Before uploading check if its server_url in metadata is not empty if its
+        empty then upload it to server and after uploading experiment, run or split update its url in the metadata
+        so that its not uploaded second time.
 
         :param experiment_name: Name of the experiment on local system
+        :type experiment_name: str
         :return: Experiment
         """
         experiment_path = os.path.join(self._parent.local_backend.root_dir, "experiments",
@@ -583,6 +589,10 @@ class ExperimentApp:
                     remote_experiments_.put_results(ex, r, s, s.run.results[0])
                     remote_experiments_.put_metrics(ex, r, s, s.run.metrics[0])
         return ex
+
+    def sync(self, name):
+        """Todo: Implement after discussion on issue#67"""
+        pass
 
 
 class PadreApp:

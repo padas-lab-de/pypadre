@@ -84,7 +84,6 @@ class Splitter:
 
         self._index_list = options.pop('index', None)
 
-
     def splits(self):
         """
         returns an generator function over all available splits. Every iterator returns a triple (train_idx, test_idx, eval_idx)

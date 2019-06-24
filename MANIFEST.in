@@ -1,3 +1,2 @@
-recursive-include padre/res *.json
-recursive-include padre/core/wrappers/wrapper_mappings *.json
+recursive-include pypadre/res *.json
 include requirements.txt
