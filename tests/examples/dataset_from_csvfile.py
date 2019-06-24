@@ -45,15 +45,21 @@ if __name__ == '__main__':
     ds = load_csv('/home/christofer/PycharmProjects/TwitterCrawler/datasets/merged/twitterbot.csv',
                   targets=['bot'],
                   description='Crawled Twitter data for identifying bots')
+
+    params_svc = {'C': [0.5, 1.0, 1.5],
+                  'degree': [1, 2, 3, 4],
+                  'probability': [True]}
+    params_ = {'SVC': params_svc}
+
     #p_app.datasets.put(ds, upload=True)
-    ex = Experiment(name="Test Experiment SVM",
+    ex = Experiment(name="Twitter",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=ds,
                     workflow=create_test_pipeline(), keep_splits=True, strategy="cv")
 
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-    ex.execute()  # run the experiment and report
+    ex.execute(parameters=params_)  # run the experiment and report
 
     p_app.metrics_evaluator.add_experiments([ex, ex])
     print(p_app.metrics_evaluator.show_metrics())
