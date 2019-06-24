@@ -111,6 +111,10 @@ dropout2d = "DROPOUT2D"
 dropout3d = "DROPOUT3D"
 alphadropout = "ALPHADROPOUT"
 
+# Custom layers
+flatten = "FLATTEN"
+testlayer = "TESTLAYER"
+
 # The different parameters for the layers are declared below
 in_channels = "in_channels"
 out_channels = "out_channels"
@@ -2135,6 +2139,20 @@ alphadropout_dict[params] = deepcopy(alphadropout_params)
 
 layers_dict[alphadropout] = deepcopy(alphadropout_dict)
 
+
+# Flatten
+flatten_dict = dict()
+flatten_dict[path] = "pypa_pytorch.pytorch.Flatten"
+flatten_dict[params] = dict()
+layers_dict[flatten] = deepcopy(flatten_dict)
+
+# Test Layer
+testlayer_dict = dict()
+testlayer_dict[path] = "pypa_pytorch.pytorch.TestLayer"
+testlayer_dict[params] = dict()
+layers_dict[testlayer] = deepcopy(testlayer_dict)
+
+
 completed_layers = [
                     conv1d, conv2d, conv3d, transpose1d, transpose2d, transpose3d, unfold, fold, maxpool1d, maxpool2d,
                     maxpool3d, maxunpool1d, maxunpool2d, maxunpool3d, avgpool1d, avgpool2d, avgpool3d,
@@ -2145,7 +2163,7 @@ completed_layers = [
                     selu, sigmoid, softplus, softshrink, softsign, tanh, tanhshrink, threshold, softmin, softmax,
                     softmax2d, logsoftmax, adaptivelogsoftmaxwithloss, batchnorm1d, batchnorm2d, batchnorm3d, groupnorm,
                     instancenorm1d, instancenorm2d, instancenorm3d, layernorm, localresponsenorm, linear, bilinear,
-                    dropout, dropout2d, dropout3d, alphadropout
+                    dropout, dropout2d, dropout3d, alphadropout, flatten, testlayer
                     ]
 
 test_dictionary(completed_object_list=completed_layers, input_dict=layers_dict)

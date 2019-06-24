@@ -11,14 +11,17 @@ def main():
     features = np.load('../../features.npy')
     labels = np.load('../../labels.npy')
     mean_img = np.load('../../mean_file.npy')
-    features = np.subtract(features, mean_img)
+    x = np.ones(shape=(1, 1, 32, 32))
+    mean = np.concatenate((x*0.4914, x*0.4822, x*.4465), axis=1)
+    std = np.concatenate((x*0.2023, x*0.1994, x*.2010), axis=1)
+    features = (features/255 - mean)/std
     ds = load_numpy_array_multidimensional(features=features, targets=labels, columns=['images', 'labels'],
                                            target_features=['labels'])
 
     print(ds)
 
     import json
-    with open('cifar.json') as json_data:
+    with open('vgg16.json') as json_data:
         params = json.load(json_data)
 
     obj = Wrapper(params=params)
@@ -30,6 +33,7 @@ def main():
                     dataset=ds,
                     workflow=workflow, keep_splits=True, strategy='random')
     ex.execute()
+    print(ex.metrics)
 
 
 
