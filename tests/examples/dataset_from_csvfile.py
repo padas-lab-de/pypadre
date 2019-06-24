@@ -16,7 +16,8 @@ def create_test_pipeline():
     from sklearn.neighbors import KNeighborsClassifier
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.decomposition import PCA
-    estimators = [('SVC', SVC())]
+    # estimators = [('SVC', SVC())]
+    estimators = [('random forest classifier', RandomForestClassifier())]
     #estimators = [('k-nn classifier', KNeighborsClassifier())]
     return Pipeline(estimators)
 
@@ -46,10 +47,11 @@ if __name__ == '__main__':
                   targets=['bot'],
                   description='Crawled Twitter data for identifying bots')
 
-    params_svc = {'C': [0.5, 1.0, 1.5],
-                  'degree': [1, 2, 3, 4],
-                  'probability': [True]}
-    params_ = {'SVC': params_svc}
+    params_rf = {
+                 'n_estimators': [3, 5, 7, 9, 11],
+                 'max_depth': [3, 4, 5, 6, 7, 8]
+                 }
+    param_value_dict = {'random forest classifier': params_rf}
 
     #p_app.datasets.put(ds, upload=True)
     ex = Experiment(name="Twitter",
@@ -59,9 +61,9 @@ if __name__ == '__main__':
 
     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-    ex.execute(parameters=params_)  # run the experiment and report
+    ex.execute(parameters=param_value_dict)  # run the experiment and report
 
-    p_app.metrics_evaluator.add_experiments([ex, ex])
+    p_app.metrics_evaluator.add_experiments(['Twitter'])
     print(p_app.metrics_evaluator.show_metrics())
     '''
     import numpy as np
