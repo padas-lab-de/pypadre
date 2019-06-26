@@ -21,7 +21,7 @@ def main():
     print(ds)
 
     import json
-    with open('vgg16.json') as json_data:
+    with open('vgg13.json') as json_data:
         params = json.load(json_data)
 
     obj = Wrapper(params=params)
