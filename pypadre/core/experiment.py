@@ -406,7 +406,7 @@ class Experiment(MetadataEntity):
                 obj_params = estimators.get(estimator).get_params()
                 estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    estimator_name = alternate_name_mappings.get(estimator)
+                    estimator_name = alternate_name_mappings.get(str(estimator).lower())
 
                 params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
                 param_dict = dict()
@@ -579,7 +579,7 @@ class Experiment(MetadataEntity):
         workflow = options.get('workflow')
         for estimator in workflow.named_steps:
             assert_condition(condition=name_mappings.get(estimator, None) is not None or
-                             alternate_name_mappings.get(estimator, None) is not None,
+                             alternate_name_mappings.get(str(estimator).lower(), None) is not None,
                              source=self,
                              message='Estimator {estimator} not present in name mappings or '
                                      'alternate name mappings'.format(estimator=estimator))
@@ -590,7 +590,7 @@ class Experiment(MetadataEntity):
             for estimator in workflow.named_steps:
                 actual_estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    actual_estimator_name = alternate_name_mappings.get(estimator)
+                    actual_estimator_name = alternate_name_mappings.get(str(estimator).lower())
                 assert_condition(
                     condition=
                     name_mappings.get(actual_estimator_name).get('type', None) not in ['Classification', 'Regression'],
@@ -602,7 +602,7 @@ class Experiment(MetadataEntity):
             for estimator in workflow.named_steps:
                 actual_estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    actual_estimator_name = alternate_name_mappings.get(estimator)
+                    actual_estimator_name = alternate_name_mappings.get(str(estimator).lower())
                 assert_condition(condition=
                                  name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
                                  source=self, message='Classifier cannot be trained on regression data')
