@@ -34,7 +34,7 @@ from pypadre.experimentcreator import ExperimentCreator
 from pypadre.core import Experiment
 from pypadre.metrics import ReevaluationMetrics
 from pypadre.metrics import CompareMetrics
-from pypadre.base import PadreLogger
+from pypadre.logger import PadreLogger
 from pypadre.eventhandler import add_logger, assert_condition, trigger_event
 
 # Create the logger object

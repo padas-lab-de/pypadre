@@ -1,7 +1,7 @@
 from pypadre.experimentexecutor import ExperimentExecutor
 from pypadre.experimentcreator import ExperimentCreator
 from pypadre.eventhandler import trigger_event
-
+from pypadre.app import p_app
 
 def split(idx):
     # Do a 70:30 split

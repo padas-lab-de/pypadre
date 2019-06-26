@@ -14,7 +14,7 @@ This list contains the list of loggers which log each event occuring in the expe
 corresponding functions in the logger after extracting the required arguments required by the logger function.
 """
 from pymitter import EventEmitter
-from pypadre.base import ErrorLogger
+from pypadre.logger import ErrorLogger
 
 
 logger_list = []
@@ -254,6 +254,7 @@ class event_queue:
         self._event_queue.append(event)
         if not self._emptying_queue:
             # Create thread and empty queue
+            # TODO Check for deadlock conditions
             self.process_events()
 
 

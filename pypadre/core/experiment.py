@@ -74,9 +74,11 @@ class Experiment(MetadataEntity):
     Options supported:
     ==================
     - stdout={True|False} logs event messages to default_logger. Default = True
-    - keep_splits={True|False} if true, all split data for every run is kept (including the model, split inidices and training data)
-                               are kept in memory. If false, no split data is kept
-    - keep_runs={True|False} if true, all rund data (i.e. scores) will be kept in memory. If false, no split run data is not kept
+    - keep_splits={True|False} if true, all split data for every run is kept (including the model,
+                                   split inidices and training data) are kept in memory.
+                               If false, no split data is kept
+    - keep_runs={True|False} if true, all rund data (i.e. scores) will be kept in memory.
+                             If false, no split run data is not kept
     - n_runs = int  number of runs to conduct. todo: needs to be extended with hyperparameter search
 
     TODO:
@@ -92,7 +94,6 @@ class Experiment(MetadataEntity):
                  **options):
         # Validate input types
         self.validate_input_parameters(options=options)
-
 
         self._dataset = options.pop("dataset", None)
         assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
@@ -219,10 +220,6 @@ class Experiment(MetadataEntity):
         # we do not integrate a second framework, we do not need the mechanism
         pass
 
-    @property
-    def workflow(self):
-        return self._workflow
-
     def run(self, append_runs: bool = False):
         """
         runs the experiment
@@ -244,7 +241,7 @@ class Experiment(MetadataEntity):
 
         r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
-        if self._keep_runs:
+        if self._keep_runs or append_runs:
             self._runs.append(r)
         self._results.append(deepcopy(r.results))
         self._metrics.append(deepcopy(r.metrics))
@@ -320,15 +317,16 @@ class Experiment(MetadataEntity):
         for element in grid:
             trigger_event('EVENT_LOG_EVENT', source=self,
                           message="Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
-            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size), phase='start')
+            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
+                          phase='start')
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
-                estimator = workflow._pipeline.named_steps.get(split_params[0])
+                estimator = workflow.pipeline.named_steps.get(split_params[0])
 
                 if estimator is None:
                     assert_condition(condition=estimator is not None, source=self,
-                                  message=f"Estimator {split_params[0]} is not present in the pipeline")
+                                     message=f"Estimator {split_params[0]} is not present in the pipeline")
                     break
 
                 estimator.set_params(**{split_params[1]: element[idx]})
@@ -411,8 +409,8 @@ class Experiment(MetadataEntity):
                     estimator_name = alternate_name_mappings.get(estimator)
 
                 params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
-                params = estimators.get(estimator).get_params()
                 param_dict = dict()
+                framework = dict()
                 for param in params_list:
                     for framework in supported_frameworks:
                         if param.get(framework, None) is not None:
@@ -515,7 +513,7 @@ class Experiment(MetadataEntity):
         modules.append('pypadre')
         module_version_info = dict()
 
-        estimators = self._workflow._pipeline.named_steps
+        estimators = self.workflow.pipeline.named_steps
         # Iterate through the entire pipeline and find the unique modules
         for estimator in estimators:
             obj = estimators.get(estimator, None)
@@ -594,8 +592,8 @@ class Experiment(MetadataEntity):
                 if name_mappings.get(estimator, None) is None:
                     actual_estimator_name = alternate_name_mappings.get(estimator)
                 assert_condition(
-                    condition=name_mappings.get(actual_estimator_name).get('type', None) not in
-                              ['Classification', 'Regression'],
+                    condition=
+                    name_mappings.get(actual_estimator_name).get('type', None) not in ['Classification', 'Regression'],
                     source=self, message='Dataset without targets cannot be used for supervised learning')
 
         # Check if regression data is assigned to a classification estimator
@@ -605,6 +603,7 @@ class Experiment(MetadataEntity):
                 actual_estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
                     actual_estimator_name = alternate_name_mappings.get(estimator)
-                assert_condition(condition=name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
+                assert_condition(condition=
+                                 name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
                                  source=self, message='Classifier cannot be trained on regression data')
 

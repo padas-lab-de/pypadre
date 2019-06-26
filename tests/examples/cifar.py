@@ -24,6 +24,7 @@ def main():
     with open('vgg13.json') as json_data:
         params = json.load(json_data)
 
+    params['steps'] = 10
     obj = Wrapper(params=params)
     estimators = [('pytorch', obj)]
     workflow = Pipeline(estimators)
