@@ -617,6 +617,10 @@ class CompareMetrics:
         :return: None
         """
 
+        import sys
+        # Define the path separator based on Windows or Linux/Mac
+        sep = '\\' if str(sys.platform).lower().startswith('win') else '/'
+
         for curr_run_dir in self._run_dir:
             sub_directory_list = self.get_immediate_subdirectories(curr_run_dir)
             for sub_directory in sub_directory_list:
@@ -629,9 +633,9 @@ class CompareMetrics:
                 # read the json file into memory
                 with open(os.path.join(sub_directory, 'metrics.json'), "r") as read_file:
                     data = json.load(read_file)
-                key = sub_directory[:-6].split(sep='/')[-1]
+                key = sub_directory[:-6].split(sep=sep)[-1]
                 self._metrics[key] = data
-                run_id = sub_directory[:-6].split(sep='/')[-2][:-4]
+                run_id = sub_directory[:-6].split(sep=sep)[-2][:-4]
                 splits = self._run_split_dict.get(run_id, None)
                 if splits is None:
                     self._run_split_dict[run_id] = frozenset({key})
