@@ -1,7 +1,7 @@
 from pypadre.core import Experiment
 import sys
 
-
+# TODO maybe implement an common interface (abstract class) for backends (see BCMeta)
 class DualBackend:
     """
     For realising transparent file and http backend this class is implemented that

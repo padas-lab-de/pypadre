@@ -1,6 +1,6 @@
 from pypadre.eventhandler import trigger_event, assert_condition
 from pypadre.base import MetadataEntity
-from pypadre.core.split import Splitter, Split
+from pypadre.core.model.split import Splitter, Split
 import uuid
 
 class Run(MetadataEntity):
@@ -109,7 +109,7 @@ class Run(MetadataEntity):
         :param options: additional parameters
         :return:
         """
-        from pypadre.core.experiment import Experiment
+        from pypadre.core.model.experiment import Experiment
         assert_condition(condition=experiment is not None, source=self,
                          message="Experiment cannot be None")
         assert_condition(condition=isinstance(experiment, Experiment), source=self,

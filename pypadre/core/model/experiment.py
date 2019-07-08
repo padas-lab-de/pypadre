@@ -5,11 +5,11 @@ import pypadre.core.visitors.parameter
 from collections import OrderedDict
 from pypadre.eventhandler import trigger_event, assert_condition
 from pypadre.base import MetadataEntity
-from pypadre.core.datasets import Dataset
+from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
-from pypadre.core.sklearnworkflow import SKLearnWorkflow
-from pypadre.core.run import Run
-from pypadre.core.custom_split import split_obj
+from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
+from pypadre.core.model.run import Run
+from pypadre.core.model.split.custom_split import split_obj
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
 ####################################################################################################################
 #  Module Private Functions and Classes

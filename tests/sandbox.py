@@ -16,5 +16,5 @@ if __name__ == '__main__':
     datasets = p_app.datasets.list()
     for ds in datasets:
         dataset = p_app.datasets.get(ds, force_download=False)
-        p_app.datasets.print_dataset_details(dataset)
+        p_app.datasets.print(dataset)
     print(p_app.offline)

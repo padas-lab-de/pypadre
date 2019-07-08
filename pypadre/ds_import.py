@@ -19,7 +19,8 @@ import pypadre
 from deprecated import deprecated
 from multiprocessing import Process
 from requests.exceptions import ConnectionError
-from pypadre.core.datasets import Dataset, Attribute
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.eventhandler import assert_condition, trigger_event
 import pypadre.backend.protobuffer.proto_organizer as proto
 

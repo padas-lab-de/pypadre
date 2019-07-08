@@ -8,7 +8,7 @@ The experiments could be run
 5. Use a queueing system
 """
 from pypadre.core import Experiment
-from pypadre.core.datasets import Dataset
+from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.ds_import import load_sklearn_toys
 import threading
 import time

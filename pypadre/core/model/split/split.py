@@ -2,7 +2,7 @@ import numpy as np
 import uuid
 from pypadre.eventhandler import trigger_event, assert_condition
 from pypadre.base import MetadataEntity, exp_events, phases
-from pypadre.core.custom_split import split_obj
+from pypadre.core.model.split.custom_split import split_obj
 
 class Splitter:
     """

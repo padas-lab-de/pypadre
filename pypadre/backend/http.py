@@ -29,11 +29,13 @@ from requests_toolbelt import MultipartEncoder
 
 from pypadre.backend.http_experiments import HttpBackendExperiments
 from pypadre.backend.serialiser import PickleSerializer
-from pypadre.core.datasets import Dataset, Attribute
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.eventhandler import assert_condition, trigger_event
 import pypadre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
 
 
+# TODO don't split backend for http if we don't split backend for file (stay consistent)
 class PadreHTTPClient:
 
     def __init__(self, base_url="http://localhost:8080/api", user="", token=None

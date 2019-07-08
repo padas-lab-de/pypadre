@@ -2,6 +2,7 @@ from pypadre.utils import _const
 ####################################################################################################################
 #  API Classes
 ####################################################################################################################
+# Constants used for naming conventions. Todo maybe map these in the ontology?
 class _Phases(_const):
     experiment = "experiment"
     run = "run"

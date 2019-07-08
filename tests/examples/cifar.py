@@ -2,8 +2,7 @@ from pypadre.ds_import import load_numpy_array_multidimensional
 import numpy as np
 from sklearn.pipeline import Pipeline
 from pypa_pytorch import Wrapper
-from pypadre.core.experiment import Experiment
-from pypadre.app import p_app
+from pypadre.core.model.experiment import Experiment
 
 
 def main():

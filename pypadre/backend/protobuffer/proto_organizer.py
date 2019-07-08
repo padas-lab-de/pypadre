@@ -114,7 +114,7 @@ def createProtobuffer(dataset,binary):
             write_delimited_pb_msg(binary, pb_row)
     return proto_enlarged
 
-
+# TODO send_dataset should not be part of the proto_organizer (the proto organizer should be used for generic protobuf serialization)
 def send_Dataset(dataset,did,auth_token,binary,url="http://localhost:8080"):
     """Sends the protobuffer file to the server.
 
@@ -154,7 +154,7 @@ def send_Dataset(dataset,did,auth_token,binary,url="http://localhost:8080"):
     r.close()
     requests.session().close()
 
-
+# TODO why dataframe here? This should also not be part of the proto_organizer
 def get_Server_Dataframe(did, auth_token,url="http://localhost:8080"):
     """Fetches the requested Dataset from the Server. Returns the Dataset as pypadre.Dataset().
 

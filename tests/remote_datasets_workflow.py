@@ -25,4 +25,4 @@ for externel_dataset in p_app.datasets.download(downloads):
 
 print("Total available datasets in Padre")
 for ds in p_app.datasets.list():
-    p_app.datasets.print_dataset_details(ds)
+    p_app.datasets.print(ds)

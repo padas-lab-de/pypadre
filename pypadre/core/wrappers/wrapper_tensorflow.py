@@ -6,6 +6,8 @@ import importlib
 import os
 import random
 
+# Todo remove and make on module (repository)
+# Todo version number??? Use version file.
 __version__ = "0.0.0"
 
 class WrapperTensorFlow:

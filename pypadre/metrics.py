@@ -988,7 +988,7 @@ class CompareMetrics:
         :param experiments: List of experiment objects, paths or experiment names.
         :return: None
         """
-        from pypadre.core.experiment import Experiment
+        from pypadre.core.model.experiment import Experiment
         experiment_directory = []
         experiment_objects =[]
         experiment_names = []
@@ -1045,7 +1045,7 @@ class CompareMetrics:
         :param experiment_list: A list of experiment objects
         :return:
         """
-        from pypadre.core.experiment import Experiment
+        from pypadre.core.model.experiment import Experiment
         assert_condition(condition=isinstance(experiment_list, list) or isinstance(experiment_list, Experiment),
                          source=self, message='Incorrect input parameter type.')
 
@@ -1286,9 +1286,9 @@ class ComputeMetrics:
         :param label: Label for which the pr curve is to be calculated for multi label classification
         :return: None
         """
-        from pypadre.core.experiment import Experiment
-        from pypadre.core.run import Run
-        from pypadre.core.sklearnworkflow import SKLearnWorkflow
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.core.model.run import Run
+        from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
         from copy import deepcopy
 
         # Check if input type is correct

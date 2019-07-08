@@ -14,7 +14,8 @@ import numpy as np
 from deprecated import deprecated
 
 from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
-from pypadre.core.datasets import Dataset, Attribute
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core import Experiment, Run, Split
 
 

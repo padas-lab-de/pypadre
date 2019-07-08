@@ -1,5 +1,5 @@
 """
-General visitors, that can be combined recursively to extract arbitraty data from any python object.
+General visitors, that can be combined recursively to extract arbitrary data from any python object.
 """
 
 import abc

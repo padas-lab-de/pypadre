@@ -4,8 +4,8 @@ Unit test testing the functionality of the pypadre.datasets module
 import unittest
 import numpy as np
 
-from pypadre.core.datasets import Dataset
-from pypadre.core.datasets import Attribute
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.dataset.attribute import Attribute
 
 test_numpy_array = np.array([[1.0, "A", 2],
                         [2.0, "B", 2],
