@@ -4,12 +4,12 @@ import shutil
 from pypadre import Dataset
 from pypadre.backend.interfaces.backend.generic.i_searchable import ISearchable
 from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
-from pypadre.backend.local.file.interfaces.i_base_file_backend import IBaseFileBackend
+from pypadre.backend.local.file.interfaces.i_base_file_backend import IBaseBinaryFileBackend
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.util.file_util import dir_list, get_path
 
 
-class PadreDatasetFileBackend(IDatasetBackend, IBaseFileBackend, ISearchable):
+class PadreDatasetFileBackend(IDatasetBackend, IBaseBinaryFileBackend, ISearchable):
 
     def __init__(self, parent):
         super().__init__(parent=parent, name="datasets")
@@ -75,7 +75,12 @@ class PadreDatasetFileBackend(IDatasetBackend, IBaseFileBackend, ISearchable):
             raise e
 
     def delete(self, uid):
-        pass
+        """
+        :param uid: the id of the dataset to delete
+        :return:
+        """
+        if self.has_dir(uid):
+            shutil.rmtree(self.get_dir(uid))
 
     def put_progress(self, obj):
         pass

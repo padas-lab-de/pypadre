@@ -18,6 +18,9 @@ class IBaseMetaFileBackend(ISubBackend):
     def get_dir(self, name):
         return get_path(self.root_dir, str(name))
 
+    def has_dir(self, name):
+        return os.path.exists(self.get_dir(name))
+
     def get_meta_file(self, name):
         with open(os.path.join(self.get_dir(name), "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
