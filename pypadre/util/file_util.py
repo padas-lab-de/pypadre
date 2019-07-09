@@ -2,10 +2,6 @@ import os
 import re
 
 
-def get_dir(root_dir, name):
-    return get_path(root_dir, str(name))
-
-
 def get_path(root_dir, name, create=True):
     # internal get or create path function
     _dir = os.path.expanduser(os.path.join(root_dir, name))

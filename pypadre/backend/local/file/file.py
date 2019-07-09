@@ -15,7 +15,7 @@ class PadreFileBackend(IBackend):
 
     def __init__(self, config):
         # TODO dp: add check for root_dir
-        self.root_dir = get_path(config.get('root_dir'), "")
+        super().__init__(config)
         self._dataset = PadreDatasetFileBackend(self)
         self._experiment_repository = PadreProjectHTTPBackend(self, )
 
