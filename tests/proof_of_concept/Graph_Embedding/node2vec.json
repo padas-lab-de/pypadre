@@ -1,0 +1,16 @@
+{
+	"dataset": "CiteSeer",
+	"dimension": 128,
+	"alpha": 0,
+	"seed": 1,
+	"min_count": 0,
+	"window": 5,
+	"sg": 1,
+	"hs": 0,
+	"path_length": 80,
+	"num_paths": 10,
+    "p": 0.25,
+    "q": 4,
+	"workers": 1,
+	"directed": true
+}

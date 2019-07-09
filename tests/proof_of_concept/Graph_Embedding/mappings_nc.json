@@ -1,0 +1,148 @@
+{
+	"strategies": {
+		"ONEVSRESTCLASSIFIER": {
+			"path": "sklearn.multiclass.OneVsRestClassifier",
+			"params": {
+				"n_jobs": {
+					"type": ["int"],
+					"optional": true,
+					"default": null
+				}
+			}
+		},
+		"ONEVSONECLASSIFIER": {
+			"path": "sklearn.multiclass.OneVsRestClassifier",
+			"params": {
+				"n_jobs": {
+					"type": ["int"],
+					"optional": true,
+					"default": null
+				}
+			}
+		}
+	},
+	"estimators": {
+		"LOGISTICREGRESSION": {
+			"path": "sklearn.linear_model.logistic.LogisticRegression",
+			"params": {
+				"penalty": {
+					"type": ["str"],
+					"optional": true,
+					"default": "l2"
+				},
+				"dual": {
+					"type": ["bool"],
+					"optional": true,
+					"default": false
+				},
+				"tol": {
+					"type": ["float"],
+					"optional": true,
+					"default": 0.0001
+				},
+				"C": {
+					"type": ["float"],
+					"optional": true,
+					"default": 1.0
+				},
+				"fit_intercept": {
+					"type": ["bool"],
+					"optional": true,
+					"default": true
+				},
+				"intercept_scaling": {
+					"type": ["float"],
+					"optional": true,
+					"default": 1
+				},
+				"class_weight": {
+					"type": ["dict", "str"],
+					"optional": true,
+					"default": null
+				},
+				"random_state": {
+					"type": ["int"],
+					"optional": true,
+					"default": null
+				},
+				"solver": {
+					"type": ["str"],
+					"optional": true,
+					"default": "liblinear"
+				},
+				"multi_class": {
+					"type": ["str"],
+					"optional": true,
+					"default": "ovr"
+				},
+				"verbose": {
+					"type": ["int"],
+					"optional": true,
+					"default": 0
+				},
+				"max_iter": {
+					"type": ["int"],
+					"optional": true,
+					"default": 100
+				},
+				"warm_start0": {
+					"type": ["bool"],
+					"optional": true,
+					"default": false
+				},
+				"n_jobs": {
+					"type": ["int"],
+					"optional": true,
+					"default": 1
+				}
+			}
+		},
+		"LINEARREGRESSION": {
+			"path": "sklearn.linear_model.base.LinearRegression",
+			"params": {
+				"fit_intercept": {
+					"type": ["bool"],
+					"optional": true,
+					"default": true
+				},
+				"normalize": {
+					"type": ["bool"],
+					"optional": true,
+					"default": false
+				},
+				"copy_X": {
+					"type": ["bool"],
+					"optional": true,
+					"default": true
+				}
+			}
+		}
+	},
+	"metrics": {
+		"F1_SCORE": {
+			"path": "sklearn.metrics.f1_score",
+			"params": {
+				"labels": {
+					"type": ["list"],
+					"optional": true,
+					"default": null
+				},
+				"pos_label": {
+					"type": ["str", "int"],
+					"optional": true,
+					"default": 1
+				},
+				"average": {
+					"type": ["str"],
+					"optional": true,
+					"default": "binary"
+				},
+				"sample_weight": {
+					"type": ["iterable"],
+					"optional": true,
+					"default": null
+				}
+			}
+		}
+	}
+}

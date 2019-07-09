@@ -183,9 +183,9 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
-        if experiment.requires_preprocessing:
-            with open(os.path.join(dir, "preprocessing_workflow.bin"), 'wb') as f:
-                f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
+        # if experiment.requires_preprocessing: in get_experiment we don't check the preprocessed flag!!
+        with open(os.path.join(dir, "preprocessing_workflow.bin"), 'wb') as f:
+            f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
 
     @deprecated("Use get_experiment instead")
     def get_local_experiment(self, id_, load_workflow=True):
@@ -426,6 +426,20 @@ class ExperimentFileRepository:
             self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
 
         self._file.write("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                              curr_value=curr_value,
+                                                                                              limit=limit))
+    def log_preprocessing_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("PREPROCESSING PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
                                                                                               curr_value=curr_value,
                                                                                               limit=limit))
 

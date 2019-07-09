@@ -67,6 +67,30 @@ class PadreLogger(LoggerBase):
             self.log_event(experiment, exp_events.stop, phase=phases.experiment)
             self._backend.log_end_experiment()
 
+    def log_start_preprocessing(self, experiment):
+        """
+        This function handles the start of a preprocessing phase
+
+        :param experiment: The experiment object
+
+        :return:
+        """
+        if self.has_backend():
+            self.log_event(experiment, exp_events.start, phase=phases.preprocessing)
+
+    def log_stop_preprocessing(self, experiment, append_transformations: bool =False):
+        """
+        This function handles the start of a preprocessing phase
+
+        :param experiment: The experiment object
+        :param append_transformations: Whether the new representation of the dataset are to be saved
+
+        :return:
+        """
+        if self.has_backend():
+            # self._backend.
+            self.log_event(experiment, exp_events.stop, phase=phases.preprocessing)
+
     def log_start_run(self, run):
         """
         This function handles the start of a run
@@ -161,6 +185,17 @@ class PadreLogger(LoggerBase):
         """
         if self._backend:
             self._backend.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
+
+    def log_preprocessing_progress(self, curr_value, limit, phase):
+        """
+        Reports the progress of the preprocessing to the backend
+        :param curr_value: Current preprocessing configuration that is executing
+        :param limit: Total number of transformations on the dataset
+        :param phase: Start/Stop of the preprocessing phase
+        :return:
+        """
+        if self._backend:
+            self._backend.log_preprocessing_progress(curr_value=curr_value, limit=limit, phase=phase)
 
     def log_run_progress(self, curr_value, limit, phase):
         """
