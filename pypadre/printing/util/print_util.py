@@ -1,4 +1,6 @@
 # noinspection PyUnresolvedReferences
+import itertools
+
 from StringIO import StringIO
 
 from beautifultable import BeautifulTable
@@ -27,48 +29,42 @@ class StringBuilder:
         return self._file_str.getvalue()
 
 
-class Spinner:
-    busy = False
-    delay = 0.1
+class Spinner(object):
+    spinner_cycle = itertools.cycle(['-', '/', '|', '\\'])
 
-    @staticmethod
-    def spinning_cursor():
-        while 1:
-            for cursor in '|/-\\': yield cursor
+    def __init__(self):
+        self.stop_running = threading.Event()
+        self.spin_thread = threading.Thread(target=self.init_spin)
 
-    def __init__(self, delay=None):
-        self.spinner_generator = self.spinning_cursor()
-        if delay and float(delay): self.delay = delay
+    def start(self):
+        self.spin_thread.start()
 
-    def spinner_task(self):
-        while self.busy:
-            sys.stdout.write(next(self.spinner_generator))
+    def stop(self):
+        self.stop_running.set()
+        self.spin_thread.join()
+
+    def init_spin(self):
+        while not self.stop_running.is_set():
+            sys.stdout.write(next(self.spinner_cycle))
             sys.stdout.flush()
-            time.sleep(self.delay)
-            sys.stdout.write('\b')
-            sys.stdout.flush()
-
-    def __enter__(self):
-        self.busy = True
-        threading.Thread(target=self.spinner_task).start()
-
-    def __exit__(self, exception, value, tb):
-        self.busy = False
-        time.sleep(self.delay)
-        if exception is not None:
-            return False
+            time.sleep(0.25)
+            sys.stdout.write('\r')
 
 
-def to_table(table=None, *args):
-    assert_condition(condition=all(isinstance(x, args[0].__class__) for x in args), source="to_table",
-                     message="Arguments can't be printed in the same table. They are not homogeneous.")
+def to_table(objects: list, columns=None, table=None):
+    if objects is None:
+        return get_default_table()
+    if columns is None:
+        columns = objects[0].tablefy_header()
     if table is None:
         table = get_default_table()
-    table.column_headers = args[0].tablefy_header()
-    with Spinner:
-        for obj in args:
-            table.append_row(
-                [str(x) for x in obj.tablefy_to_row()])
+    table.column_headers = objects[0].tablefy_header(*columns)
+    spinner = Spinner()
+    spinner.start()
+    for obj in objects:
+        table.append_row(
+            [str(x) for x in obj.tablefy_to_row(*columns)])
+    spinner.stop()
     return table
 
 

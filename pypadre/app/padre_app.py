@@ -15,12 +15,11 @@ Architecture of the module
 
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
+from pypadre.app.backend.backend_app import BackEndApp
+from pypadre.app.config.padre_config import PadreConfig
 from pypadre.app.dataset.dataset_app import DatasetApp
 from pypadre.app.experiment.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
-from pypadre.backend.dual_backend import DualBackend
-from pypadre.backend.file import PadreFileBackend
-from pypadre.backend.http import PadreHTTPClient
 from pypadre.base import PadreLogger
 from pypadre.eventhandler import add_logger
 from pypadre.experimentcreator import ExperimentCreator
@@ -35,18 +34,15 @@ class PadreApp:
 
     # todo improve printing. Configure a proper printer or find a good ascii printing package
 
-    def __init__(self, config=None, printer=None):
+    def __init__(self, config=None, printer=None, backends=None):
+        # Set default config if none is given
         if config is None:
             self._config = PadreConfig()
         else:
             self._config = config
-        self._offline = "offline" not in self._config.general or self._config.general["offline"]
-        self._http_repo = PadreHTTPClient(**self._config.http_backend_config, online=not self.offline)
-        self._file_repo = PadreFileBackend(**self._config.local_backend_config)
-        self._dual_repo = DualBackend(self._file_repo, self._http_repo)
-        # Adding the backend to the logger from the config file
-        logger.backend = self._dual_repo
+
         self._print = printer
+        self._backend_app = BackEndApp(self._config)
         self._dataset_app = DatasetApp(self)
         self._experiment_app = ExperimentApp(self)
         self._project_app = ProjectApp(self)
@@ -60,11 +56,11 @@ class PadreApp:
         sets the current offline / online status of the app. Permanent changes need to be done via the config.
         :return: True, if requests are not passed to the server
         """
-        return self._offline
+        return "offline" not in self._config.get("offline", "GENERAL")
 
     @offline.setter
     def offline(self, offline):
-        self._offline = offline
+        self._config.set("offline", offline, "GENERAL")
 
     @property
     def datasets(self):

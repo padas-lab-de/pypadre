@@ -6,11 +6,11 @@ if __name__ == '__main__':
     p_app.offline = True # work only local
     # pypadre._http_repo.authenticate("test", "mgrani")
     print("Available datasets:")
-    datasets = p_app.datasets.list(prnt=True)
+    datasets = p_app.datasets.list()
     for ds in datasets:
         p_app.datasets.delete(ds, False)
     print("Available datasets after deletion:")
-    p_app.datasets.list(prnt=True)
+    p_app.datasets.list()
     for ds in ds_import.load_sklearn_toys():
         p_app.datasets.put(ds, upload=False)
     datasets = p_app.datasets.list()

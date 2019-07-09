@@ -21,12 +21,12 @@ class DatasetApp:
         :return:
         """
         # todo: merge results and allow multiple repositories. all should have same signature. then iterate over repos
-        local_datasets = self._parent.local_backend.datasets.list(search_name, search_metadata)
+        local_datasets = self._parent.local_backend.datasets.list()
         if local_datasets is None:
             local_datasets = []
         remote_datasets = []
         if not self._parent.offline:
-            remote_datasets = self._parent.remote_backend.datasets.list(search_name, search_metadata, start, count)
+            remote_datasets = self._parent.remote_backend.datasets.list()
         local_datasets.extend(remote_datasets)
 
         if prnt:

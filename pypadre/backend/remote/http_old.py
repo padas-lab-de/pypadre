@@ -27,12 +27,12 @@ from deprecated import deprecated
 from google.protobuf.internal.encoder import _VarintBytes
 from requests_toolbelt import MultipartEncoder
 
-from pypadre.backend.http_experiments import HttpBackendExperiments
+from pypadre.backend.http.http_experiments import HttpBackendExperiments
 from pypadre.backend.serialiser import PickleSerializer
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.eventhandler import assert_condition, trigger_event
-import pypadre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
+import pypadre.backend.http.protobuffer.protobuf.datasetV1_pb2 as proto
 
 
 # TODO don't split backend for http if we don't split backend for file (stay consistent)
@@ -441,7 +441,7 @@ class HTTPBackendDatasets:
         return response
 
     def make_proto(self, dataset, _file):
-        from pypadre.backend.protobuffer import proto_organizer
+        from pypadre.backend.http.protobuffer import proto_organizer
         pd_dataframe = dataset._binary.pandas_repr()
         pb_meta = proto.Meta()
         pb_meta.headers[:] = [str(header) for header in list(pd_dataframe)]
@@ -462,7 +462,7 @@ class HTTPBackendDatasets:
         return _file
 
     def proto_to_dataframe(self, pb_data):
-        from pypadre.backend.protobuffer import proto_organizer
+        from pypadre.backend.http.protobuffer import proto_organizer
         pb_pos = 0
         data_rows = []
         while pb_pos < len(pb_data):

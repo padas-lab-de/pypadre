@@ -15,6 +15,7 @@ from pypadre.core.model.dataset.container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer, NumpyContainerMultiDimensional
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
 from pypadre.printing.util.print_util import StringBuilder, get_default_table
+from pypadre.util.dict_util import get_dict_attr
 from pypadre.util.utils import _const
 from pypadre.printing.tablefyable import Tablefyable
 import networkx as nx
@@ -43,6 +44,9 @@ class Dataset(MetadataEntity, Tablefyable):
         self._binary_loader_fn = None
         self._binary_format = None
         self._fill_metedata()
+        self._registry.update({'id': get_dict_attr(self, 'id').fget, 'name': get_dict_attr(self, 'name').fget,
+                               'type': get_dict_attr(self, 'type').fget, 'size': get_dict_attr(self, 'size').fget,
+                               'format': get_dict_attr(self, 'binary_format')})
 
     def _get_binary(self):
         """
@@ -330,13 +334,6 @@ class Dataset(MetadataEntity, Tablefyable):
             else:
                 sb.append_line("\t%s=%s" % (k, str(v)))
         return sb
-
-    def tablefy_to_row(self):
-        return [self.id, self.name, self.type, self.num_attributes]
-
-    @staticmethod
-    def tablefy_header():
-        return ["ID", "Name", "Type", "#att"]
 
 
 def _check_profiling_datatype(content):

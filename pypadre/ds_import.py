@@ -22,7 +22,7 @@ from requests.exceptions import ConnectionError
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.eventhandler import assert_condition, trigger_event
-import pypadre.backend.protobuffer.proto_organizer as proto
+import pypadre.backend.http.protobuffer.proto_organizer as proto
 
 
 def _split_DESCR(s):
@@ -582,7 +582,7 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
 
     binary = tempfile.TemporaryFile(mode='w+b')
 
-    proto_enlarged = pypadre.backend.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
+    proto_enlarged = pypadre.backend.http.http.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
 
     hed = {'Authorization': auth_token}
 

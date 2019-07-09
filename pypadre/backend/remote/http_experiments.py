@@ -7,7 +7,6 @@ import json
 import re
 import tempfile
 import uuid
-from collections import OrderedDict
 from itertools import groupby
 
 import requests as req
@@ -15,7 +14,7 @@ import numpy as np
 from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal.encoder import _VarintBytes
 
-from pypadre.backend.protobuffer.protobuf import resultV1_pb2 as proto
+from pypadre.backend.http.protobuffer.protobuf import resultV1_pb2 as proto
 from pypadre import experimentcreator
 from pypadre.core import Experiment, Run, Split
 from pypadre.backend.serialiser import PickleSerializer

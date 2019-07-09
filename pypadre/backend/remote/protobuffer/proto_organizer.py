@@ -4,7 +4,7 @@ from requests_toolbelt import MultipartEncoder
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
 import pandas as pd
-import pypadre.backend.protobuffer.protobuf.datasetV1_pb2 as proto
+import pypadre.backend.http.protobuffer.protobuf.datasetV1_pb2 as proto
 import requests
 
 

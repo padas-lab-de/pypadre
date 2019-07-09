@@ -82,18 +82,20 @@ class PadreConfig:
 
     def default(self):
         """
-        :return: default values for
+        :return: default values of the config
         """
         return {
-            "HTTP BACKEND": {
-                "base_url": _BASE_URL,
-                "user": "mgrani",
-            },
-            "LOCAL BACKEND": {
-                "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre")
-            },
             "GENERAL": {
-                "offline": True
+                "offline": True,
+                "backends": [
+                    {
+                        "base_url": _BASE_URL,
+                        "user": "mgrani",
+                    },
+                    {
+                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre")
+                    }
+                ]
             }
         }
 
@@ -163,6 +165,7 @@ class PadreConfig:
     def get(self, key, section='HTTP BACKEND'):
         """
         Get value for given key.
+        :param section: Section to be queried
         :param key: Any key in config for any section
         :type key: str
         :return: Found value or False

@@ -8,7 +8,7 @@ import uuid
 import numpy as np
 from mock import MagicMock, patch
 
-from pypadre.backend.http_experiments import HttpBackendExperiments
+from pypadre.backend.http.http_experiments import HttpBackendExperiments
 
 
 class TestPutSplit(unittest.TestCase):

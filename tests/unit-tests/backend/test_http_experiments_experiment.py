@@ -7,7 +7,7 @@ import unittest
 
 from mock import MagicMock, patch
 
-from pypadre.backend.http_experiments import HttpBackendExperiments
+from pypadre.backend.http.http_experiments import HttpBackendExperiments
 from pypadre.backend.http import PadreHTTPClient
 
 

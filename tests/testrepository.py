@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-import pypadre.backend.file as parep
+import pypadre.backend.local.file as parep
 import pypadre.ds_import as dsimp
 
 

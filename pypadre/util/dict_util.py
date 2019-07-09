@@ -14,3 +14,10 @@ def dict_merge(dct, merge_dct):
             dict_merge(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]
+
+
+def get_dict_attr(obj, attr):
+    for obj in [obj] + obj.__class__.mro():
+        if attr in obj.__dict__:
+            return obj.__dict__[attr]
+    raise AttributeError

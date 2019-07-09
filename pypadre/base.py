@@ -7,6 +7,8 @@ from time import time
 from datetime import datetime
 from abc import ABC
 
+from pypadre.printing.tablefy import tableColumn
+
 
 class _const:
 
@@ -490,7 +492,6 @@ class MetadataEntity:
                 self._id = None
         else:
             self._id = id_
-
 
     @property
     def id(self):

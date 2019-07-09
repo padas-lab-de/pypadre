@@ -8,7 +8,7 @@ import click
 #################################
 ####### DATASETS FUNCTIONS ##########
 #################################
-from pypadre.enums import data_sources
+from pypadre.enums.data_sources import DataSources
 
 
 @click.group()
@@ -52,12 +52,14 @@ def dataset(ctx, dataset_id, binary, format):
 @dataset.command(name="import")
 @click.argument('dataset_id')
 @click.option('--source', required=True, multiple='true', help='source of the datasets',
-              type=click.Choice(data_sources))
+              type=click.Choice(DataSources))
 @click.pass_context
 def dataset(ctx, dataset_id, source):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    if source == "oml":
+    if source == DataSources.oml:
         ctx.obj["pypadre"].datasets.get_openml_dataset(dataset_id)
+    if source == DataSources.sklearn:
+        ctx.obj["pypadre"].datasets.do_default_imports(True)
 
 
 # @dataset.command(name="upload_scratchdata_multi")
