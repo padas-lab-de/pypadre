@@ -183,9 +183,9 @@ class ExperimentFileRepository:
         with open(os.path.join(dir, "workflow.bin"), 'wb') as f:
             f.write(self._binary_serializer.serialise(experiment.workflow))
 
-        # if experiment.requires_preprocessing: in get_experiment we don't check the preprocessed flag!!
-        with open(os.path.join(dir, "preprocessing_workflow.bin"), 'wb') as f:
-            f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
+        if experiment.requires_preprocessing:
+            with open(os.path.join(dir, "preprocessing_workflow.bin"), 'wb') as f:
+                f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
 
     @deprecated("Use get_experiment instead")
     def get_local_experiment(self, id_, load_workflow=True):
@@ -220,8 +220,11 @@ class ExperimentFileRepository:
             configuration = self._metadata_serializer.deserialize(f.read())
         with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
-        with open(os.path.join(dir_, "preprocessing_workflow.bin"), 'rb') as f:
-            preprocessing_workflow = self._binary_serializer.deserialize(f.read())
+        if os.path.isfile(os.path.join(dir_, "preprocessing_workflow.bin")):
+            with open(os.path.join(dir_, "preprocessing_workflow.bin"), 'rb') as f:
+                preprocessing_workflow = self._binary_serializer.deserialize(f.read())
+        else:
+            preprocessing_workflow = None
         experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
         experiment_params[id_]["preprocessing"] = preprocessing_workflow

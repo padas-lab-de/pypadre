@@ -277,20 +277,34 @@ class Experiment(MetadataEntity):
 
         if pre_parameters is None:
             if parameters is None:
+                # Fire event
+                trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+                if self.requires_preprocessing:
+                    self.preprocess()
                 self._experiment_configuration = self.create_experiment_configuration_dict(single_run=True,
                                                                                            single_transformation=True)
                 self.run()
 
                 # Fire event
                 trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
+
+                # Fire event
+                trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
                 return
             else:
+                # Fire event
+                trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+
                 self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters,
                                                                                            single_run=False,
                                                                                            single_transformation=True)
                 # Fire event
                 trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
-                self._execute(parameters=parameters,preprocessing_workflow=self.preprocessing_workflow)
+                self._execute(parameters=parameters)
+
+                # Fire event
+                trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
+                return
 
         # Update metadata with version details of packages used in the (preprocessing)/workflow
         self.update_experiment_metadata_with_workflow()
@@ -350,12 +364,11 @@ class Experiment(MetadataEntity):
 
                 transformer.set_params(**{split_params[1]: element[idx]})
 
-            self._execute(parameters=parameters, preprocessing_workflow=pre_workflow)
+            self._execute(parameters=parameters)
 
             trigger_event('EVENT_LOG_PREPROCESSING_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
                           phase='stop')
             curr_executing_index += 1
-            self._preprocessed = False
 
         # Fire event
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
@@ -375,18 +388,7 @@ class Experiment(MetadataEntity):
                          source=self,
                          message='Incorrect parameter type to the execute function')
 
-        # if parameters is None:
-        #     self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
-        #     self.run()
-        #
-        #     # Fire event
-        #     trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
-        #     return
-
-        # Update metadata with version details of packages used in the workflow
-        # self.update_experiment_metadata_with_workflow()
-
-        if preprocessing_workflow is not None:
+        if preprocessing_workflow is not None or self.requires_preprocessing:
             # Fire event
             trigger_event('EVENT_START_PREPROCESSING', experiment=self)
             self.preprocess(preprocessing_workflow=preprocessing_workflow)
@@ -463,18 +465,25 @@ class Experiment(MetadataEntity):
     def preprocess(self,preprocessing_workflow=None):
         """
         Runs the preprocessing pipeline and populates the preprocessed dataset
+        :param preprocessing_workflow: A pipeline to override the existent preprocessing workflow if needed.
         :return: None
         """
         from copy import deepcopy
 
+        # reset flag
+        self._preprocessed = False
+
+        if preprocessing_workflow is not None:
+            self._set_preprocessing_workflow(preprocessing_workflow)
         # Preprocess the data
-        preprocessed_data = preprocessing_workflow.fit_transform(self.dataset.features(), self.dataset.targets())
+        preprocessed_data = self.preprocessing_workflow.fit_transform(self.dataset.features(), self.dataset.targets())
         # Copy the dataset so that metadata and attributes remain consistent
         self._preprocessed_dataset = deepcopy(self.dataset)
 
         # Replace the data by concatenating with the targets
         self._preprocessed_dataset.replace_data(preprocessed_data, self._keep_attributes)
-        # Set flag
+
+        # set flag for dataset fetching
         self._preprocessed = True
 
     def create_experiment_configuration_dict(self, params=None, preprocessing_params=None, single_run=False, single_transformation=False):
@@ -506,7 +515,7 @@ class Experiment(MetadataEntity):
         experiment_dict['workflow'] = workflow
 
         # If there is a preprocessing pipeline, add it to the configuration
-        if self._preprocessed :
+        if self.preprocessing_workflow is not None :
             preprocessing_workflow = list(self._preprocessed_workflow.named_steps.keys())
             experiment_dict['preprocessing'] = preprocessing_workflow
 
@@ -598,11 +607,14 @@ class Experiment(MetadataEntity):
 
     @property
     def requires_preprocessing(self):
-        return self._preprocessed
+        return self.preprocessing_workflow is not None
 
     @property
     def preprocessing_workflow(self):
         return self._preprocessed_workflow
+
+    def _set_preprocessing_workflow(self, preprocessing_workflow):
+        self._preprocessed_workflow = preprocessing_workflow
 
     def __str__(self):
         s = []
@@ -732,12 +744,13 @@ class Experiment(MetadataEntity):
 
         # Check if all transformers names are present in the name mappings
         pre_workflow = options.get('preprocessing')
-        for estimator in pre_workflow.named_steps:
-            assert_condition(condition=name_mappings.get(estimator, None) is not None or
-                                       alternate_name_mappings.get(str(estimator).lower(), None) is not None,
-                             source=self,
-                             message='Transformer or estimator {estimator} not present in name mappings or '
-                                     'alternate name mappings'.format(estimator=estimator))
+        if pre_workflow is not None:
+            for estimator in pre_workflow.named_steps:
+                assert_condition(condition=name_mappings.get(estimator, None) is not None or
+                                           alternate_name_mappings.get(str(estimator).lower(), None) is not None,
+                                 source=self,
+                                 message='Transformer or estimator {estimator} not present in name mappings or '
+                                         'alternate name mappings'.format(estimator=estimator))
 
         # Check if dataset has targets, and if supervised learning is used, then throw an error
         if options.get('dataset').targets() is None:

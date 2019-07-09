@@ -42,15 +42,15 @@ def main():
                                ]}
     params_dict['node_classification'] = param_nc
     param_emb = {"dataset": "Wikipedia",
-                 "dimension": [28,56,128,256],
+                 "dimension": [56,128],
                  "alpha": [0],
                  "seed": [1],
                  "min_count": [0],
-                 "window": [4,5,8],
+                 "window": [8],
                  "sg": [1],
                  "hs": [1],
-                 "path_length": [40,60,80],
-                 "num_paths": [5,10,20]
+                 "path_length": [80],
+                 "num_paths": [10]
                     }
     preprocessing_params_dict['deepwalk'] = param_emb
     workflow = experiment_helper.create_test_pipeline(['node_classification'])
