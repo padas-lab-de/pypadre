@@ -7,7 +7,3 @@ class ISearchable:
     @abstractmethod
     def list(self, search: dict):
         pass
-
-    @abstractmethod
-    def list_id(self, search):
-        pass

@@ -23,3 +23,4 @@ notebook==5.7.4
 seaborn==0.9.0
 matplotlib==3.0.0
 Sphinx==2.0.1
+jsonpickle==1.2

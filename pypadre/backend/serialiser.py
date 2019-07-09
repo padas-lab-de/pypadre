@@ -4,7 +4,10 @@ import msgpack_numpy as mn
 
 # TODO : we should support faster / more sophisticated / cross-plattform serialisation. for example using pyarrow
 # TODO: write PickleSerialiser Test
-class PickleSerializer(object):
+from pypadre.backend.interfaces.i_serializer import Serializer
+
+
+class PickleSerializer(Serializer):
     """
     Serialiser using pythons pickle.
     """
@@ -28,7 +31,7 @@ class PickleSerializer(object):
         return pickle.loads(buffer)
 
 
-class JSonSerializer:
+class JSonSerializer(Serializer):
 
     @staticmethod
     def serialise(obj):
@@ -38,7 +41,8 @@ class JSonSerializer:
     def deserialize(buffer):
         return json.loads(buffer)
 
-class MsgPack:
+
+class MsgPack(Serializer):
 
     @staticmethod
     def serialise(obj):

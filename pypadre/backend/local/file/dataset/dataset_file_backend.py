@@ -1,9 +1,10 @@
 import os
 
+from pypadre import Dataset
 from pypadre.backend.interfaces.backend.generic.i_searchable import ISearchable
 from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
 from pypadre.backend.local.file.interfaces.i_searchable_file import ISearchableFile
-from pypadre.util.file_util import dir_list
+from pypadre.util.file_util import dir_list, get_path
 
 
 class PadreDatasetFileBackend(IDatasetBackend, ISearchableFile, ISearchable):
@@ -21,6 +22,9 @@ class PadreDatasetFileBackend(IDatasetBackend, ISearchableFile, ISearchable):
         # todo apply the search filter.
         # todo implement search package
         dirs = dir_list(self.root_dir, "")
+
+        Dataset()
+
         return dirs  # [self.get(dir, metadata_only=True) for dir in dirs]
 
     def list_id(self, search):
@@ -59,6 +63,7 @@ class PadreDatasetFileBackend(IDatasetBackend, ISearchableFile, ISearchable):
         return ds
 
     def put(self, obj):
+        _dir = _get_path(self.root_dir, str(dataset.name))
         pass
 
     def delete(self, uid):
@@ -66,3 +71,6 @@ class PadreDatasetFileBackend(IDatasetBackend, ISearchableFile, ISearchable):
 
     def put_progress(self, obj):
         pass
+
+    def _get_dir(obj, name):
+        return get_path(obj.root_dir, str(name))
