@@ -575,10 +575,10 @@ class ExperimentCreator:
         :return: A dictionary containing all the available estimators
         """
         components = dict()
-        for estimator in name_mappings:
-            components[estimator] = name_mappings.get(estimator).get('implementation').get('scikit-learn') if \
-                name_mappings.get(estimator).get('implementation').get('scikit-learn') is not None \
-                else name_mappings.get(estimator).get('implementation').get('graph_embedding')
+        for framework in supported_frameworks:
+            for estimator in name_mappings:
+                if name_mappings.get(estimator).get('implementation').get(framework) is not None:
+                    components[estimator] = name_mappings.get(estimator).get('implementation').get(framework)
 
 
         return components
@@ -878,7 +878,7 @@ class ExperimentCreator:
             exp_params = experiments.get(experiment)
             if exp_params is None:
                 continue
-
+            #keep_attributes=True, preprocessing_params=None
             name = exp_params.get('name', None)
             description = exp_params.get('description', None)
             pipeline = exp_params.get('workflow', None)
@@ -887,6 +887,8 @@ class ExperimentCreator:
             keep_splits = exp_params.get('keep_splits', False)
             function = exp_params.get('function', None)
             preprocessing = exp_params.get('preprocessing', None)
+            preprocessing_params = exp_params.get('preprocessing_params',None)
+            keep_attributes = exp_params.get('keep_attributes',None)
             params = exp_params.get('params', None)
 
             # Create the pipeline and if it is not possible move to next experiment
@@ -909,7 +911,8 @@ class ExperimentCreator:
 
             self.create(name=name, description=description, workflow=workflow, dataset_list=dataset,
                         params=params, strategy=strategy, keep_splits=keep_splits, function=function,
-                        preprocessing=preprocessing)
+                        preprocessing=preprocessing, preprocessing_params=preprocessing_params,
+                        keep_attributes=keep_attributes)
 
         return True
 

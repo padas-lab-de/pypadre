@@ -280,7 +280,9 @@ class Experiment(MetadataEntity):
                 # Fire event
                 trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
                 if self.requires_preprocessing:
+                    trigger_event('EVENT_START_PREPROCESSING', experiment=self)
                     self.preprocess()
+                    trigger_event('EVENT_STOP_PREPROCESSING', experiment=self, append_transformations=True)
                 self._experiment_configuration = self.create_experiment_configuration_dict(single_run=True,
                                                                                            single_transformation=True)
                 self.run()
@@ -515,7 +517,7 @@ class Experiment(MetadataEntity):
         experiment_dict['workflow'] = workflow
 
         # If there is a preprocessing pipeline, add it to the configuration
-        if self.preprocessing_workflow is not None :
+        if self.requires_preprocessing :
             preprocessing_workflow = list(self._preprocessed_workflow.named_steps.keys())
             experiment_dict['preprocessing'] = preprocessing_workflow
 
@@ -548,34 +550,36 @@ class Experiment(MetadataEntity):
             # Only those parameters that are passed to the grid search need to be filled
             experiment_dict['params'] = params
 
-        if single_transformation is True:
-            transformer_dict = dict()
-            # All the parameters of the transformers need to be filled into the params dictionary
-            transformers = self.preprocessing_workflow.named_steps
-            for transformer in transformers:
+        if self.requires_preprocessing:
 
-                obj_params = transformers.get(transformer).get_params()
-                transformer_name = transformer
-                if name_mappings.get(transformer, None) is None:
-                    transformer_name = alternate_name_mappings.get(str(transformer).lower())
+            if single_transformation is True:
+                transformer_dict = dict()
+                # All the parameters of the transformers need to be filled into the params dictionary
+                transformers = self.preprocessing_workflow.named_steps
+                for transformer in transformers:
 
-                params_list = name_mappings.get(transformer_name).get('hyper_parameters').get('model_parameters')
-                param_dict = dict()
-                framework = dict()
-                for param in params_list:
-                    for framework in supported_frameworks:
-                        if param.get(framework, None) is not None:
-                            break
-                    param_name = param.get(framework).get('path')
-                    param_dict[param_name] = obj_params.get(param_name)
+                    obj_params = transformers.get(transformer).get_params()
+                    transformer_name = transformer
+                    if name_mappings.get(transformer, None) is None:
+                        transformer_name = alternate_name_mappings.get(str(transformer).lower())
 
-                transformer_dict[transformer] = deepcopy(param_dict)
+                    params_list = name_mappings.get(transformer_name).get('hyper_parameters').get('model_parameters')
+                    param_dict = dict()
+                    framework = dict()
+                    for param in params_list:
+                        for framework in supported_frameworks:
+                            if param.get(framework, None) is not None:
+                                break
+                        param_name = param.get(framework).get('path')
+                        param_dict[param_name] = obj_params.get(param_name)
 
-            experiment_dict['preprocessing_params'] = transformer_dict
+                    transformer_dict[transformer] = deepcopy(param_dict)
 
-        else:
-            # Only those parameters that are passed to the grid search need to be filled
-            experiment_dict['preprocessing_params'] = preprocessing_params
+                experiment_dict['preprocessing_params'] = transformer_dict
+
+            else:
+                # Only those parameters that are passed to the grid search need to be filled
+                experiment_dict['preprocessing_params'] = preprocessing_params
 
         complete_experiment_dict[name] = deepcopy(experiment_dict)
 
