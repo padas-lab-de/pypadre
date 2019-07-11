@@ -220,8 +220,11 @@ class ExperimentFileRepository:
             configuration = self._metadata_serializer.deserialize(f.read())
         with open(os.path.join(dir_, "metadata.json"), 'r') as f:
             metadata = self._metadata_serializer.deserialize(f.read())
-        with open(os.path.join(dir_, "preprocessing_workflow.bin"), 'rb') as f:
-            preprocessing_workflow = self._binary_serializer.deserialize(f.read())
+        if os.path.isfile(os.path.join(dir_, "preprocessing_workflow.bin")):
+            with open(os.path.join(dir_, "preprocessing_workflow.bin"), 'rb') as f:
+                preprocessing_workflow = self._binary_serializer.deserialize(f.read())
+        else:
+            preprocessing_workflow = None
         experiment_params = copy.deepcopy(configuration)
         experiment_params[id_]["workflow"] = workflow.pipeline
         experiment_params[id_]["preprocessing"] = preprocessing_workflow
@@ -426,6 +429,20 @@ class ExperimentFileRepository:
             self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
 
         self._file.write("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
+                                                                                              curr_value=curr_value,
+                                                                                              limit=limit))
+    def log_preprocessing_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        if self._file is None:
+            self._file = open(os.path.join(self.root_dir, "log.txt"), "a")
+
+        self._file.write("PREPROCESSING PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase,
                                                                                               curr_value=curr_value,
                                                                                               limit=limit))
 

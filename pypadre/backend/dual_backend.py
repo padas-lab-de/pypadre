@@ -172,6 +172,17 @@ class DualBackend:
         self._file_experiments.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
         self._http_experiments.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
 
+    def log_preprocessing_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        self._file_experiments.log_preprocessing_progress(curr_value=curr_value, limit=limit, phase=phase)
+        self._http_experiments.log_preprocessing_progress(curr_value=curr_value, limit=limit, phase=phase)
+
     def log_run_progress(self, curr_value, limit, phase):
         """
 
