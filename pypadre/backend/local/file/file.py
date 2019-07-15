@@ -17,7 +17,7 @@ class PadreFileBackend(IBackend):
         # TODO dp: add check for root_dir
         super().__init__(config)
         self._dataset = PadreDatasetFileBackend(self)
-        self._experiment_repository = PadreProjectHTTPBackend(self, )
+        self._project = PadreProjectHTTPBackend(self)
 
     @property
     def dataset(self):
@@ -25,8 +25,4 @@ class PadreFileBackend(IBackend):
 
     @property
     def project(self):
-        return self._experiment_repository
-
-    @property
-    def experiment(self):
-        return self._experiment_repository
+        return self._project

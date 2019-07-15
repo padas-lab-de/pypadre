@@ -13,5 +13,9 @@ class IStoreable:
         pass
 
     @abstractmethod
-    def delete(self, uid):
+    def delete_by_id(self, uid):
+        pass
+
+    @abstractmethod
+    def delete(self, obj):
         pass

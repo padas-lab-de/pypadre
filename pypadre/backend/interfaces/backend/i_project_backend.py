@@ -6,7 +6,7 @@ from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
 from pypadre.backend.interfaces.backend.generic.i_sub_backend import ISubBackend
 
 
-class IProjectBackend(IBaseGitBackend, ISearchable, IStoreable, ISubBackend):
+class IProjectBackend(IBaseGitBackend):
     __metaclass__ = ABCMeta
 
     @property

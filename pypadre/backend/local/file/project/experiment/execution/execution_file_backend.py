@@ -15,14 +15,22 @@ class PadreExecutionFileBackend(IExecutionBackend):
     def run(self):
         return self._run
 
-    def list(self, search):
-        pass
+    def to_folder_name(self, obj):
+        return obj.name
 
     def get(self, uid):
+        """
+        Shortcut because we know the uid is the folder name
+        :param uid: Uid of the execution
+        :return:
+        """
+        # TODO might be changed. Execution get folder name or id by git commit hash?
+        return self.get_by_dir(self.get_dir(uid))
+
+    def get_by_dir(self, directory):
+        self.get_meta_file(directory);
+        #TODO parse to execution object
         pass
 
     def put(self, obj):
-        pass
-
-    def delete(self, uid):
         pass

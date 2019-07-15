@@ -6,7 +6,7 @@ from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
 from pypadre.backend.interfaces.backend.generic.i_sub_backend import ISubBackend
 
 
-class IExecutionBackend(IBaseMetaFileBackend, ISearchable, IStoreable, ISubBackend):
+class IExecutionBackend(IBaseMetaFileBackend):
     __metaclass__ = ABCMeta
 
     @property
