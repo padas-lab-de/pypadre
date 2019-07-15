@@ -1,4 +1,5 @@
 import os
+from git import Repo
 from abc import abstractmethod, ABCMeta
 
 from pypadre.backend.interfaces.backend.generic.i_base_meta_file_backend import IBaseMetaFileBackend
@@ -9,12 +10,115 @@ from pypadre.util.file_util import get_path
 
 class IBaseGitBackend(IBaseMetaFileBackend):
     __metaclass__ = ABCMeta
+    # Variable holding the repository
+    _repo = None
+    _origin = None
+
+    # Method to create a repository at the root directory of the object.
+    # If bare=True, the function creates a bare bones repository
+    @abstractmethod
+    def create_bare_repo(self, bare=True):
+        self.repo = Repo.init(self.root_dir, bare)
 
     @abstractmethod
-    def _init(self):
-        pass
+    def create_remote(self, remote_name='origin', url=''):
+        self.origin = self.repo.create_remote(name=remote_name, url=url)
+
+    @abstractmethod
+    def create_head(self, name):
+        new_branch = self.repo.create_head(name)
+        assert (self.repo.active_branch != new_branch)
+        return new_branch
+
+    @abstractmethod
+    def create_tag(self, tag_name, ref_branch, message):
+        tag = self.repo.create_tag(tag_name, ref=ref_branch, message=message)
+        tag.commit
+
+    @abstractmethod
+    def create_sub_module(self, sub_repo_name, path_to_sub_repo, url, branch='master'):
+        self.repo.create_submodule(sub_repo_name, path_to_sub_repo, url, branch)
+
+    @abstractmethod
+    def clone(self, url, path, branch='master'):
+        if self.repo is not None:
+            self.repo.clone_from(url, path, branch)
 
     @abstractmethod
     def _commit(self):
-        pass
+        self.repo.index.commit()
+
+    @abstractmethod
+    def get_untracked_files(self):
+        return self.repo.untracked_files
+
+    @abstractmethod
+    def get_tags(self):
+        return self.repo.tags
+
+    @abstractmethod
+    def get_working_tree_directory(self):
+        return self.repo.working_tree_dir
+
+    @abstractmethod
+    def get_working_directory(self):
+        return self.repo.working_dir
+
+    @abstractmethod
+    def get_git_path(self):
+        return self.repo.git_dir
+
+    @abstractmethod
+    def is_head_remote(self):
+        return self.repo.head.is_remote()
+
+    @abstractmethod
+    def is_head_valid(self):
+        return self.repo.head.is_valid()
+
+    @abstractmethod
+    def get_heads(self):
+        return self.repo.heads
+
+    @abstractmethod
+    def check_git_directory(self, path):
+        return self.repo.git_dir.startswith(path)
+
+    @abstractmethod
+    def get_head(self):
+        return self.repo.head
+
+    @abstractmethod
+    def delete_tags(self, tag_name):
+        tags = self.repo.tags
+        if tag_name in tags:
+            self.repo.delete_tag(tag_name)
+
+        else:
+            # Raise warning/error that tag is not present
+            pass
+
+    @abstractmethod
+    def archive_repo(self, path):
+        with open(path, 'wb') as fp:
+            self.repo.archive(fp)
+
+    @abstractmethod
+    def pull(self, name=None):
+        origin = self.repo.remote(name=name)
+        origin.pull()
+
+    @abstractmethod
+    def push(self, name=None):
+        origin = self.repo.remote(name=name)
+        origin.push()
+
+
+
+
+
+
+
+
+
 
