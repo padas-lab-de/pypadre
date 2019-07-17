@@ -113,6 +113,25 @@ class IBaseGitBackend(IBaseMetaFileBackend):
         origin = self.repo.remote(name=name)
         origin.push()
 
+    # database backend functions
+    def list_datasets(self, search_id=None, search_metadata=None):
+        """
+        Function to list datasets. Will not be implemented for the Git Backend
+        :param search_id:
+        :param search_metadata:
+        :return:
+        """
+        pass
+
+    def put_dataset(self, dataset):
+        pass
+
+    def get_dataset(self, dataset_id, metadata_only=False):
+        pass
+
+    def delete_dataset(self, id):
+        pass
+
 
 
 
