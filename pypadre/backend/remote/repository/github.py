@@ -4,6 +4,7 @@ This file contains the implementation for the GitHub backend to create and manag
 # TODO: Lightweight function to validate the github repo and the git object along with the user
 from github import Github
 from pypadre.backend.interfaces.backend.generic import i_base_git_backend
+import uuid
 
 
 class GitHubBackend(i_base_git_backend):
@@ -86,3 +87,98 @@ class GitHubBackend(i_base_git_backend):
         # Use the local git package to clone the repo locally
         pass
 
+    def put_experiment_configuration(self, experiment):
+        """
+        Serializes the experiment configuration for purposes of sharing
+        :param experiment: The experiment object
+        :return:
+        """
+        # TODO Check if the experiment
+        if experiment.experiment_configuration is not None:
+            filename = "experiment.json"
+            comment = "Creating experiment configuration at root experiment directory"
+            content = self._metadata_serializer.serialise(experiment.metadata)
+            branch = "master"
+            created_file = self.create_file(filename, comment,
+                                            self._metadata_serializer.serialise(experiment.experiment_configuration),
+                                            branch)
+
+    def put_run(self, experiment, run):
+        """
+        Stores a run of an experiment to the file repository.
+        :param experiment: experiment the run is part of
+        :param run: run to put
+        :return:
+        """
+        if run.id is None:  # this is a new experiment
+            run.id = uuid.uuid4()
+
+        filename = '/'.join([run.id, "metadata.json"])
+        comment = "Creating run directory"
+        content = self._metadata_serializer.serialise(run.metadata)
+        created_file = self.create_file(filename, comment,
+                                        content,
+                                        self._branch)
+
+        filename = os.path.join([run.id, "hyperparameter.json"])
+        comment = "Creating run directory"
+        content = self._metadata_serializer.serialise(run.metadata)
+        created_file = self.create_file(filename, comment,
+                                        self._metadata_serializer.serialise(experiment.hyperparameters()),
+                                        self._branch)
+
+    def put_split(self, experiment, run, split):
+        """
+        Stores a run of an experiment to the file repository.
+        :param experiment: experiment the run is part of
+        :param run: run to put
+        :return:
+        """
+        if split.id is None:  # this is a new experiment
+            split.id = uuid.uuid4()
+
+        filename = '/'.join([run.id, str(split.id), 'metadata.json'])
+        comment = "Creating split directory"
+        content = self._metadata_serializer.serialise(split.metadata)
+        created_file = self.create_file(filename, comment, content, self._branch)
+
+    def put_results(self, experiment, run, split, results):
+        """
+        Write the results of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run_id: Run ID of the current experiment run
+        :param split_id: Split id
+        :param results: results to be written to the backend
+
+        :return: None
+        """
+        filename = '/'.join([run.id, str(split.id), 'results.json'])
+        comment = "Creating results file"
+        content = self._metadata_serializer.serialise(results)
+        created_file = self.create_file(filename, comment, content, self._branch)
+
+    def put_metrics(self, experiment, run, split, metrics):
+        """
+        Writes the metrics of a split to the backend
+
+        :param experiment: Experiment ID
+        :param run: Run Id of the experiment
+        :param split: Split ID
+        :param metrics: dictionary containing all the required metrics to be written to the backend
+
+        :return: None
+        """
+
+        filename = '/'.join([run.id, str(split.id), 'metrics.json'])
+        comment = "Creating metrics file"
+        content = self._metadata_serializer.serialise(metrics)
+        created_file = self.create_file(filename, comment, content, self._branch)
+
+    def log_end_experiment(self):
+
+        filename = "log.txt"
+        comment = "Ccompleting the experiment. Uploading the log file"
+        content = ""
+
+        created_file = self.create_file(filename, comment, content, self._branch)
