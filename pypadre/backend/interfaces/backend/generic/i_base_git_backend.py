@@ -1,14 +1,12 @@
-import os
-from git import Repo
 from abc import abstractmethod, ABCMeta
 
+from git import Repo
+
 from pypadre.backend.interfaces.backend.generic.i_base_meta_file_backend import IBaseMetaFileBackend
-from pypadre.backend.interfaces.backend.generic.i_sub_backend import ISubBackend
-from pypadre.backend.serialiser import PickleSerializer, JSonSerializer
-from pypadre.util.file_util import get_path
 
 
 class IBaseGitBackend(IBaseMetaFileBackend):
+    """ This is the abstract class implementation of a class extending the basic file backend with git functionality """
     __metaclass__ = ABCMeta
     # Variable holding the repository
     _repo = None

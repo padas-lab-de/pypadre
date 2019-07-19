@@ -9,6 +9,8 @@ from pypadre.backend.serialiser import JSonSerializer
 
 
 class IBaseMetaFileBackend(IBaseFileBackend, ISearchable, IStoreable):
+    """ This is the abstract class implementation of a basic metadata file store being able to store and to be searched. This backend
+    has logic to write metadata files with a static name."""
     __metaclass__ = ABCMeta
 
     @abstractmethod

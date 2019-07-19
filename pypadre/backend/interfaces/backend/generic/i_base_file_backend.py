@@ -11,6 +11,8 @@ from pypadre.util.file_util import get_path
 
 
 class IBaseFileBackend(ISubBackend):
+    """ This is the abstract class implementation of a backend storing its information onto the disk in a file
+    structure"""
     __metaclass__ = ABCMeta
 
     @abstractmethod

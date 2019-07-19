@@ -13,6 +13,7 @@ from pypadre.util.file_util import get_path
 
 
 class IBaseLoggableFileBackend(IBaseFileBackend, ILoggable):
+    """ This is the abstract implementation of a file backend which adds logging functionality"""
     __metaclass__ = ABCMeta
 
     @abstractmethod

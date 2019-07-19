@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod, ABCMeta
 
 
 class IStoreable:
+    """ This is the interface for all backends being able to store objects onto some kind of persistence storage."""
     __metaclass__ = ABCMeta
 
     @abstractmethod

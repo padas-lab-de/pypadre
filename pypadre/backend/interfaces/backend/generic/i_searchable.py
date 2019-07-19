@@ -2,6 +2,7 @@ from abc import abstractmethod, ABCMeta
 
 
 class ISearchable:
+    """ Interface for backends being searchable. Search on json data, folder name etc. for REST, local etc."""
     __metaclass__ = ABCMeta
 
     @abstractmethod

@@ -6,6 +6,7 @@ from pypadre.backend.interfaces.backend.generic.i_progressable import IProgressa
 
 
 class IExperimentBackend(IBaseGitBackend, IBaseLoggableFileBackend, IProgressable):
+    """ This is the interface of the experiment backend. """
     __metaclass__ = ABCMeta
 
     @property

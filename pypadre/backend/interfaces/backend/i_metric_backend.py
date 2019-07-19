@@ -7,4 +7,7 @@ from pypadre.backend.interfaces.backend.generic.i_sub_backend import ISubBackend
 
 
 class IMetricBackend(IBaseMetaFileBackend, ISearchable, IStoreable, ISubBackend):
+
+    """ This is a backend for metrics """
+
     __metaclass__ = ABCMeta
