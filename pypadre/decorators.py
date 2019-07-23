@@ -12,7 +12,6 @@ def merge_args(exp_name, args, kwargs):
         _experiments[exp_name]["args"] = args  # taking the longer positional argument
     _experiments[exp_name]["kwargs"] = {**_experiments[exp_name]["kwargs"], **kwargs}
 
-
 # this is a decorator with an argument, that in principal replaces the constructor of padre Experiment
 def Workflow(exp_name, *args, **kwargs):
     """
@@ -39,7 +38,7 @@ def Workflow(exp_name, *args, **kwargs):
 
     return workflow_decorator
 
-# this is a decorator with an argument, that in principal replaces the constructor of padre Experiment
+# this is a decorator with an argument, that in principal replaces the constructor of padre Dataset
 def Dataset(exp_name, *args, **kwargs):
     """
     Decorates a funtion that retuns a list of datasets

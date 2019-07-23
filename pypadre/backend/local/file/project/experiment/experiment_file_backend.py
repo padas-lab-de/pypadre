@@ -1,8 +1,12 @@
+import copy
 import os
 
+from pypadre import Experiment
+from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_experiment_backend import IExperimentBackend
 from pypadre.backend.local.file.interfaces.i_base_binary_file_backend import IBaseBinaryFileBackend
 from pypadre.backend.local.file.project.experiment.execution.execution_file_backend import PadreExecutionFileBackend
+from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
 
 
 class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
@@ -12,21 +16,20 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
         self.root_dir = os.path.join(self._parent.root_dir, "experiments")
         self._execution = PadreExecutionFileBackend(self)
 
-    def put_config(self, obj):
-        pass
+    META_FILE = File("metadata.json", JSonSerializer)
+    CONFIG_FILE = File("experiment.json", JSonSerializer)
+    WORKFLOW_FILE = File("workflow.json", PickleSerializer)
+    PREPROCESS_WORKFLOW_FILE = File("preprocessing_workflow.json", PickleSerializer)
 
     @property
     def execution(self):
         return self._execution
 
-    def _init(self):
+    def put_config(self, experiment):
         pass
 
-    def _commit(self):
-        pass
-
-    def to_folder_name(self, obj):
-        return obj.id
+    def to_folder_name(self, experiment):
+        return experiment.id
 
     def get_by_name(self, name):
         """
@@ -37,28 +40,29 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
         return self.get_by_dir(self.get_dir(name))
 
     def get_by_dir(self, directory):
-        self.get_meta_file(directory)
-        #TODO parse to experiment object
-        pass
+        metadata = self.get_file(directory, self.META_FILE)
+        config = self.get_file(directory, self.CONFIG_FILE)
+        workflow = self.get_file(directory, self.WORKFLOW_FILE)
+        preprocess_workflow = self.get_file(directory, self.PREPROCESS_WORKFLOW_FILE)
 
-    def log(self, msg):
-        # TODO log something
-        pass
+        # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
+        ex = Experiment(ex_id=id_, **experiment_params[id_])
+        return ex
 
-    def put_progress(self, obj):
-        # TODO implement
-        pass
+    def put_progress(self, experiment):
+        self.log("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase, curr_value=curr_value, limit=limit))
 
-    def put(self, obj, allow_overwrite=True):
-        folder_name = self.to_folder_name(obj)
-        directory = self.get_dir(folder_name)
+    def put(self, experiment, allow_overwrite=True):
+        directory = self.get_dir(self.to_folder_name(experiment))
 
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Experiment %s already exists." +
-                             "Overwriting not explicitly allowed. Set allow_overwrite=True")
+                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(experiment.name))
 
-        super().put(obj)
+        self.write_file(directory, self.META_FILE, experiment.metadata)
+        self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow)
 
-        if obj.requires_preprocessing:
-            with open(os.path.join(directory, "preprocessing_workflow.bin"), 'wb') as f:
-                f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
+        # TODO when to write experiment.json???
+
+        if experiment.requires_preprocessing:
+            self.write_file(directory, self.PREPROCESS_WORKFLOW_FILE, experiment.preprocessing_workflow)

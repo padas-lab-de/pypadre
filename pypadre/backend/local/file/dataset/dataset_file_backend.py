@@ -1,30 +1,47 @@
-from pypadre import Dataset
+import os
+
+from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
-from pypadre.backend.local.file.interfaces.i_base_binary_file_backend import IBaseBinaryFileBackend
+
+from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
 from pypadre.core.model.dataset.attribute import Attribute
+from pypadre.core.model.dataset.dataset import Dataset
 
 
-class PadreDatasetFileBackend(IDatasetBackend, IBaseBinaryFileBackend):
+class PadreDatasetFileBackend(IDatasetBackend):
 
     def __init__(self, parent):
         super().__init__(parent=parent, name="datasets")
 
+    META_FILE = File("metadata.json", JSonSerializer)
+    DATA_FILE = File("data.bin", PickleSerializer)
+
+    def put(self, dataset: Dataset, allow_overwrite=True):
+        directory = self.get_dir(self.to_folder_name(dataset))
+
+        if os.path.exists(directory) and not allow_overwrite:
+            raise ValueError("Dataset %s already exists." +
+                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(dataset.name))
+
+        self.write_file(directory, self.META_FILE, dataset.metadata)
+
     def get_by_dir(self, directory):
-        metadata = self.get_meta_file(directory)
+        metadata = self.get_file(directory, self.META_FILE)
+
         attributes = metadata.pop("attributes")
         # print(type(metadata))
         ds = Dataset(id, **metadata)
         # sorted(attributes, key=lambda a: a["index"])
         # assert sum([int(a["index"]) for a in attributes]) == len(attributes) * (
         #    len(attributes) - 1) / 2  # todo check attribute correctness here
-
         # TODO can this mapping be done in a better way???
+        # TODO All of this should be done in the the Dataset constructor
         attributes = [Attribute(a["name"], a["measurementLevel"], a["unit"], a["description"],
                                 a["defaultTargetAttribute"], a["context"], a["index"])
                       for a in attributes]
         ds.set_data(None, attributes)
-        if self.has_binary_file(directory):
-            ds.set_data(self.get_binary_file_fn(directory))
+        if self.has_file(directory, self.DATA_FILE):
+            ds.set_data(self.get_file(directory, self.DATA_FILE))
         return ds
 
     def to_folder_name(self, obj):

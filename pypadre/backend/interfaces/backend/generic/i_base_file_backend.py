@@ -10,7 +10,21 @@ from pypadre.backend.serialiser import PickleSerializer, JSonSerializer
 from pypadre.util.file_util import get_path
 
 
-class IBaseFileBackend(ISubBackend):
+class File:
+    def __init__(self, name, serializer):
+        self._name = name
+        self._serializer = serializer
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def serializer(self):
+        return self._serializer
+
+
+class IBaseFileBackend(ISubBackend, ISearchable, IStoreable):
     """ This is the abstract class implementation of a backend storing its information onto the disk in a file
     structure"""
     __metaclass__ = ABCMeta
@@ -81,3 +95,20 @@ class IBaseFileBackend(ISubBackend):
         """
         if self.has_dir(folder_name):
             shutil.rmtree(self.get_dir(folder_name))
+
+    def get_file(self, dir, file: File):
+        return self.get_file_fn(dir, file)()
+
+    def has_file(self, dir, file: File):
+        return os.path.exists(os.path.join(dir, file.name))
+
+    def get_file_fn(self, dir, file: File):
+        def __load_data():
+            with open(os.path.join(dir, file.name), 'rb') as f:
+                data = file.serializer.deserialize(f.read())
+            return data
+        return __load_data
+
+    def write_file(self, dir, file: File, target):
+        with open(os.path.join(dir, file.name), 'wb') as f:
+            f.write(file.serializer.serialise(target))

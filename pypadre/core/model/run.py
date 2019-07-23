@@ -3,6 +3,7 @@ from pypadre.base import MetadataEntity
 from pypadre.core.model.split import Splitter, Split
 import uuid
 
+
 class Run(MetadataEntity):
     """
     A run is a single instantiation of an experiment with a definitive set of parameters.
