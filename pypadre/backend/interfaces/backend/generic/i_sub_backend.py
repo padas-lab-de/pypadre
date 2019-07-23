@@ -9,3 +9,7 @@ class ISubBackend:
     @abstractmethod
     def __init__(self, parent, **kwargs):
         self._parent = parent
+
+    @property
+    def parent(self):
+        return self._parent

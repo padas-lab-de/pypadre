@@ -16,9 +16,9 @@ class Run(MetadataEntity):
     _id = None
     _metadata = None
 
-    def __init__(self, experiment, workflow, **options):
-        self.validate_parameters(experiment=experiment, workflow=workflow, options=options)
-        self._experiment = experiment
+    def __init__(self, execution, workflow, **options):
+        self.validate_parameters(execution=execution, workflow=workflow, options=options)
+        self._execution = execution
         self._workflow = workflow
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
@@ -38,7 +38,7 @@ class Run(MetadataEntity):
         trigger_event('EVENT_START_RUN', run=self)
 
         # instantiate the splitter here based on the splitting configuration in options
-        splitting = Splitter(self._experiment.dataset,  **self._metadata)
+        splitting = Splitter(self.execution.experiment.dataset,  **self._metadata)
         for split, (train_idx, test_idx, val_idx) in enumerate(splitting.splits()):
 
             assert_condition(
@@ -51,9 +51,9 @@ class Run(MetadataEntity):
             self._split_ids.append(str(sp.id)+'.split')
             if self._keep_splits is None:
                 self._splits.append(sp)
-            self._results.append(deepcopy(self._experiment.workflow.results))
-            self._metrics.append(deepcopy(self._experiment.workflow.metrics))
-            self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
+            self._results.append(deepcopy(self.execution.experiment.workflow.results))
+            self._metrics.append(deepcopy(self.execution.experiment.workflow.metrics))
+            self._hyperparameters.append(deepcopy(self.execution.experiment.workflow.hyperparameters))
 
         args = {'run': self}
         # Fire stop run  event
@@ -61,7 +61,11 @@ class Run(MetadataEntity):
 
     @property
     def experiment(self):
-        return self._experiment
+        return self.execution.experiment
+
+    @property
+    def execution(self):
+        return self._execution
 
     @property
     def results(self):
@@ -102,7 +106,7 @@ class Run(MetadataEntity):
         else:
             return "Run<" + ";".join(s) + ">"
 
-    def validate_parameters(self, experiment, workflow, options):
+    def validate_parameters(self, execution, workflow, options):
         """
         This function validates the parameters passed to the constructor
         :param experiment: Experiment class object
@@ -110,11 +114,11 @@ class Run(MetadataEntity):
         :param options: additional parameters
         :return:
         """
-        from pypadre.core.model.experiment import Experiment
-        assert_condition(condition=experiment is not None, source=self,
-                         message="Experiment cannot be None")
-        assert_condition(condition=isinstance(experiment, Experiment), source=self,
-                         message="Parameter experiment is not an object of padre.core.Experiment")
+        from pypadre.core.model.execution import Execution
+        assert_condition(condition=execution is not None, source=self,
+                         message="Execution cannot be None")
+        assert_condition(condition=isinstance(execution, Execution), source=self,
+                         message="Parameter execution is not an object of padre.core.Execution")
 
         assert_condition(condition=workflow is not None, source=self,
                          message="Workflow cannot be none")

@@ -49,8 +49,9 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
         ex = Experiment(ex_id=id_, **experiment_params[id_])
         return ex
 
-    def put_progress(self, experiment):
-        self.log("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase, curr_value=curr_value, limit=limit))
+    def put_progress(self, experiment, **kwargs):
+        # TODO kwargs
+        self.log("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
     def put(self, experiment, allow_overwrite=True):
         directory = self.get_dir(self.to_folder_name(experiment))

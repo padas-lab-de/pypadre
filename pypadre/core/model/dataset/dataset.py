@@ -52,6 +52,7 @@ class Dataset(MetadataEntity, Tablefyable):
                                 a["defaultTargetAttribute"], a["context"], a["index"])
                                  for a in metadata.get("attributes")])
 
+        # Add entries for tablefyable
         self._registry.update({'id': get_dict_attr(self, 'id').fget, 'name': get_dict_attr(self, 'name').fget,
                                'type': get_dict_attr(self, 'type').fget, 'size': get_dict_attr(self, 'size').fget,
                                'format': get_dict_attr(self, 'binary_format')})

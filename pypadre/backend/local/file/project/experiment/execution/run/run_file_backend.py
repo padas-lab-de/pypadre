@@ -24,10 +24,26 @@ class PadreRunFileBackend(IRunBackend):
     def split(self):
         return self._split
 
-    def put_progress(self, run):
+    def to_folder_name(self, run):
+        return run.id
+
+    def get_by_dir(self, directory):
+        metadata = self.get_file(directory, self.META_FILE)
+        hyperparameter = self.get_file(directory, self.HYPERPARAMETER_FILE)
+        workflow = self.get_file(directory, self.WORKFLOW_FILE)
+
+        # TODO create Run
+        execution = self.parent.get_by_dir(directory)
+        run = Run(execution, workflow, **metadata)
+        # TODO what to do with hyperparameters?
+        return run
+
+    def log(self, msg):
+        pass
+
+    def put_progress(self, run, **kwargs):
         self.log(
-            "RUN PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(phase=phase, curr_value=curr_value,
-                                                                                 limit=limit))
+            "RUN PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
     def get(self, uid):
         """
@@ -37,17 +53,12 @@ class PadreRunFileBackend(IRunBackend):
         """
 
         directory = self.get_dir(uid)
-        metadata = self.get_file(directory, self.META_FILE)
-        hyperparameter = self.get_file(directory, self.HYPERPARAMETER_FILE)
-        workflow = self.get_file(directory, self.WORKFLOW_FILE)
+        return self.get_by_dir(directory)
 
-        # TODO create Run
-        run = Run()
-        return run
-
-    def put(self, run):
+    def put(self, run, allow_overwrite=False):
         """
         Stores a run of an experiment to the file repository.
+        :param allow_overwrite: allow overwrite of experiment
         :param run: run to put
         :return:
         """
@@ -57,13 +68,12 @@ class PadreRunFileBackend(IRunBackend):
         directory = self.get_dir(self.to_folder_name(run))
 
         if os.path.exists(directory) and not allow_overwrite:
-            raise ValueError("Experiment %s already exists." +
-                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(experiment.name))
+            raise ValueError("Run %s already exists." +
+                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(run.id))
         else:
             shutil.rmtree(directory)
-
         os.mkdir(directory)
+
         self.write_file(directory, self.META_FILE, run.metadata)
-        # TODO get hyperparameters ?
-        self.write_file(directory, self.HYPERPARAMETER_FILE, run.hyperparameters)
+        self.write_file(directory, self.HYPERPARAMETER_FILE, run.experiment.hyperparameters())
         self.write_file(directory, self.WORKFLOW_FILE, run.workflow)
