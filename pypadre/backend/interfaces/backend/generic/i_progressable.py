@@ -7,5 +7,5 @@ class IProgressable:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def put_progress(self, obj):
+    def put_progress(self, obj, **kwargs):
         pass

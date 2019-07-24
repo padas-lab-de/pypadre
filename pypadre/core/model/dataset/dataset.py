@@ -27,6 +27,7 @@ class _Formats(_const):
     pandas = "pandas"
     graph = "graph"
 
+
 formats = _Formats()
 
 
@@ -43,7 +44,15 @@ class Dataset(MetadataEntity, Tablefyable):
         self._binary = None
         self._binary_loader_fn = None
         self._binary_format = None
-        self._fill_metedata()
+        self._fill_metadata()
+
+        # TODO: we should just pass attribute kwargs without care for structure here
+        if "attributes" in metadata and metadata.get("attributes"):
+            self.set_data(None, [Attribute(a["name"], a["measurementLevel"], a["unit"], a["description"],
+                                a["defaultTargetAttribute"], a["context"], a["index"])
+                                 for a in metadata.get("attributes")])
+
+        # Add entries for tablefyable
         self._registry.update({'id': get_dict_attr(self, 'id').fget, 'name': get_dict_attr(self, 'name').fget,
                                'type': get_dict_attr(self, 'type').fget, 'size': get_dict_attr(self, 'size').fget,
                                'format': get_dict_attr(self, 'binary_format')})
@@ -117,7 +126,7 @@ class Dataset(MetadataEntity, Tablefyable):
         else:
             return False
 
-    def _fill_metedata(self):
+    def _fill_metadata(self):
         keys = ["name", "version", "description", "originalSource", "type"]
         for key in keys:
             if key not in self.metadata:
@@ -232,7 +241,7 @@ class Dataset(MetadataEntity, Tablefyable):
             self._binary_format = formats.graph
         else:
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
-        self._fill_metedata()
+        self._fill_metadata()
 
     def set_data_multidimensional(self, features, targets, attributes=None):
         """

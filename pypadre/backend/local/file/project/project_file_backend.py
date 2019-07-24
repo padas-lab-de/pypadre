@@ -1,8 +1,10 @@
 import os
 import shutil
 
+from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_project_backend import IProjectBackend
 from pypadre.backend.local.file.project.experiment.experiment_file_backend import PadreExperimentFileBackend
+from pypadre.backend.serialiser import JSonSerializer
 
 
 class PadreProjectHTTPBackend(IProjectBackend):
@@ -11,6 +13,8 @@ class PadreProjectHTTPBackend(IProjectBackend):
         super().__init__(parent)
         self.root_dir = os.path.join(self._parent.root_dir, "projects")
         self._experiment = PadreExperimentFileBackend(self)
+
+    META_FILE = File("metadata.json", JSonSerializer)
 
     @property
     def experiment(self):
@@ -29,7 +33,7 @@ class PadreProjectHTTPBackend(IProjectBackend):
         return self.get_by_dir(self.get_dir(name))
 
     def get_by_dir(self, directory):
-        metadata = self.get_meta_file(uid)
+        metadata = self.get_file(directory, self.META_FILE)
         # TODO project instance from metadata
         project = {}
         pass

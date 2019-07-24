@@ -6,7 +6,6 @@
 """
 import copy
 import os
-import re
 import shutil
 import uuid
 
@@ -14,9 +13,9 @@ import numpy as np
 from deprecated import deprecated
 
 from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
-from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core import Experiment, Run, Split
+from pypadre.core.model.dataset.attribute import Attribute
+from pypadre.core.model.dataset.dataset import Dataset
 
 
 class PadreFileBackend(object):
