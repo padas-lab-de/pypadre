@@ -16,14 +16,18 @@ class IBaseGitBackend(IBaseFileBackend):
     __metaclass__ = ABCMeta
     # Variable holding the repository
     _repo = None
-    _origin = None
-    _REMOTE_URL = None
-    _REMOTE_NAME = None
+    _remote_url = None
+    _remote_name = 'remote'
     _remote = None
     _DEFAULT_GIT_MSG = 'Added file to git'
 
     # Method to create a repository at the root directory of the object.
     # If bare=True, the function creates a bare bones repository
+    def __init__(self, **kwargs):
+        self._remote_url = kwargs.get('remote_url', None)
+        self._remote_name = kwargs.get('remote_name', 'remote')
+
+        super().__init__(**kwargs)
 
     def _create_repo(self, bare=True):
         """
@@ -33,14 +37,14 @@ class IBaseGitBackend(IBaseFileBackend):
         """
         self.repo = Repo.init(self._root_dir, bare)
 
-    def _create_remote(self, remote_name='origin', url=''):
+    def _create_remote(self, remote_name, url=''):
         """
 
         :param remote_name: Name of the remote repository
         :param url: URL to the remote repository
         :return:
         """
-        self.origin = self.repo.create_remote(name=remote_name, url=url)
+        self._remote = self.repo.create_remote(name=remote_name, url=url)
 
     def _create_head(self, name):
         """
@@ -94,42 +98,43 @@ class IBaseGitBackend(IBaseFileBackend):
         :param file_path: An array containing the file paths to be added to git
         :return:
         """
-        if self._repo is None:
-            return
-
-        self._repo.index.add([file_path])
+        if self.is_backend_valid():
+            self._repo.index.add([file_path])
 
     def _get_untracked_files(self):
-        return self.repo.untracked_files
+        return self.repo.untracked_files if self.is_backend_valid() else None
 
     def _get_tags(self):
-        return self.repo.tags
+        return self.repo.tags if self.is_backend_valid() else None
 
     def _get_working_tree_directory(self):
-        return self.repo.working_tree_dir
+        return self.repo.working_tree_dir if self.is_backend_valid() else None
 
     def _get_working_directory(self):
-        return self.repo.working_dir
+        return self.repo.working_dir if self.is_backend_valid() else None
 
     def _get_git_path(self):
-        return self.repo.git_dir
+        return self.repo.git_dir if self.is_backend_valid() else None
 
     def _is_head_remote(self):
-        return self.repo.head.is_remote()
+        return self.repo.head.is_remote() if self.is_backend_valid() else None
 
     def _is_head_valid(self):
-        return self.repo.head.is_valid()
+        return self.repo.head.is_valid() if self.is_backend_valid() else None
 
     def _get_heads(self):
-        return self.repo.heads
+        return self.repo.heads if self.is_backend_valid() else None
 
     def _check_git_directory(self, path):
-        return self.repo.git_dir.startswith(path)
+        return self.repo.git_dir.startswith(path) if self.is_backend_valid() else None
 
     def _get_head(self):
-        return self.repo.head
+        return self.repo.head if self.is_backend_valid() else None
 
     def _delete_tags(self, tag_name):
+        if not self.is_backend_valid():
+            return
+
         tags = self.repo.tags
         if tag_name in tags:
             self.repo.delete_tag(tag_name)
@@ -139,6 +144,9 @@ class IBaseGitBackend(IBaseFileBackend):
             pass
 
     def _archive_repo(self, path):
+        if not self.is_backend_valid():
+            return
+
         with open(path, 'wb') as fp:
             self.repo.archive(fp)
 
@@ -148,7 +156,7 @@ class IBaseGitBackend(IBaseFileBackend):
 
     def _push(self):
         if self._remote is None:
-            self._remote = self._repo.create_remote(self._REMOTE_NAME, self._REMOTE_URL)
+            self._remote = self._repo.create_remote(self._remote_name, self._remote_url)
 
         # Push to the master branch from current master branch
         # https://gitpython.readthedocs.io/en/stable/reference.html#git.remote.Remote.push
@@ -189,7 +197,6 @@ class IBaseGitBackend(IBaseFileBackend):
         :param path: Path to be cloned
         :return:
         """
-        #repo_url = '/'.join(self._REMOTE_URL, repo_name)
         if path is not None and url is not None:
             self._repo = Repo.clone_from(url=url, to_path=path)
 
@@ -204,6 +211,28 @@ class IBaseGitBackend(IBaseFileBackend):
         # TODO: Remove the local directory
         # TODO: User will have to remove the remote repository by themselves
         super().delete(id)
+
+    def is_backend_valid(self):
+        """
+        Check if repo is instantiated
+        :return: True if valid, False otherwise
+        """
+        return True if self._repo is not None else False
+
+    def has_remote_backend(self):
+        # TODO Validate the remote_url
+        return True if self.remote_url is not None else False
+
+    @property
+    def remote_name(self, remote_name):
+        self._remote_name = remote_name
+
+    def remote_name(self):
+        return self._remote_name
+
+    @property
+    def remote_url(self, remote_url):
+        self._remote_url = remote_url
 
 
 
