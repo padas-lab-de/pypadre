@@ -131,6 +131,13 @@ class IBaseGitBackend(IBaseFileBackend):
     def _get_head(self):
         return self.repo.head if self.is_backend_valid() else None
 
+    def _has_uncommitted_files(self):
+        # True if there are files with differences
+        return True if len([item.a_path for item in self._repo.index.diff(None)]) > 0 else False
+
+    def _has_untracked_files(self):
+        return True if self._get_untracked_files() is not None else False
+
     def _delete_tags(self, tag_name):
         if not self.is_backend_valid():
             return
