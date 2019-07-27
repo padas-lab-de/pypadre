@@ -325,9 +325,41 @@
             "dampening": 0,
             "weight_decay": 0.0005,
             "Nesterov": false,
-            "lr": 0.001
+            "lr": 0.00125
         }
     },
-    "steps": 10000,
-    "batch_size": 128
+    "train_transform_order": ["TOPILIMAGE", "RANDOMCROP",
+        "RANDOMHORIZONTALFLIP", "TOTENSOR", "NORMALIZE"],
+    "train_transforms": {
+        "topilimage": {},
+        "randomcrop": {
+            "size": 32,
+            "padding": 4
+        },
+        "randomhorizontalflip": {
+            "p": 0.5
+        },
+        "totensor": {},
+        "normalize": {
+            "mean": [0.4914, 0.4822, 0.4465],
+            "std": [0.2023, 0.1994, 0.2010]
+        }
+    },
+    "test_transform_order": ["TOPILIMAGE", "TOTENSOR", "NORMALIZE"],
+    "test_transforms": {
+        "topilimage": {},
+        "totensor": {},
+        "normalize": {
+            "mean": [0.4914, 0.4822, 0.4465],
+            "std": [0.2023, 0.1994, 0.2010]
+        }
+    },
+    "epochs": 200,
+    "batch_size": 128,
+    "test_batch_size": 100,
+    "testpercentage": 0.09092,
+    "testeveryepoch": false,
+    "test_interval": 5000,
+    "display_interval": 1,
+    "shuffle": false
 }
