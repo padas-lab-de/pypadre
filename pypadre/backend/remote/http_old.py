@@ -36,7 +36,7 @@ import pypadre.backend.http.protobuffer.protobuf.datasetV1_pb2 as proto
 
 
 # TODO don't split backend for http if we don't split backend for file (stay consistent)
-class PadreHTTPClient:
+class PadreHttpClient:
 
     def __init__(self, base_url="http://localhost:8080/api", user="", token=None
                  , online=False
@@ -57,7 +57,7 @@ class PadreHTTPClient:
         else:
             self.silent_codes = silent_codes
 
-        self._datasets_client = HTTPBackendDatasets(self)
+        self._datasets_client = HttpBackendDatasets(self)
         self._experiments_client = HttpBackendExperiments(self)
 
         self._access_token = token
@@ -200,7 +200,7 @@ class PadreHTTPClient:
                 id = id + "/"
             return id + postfix
         else:
-            return PadreHTTPClient.paths[kind](id)
+            return PadreHttpClient.paths[kind](id)
 
     def get_base_url(self):
         url = self.base
@@ -242,10 +242,10 @@ class PadreHTTPClient:
             "scope": "read write"
         }
         parsed_base_url = urlparse(self.get_base_url())
-        api = parsed_base_url.scheme + PadreHTTPClient.paths["padre-api"] + parsed_base_url.netloc
+        api = parsed_base_url.scheme + PadreHttpClient.paths["padre-api"] + parsed_base_url.netloc
         try:
             csrf_token = self.do_get(api).cookies.get("XSRF-TOKEN")
-            url = api + PadreHTTPClient.paths["oauth-token"](csrf_token)
+            url = api + PadreHttpClient.paths["oauth-token"](csrf_token)
             response = self.do_post(url,
                                     **{'data': data,
                                        'headers': {'content-type': 'application/x-www-form-urlencoded'}
@@ -274,7 +274,7 @@ class PadreHTTPClient:
             return result
         try:
             response = self.do_get(self.base + "users/me", **{"headers": {"Authorization": token}})
-        except req.exceptions.HTTPError as e:
+        except req.exceptions.HttpError as e:
             return result
         if response.status_code == 200:
             result = True
@@ -301,7 +301,7 @@ class PadreHTTPClient:
         return self._datasets_client
 
 
-class HTTPBackendDatasets:
+class HttpBackendDatasets:
 
     def __init__(self, parent):
         self._parent = parent
@@ -321,7 +321,7 @@ class HTTPBackendDatasets:
         :param search:
         :return:
         """
-        ret = self._parent.do_get(PadreHTTPClient.paths["datasets"])
+        ret = self._parent.do_get(PadreHttpClient.paths["datasets"])
         content, links = self._parent.parse_hal(ret)
         if "datasets" in content:
             return [json2dataset(ds) for ds in content["datasets"]]
@@ -344,12 +344,12 @@ class HTTPBackendDatasets:
             a_json["defaultTargetAttribute"] = a.defaultTargetAttribute
             payload["attributes"].append(a_json)
         if create:
-            res = self._parent.do_post(PadreHTTPClient.paths["datasets"], data=json.dumps(payload))
+            res = self._parent.do_post(PadreHttpClient.paths["datasets"], data=json.dumps(payload))
         else:
             if str(dataset.id).startswith(("http")):
                 res = self._parent.do_put(dataset.id, data=json.dumps(payload))
             else:
-                res = self._parent.do_put(PadreHTTPClient.paths["dataset"](dataset.id), data=json.dumps(payload))
+                res = self._parent.do_put(PadreHttpClient.paths["dataset"](dataset.id), data=json.dumps(payload))
         dataset.id(self._parent.parse_hal(res)[1]["self"]["href"])
         if dataset.has_data():
             content, links = self._parent.parse_hal(res)
@@ -370,7 +370,7 @@ class HTTPBackendDatasets:
         """
         # todo apply the search metadata filter.
         data = []
-        url = self.parent.get_base_url() + PadreHTTPClient.paths["search"]("datasets") + "name:?"
+        url = self.parent.get_base_url() + PadreHttpClient.paths["search"]("datasets") + "name:?"
         if search_name is not None:
             url += search_name
         response = self.parent.do_get(url)
@@ -378,7 +378,7 @@ class HTTPBackendDatasets:
         if "datasets" in content:
             for meta in content["datasets"]:
 
-                binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](str(meta["uid"]))
+                binaries_url = self.parent.get_base_url() + PadreHttpClient.paths["binaries"](str(meta["uid"]))
                 pb_data = self.parent.do_get(binaries_url).content
                 dataset = self.response_to_dataset(meta, pb_data)
                 data.append(dataset)
@@ -391,10 +391,10 @@ class HTTPBackendDatasets:
         """
         data = dataset.metadata
         data["attributes"] = dataset.attributes
-        url = self.parent.base[0:-1] + PadreHTTPClient.paths["datasets"]
+        url = self.parent.base[0:-1] + PadreHttpClient.paths["datasets"]
         response = self.parent.do_post(url, **{"data":json.dumps(data)})
         dataset_id = response.headers["Location"].split("/")[-1]
-        url = self.parent.base[0:-1] + PadreHTTPClient.paths["binaries"](dataset_id)
+        url = self.parent.base[0:-1] + PadreHttpClient.paths["binaries"](dataset_id)
         with tempfile.TemporaryFile() as _file:
             binary = self.make_proto(dataset, _file)
             m = MultipartEncoder(
@@ -404,10 +404,10 @@ class HTTPBackendDatasets:
 
     def get(self, _id, metadata_only=False):
         """Fetches data with given id from server and returns it"""
-        url = self.parent.base[0:-1] + PadreHTTPClient.paths["dataset"](_id)
+        url = self.parent.base[0:-1] + PadreHttpClient.paths["dataset"](_id)
         response = self.parent.do_get(url)
         response_meta = json.loads(response.content.decode("utf-8"))
-        binaries_url = self.parent.get_base_url() + PadreHTTPClient.paths["binaries"](_id)
+        binaries_url = self.parent.get_base_url() + PadreHttpClient.paths["binaries"](_id)
         pb_data = self.parent.do_get(binaries_url).content
         dataset = self.response_to_dataset(response_meta, pb_data)
         trigger_event('EVENT_LOG', source=self, message="Loaded dataset " + _id + " from server:")
@@ -435,7 +435,7 @@ class HTTPBackendDatasets:
                 "description": description,
                 "supportedTypes": supported_types}
         response = None
-        dataset_visualization_url = self.parent.get_base_url() + PadreHTTPClient.paths["dataset-visualization"](str(id_))
+        dataset_visualization_url = self.parent.get_base_url() + PadreHttpClient.paths["dataset-visualization"](str(id_))
         if self.parent.online:
             response = self.parent.do_post(dataset_visualization_url, **{"data": json.dumps(data)})
         return response
@@ -564,7 +564,7 @@ class HTTPBackendDatasets:
         return dataset
 
 
-PadreHTTPClient.paths = {
+PadreHttpClient.paths = {
     "padre-api": "://padre-api:@",
     "datasets": "/datasets",
     "experiments": "/experiments",

@@ -5,12 +5,13 @@ from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_project_backend import IProjectBackend
 from pypadre.backend.local.file.project.experiment.experiment_file_backend import PadreExperimentFileBackend
 from pypadre.backend.serialiser import JSonSerializer
+from pypadre.core.model.project import Project
 
 
-class PadreProjectHTTPBackend(IProjectBackend):
+class PadreProjectFileBackend(IProjectBackend):
 
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.root_dir = os.path.join(self._parent.root_dir, "projects")
         self._experiment = PadreExperimentFileBackend(self)
 
@@ -21,7 +22,7 @@ class PadreProjectHTTPBackend(IProjectBackend):
         return self._experiment
 
     def to_folder_name(self, obj):
-        # TODO only name for folder okay (maybe a uuid, a digest of a config or similar?)
+        # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
         return obj.name
 
     def get_by_name(self, name):
@@ -34,6 +35,4 @@ class PadreProjectHTTPBackend(IProjectBackend):
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, self.META_FILE)
-        # TODO project instance from metadata
-        project = {}
-        pass
+        return Project(**metadata)

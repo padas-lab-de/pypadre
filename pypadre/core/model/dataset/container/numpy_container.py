@@ -4,12 +4,16 @@ import pandas_profiling as pd_pf
 from scipy import stats
 
 from pypadre.core.model.dataset.attribute import Attribute
+from pypadre.core.model.dataset.container.base_container import AttributesOnlyContainer, IBaseContainer
+from pypadre.core.model.dataset.container.pandas_container import PandasContainer
+from pypadre.core.model.dataset.dataset import _Formats
 
 
-class NumpyContainer:
+class NumpyContainer(IBaseContainer):
 
     def __init__(self, data, attributes=None):
         # todo rework binary data into delegate pattern.
+        super().__init__(_Formats.numpy, data)
         self._shape = data.shape
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
@@ -54,7 +58,6 @@ class NumpyContainer:
     def shape(self):
         return self._shape
 
-
     @property
     def num_attributes(self):
         if self._attributes is None:
@@ -62,17 +65,14 @@ class NumpyContainer:
         else:
             return len(self._attributes)
 
-    def pandas_repr(self):
-        return pd.DataFrame(self.data)
+    def convert(self, bin_format):
+        if bin_format is _Formats.pandas:
+            # TODO attributes?
+            return PandasContainer(pd.DataFrame(self.data))
+        return None
 
-
-
-    def profile(self,bins=10,check_correlation=True,correlation_threshold=0.9,
-                correlation_overrides=None,check_recoded=False):
-        return pd_pf.ProfileReport(pd.DataFrame(self.data), bins=bins, check_correlation=check_correlation,
-                                   correlation_threshold=correlation_threshold,
-                                   correlation_overrides=correlation_overrides,check_recoded=check_recoded)
-
+    def profile(self, **kwargs):
+        return pd_pf.ProfileReport(self.convert(_Formats.pandas).data, **kwargs)
 
     def describe(self):
         ret = {"n_att": len(self._attributes),
@@ -84,7 +84,9 @@ class NumpyContainer:
 
 class NumpyContainerMultiDimensional(NumpyContainer):
 
+    # TODO find a good representation for multidimensional data (do we even need a second container for that??? What about other formats than numpy? Can we convert between some of them?)
     def __init__(self, data, targets, attributes=None):
+        super().__init__(_Formats.numpyMulti, data)
         self._shape = data.shape
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(len(attributes))]

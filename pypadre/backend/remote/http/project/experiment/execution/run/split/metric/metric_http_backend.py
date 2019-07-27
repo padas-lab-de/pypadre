@@ -1,7 +1,9 @@
 from pypadre.backend.interfaces.backend.i_metric_backend import IMetricBackend
+from pypadre.backend.local.file.project.experiment.execution.run.split.metric.metric_file_backend import \
+    PadreMetricFileBackend
 
 
-class PadreMetricHTTPBackend(IMetricBackend):
+class PadreMetricHttpBackend(PadreMetricFileBackend):
 
     def __init__(self, parent):
         super().__init__(parent)

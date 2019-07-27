@@ -5,7 +5,8 @@ from abc import abstractmethod, ABCMeta
 
 from pypadre.backend.interfaces.backend.generic.i_searchable import ISearchable
 from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
-from pypadre.backend.interfaces.backend.generic.i_sub_backend import ISubBackend
+from pypadre.backend.interfaces.backend.i_backend import IBackend
+from pypadre.base import ChildEntity
 from pypadre.backend.serialiser import PickleSerializer, JSonSerializer
 from pypadre.util.file_util import get_path
 
@@ -24,7 +25,7 @@ class File:
         return self._serializer
 
 
-class IBaseFileBackend(ISubBackend, ISearchable, IStoreable):
+class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
     """ This is the abstract class implementation of a backend storing its information onto the disk in a file
     structure"""
     __metaclass__ = ABCMeta

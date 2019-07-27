@@ -1,7 +1,9 @@
 from pypadre.backend.interfaces.backend.i_result_backend import IResultBackend
+from pypadre.backend.local.file.project.experiment.execution.run.split.result.result_file_backend import \
+    PadreResultFileBackend
 
 
-class PadreResultHTTPBackend(IResultBackend):
+class PadreResultHttpBackend(PadreResultFileBackend):
 
     def __init__(self, parent):
         super().__init__(parent)

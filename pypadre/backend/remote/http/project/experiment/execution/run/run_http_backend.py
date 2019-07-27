@@ -1,15 +1,16 @@
 import os
 
 from pypadre.backend.interfaces.backend.i_run_backend import IRunBackend
-from pypadre.backend.remote.http.project.experiment.execution.run.split.split_http_backend import PadreSplitHTTPBackend
+from pypadre.backend.local.file.project.experiment.execution.run.run_file_backend import PadreRunFileBackend
+from pypadre.backend.remote.http.project.experiment.execution.run.split.split_http_backend import PadreSplitHttpBackend
 
 
-class PadreRunHTTPBackend(IRunBackend):
+class PadreRunHttpBackend(PadreRunFileBackend):
 
     def __init__(self, parent):
         super().__init__(parent)
         self.root_dir = os.path.join(self._parent.root_dir, "runs")
-        self._split = PadreSplitHTTPBackend(self)
+        self._split = PadreSplitHttpBackend(self)
 
     @property
     def split(self):

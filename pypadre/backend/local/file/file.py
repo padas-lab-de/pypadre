@@ -1,7 +1,6 @@
 from pypadre.backend.interfaces.backend.i_backend import IBackend
 from pypadre.backend.local.file.dataset.dataset_file_backend import PadreDatasetFileBackend
 from pypadre.backend.local.file.project.project_file_backend import PadreProjectHTTPBackend
-from pypadre.util.file_util import get_path
 
 
 class PadreFileBackend(IBackend):

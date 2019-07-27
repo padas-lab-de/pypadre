@@ -9,12 +9,12 @@ This file contains the implementation for
 
 import gitlab
 import base64
-from pypadre.backend.interfaces.backend.generic.i_base_git_backend import IBaseGitBackend
+from pypadre.backend.interfaces.backend.generic.i_base_git_backend import GitBackend
 import uuid
 import os
 
 
-class GitLabBackend(IBaseGitBackend):
+class GitLabBackend(GitBackend):
     _repo = None
     _git = None
     _branch = "master"

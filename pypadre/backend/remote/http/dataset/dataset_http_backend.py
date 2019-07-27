@@ -1,10 +1,9 @@
 import os
 
-from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
-from pypadre.util.file_util import dir_list
+from pypadre.backend.local.file.dataset.dataset_file_backend import PadreDatasetFileBackend
 
 
-class PadreDatasetHTTPBackend(IDatasetBackend):
+class PadreDatasetHttpBackend(PadreDatasetFileBackend):
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -21,8 +20,7 @@ class PadreDatasetHTTPBackend(IDatasetBackend):
         :param search_metadata: dict with regular expressions per metadata key. Default None
         """
         # todo apply the search metadata filter.
-        dirs = dir_list(self.root_dir, search_name)
-        return dirs  # [self.get(dir, metadata_only=True) for dir in dirs]
+        pass
 
     def get(self, uid):
         pass

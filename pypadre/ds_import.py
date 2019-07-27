@@ -25,230 +25,230 @@ from pypadre.eventhandler import assert_condition, trigger_event
 import pypadre.backend.http.protobuffer.proto_organizer as proto
 
 
-def _split_DESCR(s):
-    s = s.strip()
-    k = s.find("\n")
-    return s[0:k], s[k + 1:]
+# def _split_DESCR(s):
+#     s = s.strip()
+#     k = s.find("\n")
+#     return s[0:k], s[k + 1:]
+#
+#
+# def _create_dataset_data(bunch):
+#     n_feat = bunch.data.shape[1]
+#     if len(bunch.target.shape) == 1:
+#         data = np.concatenate([bunch.data[:, :], bunch.target[:, None]], axis=1)
+#     else:
+#         data = np.concatenate([bunch.data[:, :], bunch.target[:, :]], axis=1)
+#     fn = bunch.get("feature_names")
+#     atts = []
+#     for ix in range(data.shape[1]):
+#         if fn is not None and len(fn) > ix:
+#             atts.append(Attribute(fn[ix], "Ratio", None, None, n_feat <= ix))
+#         else:
+#             atts.append(Attribute(str(ix), "Ratio", None, None, n_feat <= ix))
+#
+#     return data, atts
+#
+# def _create_dataset(bunch, type,source):
+#     meta = dict()
+#     meta["id"] = str(uuid.uuid4())
+#     meta["name"], meta["description"] = _split_DESCR(bunch["DESCR"])
+#     meta["type"] = type
+#     meta["originalSource"]=source
+#     meta["creator"] = ""
+#     meta["version"] = ""
+#     meta["context"] = {}
+#
+#     dataset = Dataset(meta["id"], **meta)
+#     dataset.set_data(lambda: _create_dataset_data(bunch))
+#     return dataset
+#
+#
+# @deprecated(reason ="use updated load_csv function")
+# def load_csv_file(path_dataset,path_target=None,target_features=[],originalSource="imported by csv",
+#              description="imported form csv",type="multivariate"):
+#     """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
+#
+#     Args:
+#         path_dataset (str): The path of the csv-file
+#         path_target (list): The column names of the target features of the csv-file.
+#
+#     Returns:
+#         pypadre.Dataset() A dataset containing the data of the .csv file
+#
+#     """
+#     assert_condition(condition=os.path.exists(os.path.abspath(path_dataset)), source='ds_import.load_csv',
+#                      message='Dataset path does not exist')
+#
+#     trigger_event('EVENT_WARN', condition=len(target_features)>0, source='ds_import.load_csv',
+#                   message='No targets defined. Program will crash when used for supervised learning')
+#
+#     dataset_path_list = path_dataset.split('/')
+#     nameOfDataset = dataset_path_list[-1].split('.csv')[0]
+#     data =pd.read_csv(path_dataset)
+#
+#     meta =dict()
+#     meta["name"]=nameOfDataset
+#
+#     meta["description"]=description
+#     meta["originalSource"]=originalSource
+#     meta["creator"]=""
+#     meta["version"]=""
+#     meta["type"]=type
+#     meta["context"]={}
+#
+#     dataset=Dataset(None, **meta)
+#     trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True, source='ds_import.load_csv',
+#                   message='Non-numeric data values found. Program may crash if not handled by estimators')
+#
+#     targets=None
+#     if path_target != None:
+#         target = pd.read_csv(path_dataset)
+#         data=data.join(target,lsuffix="data",rsuffix="target")
+#         targets=list(target.columns.values)
+#
+#     else:
+#         targets=target_features
+#
+#     atts = []
+#
+#     for feature in data.columns.values:
+#         atts.append(Attribute(feature,None, None, None,feature in targets,None,None))
+#
+#     dataset.set_data(data,atts)
+#     return dataset
+#
+#
+# def load_csv(csv_path, targets=None, name=None, description="imported form csv", source="csvloaded",
+#              type="Multivariat"):
+#     """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
+#
+#     Args:
+#         csv_path (str): The path of the csv-file
+#         targets (list): The column names of the target features of the csv-file.
+#         name(str): Optional name of dataset
+#         description(str): Optional description of the dataset
+#         source(str): original source - should be url
+#         type(str): type of dataset
+#
+#     Returns:
+#         <class 'pypadre.datasets.Dataset'> A dataset containing the data of the .csv file
+#
+#     """
+#     assert_condition(condition=os.path.exists(os.path.abspath(csv_path)), source='ds_import.load_csv',
+#                      message='Dataset path does not exist')
+#
+#     if targets is None:
+#         targets = []
+#     trigger_event('EVENT_WARN', condition=len(targets)>0, source='ds_import.load_csv',
+#                   message='No targets defined. Program will crash when used for supervised learning')
+#
+#     dataset_path_list = csv_path.split('/')
+#     if name is None:
+#         name = dataset_path_list[-1].split('.csv')[0]
+#
+#     data = pd.read_csv(csv_path)
+#     meta = dict()
+#     meta["id"] = str(uuid.uuid4())
+#     meta["name"] = name
+#     meta["description"] = description
+#     meta["originalSource"]="http://" + source
+#     meta["version"] = 1
+#     meta["type"] = type
+#     meta["published"] = True
+#
+#     dataset = Dataset(None, **meta)
+#     trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True,
+#                   source='ds_import.load_csv',
+#                   message='Non-numeric data values found. Program may crash if not handled by estimators')
+#
+#     for col_name in targets:
+#         data[col_name] = data[col_name].astype('category')
+#         data[col_name] = data[col_name].cat.codes
+#     atts = []
+#     for feature in data.columns.values:
+#         atts.append(Attribute(name=feature,
+#                               measurementLevel="Ratio" if feature in targets else None,
+#                               defaultTargetAttribute=feature in targets))
+#     dataset.set_data(data,atts)
+#     return dataset
+#
+#
+# def load_pandas_df(pandas_df,target_features=[]):
+#     """
+#     Takes a pandas dataframe and a list of the names of target columns and creates a padre-Dataset.
+#
+#     Args:
+#         pandas_df (str): The pandas dataset.
+#         path_target (list): The column names of the target features of the csv-file.
+#
+#     Returns:
+#         pypadre.Dataset() A dataset containing the data of the .csv file
+#
+#     """
+#     meta = dict()
+#
+#     meta["name"] = "pandas_imported_df"
+#     meta["description"]="imported by pandas_df"
+#     meta["originalSource"]="https://imported/from/pandas/Dataframe.html"
+#     meta["creator"]=""
+#     meta["version"]=""
+#     meta["context"]={}
+#     meta["type"]="multivariate"
+#     dataset = Dataset(None, **meta)
+#
+#     atts = []
+#
+#     if len(target_features) == 0:
+#         targets = [0] * len(pandas_df)
+#
+#     for feature in pandas_df.columns.values:
+#         atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
+#                               defaultTargetAttribute=feature in target_features, context=None))
+#     dataset.set_data(pandas_df, atts)
+#     return dataset
+#
+#
+# def load_numpy_array_multidimensional(features, targets, columns=None, target_features=None):
+#     """
+#     Takes a multidimensional numpy array and creates a dataset out of it
+#     :param features: The input n dimensional numpy array
+#     :param targets: The targets corresponding to every feature
+#     :param columns: Array of data column names
+#     :param target_features: Target features column names
+#     :return: A dataset object
+#     """
+#     meta = dict()
+#
+#     meta["name"] = "numpy_imported"
+#     meta["description"] = "imported by numpy multidimensional"
+#     meta["originalSource"] = ""
+#     meta["creator"] = ""
+#     meta["version"] = ""
+#     meta["context"] = {}
+#     meta["type"] = "multivariate"
+#     dataset = Dataset(None, **meta)
+#     atts = []
+#
+#     if len(target_features) == 0:
+#         targets = [0] * len(features)
+#
+#     for feature in columns:
+#         atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
+#                               defaultTargetAttribute=feature in target_features, context=None))
+#     dataset.set_data_multidimensional(features, targets, atts)
+#     return dataset
 
 
-def _create_dataset_data(bunch):
-    n_feat = bunch.data.shape[1]
-    if len(bunch.target.shape) == 1:
-        data = np.concatenate([bunch.data[:, :], bunch.target[:, None]], axis=1)
-    else:
-        data = np.concatenate([bunch.data[:, :], bunch.target[:, :]], axis=1)
-    fn = bunch.get("feature_names")
-    atts = []
-    for ix in range(data.shape[1]):
-        if fn is not None and len(fn) > ix:
-            atts.append(Attribute(fn[ix], "Ratio", None, None, n_feat <= ix))
-        else:
-            atts.append(Attribute(str(ix), "Ratio", None, None, n_feat <= ix))
-
-    return data, atts
-
-def _create_dataset(bunch, type,source):
-    meta = dict()
-    meta["id"] = str(uuid.uuid4())
-    meta["name"], meta["description"] = _split_DESCR(bunch["DESCR"])
-    meta["type"] = type
-    meta["originalSource"]=source
-    meta["creator"] = ""
-    meta["version"] = ""
-    meta["context"] = {}
-
-    dataset = Dataset(meta["id"], **meta)
-    dataset.set_data(lambda: _create_dataset_data(bunch))
-    return dataset
-
-
-@deprecated(reason ="use updated load_csv function")
-def load_csv_file(path_dataset,path_target=None,target_features=[],originalSource="imported by csv",
-             description="imported form csv",type="multivariate"):
-    """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
-
-    Args:
-        path_dataset (str): The path of the csv-file
-        path_target (list): The column names of the target features of the csv-file.
-
-    Returns:
-        pypadre.Dataset() A dataset containing the data of the .csv file
-
-    """
-    assert_condition(condition=os.path.exists(os.path.abspath(path_dataset)), source='ds_import.load_csv',
-                     message='Dataset path does not exist')
-
-    trigger_event('EVENT_WARN', condition=len(target_features)>0, source='ds_import.load_csv',
-                  message='No targets defined. Program will crash when used for supervised learning')
-
-    dataset_path_list = path_dataset.split('/')
-    nameOfDataset = dataset_path_list[-1].split('.csv')[0]
-    data =pd.read_csv(path_dataset)
-
-    meta =dict()
-    meta["name"]=nameOfDataset
-
-    meta["description"]=description
-    meta["originalSource"]=originalSource
-    meta["creator"]=""
-    meta["version"]=""
-    meta["type"]=type
-    meta["context"]={}
-
-    dataset=Dataset(None, **meta)
-    trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True, source='ds_import.load_csv',
-                  message='Non-numeric data values found. Program may crash if not handled by estimators')
-
-    targets=None
-    if path_target != None:
-        target = pd.read_csv(path_dataset)
-        data=data.join(target,lsuffix="data",rsuffix="target")
-        targets=list(target.columns.values)
-
-    else:
-        targets=target_features
-
-    atts = []
-
-    for feature in data.columns.values:
-        atts.append(Attribute(feature,None, None, None,feature in targets,None,None))
-
-    dataset.set_data(data,atts)
-    return dataset
-
-
-def load_csv(csv_path, targets=None, name=None, description="imported form csv", source="csvloaded",
-             type="Multivariat"):
-    """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
-
-    Args:
-        csv_path (str): The path of the csv-file
-        targets (list): The column names of the target features of the csv-file.
-        name(str): Optional name of dataset
-        description(str): Optional description of the dataset
-        source(str): original source - should be url
-        type(str): type of dataset
-
-    Returns:
-        <class 'pypadre.datasets.Dataset'> A dataset containing the data of the .csv file
-
-    """
-    assert_condition(condition=os.path.exists(os.path.abspath(csv_path)), source='ds_import.load_csv',
-                     message='Dataset path does not exist')
-
-    if targets is None:
-        targets = []
-    trigger_event('EVENT_WARN', condition=len(targets)>0, source='ds_import.load_csv',
-                  message='No targets defined. Program will crash when used for supervised learning')
-
-    dataset_path_list = csv_path.split('/')
-    if name is None:
-        name = dataset_path_list[-1].split('.csv')[0]
-
-    data = pd.read_csv(csv_path)
-    meta = dict()
-    meta["id"] = str(uuid.uuid4())
-    meta["name"] = name
-    meta["description"] = description
-    meta["originalSource"]="http://" + source
-    meta["version"] = 1
-    meta["type"] = type
-    meta["published"] = True
-
-    dataset = Dataset(None, **meta)
-    trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True,
-                  source='ds_import.load_csv',
-                  message='Non-numeric data values found. Program may crash if not handled by estimators')
-
-    for col_name in targets:
-        data[col_name] = data[col_name].astype('category')
-        data[col_name] = data[col_name].cat.codes
-    atts = []
-    for feature in data.columns.values:
-        atts.append(Attribute(name=feature,
-                              measurementLevel="Ratio" if feature in targets else None,
-                              defaultTargetAttribute=feature in targets))
-    dataset.set_data(data,atts)
-    return dataset
-
-
-def load_pandas_df(pandas_df,target_features=[]):
-    """
-    Takes a pandas dataframe and a list of the names of target columns and creates a padre-Dataset.
-
-    Args:
-        pandas_df (str): The pandas dataset.
-        path_target (list): The column names of the target features of the csv-file.
-
-    Returns:
-        pypadre.Dataset() A dataset containing the data of the .csv file
-
-    """
-    meta = dict()
-
-    meta["name"] = "pandas_imported_df"
-    meta["description"]="imported by pandas_df"
-    meta["originalSource"]="https://imported/from/pandas/Dataframe.html"
-    meta["creator"]=""
-    meta["version"]=""
-    meta["context"]={}
-    meta["type"]="multivariate"
-    dataset = Dataset(None, **meta)
-
-    atts = []
-
-    if len(target_features) == 0:
-        targets = [0] * len(pandas_df)
-
-    for feature in pandas_df.columns.values:
-        atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
-                              defaultTargetAttribute=feature in target_features, context=None))
-    dataset.set_data(pandas_df, atts)
-    return dataset
-
-
-def load_numpy_array_multidimensional(features, targets, columns=None, target_features=None):
-    """
-    Takes a multidimensional numpy array and creates a dataset out of it
-    :param features: The input n dimensional numpy array
-    :param targets: The targets corresponding to every feature
-    :param columns: Array of data column names
-    :param target_features: Target features column names
-    :return: A dataset object
-    """
-    meta = dict()
-
-    meta["name"] = "numpy_imported"
-    meta["description"] = "imported by numpy multidimensional"
-    meta["originalSource"] = ""
-    meta["creator"] = ""
-    meta["version"] = ""
-    meta["context"] = {}
-    meta["type"] = "multivariate"
-    dataset = Dataset(None, **meta)
-    atts = []
-
-    if len(target_features) == 0:
-        targets = [0] * len(features)
-
-    for feature in columns:
-        atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
-                              defaultTargetAttribute=feature in target_features, context=None))
-    dataset.set_data_multidimensional(features, targets, atts)
-    return dataset
-
-
-def load_sklearn_toys():
-    #returns an iterator loading different sklearn datasets
-    loaders = [(ds.load_boston, ("regression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_boston.html#sklearn.datasets.load_boston"),
-               (ds.load_breast_cancer, ("classification", "Multivariat"),"https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)"),
-               (ds.load_diabetes, ("regression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes"),
-               (ds.load_digits, ("classification", "Multivariat"),"http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits"),
-               (ds.load_iris, ("classification", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_iris.html#sklearn.datasets.load_iris"),
-               (ds.load_linnerud, ("mregression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_linnerud.html#sklearn.datasets.load_linnerud")]
-
-    for loader in loaders:
-        yield _create_dataset(loader[0](), loader[1][1],loader[2])
+# def load_sklearn_toys():
+#     #returns an iterator loading different sklearn datasets
+#     loaders = [(ds.load_boston, ("regression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_boston.html#sklearn.datasets.load_boston"),
+#                (ds.load_breast_cancer, ("classification", "Multivariat"),"https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)"),
+#                (ds.load_diabetes, ("regression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes"),
+#                (ds.load_digits, ("classification", "Multivariat"),"http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits"),
+#                (ds.load_iris, ("classification", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_iris.html#sklearn.datasets.load_iris"),
+#                (ds.load_linnerud, ("mregression", "Multivariat"),"https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_linnerud.html#sklearn.datasets.load_linnerud")]
+#
+#     for loader in loaders:
+#         yield _create_dataset(loader[0](), loader[1][1],loader[2])
 
 #possible Datatypes of imported open-ml dataset columns
 LEGAL_DATA_TYPES = ['NOMINAL','INTEGER', 'NUMERIC', 'REAL', 'STRING']

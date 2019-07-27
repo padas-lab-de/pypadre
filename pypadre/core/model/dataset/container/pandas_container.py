@@ -4,14 +4,16 @@ import pandas_profiling as pd_pf
 from scipy import stats
 
 from pypadre.core.model.dataset.attribute import Attribute
+from pypadre.core.model.dataset.container.base_container import AttributesOnlyContainer, IBaseContainer
+from pypadre.core.model.dataset.dataset import _Formats
 
 
-class PandasContainer:
+class PandasContainer(IBaseContainer):
 
     def __init__(self, data, attributes=None):
+        super().__init__(_Formats.pandas, data)
         # todo rework binary data into delegate pattern.
         self._shape = data.shape
-        #pd.DataFrame
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
             self._features = data
@@ -42,7 +44,7 @@ class PandasContainer:
         else:
             removekeys = []
             for att in self._attributes:
-                if(att.defaultTargetAttribute):
+                if att.defaultTargetAttribute:
                     removekeys.append(att.name)
             return self._data.drop(removekeys,axis=1).values
 
@@ -53,7 +55,7 @@ class PandasContainer:
         else:
             targets=[]
             for col,att in enumerate(self._attributes):
-                if (att.defaultTargetAttribute):
+                if att.defaultTargetAttribute:
                     targets.append(att.name)
 
             # if no targets are present, return None
@@ -75,21 +77,11 @@ class PandasContainer:
     def num_attributes(self):
         return self._data.shape[1]
 
-    def pandas_repr(self):
-        return self.data
+    def convert(self, bin_format):
+        return None
 
-
-  #      ret = {"n_att" : len(self._attributes),
-  #             "n_target" : len([a for a in self._attributes if a.is_target])}
-  #      if self._data is not None:
-  #          ret["stats"] = stats.describe(self._data, axis=0)
-  #      return ret
-
-    def profile(self,bins=10,check_correlation=True,correlation_threshold=0.9,
-                correlation_overrides=None,check_recoded=False):
-        return pd_pf.ProfileReport(self.data,bins=bins,check_correlation=check_correlation,correlation_threshold=correlation_threshold,
-                correlation_overrides=correlation_overrides,check_recoded=check_recoded)
-
+    def profile(self, **kwargs):
+        return pd_pf.ProfileReport(self.data, **kwargs)
 
     def describe(self):
         ret = {"n_att" : len(self._attributes),

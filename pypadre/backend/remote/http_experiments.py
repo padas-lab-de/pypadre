@@ -57,7 +57,7 @@ class HttpBackendExperiments:
                     response = self._http_client.do_get(get_url)
                     dataset_id = json.loads(response.content)["uid"]
 
-            except req.HTTPError as e:
+            except req.HttpError as e:
                 trigger_event('EVENT_WARN', condition=False, source=self,
                               message="Dataset with id {%s} not found  " % str(_id))
                 dataset_id = self._http_client.datasets.put(ds)

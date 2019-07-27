@@ -1,85 +1,187 @@
-from pypadre.eventhandler import trigger_event
+import inspect
+from abc import abstractmethod, ABCMeta
+from typing import List, Set, cast
 
-from pypadre.printing.util.print_util import print_table, to_table
+from jsonschema import ValidationError
+
+from pypadre import Dataset
+from pypadre.app import PadreApp
+from pypadre.backend.interfaces.backend.generic.i_searchable import ISearchable
+from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
+from pypadre.backend.interfaces.backend.i_backend import IBackend
+from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
+from pypadre.base import ChildEntity
+from pypadre.core.model.dataset.dataset import DataSetValidator
+from pypadre.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
+    NetworkXLoader, SklearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
+from pypadre.printing.tablefyable import Tablefyable
+from pypadre.printing.util.print_util import to_table
 
 
-class DatasetApp:
+class IBaseApp:
+    """ Base class for apps containing backends. """
+    __metaclass__ = ABCMeta
+
+    def __init__(self, backends):
+        self._backends = backends
+
+    @property
+    def backends(self):
+        return self._backends
+
+    def list(self, search) -> set:
+        entities = set()
+        for b in self.backends:
+            backend: ISearchable = b
+            [entities.add(e) for e in backend.list(search=search)]
+        return entities
+
+    def put(self, obj):
+        for b in self.backends:
+            backend: IStoreable = b
+            backend.put(obj)
+
+    def get(self, id):
+        for b in self.backends:
+            backend: IStoreable = b
+            backend.get(id)
+
+    def delete(self, obj):
+        for b in self.backends:
+            backend: IStoreable = b
+            backend.delete(obj)
+
+    def delete_by_id(self, id):
+        for b in self.backends:
+            backend: IStoreable = b
+            backend.delete_by_id(id)
+
+    def print(self, obj):
+        if self.has_print():
+            self.print_(obj)
+
+    def print_tables(self, objects: List[Tablefyable], **kwargs):
+        if self.has_print():
+            self.print_("Loading.....")
+            self.print_(to_table(objects, **kwargs))
+
+    @abstractmethod
+    def has_print(self) -> bool:
+        pass
+
+    @abstractmethod
+    def print_(self, output, **kwargs):
+        pass
+
+
+class BaseChildApp(ChildEntity, IBaseApp):
+    """ Base class for apps being a child of another app. """
+    __metaclass__ = ABCMeta
+
+    def __init__(self, parent: IBaseApp, backends: List[IBackend], **kwargs):
+        super().__init__(parent=parent, backends=backends, **kwargs)
+
+    def has_print(self) -> bool:
+        parent: IBaseApp = self.parent
+        return parent.has_print()
+
+    def print_(self, output, **kwargs):
+        parent: IBaseApp = self.parent
+        return parent.print_(output, **kwargs)
+
+
+class Source():
+    def __init__(self, url, config):
+        self._url = url
+        self._config = config
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def config(self):
+        return self._config
+
+
+class DatasetApp(BaseChildApp):
     """
     Class providing commands for managing datasets.
     """
-    def __init__(self, parent):
-        self._parent = parent
 
-    def list(self, search_name=None, search_metadata=None, start=0, count=999999999, prnt=False):
+    def __init__(self, parent: PadreApp, backends: List[IDatasetBackend], **kwargs):
+        super().__init__(parent=parent, backends=backends, **kwargs)
+        self._loaders = [CSVLoader(), PandasLoader(), NumpyLoader(), NetworkXLoader(), SklearnLoader(), SnapLoader(),
+                         KonectLoader(), OpenMlLoader()]
+
+    @property
+    def loaders(self):
+        return self._loaders
+
+    def loader(self, source):
+        loaders = [loader for loader in self._loaders if cast(IDataSetLoader, loader).mapping(source)]
+        if len(loaders) == 1:
+            return next(iter(loaders))
+        elif len(loaders) > 1:
+            raise ValueError("More than one loader matched. Remove a redundant loader." + self._loader_patterns())
+        else:
+            raise ValueError("You passed %s. " + self._loader_patterns() % str(source))
+
+    def list(self, search) -> Set[Dataset]:
         """
-        lists all datasets matching the provided criterions in the configured backends (local and remote)
-        :param search_name: name of the dataset as regular expression
-        :param search_metadata: key/value dictionaries for metadata field / value (not implemented yet)
-        :param start: paging information where to start in the returned list
-        :param count: number of datasets to return.
-        :param print: whether to print the details of the datasets or not.
+        Lists all data sets matching search.
+        :param search: Search object
+        :return: Data sets
+        """
+        data_sets = super().list(search)
+        return data_sets
+
+    def put(self, obj: Dataset):
+        """
+        Puts the data set if it's format is valid
+        :param obj: Data set to put
+        :return: Data set
+        """
+        try:
+            DataSetValidator.validate(obj)
+            super().put(obj)
+            return obj
+        except ValidationError as e:
+            self.print_("Dataset could not be added. Please fix following problems and add manually: " + str(e))
+            return obj
+
+    def load(self, source, **kwargs) -> Dataset:
+        """
+        Load the dataset defined by source and parameters
+        :param source: source object
+        :param kwargs: parameters for the loader
+        :return: dataset
+        """
+        loader = self.loader(source)
+        data_set = cast(IDataSetLoader, loader).load(source=source, **kwargs)
+        return self.put(data_set)
+
+    def _loader_patterns(self):
+        out = "Pass a source matching one of the following functions: "
+        out += ",".join([str(inspect.getsource(cast(IDataSetLoader, loader).mapping)) for loader in self._loaders])
+        return out
+
+    def load_defaults(self):
+        """
+        Load all default data sets of the in the app defined loaders
         :return:
         """
-        # todo: merge results and allow multiple repositories. all should have same signature. then iterate over repos
-        local_datasets = self._parent.local_backend.datasets.list()
-        if local_datasets is None:
-            local_datasets = []
-        remote_datasets = []
-        if not self._parent.offline:
-            remote_datasets = self._parent.remote_backend.datasets.list()
-        local_datasets.extend(remote_datasets)
+        for l in self._loaders:
+            if isinstance(l, ICollectionDataSetLoader):
+                dataset = l.load_default()
+                self.put(dataset)
 
-        if prnt:
-            self.print_details(local_datasets)
-
-        # Add sklearn toy datasets if they are not present in the list
-        if len(local_datasets) == 0:
-            local_datasets = ['Boston_House_Prices',
-                              'Breast_Cancer',
-                              'Diabetes',
-                              'Digits',
-                              'Iris',
-                              'Linnerrud']
-
-        return local_datasets
-
-    def print_datasets(self, datasets: list):
-        if self._parent.has_print():
-            self._print("Loading.....")
-            self._print(to_table(self._parent, datasets))
-
-    def print(self, ds):
-        if self.has_printer():
-            self._print(ds)
-
-    def search_downloads(self, name: str = None)->list:
-        """
-        searches for importable datasets (as specified in the datasets file).
-        :param name: regexp for filtering the names
-        :return: list of possible imports
-        """
-        oml_key = self._parent.config.get("oml_key", "GENERAL")
-        root_dir = self._parent.config.get("root_dir", "LOCAL BACKEND")
-        datasets = ds_import.search_oml_datasets(name, root_dir, oml_key)
-
-        datasets_list = []
-        for key in datasets.keys():
-            datasets_list.append(datasets[key])
-        return datasets_list
-
-    def download(self, sources: list) -> Iterable:
-        """
-        Downloads the datasets from information provided as list from oml
-        :return: returns a iterator of dataset objects
-        """
-        # todo: Extend support for more dataset sources other than openML
-        for dataset_source in sources:
-            dataset = self._parent.remote_backend.datasets.load_oml_dataset(str(dataset_source["did"]))
-            yield dataset
+    def sync_all(self):
+        pass
 
     def sync(self, name: str = None, mode: str = "sync"):
         """
-        syncs the specified dataset with the server.
+        syncs the specified dataset with all backends.
         :param name: name of the dataset. If None is provided, all datasets are synced
         :param mode: mode of synching. "push" uploads the local dataset to the server
         "pull" downloads the server dataset locally
@@ -87,98 +189,108 @@ class DatasetApp:
          warning if the remote hash of the dataset is not in sync with the local hash of the dataset.
         :return:
         """
+        # TODO sync in backends if needed
         pass
 
-    @deprecated(reason="use downloads function below")  # see download
-    def do_default_imports(self, sklearn=True):
-        if sklearn:
-            for ds in ds_import.load_sklearn_toys():
-                self.do_import(ds)
 
-    def _print(self, output, **kwargs):
-        self._parent.print(output, **kwargs)
+# class DatasetAppOld:
+#     """
+#     Class providing commands for managing datasets.
+#     """
+#
+#     def __init__(self, parent):
+#         self._parent = parent
+#
+#     @deprecated(reason="use downloads function below")  # see download
+#     def do_default_imports(self, sklearn=True):
+#         if sklearn:
+#             for ds in ds_import.load_sklearn_toys():
+#                 self.do_import(ds)
+#
+#     def _print(self, output, **kwargs):
+#         self._parent.print(output, **kwargs)
+#
+#     def has_printer(self):
+#         return self._parent.has_print()
 
-    def has_printer(self):
-        return self._parent.has_print()
+    # @deprecated(reason="use the put method below. ")
+    # def do_import(self, ds):
+    #     if self.has_printer():
+    #         self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
+    #     self._parent.remote_backend.upload_dataset(ds, True)
 
-    @deprecated(reason="use the put method below. ")
-    def do_import(self, ds):
-        if self.has_printer():
-            self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
-        self._parent.remote_backend.upload_dataset(ds, True)
+    # def upload_scratchdatasets(self, auth_token, max_threads=8, upload_graphs=True):
+    #     if (max_threads < 1 or max_threads > 50):
+    #         max_threads = 2
+    #     if ("api" in _BASE_URL):
+    #         url = _BASE_URL.strip("/api")
+    #     else:
+    #         url = _BASE_URL
+    #     ds_import.sendTop100Datasets_multi(auth_token, url, max_threads)
+    #     print("All openml datasets are uploaded!")
+    #     if (upload_graphs):
+    #         ds_import.send_top_graphs(auth_token, url, max_threads >= 3)
 
-    def upload_scratchdatasets(self, auth_token, max_threads=8, upload_graphs=True):
-        if(max_threads < 1 or max_threads > 50):
-            max_threads = 2
-        if("api"in _BASE_URL):
-            url=_BASE_URL.strip("/api")
-        else:
-            url =_BASE_URL
-        ds_import.sendTop100Datasets_multi(auth_token, url, max_threads)
-        print("All openml datasets are uploaded!")
-        if(upload_graphs):
-            ds_import.send_top_graphs(auth_token, url, max_threads >= 3)
+    # def get(self, dataset_id, binary: bool = True,
+    #         format=formats.numpy,
+    #         force_download: bool = True,
+    #         cache_it: bool = False):
+    #     """
+    #     fetches a dataset either from local or from remote repository.
+    #     :param dataset_id: id of the dataset to be fetched
+    #     :param binary:
+    #     :param format:
+    #     :param force_download:
+    #     :param cache_it:
+    #     :return:
+    #     """
+    #     # todo check force_download=False and cache_it True
+    #     ds = None
+    #     if isinstance(dataset_id, Dataset):
+    #         dataset_id = dataset_id.id
+    #     if not force_download:  # look in cache first
+    #         ds = self._parent.local_backend.datasets.get(dataset_id)
+    #     if ds is None and not self._parent.offline:  # no cache or not looked --> go to http client
+    #         # ds = self._parent.remote_backend.datasets.get(dataset_id, binary, format=format)
+    #         ds = self._parent.remote_backend.datasets.get(dataset_id)
+    #         if cache_it:
+    #             self._parent.local_backend.datasets.put(ds)
+    #     return ds
 
-    def get(self, dataset_id, binary: bool = True,
-            format = formats.numpy,
-            force_download: bool = True,
-            cache_it: bool = False):
-        """
-        fetches a dataset either from local or from remote repository.
-        :param dataset_id: id of the dataset to be fetched
-        :param binary:
-        :param format:
-        :param force_download:
-        :param cache_it:
-        :return:
-        """
-        # todo check force_download=False and cache_it True
-        ds = None
-        if isinstance(dataset_id, Dataset):
-            dataset_id = dataset_id.id
-        if not force_download:  # look in cache first
-            ds = self._parent.local_backend.datasets.get(dataset_id)
-        if ds is None and not self._parent.offline:  # no cache or not looked --> go to http client
-            # ds = self._parent.remote_backend.datasets.get(dataset_id, binary, format=format)
-            ds = self._parent.remote_backend.datasets.get(dataset_id)
-            if cache_it:
-                self._parent.local_backend.datasets.put(ds)
-        return ds
+    # @deprecated  # use get
+    # def get_dataset(self, dataset_id, binary=True, format=formats.numpy,
+    #                 force_download=True, cache_it=False):
+    #     return self.get(dataset_id, binary, format, force_download, cache_it)
 
-    @deprecated  # use get
-    def get_dataset(self, dataset_id, binary=True, format=formats.numpy,
-                    force_download=True, cache_it=False):
-        return self.get(dataset_id, binary, format, force_download, cache_it)
+    # def put(self, ds: Dataset, overwrite=True, upload=True) -> None:
+    #     """
+    #     puts a dataset to the local repository as well to server if upload is True
+    #
+    #     :param ds: dataset to be uploaded
+    #     :type ds: <class 'pypadre.core.datasets.Dataset'>
+    #     :param overwrite: if false, datasets are not overwritten
+    #     :param upload: True, if the dataset should be uploaded
+    #     """
+    #     # todo implement overwrite correctly
+    #     if upload:
+    #         trigger_event('EVENT_WARN', condition=self._parent.offline is False, source=self,
+    #                       message="Warning: The class is set to offline put upload was set to true. "
+    #                               "Backend is not expected to work properly")
+    #         if self.has_printer():
+    #             self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
+    #         ds.id = self._parent.remote_backend.datasets.put(ds, True)
+    #     self._parent.local_backend.datasets.put(ds)
 
-    def put(self, ds: Dataset, overwrite=True, upload=True)->None:
-        """
-        puts a dataset to the local repository as well to server if upload is True
+    # def delete(self, dataset_id, remote_also=False):
+    #     """
+    #     delete the dataset with the provided id
+    #     :param dataset_id: id of dataset as string or dataset object
+    #     :return:
+    #     """
+    #     if isinstance(dataset_id, Dataset):
+    #         dataset_id = dataset_id.id
+    #     self._parent.local_backend.datasets.delete(dataset_id)
 
-        :param ds: dataset to be uploaded
-        :type ds: <class 'pypadre.core.datasets.Dataset'>
-        :param overwrite: if false, datasets are not overwritten
-        :param upload: True, if the dataset should be uploaded
-        """
-        # todo implement overwrite correctly
-        if upload:
-            trigger_event('EVENT_WARN', condition=self._parent.offline is False, source=self,
-                          message="Warning: The class is set to offline put upload was set to true. "
-                                  "Backend is not expected to work properly")
-            if self.has_printer():
-                self._print("Uploading dataset %s, %s, %s" % (ds.name, str(ds.size), ds.type))
-            ds.id = self._parent.remote_backend.datasets.put(ds, True)
-        self._parent.local_backend.datasets.put(ds)
-
-    def delete(self, dataset_id, remote_also=False):
-        """
-        delete the dataset with the provided id
-        :param dataset_id: id of dataset as string or dataset object
-        :return:
-        """
-        if isinstance(dataset_id, Dataset):
-            dataset_id = dataset_id.id
-        self._parent.local_backend.datasets.delete(dataset_id)
-
-    def import_from_csv(self, csv_path, targets, name, description):
-        """Load dataset from csv file"""
-        return ds_import.load_csv(csv_path, targets, name, description)
+    # def import_from_csv(self, csv_path, targets, name, description):
+    #     """Load dataset from csv file"""
+    #     return ds_import.load_csv(csv_path, targets, name, description)

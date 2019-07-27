@@ -1,7 +1,7 @@
 import os
 from abc import ABC, abstractmethod, ABCMeta
 
-from pypadre.backend.interfaces.backend.generic.i_base_file_backend import IBaseFileBackend
+from pypadre.backend.interfaces.backend.generic.i_base_file_backend import FileBackend
 
 
 class ILogBackend:

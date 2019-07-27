@@ -1,15 +1,16 @@
 import os
 
 from pypadre.backend.interfaces.backend.i_experiment_backend import IExperimentBackend
-from pypadre.backend.remote.http.project.experiment.execution.execution_http_backend import PadreExecutionHTTPBackend
+from pypadre.backend.local.file.project.experiment.experiment_file_backend import PadreExperimentFileBackend
+from pypadre.backend.remote.http.project.experiment.execution.execution_http_backend import PadreExecutionHttpBackend
 
 
-class PadreExperimentHTTPBackend(IExperimentBackend):
+class PadreExperimentHttpBackend(PadreExperimentFileBackend):
 
     def __init__(self, parent):
         super().__init__(parent)
         self.root_dir = os.path.join(self._parent.root_dir, "experiments")
-        self._execution = PadreExecutionHTTPBackend(self)
+        self._execution = PadreExecutionHttpBackend(self)
 
     @property
     def execution(self):

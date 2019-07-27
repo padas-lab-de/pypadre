@@ -5,7 +5,7 @@ import json
 import sys
 from time import time
 from datetime import datetime
-from abc import ABC
+from abc import ABC, ABCMeta, abstractmethod
 
 from pypadre.printing.tablefy import tableColumn
 
@@ -726,6 +726,20 @@ class TimerContents:
     @property
     def priority(self):
         return self._timer_priority
+
+
+class ChildEntity:
+    """ This is the abstract class being hierarchically nested in another class. This is relevant for app structure
+    and the backend structure. For example the project backend is the parent of experiment backend """
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, parent, **kwargs):
+        self._parent = parent
+
+    @property
+    def parent(self):
+        return self._parent
 
 
 # TODO: A better way of using the default timer

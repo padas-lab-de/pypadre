@@ -1,3 +1,5 @@
+# TODO DELETE AS SOON AS TRANSFERED INTO NEW APP CLASSES
+
 """
 Padre app as single point of interaction.
 
@@ -15,11 +17,21 @@ Architecture of the module
 
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
-from pypadre.app.backend.backend_app import BackEndApp
+from typing import List
+
+from jsonschema import ValidationError
+
 from pypadre.app.config.padre_config import PadreConfig
-from pypadre.app.dataset.dataset_app import DatasetApp
+from pypadre.app.dataset.dataset_app import DatasetApp, IBaseApp
+from pypadre.app.execution_app import ExecutionApp
 from pypadre.app.experiment.experiment_app import ExperimentApp
+from pypadre.app.metric_app import MetricApp
 from pypadre.app.project.project_app import ProjectApp
+from pypadre.app.run_app import RunApp
+from pypadre.app.split_app import SplitApp
+from pypadre.backend.interfaces.backend.i_backend import IBackend
+from pypadre.backend.local.file.file import PadreFileBackend
+from pypadre.backend.remote.http.http import PadreHttpBackend
 from pypadre.base import PadreLogger
 from pypadre.eventhandler import add_logger
 from pypadre.experimentcreator import ExperimentCreator
@@ -30,7 +42,59 @@ logger = PadreLogger()
 add_logger(logger=logger)
 
 
-class PadreApp:
+class PadreFactory:
+
+    def get(self, config=PadreConfig()):
+        backends = self._parse_backends(config)
+        return PadreApp(backends=backends)
+
+    @staticmethod
+    def _parse_backends(config):
+        _backends = config.get("backends", "GENERAL")
+        backends = []
+        for b in _backends:
+            if hasattr(b, 'base_url'):
+                # TODO check for validity
+                backends.append(PadreHttpBackend(b))
+            elif hasattr(b, 'root_dir'):
+                # TODO check for validity
+                backends.append(PadreFileBackend(b))
+            else:
+                raise ValidationError('{0} defined an invalid backend. Please provide either a http backend'
+                                      ' or a local backend. (root_dir or base_url)'.format(b))
+        return backends
+
+
+class PadreApp(IBaseApp):
+
+    def __init__(self, printer=None, backends: List[IBackend] = None):
+        # TODO metric algorithms should be passed. This should work a bit like on the server. Metrics themselves are
+        # plugins which are invoked by the reevaluater
+        self._print = printer
+        self._backends = backends if backends is None else []
+
+        self._dataset_app = DatasetApp(self, [backend.dataset for backend in backends])
+        self._project_app = ProjectApp(self)
+        self._experiment_app = ExperimentApp(self)
+        self._execution_app = ExecutionApp(self)
+        self._run_app = RunApp(self)
+        self._split_app = SplitApp(self)
+
+        self._metric_app = MetricApp(self)
+
+    @property
+    def backends(self):
+        return self._backends
+
+    def has_print(self) -> bool:
+        return self._print is None
+
+    def print_(self, output, **kwargs):
+        if self.has_print():
+            self._print(output, **kwargs)
+
+# TODO DELETE AS SOON AS TRANSFERED INTO NEW APP CLASSES
+class OldPadreApp:
 
     # todo improve printing. Configure a proper printer or find a good ascii printing package
 

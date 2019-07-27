@@ -2,7 +2,7 @@ from abc import abstractmethod, ABCMeta
 
 from git import Repo
 
-from pypadre.backend.interfaces.backend.generic.i_base_file_backend import IBaseFileBackend
+from pypadre.backend.interfaces.backend.generic.i_base_file_backend import FileBackend
 
 """
 For datasets, experiments and projects there would be separate repositories.
@@ -11,7 +11,7 @@ So, the only functionalities required by git are add_file, list_file, delete_fil
 """
 
 
-class IBaseGitBackend(IBaseFileBackend):
+class GitBackend(FileBackend):
     """ This is the abstract class implementation of a class extending the basic file backend with git functionality """
     __metaclass__ = ABCMeta
     # Variable holding the repository

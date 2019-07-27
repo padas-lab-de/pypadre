@@ -1,5 +1,6 @@
 # noinspection PyUnresolvedReferences
 import itertools
+from typing import List
 
 from StringIO import StringIO
 
@@ -11,6 +12,7 @@ import time
 import threading
 
 from pypadre.eventhandler import assert_condition
+from pypadre.printing.tablefyable import Tablefyable
 
 
 class StringBuilder:
@@ -51,7 +53,7 @@ class Spinner(object):
             sys.stdout.write('\r')
 
 
-def to_table(objects: list, columns=None, table=None):
+def to_table(objects: List[Tablefyable], columns=None, table=None):
     if objects is None:
         return get_default_table()
     if columns is None:
