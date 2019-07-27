@@ -205,6 +205,43 @@ def load_pandas_df(pandas_df,target_features=[]):
     dataset.set_data(pandas_df, atts)
     return dataset
 
+def load_pandas_df_v2(pandas_df,target_features=[],name="pandas_imported_df",description="imported by pandas_df"):
+    """Takes a pandas dataframe and a list of the names of target columns and creates a padre-Dataset.
+
+    Args:
+        pandas_df (str): The pandas dataset.
+        target_features (list): The column names of the target features of the csv-file.
+        name (str): Optional name of the dataset
+        description (str) : Optional description of the dataset
+
+    Returns:
+        pypadre.Dataset() A dataset containing the data of the .csv file
+
+    """
+    meta = dict()
+    meta["name"] = name
+    meta["description"]= description
+    meta["originalSource"]="https://imported/from/pandas/Dataframe.html"
+    meta["creator"]=""
+    meta["version"]= 1
+    # meta["context"]={}
+    meta["type"]="Multivariat"
+    meta["id"] = str(uuid.uuid4())
+    dataset = Dataset(meta["id"], **meta)
+
+    atts = []
+
+    if len(target_features) == 0:
+        targets = [0] * len(pandas_df)
+
+    for feature in pandas_df.columns.values:
+        atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
+                              defaultTargetAttribute=feature in target_features, context=None))
+    dataset.set_data(pandas_df, atts)
+
+    return dataset
+
+
 
 def load_numpy_array_multidimensional(features, targets, columns=None, target_features=None):
     """
