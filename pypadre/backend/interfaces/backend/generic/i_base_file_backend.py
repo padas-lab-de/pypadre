@@ -43,6 +43,12 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         return self.get_by_dir(self.find_dir_by_id(uid))
 
+    def put(self, obj):
+        # TODO create folder Christofer
+        folder_name = self.to_folder_name(obj)
+
+        pass
+
     def list(self, search):
         """
         List all objects in the repository

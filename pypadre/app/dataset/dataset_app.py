@@ -1,107 +1,14 @@
 import inspect
-from abc import abstractmethod, ABCMeta
 from typing import List, Set, cast
 
 from jsonschema import ValidationError
 
-from pypadre import Dataset
 from pypadre.app import PadreApp
-from pypadre.backend.interfaces.backend.generic.i_searchable import ISearchable
-from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
-from pypadre.backend.interfaces.backend.i_backend import IBackend
+from pypadre.app.base_app import BaseChildApp
 from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
-from pypadre.base import ChildEntity
-from pypadre.core.model.dataset.dataset import DataSetValidator
+from pypadre.core.model.dataset.dataset import DataSetValidator, Dataset
 from pypadre.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
     NetworkXLoader, SklearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
-from pypadre.printing.tablefyable import Tablefyable
-from pypadre.printing.util.print_util import to_table
-
-
-class IBaseApp:
-    """ Base class for apps containing backends. """
-    __metaclass__ = ABCMeta
-
-    def __init__(self, backends):
-        self._backends = backends
-
-    @property
-    def backends(self):
-        return self._backends
-
-    def list(self, search) -> set:
-        entities = set()
-        for b in self.backends:
-            backend: ISearchable = b
-            [entities.add(e) for e in backend.list(search=search)]
-        return entities
-
-    def put(self, obj):
-        for b in self.backends:
-            backend: IStoreable = b
-            backend.put(obj)
-
-    def get(self, id):
-        for b in self.backends:
-            backend: IStoreable = b
-            backend.get(id)
-
-    def delete(self, obj):
-        for b in self.backends:
-            backend: IStoreable = b
-            backend.delete(obj)
-
-    def delete_by_id(self, id):
-        for b in self.backends:
-            backend: IStoreable = b
-            backend.delete_by_id(id)
-
-    def print(self, obj):
-        if self.has_print():
-            self.print_(obj)
-
-    def print_tables(self, objects: List[Tablefyable], **kwargs):
-        if self.has_print():
-            self.print_("Loading.....")
-            self.print_(to_table(objects, **kwargs))
-
-    @abstractmethod
-    def has_print(self) -> bool:
-        pass
-
-    @abstractmethod
-    def print_(self, output, **kwargs):
-        pass
-
-
-class BaseChildApp(ChildEntity, IBaseApp):
-    """ Base class for apps being a child of another app. """
-    __metaclass__ = ABCMeta
-
-    def __init__(self, parent: IBaseApp, backends: List[IBackend], **kwargs):
-        super().__init__(parent=parent, backends=backends, **kwargs)
-
-    def has_print(self) -> bool:
-        parent: IBaseApp = self.parent
-        return parent.has_print()
-
-    def print_(self, output, **kwargs):
-        parent: IBaseApp = self.parent
-        return parent.print_(output, **kwargs)
-
-
-class Source():
-    def __init__(self, url, config):
-        self._url = url
-        self._config = config
-
-    @property
-    def url(self):
-        return self._url
-
-    @property
-    def config(self):
-        return self._config
 
 
 class DatasetApp(BaseChildApp):
@@ -116,9 +23,15 @@ class DatasetApp(BaseChildApp):
 
     @property
     def loaders(self):
+        """ Return all loaders """
         return self._loaders
 
     def loader(self, source):
+        """
+        Get a loader for a passed source. Each loader defines a mapper which can be used to check if source is valid for it.
+        :param source: A string for collections or a object containing the data for single sources
+        :return: The loader
+        """
         loaders = [loader for loader in self._loaders if cast(IDataSetLoader, loader).mapping(source)]
         if len(loaders) == 1:
             return next(iter(loaders))
@@ -153,7 +66,7 @@ class DatasetApp(BaseChildApp):
     def load(self, source, **kwargs) -> Dataset:
         """
         Load the dataset defined by source and parameters
-        :param source: source object
+        :param source: source object providing a path
         :param kwargs: parameters for the loader
         :return: dataset
         """
@@ -162,6 +75,10 @@ class DatasetApp(BaseChildApp):
         return self.put(data_set)
 
     def _loader_patterns(self):
+        """
+        Return string informing of all possible loader patters for the source. # TODO maybe rework this to something better
+        :return: Information about which loaders are available behind which mappers
+        """
         out = "Pass a source matching one of the following functions: "
         out += ",".join([str(inspect.getsource(cast(IDataSetLoader, loader).mapping)) for loader in self._loaders])
         return out
@@ -173,10 +90,11 @@ class DatasetApp(BaseChildApp):
         """
         for l in self._loaders:
             if isinstance(l, ICollectionDataSetLoader):
-                dataset = l.load_default()
-                self.put(dataset)
+                for data_set in l.load_default():
+                    self.put(data_set)
 
-    def sync_all(self):
+    def list_on_loaders(self, search, **kwargs):
+        # TODO list from external sources
         pass
 
     def sync(self, name: str = None, mode: str = "sync"):

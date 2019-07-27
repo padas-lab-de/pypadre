@@ -8,6 +8,7 @@ Command Line Interface for PADRE.
 import os
 import click
 from pypadre.app import p_app, PadreApp, PadreConfig
+from pypadre.app.padre_app import PadreFactory
 from .config import config_cli
 from .dataset import dataset_cli
 from .project import project_cli
@@ -40,7 +41,7 @@ def pypadre_cli(ctx, config_file, base_url):
     # create context object
     ctx.obj = {
         'config-file': config_file,
-        'pypadre': PadreApp(config, click.echo)
+        'pypadre': PadreFactory.get(config)
     }
 
 

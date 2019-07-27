@@ -190,6 +190,7 @@ class GitBackend(FileBackend):
         if self._repo is None:
             self._create_repo(bare=False)
 
+        # TODO add a file to the git folder with .gitattributes and the information from the config
         # Write the files to the disk
         super().put(object)
         # Add the untracked file to the git

@@ -1,9 +1,9 @@
-class ProjectApp:
-    def __init__(self, parent):
-        self._parent = parent
+from typing import List
 
-    def delete(self, search):
-        """
-        Deletes the projects given in :param search: str to search experiment name or dict object with format
-        {field : regexp<String>} pattern to search in particular fields using a regexp.
-        """
+from pypadre.app.base_app import BaseChildApp
+from pypadre.backend.interfaces.backend.i_backend import IBackend
+
+
+class ProjectApp(BaseChildApp):
+    def __init__(self, parent, backends: List[IBackend], **kwargs):
+        super().__init__(parent, backends, **kwargs)

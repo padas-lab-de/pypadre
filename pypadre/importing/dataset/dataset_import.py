@@ -82,7 +82,7 @@ class CSVLoader(IDataSetLoader):
 
     @staticmethod
     def mapping(self, source):
-        return str.startswith("file://") or str.startswith("/") and str.endswith(".csv")
+        return str.startswith("/") or str.startswith(".") and str.endswith(".csv")
 
     def load(self, source, **kwargs):
         """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.

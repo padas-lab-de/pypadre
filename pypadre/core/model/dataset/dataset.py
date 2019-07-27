@@ -38,6 +38,7 @@ class DataSetValidator(IValidator):
     @staticmethod
     def validate(obj):
         # TODO validate if metadata are fine. This should prompt the user to input something if the validation fails.
+        # TODO Maybe validate with json schema or ontology
 
         if not obj.metadata.get("name"):
             raise ValidationError("name has to be set for a dataset")

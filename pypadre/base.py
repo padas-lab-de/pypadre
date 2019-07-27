@@ -1,13 +1,10 @@
 """
 Modul containing basic padre datastructures
 """
-import json
 import sys
-from time import time
-from datetime import datetime
 from abc import ABC, ABCMeta, abstractmethod
-
-from pypadre.printing.tablefy import tableColumn
+from datetime import datetime
+from time import time
 
 
 class _const:
