@@ -181,22 +181,23 @@ class GitBackend(FileBackend):
         # TODO: Possibly, look for in the remote repositories if possible
         super().list(search_id, search_metadata)
 
-    def put(self, object):
-        """
-        Writes the object to the git backend. If necessary, will create a new repo
-        :param object: Object to be written to the repo
-        :return:
-        """
-        if self._repo is None:
-            self._create_repo(bare=False)
-
-        # TODO add a file to the git folder with .gitattributes and the information from the config
-        # Write the files to the disk
-        super().put(object)
-        # Add the untracked file to the git
-        self._add_files()
-        # Call git commit
-        self._repo.commit(message=self._DEFAULT_GIT_MSG)
+    # TODO remove
+    # def put(self, object):
+    #     """
+    #     Writes the object to the git backend. If necessary, will create a new repo
+    #     :param object: Object to be written to the repo
+    #     :return:
+    #     """
+    #     if self._repo is None:
+    #         self._create_repo(bare=False)
+    #
+    #     # TODO add a file to the git folder with .gitattributes and the information from the config
+    #     # Write the files to the disk
+    #     super().put(object)
+    #     # Add the untracked file to the git
+    #     self._add_files()
+    #     # Call git commit
+    #     self._repo.commit(message=self._DEFAULT_GIT_MSG)
 
     def get(self, path=None, url=None,  **kwargs):
         """

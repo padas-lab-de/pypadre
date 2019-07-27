@@ -43,12 +43,6 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         return self.get_by_dir(self.find_dir_by_id(uid))
 
-    def put(self, obj):
-        # TODO create folder Christofer
-        folder_name = self.to_folder_name(obj)
-
-        pass
-
     def list(self, search):
         """
         List all objects in the repository
@@ -124,7 +118,15 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param folder_name: Folder name
         :return: Directory (path)
         """
-        return get_path(self.root_dir, str(folder_name))
+        return get_path(self.root_dir, str(folder_name), create=False)
+
+    def make_dir(self, folder_name):
+        """
+        Get the directory with given folder name.
+        :param folder_name: Folder name
+        :return: Directory (path)
+        """
+        return get_path(self.root_dir, str(folder_name), create=True)
 
     def find_dirs(self, matcher, strip_postfix=""):
         # TODO postfix stripping?

@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
@@ -22,6 +23,10 @@ class PadreDatasetFileBackend(IDatasetBackend):
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Dataset %s already exists." +
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(dataset.name))
+        else:
+            if os.path.exists(directory):
+                shutil.rmtree(directory)
+            os.mkdir(directory)
 
         self.write_file(directory, self.META_FILE, dataset.metadata)
 
