@@ -11,7 +11,7 @@ from pypadre.core.model.dataset.dataset import _Formats
 
 class NumpyContainer(IBaseContainer):
 
-    def __init__(self, data, attributes=None):
+    def __init__(self, data):
         # todo rework binary data into delegate pattern.
         super().__init__(_Formats.numpy, data)
         self._shape = data.shape
@@ -85,7 +85,7 @@ class NumpyContainer(IBaseContainer):
 class NumpyContainerMultiDimensional(NumpyContainer):
 
     # TODO find a good representation for multidimensional data (do we even need a second container for that??? What about other formats than numpy? Can we convert between some of them?)
-    def __init__(self, data, targets, attributes=None):
+    def __init__(self, data, targets):
         super().__init__(_Formats.numpyMulti, data)
         self._shape = data.shape
         if attributes is None:

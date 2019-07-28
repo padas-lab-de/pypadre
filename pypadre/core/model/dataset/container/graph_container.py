@@ -9,7 +9,7 @@ from pypadre.core.model.dataset.dataset import _Formats
 
 class GraphContainer(IBaseContainer):
 
-    def __init__(self, data, attributes=None):
+    def __init__(self, data):
         # todo rework binary data into delegate pattern.
         super().__init__(_Formats.graph, data)
 

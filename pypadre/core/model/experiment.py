@@ -90,9 +90,6 @@ class Experiment(MetadataEntity):
 
     def __init__(self,
                  **options):
-        # Validate input types
-        self.validate_input_parameters(options=options)
-
 
         self._dataset = options.pop("dataset", None)
         assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
@@ -126,6 +123,7 @@ class Experiment(MetadataEntity):
         self._preprocessed = False
 
         split_obj.function_pointer = options.pop('function', None)
+
         super().__init__(options.pop("ex_id", None), **options)
 
         if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):
@@ -542,7 +540,7 @@ class Experiment(MetadataEntity):
 
         self.metadata['versions'] = module_version_info
 
-    def validate_input_parameters(self, options):
+    def validate(self, options):
         """
         This function validates all the parameters given to the experiment constructor
         :param options: Dictionary containing the parameters given to the constructor of the class

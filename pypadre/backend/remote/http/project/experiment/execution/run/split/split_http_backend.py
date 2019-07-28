@@ -24,7 +24,7 @@ class PadreSplitHttpBackend(PadreSplitFileBackend):
 
     def put_progress(self, obj):pass
 
-    def list(self, search):
+    def list(self, search, offset=0, size=100):
         pass
 
     def get(self, uid):

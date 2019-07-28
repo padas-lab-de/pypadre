@@ -6,12 +6,11 @@ from typing import cast
 
 import click
 
-
 #################################
 ####### DATASETS FUNCTIONS ##########
 #################################
 from pypadre.app.dataset.dataset_app import DatasetApp
-from pypadre.enums.data_sources import DataSources
+from pypadre.printing.util.print_util import to_table
 
 
 @click.group()
@@ -24,82 +23,54 @@ def dataset():
 
 
 @dataset.command(name="list")
-# @click.option('--start', default=0, help='start number of the dataset')
-# @click.option('--count', default=999999999, help='Number of datasets to retrieve')
+@click.option('--offset', default=0, help='start number of the dataset')
+@click.option('--size', default=100, help='Number of datasets to retrieve')
 @click.option('--search', default=None,
               help='search string')
+@click.option('--column', help="Column to print", default=None, multiple=True)
 @dataset.pass_context
-def datasets(ctx, search):
+def find(ctx, search, offset, size, column):
     """list all available datasets"""
     # TODO like pageable (sort, offset etc.)
-    cast(DatasetApp, ctx.obj["pypadre"].datasets).list(search=search)
+    print(to_table(list(cast(DatasetApp, ctx.obj["pypadre"].datasets).list(search=search, offset=offset, size=size))),
+          *column)
 
 
 @dataset.command(name="get")
 @click.argument('dataset_id')
-# @click.option('--binary/--no-binary', default=True, help='download binary')
-# @click.option('--format', '-f', default="numpy", help='format for binary download')
 @click.pass_context
-def dataset(ctx, dataset_id):
+def get(ctx, dataset_id):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    cast(DatasetApp, ctx.obj["pypadre"].datasets).get(dataset_id)
+    print(cast(DatasetApp, ctx.obj["pypadre"].datasets).get(dataset_id))
 
 
-@dataset.command(name="load")
+@dataset.command(name="sync")
+@click.argument('dataset_id', default=None, required=False)
+@click.option('--mode', '-m', help='Mode for the sync', type=click.STRING)
+@click.pass_context
+def sync(ctx, dataset_id, mode):
+    """downloads the dataset with the given id. id can be either a number or a valid url"""
+    cast(DatasetApp, ctx.obj["pypadre"].datasets).sync(name=dataset_id, mode=mode)
+
+
+@dataset.command(name="load", context_settings=dict(
+    ignore_unknown_options=True,
+    allow_extra_args=True,
+))
 # @click.option('--binary/--no-binary', default=True, help='download binary')
 @click.option('--source', '-s', default="sklearn", help='Source for the download', type=click.STRING)
 @click.option('--file', '-s', help='Source for the download', type=click.Path(exists=True))
-@click.argument(help='Config for loading', nargs=-1, type=click.Tuple([str,str]))
 @click.pass_context
 def dataset(ctx, source=None, file=None):
     """downloads the dataset with the given id."""
+
+    arguments = dict()
+    for item in ctx.args:
+        arguments.update([item.split('=')])
+
     ds_app = cast(DatasetApp, ctx.obj["pypadre"].datasets)
     if file is not None:
-        ds_app.load(file)
+        print(ds_app.load(file, **arguments))
 
     if source is not None:
-        # TODO
-
-# @dataset.command(name="import")
-# @click.option('--sklearn/--no-sklearn', default=True, help='import sklearn default datasets')
-# @click.pass_context
-# def do_import(ctx, sklearn):
-#     """import default datasets from different sources specified by the flags"""
-#     ctx.obj["pypadre"].datasets.do_default_imports(sklearn)
-
-
-# @dataset.command(name="import")
-# @click.argument('dataset_id')
-# @click.option('--source', required=True, multiple='true', help='source of the datasets',
-#               type=click.Choice(DataSources))
-# @click.pass_context
-# def dataset(ctx, dataset_id, source):
-#     """downloads the dataset with the given id. id can be either a number or a valid url"""
-#     if source == DataSources.oml:
-#         ctx.obj["pypadre"].datasets.get_openml_dataset(dataset_id)
-#     if source == DataSources.sklearn:
-#         ctx.obj["pypadre"].datasets.do_default_imports(True)
-
-
-# @dataset.command(name="upload_scratchdata_multi")
-# @click.pass_context
-# def dataset(ctx):
-#     """uploads sklearn toy-datasets, top 100 Datasets form OpenML and some Graphs
-#     Takes about 1 hour
-#     Requires about 7GB of Ram"""
-#
-#     auth_token=ctx.obj["pypadre"].config.get("token")
-#
-#     ctx.obj["pypadre"].datasets.upload_scratchdatasets(auth_token,max_threads=8,upload_graphs=True)
-#
-#
-# @dataset.command(name="upload_scratchdata_single")
-# @click.pass_context
-# def dataset(ctx):
-#     """uploads sklearn toy-datasets, top 100 Datasets form OpenML and some Graphs
-#     Takes several hours
-#     Requires up to 7GB of Ram"""
-#
-#     auth_token = ctx.obj["pypadre"].config.get("token")
-#
-#     ctx.obj["pypadre"].datasets.upload_scratchdatasets(auth_token, max_threads=1, upload_graphs=True)
+        print(ds_app.load(source, **arguments))

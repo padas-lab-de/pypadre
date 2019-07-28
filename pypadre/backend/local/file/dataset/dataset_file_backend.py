@@ -29,6 +29,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
             os.mkdir(directory)
 
         self.write_file(directory, self.META_FILE, dataset.metadata)
+        # TODO call git / git-lfs private functions here?
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, self.META_FILE)

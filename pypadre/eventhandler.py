@@ -7,7 +7,7 @@ Each fired event is pushed to a queue, and gets handled one after the other. The
 of loggers that are to be used to handle the events. A single event can be handled by multiple loggers if needed. A 
 single event can trigger multiple functions too.
 """
-
+from jsonschema import ValidationError
 
 """
 This list contains the list of loggers which log each event occuring in the experiment. These functions call the 
@@ -310,7 +310,7 @@ def assert_condition(**args):
                 error_event_handler(args)
 
         # Raise exception only after all loggers have logged the exception
-        raise ValueError(str(source) + ":\t" + message)
+        raise ValidationError(str(source) + ":\t" + message)
 
 
 def add_logger(logger):

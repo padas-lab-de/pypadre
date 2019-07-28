@@ -6,6 +6,8 @@ from abc import ABC, ABCMeta, abstractmethod
 from datetime import datetime
 from time import time
 
+from pypadre.eventhandler import assert_condition
+
 
 class _const:
 
@@ -475,13 +477,16 @@ class PadreLogger(LoggerBase):
 
 
 class MetadataEntity:
+    __metaclass__ = ABCMeta
     """
     Base object for entities that manage metadata. A MetadataEntity manages and id and a dict of metadata.
     The metadata should contain all necessary non-binary data to describe an entity.
     """
     def __init__(self, id_=None, **metadata):
+        self.validate(metadata)
         self._metadata = dict(metadata)
 
+        # TODO id setting. Why are we using openml here? we shouldn't do that
         if id_ is None:
             if metadata.__contains__("openml_id"):
                 self._id = metadata["openml_id"]
@@ -558,6 +563,10 @@ class MetadataEntity:
     @metadata.setter
     def metadata(self, metadata):
         self._metadata = metadata
+
+    @abstractmethod
+    def validate(self, options):
+        pass
 
 
 class _timer_priorities(_const):

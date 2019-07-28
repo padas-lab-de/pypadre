@@ -40,9 +40,11 @@ class DatasetApp(BaseChildApp):
         else:
             raise ValueError("You passed %s. " + self._loader_patterns() % str(source))
 
-    def list(self, search) -> Set[Dataset]:
+    def list(self, search, offset=0, size=100) -> List[Dataset]:
         """
         Lists all data sets matching search.
+        :param offset:
+        :param size:
         :param search: Search object
         :return: Data sets
         """

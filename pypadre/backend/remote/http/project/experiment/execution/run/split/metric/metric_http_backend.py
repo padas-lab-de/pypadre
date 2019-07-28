@@ -8,7 +8,7 @@ class PadreMetricHttpBackend(PadreMetricFileBackend):
     def __init__(self, parent):
         super().__init__(parent)
 
-    def list(self, search):
+    def list(self, search, offset=0, size=100):
         pass
 
     def get(self, uid):

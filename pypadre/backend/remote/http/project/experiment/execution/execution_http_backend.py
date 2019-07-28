@@ -16,7 +16,7 @@ class PadreExecutionHttpBackend(PadreExecutionFileBackend):
     def run(self):
         return self._run
 
-    def list(self, search):
+    def list(self, search, offset=0, size=100):
         pass
 
     def get(self, uid):

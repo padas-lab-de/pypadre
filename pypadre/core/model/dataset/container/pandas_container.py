@@ -10,7 +10,7 @@ from pypadre.core.model.dataset.dataset import _Formats
 
 class PandasContainer(IBaseContainer):
 
-    def __init__(self, data, attributes=None):
+    def __init__(self, data):
         super().__init__(_Formats.pandas, data)
         # todo rework binary data into delegate pattern.
         self._shape = data.shape

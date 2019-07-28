@@ -1,6 +1,6 @@
 # noinspection PyUnresolvedReferences
 import itertools
-from typing import List
+from typing import List, Set
 
 from StringIO import StringIO
 

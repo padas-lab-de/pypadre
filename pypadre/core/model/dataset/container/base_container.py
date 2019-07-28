@@ -59,22 +59,3 @@ class IBaseContainer:
     @property
     def attributes(self):
         return self._attributes
-
-
-class AttributesOnlyContainer(IBaseContainer):
-
-    def targets(self):
-        pass
-
-    def features(self):
-        pass
-
-    def profile(self, **kwargs):
-        pass
-
-    def describe(self):
-        pass
-
-    def convert(self, bin_format):
-        # Empty container can never be converted
-        return None

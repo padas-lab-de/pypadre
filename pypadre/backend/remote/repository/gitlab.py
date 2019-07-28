@@ -98,7 +98,7 @@ class GitLabBackend(GitBackend):
 
         repo_list = []
         # Add all the repositories of the user to an array
-        repo_list = gl.projects.list(owned=True)
+        repo_list = gl.projects.list()
         # TODO: Process the list
 
         return repo_list

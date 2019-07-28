@@ -43,9 +43,11 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         return self.get_by_dir(self.find_dir_by_id(uid))
 
-    def list(self, search):
+    def list(self, search, offset=0, size=100):
         """
         List all objects in the repository
+        :param offset:
+        :param size:
         :param search: search object. You can pass key value pairs to search for.
         """
         folder = ""

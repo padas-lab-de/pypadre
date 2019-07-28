@@ -42,7 +42,7 @@ class PadreSplitFileBackend(ISplitBackend):
         self.log(
             "Split " + split + " PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
-    def list(self, search):
+    def list(self, search, offset=0, size=100):
         pass
 
     def get(self, uid):

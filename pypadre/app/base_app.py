@@ -1,3 +1,4 @@
+import itertools
 from abc import ABCMeta, abstractmethod
 from typing import List
 
@@ -20,11 +21,12 @@ class IBaseApp:
     def backends(self):
         return self._backends
 
-    def list(self, search) -> set:
-        entities = set()
+    def list(self, search, offset=0, size=100) -> list:
+        entities = list()
         for b in self.backends:
             backend: ISearchable = b
-            [entities.add(e) for e in backend.list(search=search)]
+            [entities.append(e) for e in backend.list(search=search) if len(entities) < size and e not in entities]
+
         return entities
 
     def put(self, obj):

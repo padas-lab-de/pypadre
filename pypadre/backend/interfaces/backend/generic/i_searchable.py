@@ -6,7 +6,7 @@ class ISearchable:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def list(self, search: dict):
+    def list(self, search: dict, offset=0, size=100) -> list:
         pass
 
     @staticmethod
