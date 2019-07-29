@@ -17,3 +17,7 @@ class IExperimentBackend(GitBackend, ILogBackend, IProgressable):
     @abstractmethod
     def put_config(self, obj):
         pass
+
+    @abstractmethod
+    def put(self, object):
+        pass

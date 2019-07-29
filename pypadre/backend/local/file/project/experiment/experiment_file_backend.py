@@ -67,3 +67,11 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
 
         if experiment.requires_preprocessing:
             self.write_file(directory, self.PREPROCESS_WORKFLOW_FILE, experiment.preprocessing_workflow)
+
+        # Git operation of creating a repository
+        self._create_repo(bare=False)
+
+    def add_and_commit(self, path):
+        repo = self.get(path=path)
+        self._add_untracked_files(repo=repo)
+        self._commit(repo, message=self._DEFAULT_GIT_MSG)

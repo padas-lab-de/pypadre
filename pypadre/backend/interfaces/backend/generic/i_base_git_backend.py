@@ -15,7 +15,6 @@ class GitBackend(FileBackend):
     """ This is the abstract class implementation of a class extending the basic file backend with git functionality """
     __metaclass__ = ABCMeta
     # Variable holding the repository
-    _repo = None
     _remote_url = None
     _remote_name = 'remote'
     _remote = None
@@ -33,118 +32,132 @@ class GitBackend(FileBackend):
         """
         Creates a local repository
         :param bare: Creates a bare git repository
-        :return:
+        :return: Repo object
         """
-        self.repo = Repo.init(self._root_dir, bare)
+        return Repo.init(self._root_dir, bare)
 
-    def _create_remote(self, remote_name, url=''):
+    def _create_remote(self, repo, remote_name, url=''):
         """
-
+        :param repo: The repo object that has to be passed
         :param remote_name: Name of the remote repository
         :param url: URL to the remote repository
         :return:
         """
-        self._remote = self.repo.create_remote(name=remote_name, url=url)
+        return repo.create_remote(name=remote_name, url=url)
 
-    def _create_head(self, name):
+    def _create_head(self, repo, name):
         """
         Creates a new branch
         :param name: Name of the new branch
         :return: Object to the new branch
         """
-        new_branch = self.repo.create_head(name)
-        assert (self.repo.active_branch != new_branch)
+        new_branch = repo.create_head(name)
+        assert (repo.active_branch != new_branch)
         return new_branch
 
-    def _create_tag(self, tag_name, ref_branch, message):
+    def _create_tag(self, repo, tag_name, ref_branch, message):
         """
         Creates a new tag for the branch
+        :param repo: Repo object where the tag has to be created
         :param tag_name: Name for the tag
         :param ref_branch: Branch where the tag is to be created
         :param message: Message for the tag
         :return:
         """
-        tag = self.repo.create_tag(tag_name, ref=ref_branch, message=message)
+        tag = repo.create_tag(tag_name, ref=ref_branch, message=message)
         tag.commit
 
-    def _create_sub_module(self, sub_repo_name, path_to_sub_repo, url, branch='master'):
+    def _create_sub_module(self, repo, sub_repo_name, path_to_sub_repo, url, branch='master'):
         """
         Creating a submodule
+        :param repo: Repo object where the submodule has to be created
         :param sub_repo_name: Name for the sub module
         :param path_to_sub_repo: Path to the submodule
         :param url: URL of the remote repo
         :param branch:
         :return:
         """
-        self.repo.create_submodule(sub_repo_name, path_to_sub_repo, url, branch)
+        repo.create_submodule(sub_repo_name, path_to_sub_repo, url, branch)
 
-    def _clone(self, url, path, branch='master'):
+    def _clone(self, repo, url, path, branch='master'):
         """
         Clone a remote repo
+        :param repo: Repo object of the repository
         :param url: URL of the remote remo
         :param path: Path to clone the remote repo
         :param branch: Branch to pull from the remote repo
         :return: None
         """
         if self.repo is not None:
-            self.repo.clone_from(url, path, branch)
+            repo.clone_from(url, path, branch)
 
-    def _commit(self, message):
-        self.repo.git.commit(message=message)
+    def _commit(self, repo, message):
+        """
+        Commit a repository
+        :param repo: Repo object
+        :param message: Message when committing
+        :return:
+        """
+        repo.git.commit(message=message)
 
-    def _add_files(self, file_path):
+    def _add_files(self, repo, file_path):
         """
         Adds the untracked files to the git
         :param file_path: An array containing the file paths to be added to git
         :return:
         """
         if self.is_backend_valid():
-            self._repo.index.add([file_path])
+            repo.index.add([file_path])
 
-    def _get_untracked_files(self):
-        return self.repo.untracked_files if self.is_backend_valid() else None
+    def _get_untracked_files(self, repo):
+        return repo.untracked_files if self.is_backend_valid() else None
 
-    def _get_tags(self):
-        return self.repo.tags if self.is_backend_valid() else None
+    def _get_tags(self, repo):
+        return repo.tags if self.is_backend_valid() else None
 
-    def _get_working_tree_directory(self):
-        return self.repo.working_tree_dir if self.is_backend_valid() else None
+    def _get_working_tree_directory(self, repo):
+        return repo.working_tree_dir if self.is_backend_valid() else None
 
-    def _get_working_directory(self):
-        return self.repo.working_dir if self.is_backend_valid() else None
+    def _get_working_directory(self, repo):
+        return repo.working_dir if self.is_backend_valid() else None
 
-    def _get_git_path(self):
-        return self.repo.git_dir if self.is_backend_valid() else None
+    def _get_git_path(self, repo):
+        return repo.git_dir if self.is_backend_valid() else None
 
-    def _is_head_remote(self):
-        return self.repo.head.is_remote() if self.is_backend_valid() else None
+    def _is_head_remote(self, repo):
+        return repo.head.is_remote() if self.is_backend_valid() else None
 
-    def _is_head_valid(self):
-        return self.repo.head.is_valid() if self.is_backend_valid() else None
+    def _is_head_valid(self, repo):
+        return repo.head.is_valid() if self.is_backend_valid() else None
 
-    def _get_heads(self):
-        return self.repo.heads if self.is_backend_valid() else None
+    def _get_heads(self, repo):
+        return repo.heads if self.is_backend_valid() else None
 
-    def _check_git_directory(self, path):
-        return self.repo.git_dir.startswith(path) if self.is_backend_valid() else None
+    def _check_git_directory(self, repo, path):
+        return repo.git_dir.startswith(path) if self.is_backend_valid() else None
 
-    def _get_head(self):
-        return self.repo.head if self.is_backend_valid() else None
+    def _get_head(self, repo):
+        return repo.head if self.is_backend_valid() else None
 
-    def _has_uncommitted_files(self):
+    def _has_uncommitted_files(self, repo):
         # True if there are files with differences
-        return True if len([item.a_path for item in self._repo.index.diff(None)]) > 0 else False
+        return True if len([item.a_path for item in repo.index.diff(None)]) > 0 else False
 
-    def _has_untracked_files(self):
-        return True if self._get_untracked_files() is not None else False
+    def _has_untracked_files(self, repo):
+        return True if self._get_untracked_files(repo=repo) is not None else False
 
-    def _delete_tags(self, tag_name):
+    def _add_untracked_files(self, repo):
+        if self._has_untracked_files(repo=repo):
+            untracked_files = self._get_untracked_files(repo=repo)
+            self._add_files(repo=repo, file_path=untracked_files)
+
+    def _delete_tags(self, repo, tag_name):
         if not self.is_backend_valid():
             return
 
-        tags = self.repo.tags
+        tags = repo.tags
         if tag_name in tags:
-            self.repo.delete_tag(tag_name)
+            repo.delete_tag(tag_name)
 
         else:
             # Raise warning/error that tag is not present
@@ -170,16 +183,21 @@ class GitBackend(FileBackend):
         self._remote.push(refspec='{}:{}'.format('master', 'master'))
 
     # database backend functions
-    def list(self, search, offset=0, size=100):
+    def list(self, search_id, offset=0, size=100):
         """
         Function to list repos. Cannot be implemented in GitPython.
-
+        :param search_id: Id to be searched for
         :param offset:
         :param size:
         :return:
         """
         # TODO: Possibly, look for in the remote repositories if possible
         super().list(search_id)
+
+    # Abstract method which would create a repo based on the requirements
+    @abstractmethod
+    def put(self, object):
+        pass
 
     # TODO remove
     # def put(self, object):
@@ -207,7 +225,11 @@ class GitBackend(FileBackend):
         :return:
         """
         if path is not None and url is not None:
-            self._repo = Repo.clone_from(url=url, to_path=path)
+            return Repo.clone_from(url=url, to_path=path)
+
+        elif url is None and path is not None:
+            # Open the local repository
+            return Repo(path)
 
         super().get(**kwargs)
 
@@ -226,7 +248,8 @@ class GitBackend(FileBackend):
         Check if repo is instantiated
         :return: True if valid, False otherwise
         """
-        return True if self._repo is not None else False
+        # TODO Implement validity checks for repo
+        return True
 
     def has_remote_backend(self):
         # TODO Validate the remote_url
