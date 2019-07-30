@@ -1,5 +1,8 @@
 import os
+import platform
 import shutil
+
+from git import Repo
 
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
@@ -30,6 +33,22 @@ class PadreDatasetFileBackend(IDatasetBackend):
 
         self.write_file(directory, self.META_FILE, dataset.metadata)
         # TODO call git / git-lfs private functions here?
+        # Get os version and write content to file
+        path = None
+        if platform.system() == 'Windows':
+            path = os.path.join((directory, '.gitattributes.'))
+        else:
+            path = os.path.join((directory, '.gitattributes'))
+
+        f = open(path, "w")
+        f.write("*.bin filter=lfs diff=lfs merge=lfs -text")
+        repo = Repo(directory)
+        self._add_files(repo, file_path=path)
+        self._commit(repo=repo, message='Added .gitattributes file for Git LFS')
+
+        # Add all untracked files
+        self._add_untracked_files(repo=repo)
+        self._commit(repo, message=self._DEFAULT_GIT_MSG)
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, self.META_FILE)
