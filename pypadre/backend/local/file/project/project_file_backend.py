@@ -36,3 +36,8 @@ class PadreProjectFileBackend(IProjectBackend):
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, self.META_FILE)
         return Project(**metadata)
+
+    def put(self, object):
+        # Create a repo for the project
+        # Write metadata of the project
+        pass

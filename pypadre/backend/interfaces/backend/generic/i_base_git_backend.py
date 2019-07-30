@@ -28,13 +28,13 @@ class GitBackend(FileBackend):
 
         super().__init__(**kwargs)
 
-    def _create_repo(self, bare=True):
+    def _create_repo(self, path, bare=True):
         """
         Creates a local repository
         :param bare: Creates a bare git repository
         :return: Repo object
         """
-        return Repo.init(self._root_dir, bare)
+        return Repo.init(path, bare)
 
     def _create_remote(self, repo, remote_name, url=''):
         """

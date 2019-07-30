@@ -69,7 +69,7 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
             self.write_file(directory, self.PREPROCESS_WORKFLOW_FILE, experiment.preprocessing_workflow)
 
         # Git operation of creating a repository
-        self._create_repo(bare=False)
+        self._create_repo(path=directory, bare=False)
 
     def add_and_commit(self, path):
         repo = self.get_repo(path=path)
