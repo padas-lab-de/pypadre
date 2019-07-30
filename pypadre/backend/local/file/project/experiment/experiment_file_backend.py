@@ -72,6 +72,6 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
         self._create_repo(bare=False)
 
     def add_and_commit(self, path):
-        repo = self.get(path=path)
+        repo = self.get_repo(path=path)
         self._add_untracked_files(repo=repo)
         self._commit(repo, message=self._DEFAULT_GIT_MSG)

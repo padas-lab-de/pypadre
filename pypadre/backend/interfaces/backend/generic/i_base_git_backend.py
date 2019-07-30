@@ -199,25 +199,11 @@ class GitBackend(FileBackend):
     def put(self, object):
         pass
 
-    # TODO remove
-    # def put(self, object):
-    #     """
-    #     Writes the object to the git backend. If necessary, will create a new repo
-    #     :param object: Object to be written to the repo
-    #     :return:
-    #     """
-    #     if self._repo is None:
-    #         self._create_repo(bare=False)
-    #
-    #     # TODO add a file to the git folder with .gitattributes and the information from the config
-    #     # Write the files to the disk
-    #     super().put(object)
-    #     # Add the untracked file to the git
-    #     self._add_files()
-    #     # Call git commit
-    #     self._repo.commit(message=self._DEFAULT_GIT_MSG)
+    def get(self, uid):
+        # Call the File backend get function
+        return super().get()
 
-    def get(self, path=None, url=None,  **kwargs):
+    def get_repo(self, path=None, url=None,  **kwargs):
         """
         Pull a repository from remote
         :param repo_name: Name of the repo to be cloned
