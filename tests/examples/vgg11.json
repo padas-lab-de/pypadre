@@ -156,7 +156,8 @@
             "lr": 0.001
         }
     },
-    "train_transform_order": ["TOPILIMAGE", "TOTENSOR", "NORMALIZE"],
+    "train_transform_order": ["TOPILIMAGE", "RANDOMCROP",
+        "RANDOMHORIZONTALFLIP", "TOTENSOR", "NORMALIZE"],
     "train_transforms": {
         "topilimage": {},
         "randomcrop": {
