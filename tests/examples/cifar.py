@@ -26,7 +26,7 @@ def main():
     print(ds)
 
     import json
-    with open('vgg16.json') as json_data:
+    with open('vgg13.json') as json_data:
         params = json.load(json_data)
 
 
@@ -34,25 +34,24 @@ def main():
         # params['steps'] = 100000
 
         #params['epochs'] = 10
-        """
-        grid_params = dict()
-        seed = list(range(0,100))
-        p = {'seed': seed}
-        grid_params['pytorch'] = p
-        """
-        for i in range(0, 100):
-            obj = Wrapper(params=params)
-            estimators = [('pytorch', obj)]
-            workflow = Pipeline(estimators)
-            # workflow.fit(np.asarray(x), np.reshape(y, newshape=(150,1)))
-            ex = Experiment(name="Cifar-VGG16",
-                            description="Testing Torch via SKLearn Pipeline",
-                            dataset=ds,
-                            workflow=workflow, keep_splits=True, strategy='function', function=custom_split
-                            )
-            #ex.execute(parameters=grid_params)
-            ex.execute()
-            print(ex.metrics)
+
+    grid_params = dict()
+    seed = list(range(0,100))
+    p = {'seed': seed}
+    grid_params['pytorch'] = p
+
+    obj = Wrapper(params=params)
+    estimators = [('pytorch', obj)]
+    workflow = Pipeline(estimators)
+    # workflow.fit(np.asarray(x), np.reshape(y, newshape=(150,1)))
+    ex = Experiment(name="Cifar-VGG13",
+                    description="Testing Torch via SKLearn Pipeline",
+                    dataset=ds,
+                    workflow=workflow, keep_splits=True, strategy='function', function=custom_split
+                    )
+    ex.execute(parameters=grid_params)
+    #ex.execute()
+    print(ex.metrics)
 
 
 def main1():
