@@ -13,3 +13,7 @@ class IExecutionBackend(FileBackend):
     @abstractmethod
     def run(self):
         pass
+
+    @abstractmethod
+    def put(self):
+        pass

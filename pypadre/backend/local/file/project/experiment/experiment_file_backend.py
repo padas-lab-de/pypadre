@@ -64,6 +64,8 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
         self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow)
 
         # TODO when to write experiment.json???
+        # TODO: Experiment.json should be written within the execution folder as any change
+        #  to the experiment configuration would spawn a new directory
 
         if experiment.requires_preprocessing:
             self.write_file(directory, self.PREPROCESS_WORKFLOW_FILE, experiment.preprocessing_workflow)

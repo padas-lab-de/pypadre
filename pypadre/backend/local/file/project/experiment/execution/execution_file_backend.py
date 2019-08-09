@@ -8,6 +8,8 @@ from pypadre.backend.serialiser import JSonSerializer
 
 class PadreExecutionFileBackend(IExecutionBackend):
 
+    CONFIG_FILE = File("experiment.json", JSonSerializer)
+
     def __init__(self, parent):
         super().__init__(parent)
         self.root_dir = os.path.join(self._parent.root_dir, "executions")
@@ -41,6 +43,10 @@ class PadreExecutionFileBackend(IExecutionBackend):
 
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Experiment %s already exists." +
-                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(experiment.name))
+                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(
+                                 self.to_folder_name(execution)))
 
         self.write_file(directory, self.META_FILE, execution.metadata)
+
+        # The code for each execution changes. So it is necessary to write the experiment.json file too
+        self.write_file(directory, self.CONFIG_FILE, execution.config)
