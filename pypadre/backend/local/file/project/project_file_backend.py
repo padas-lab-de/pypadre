@@ -37,7 +37,13 @@ class PadreProjectFileBackend(IProjectBackend):
         metadata = self.get_file(directory, self.META_FILE)
         return Project(**metadata)
 
-    def put(self, object):
+    def put(self, project):
+
+        directory = self.get_dir(self.to_folder_name(project))
         # Create a repo for the project
+        # Check if the folder exists, if the folder exists the repo will already be created, else create the repo
+        if not os.path.exists(directory):
+            self._create_repo(path=directory, bare=False)
+
         # Write metadata of the project
-        pass
+        self.write_file(directory, self.META_FILE, project.metadata)

@@ -73,6 +73,8 @@ class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
         # Git operation of creating a repository
         self._create_repo(path=directory, bare=False)
 
+        # TODO: Add experiment as a submodule to the project repo
+
     def add_and_commit(self, path):
         repo = self.get_repo(path=path)
         self._add_untracked_files(repo=repo)
