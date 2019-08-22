@@ -1,7 +1,7 @@
 from .schema import Attribute, Schema, ListAttribute, AlgorithmSchema
 
 
-DataSetSchema = Schema(
+PipelineSchema = Schema(
     {
         "steps": ListAttribute("steps", "The steps", False,[
             {

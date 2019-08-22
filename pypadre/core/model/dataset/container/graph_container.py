@@ -2,16 +2,16 @@ import numpy as np
 import pandas as pd
 import pandas_profiling as pd_pf
 
-from pypadre.core.model.dataset.container.base_container import AttributesOnlyContainer, IBaseContainer
+from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.dataset.dataset import _Formats
+from pypadre.core.model.dataset import dataset
 
 
 class GraphContainer(IBaseContainer):
 
-    def __init__(self, data):
+    def __init__(self, data, attributes=None):
         # todo rework binary data into delegate pattern.
-        super().__init__(_Formats.graph, data)
+        super().__init__(dataset.formats.graph, data, attributes)
 
         self._shape = (data.number_of_edges(), data.number_of_nodes())
         self._data = data

@@ -15,6 +15,7 @@ class ResourceDirectory:
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
 
+
 def write_hidden(file_name, data):
     """
     Cross platform hidden file writer.
@@ -35,7 +36,8 @@ def write_hidden(file_name, data):
         if not ret: # There was an error.
             raise ctypes.WinError()
 
-class _const:
+
+class _Const:
 
     class ConstError(TypeError): pass
 

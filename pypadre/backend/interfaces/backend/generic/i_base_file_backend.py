@@ -7,7 +7,6 @@ from pypadre.backend.interfaces.backend.generic.i_searchable import ISearchable
 from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
 from pypadre.backend.interfaces.backend.i_backend import IBackend
 from pypadre.base import ChildEntity
-from pypadre.backend.serialiser import PickleSerializer, JSonSerializer
 from pypadre.util.file_util import get_path
 
 

@@ -1,6 +1,6 @@
 from pypadre.eventhandler import trigger_event, assert_condition
 from pypadre.base import MetadataEntity
-from pypadre.core.model.split import Splitter, Split
+from pypadre.core.model.split.split import Splitter, Split
 import uuid
 
 

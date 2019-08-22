@@ -3,7 +3,6 @@ from typing import List, Set, cast
 
 from jsonschema import ValidationError
 
-from pypadre.app import PadreApp
 from pypadre.app.base_app import BaseChildApp
 from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
 from pypadre.core.model.dataset.dataset import DataSetValidator, Dataset
@@ -12,11 +11,11 @@ from pypadre.importing.dataset.dataset_import import PandasLoader, IDataSetLoade
 
 
 class DatasetApp(BaseChildApp):
+
     """
     Class providing commands for managing datasets.
     """
-
-    def __init__(self, parent: PadreApp, backends: List[IDatasetBackend], **kwargs):
+    def __init__(self, parent, backends: List[IDatasetBackend], **kwargs):
         super().__init__(parent=parent, backends=backends, **kwargs)
         self._loaders = [CSVLoader(), PandasLoader(), NumpyLoader(), NetworkXLoader(), SklearnLoader(), SnapLoader(),
                          KonectLoader(), OpenMlLoader()]

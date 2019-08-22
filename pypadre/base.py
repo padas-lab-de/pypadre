@@ -6,23 +6,14 @@ from abc import ABC, ABCMeta, abstractmethod
 from datetime import datetime
 from time import time
 
-
-class _const:
-
-    class ConstError(TypeError): pass
-
-    def __setattr__(self, name, value):
-        if self.__dict__. has_key(name):
-            raise self.ConstError("Can't rebind const(%s)" % name)
-        self.__dict__[name] = value
-
+from pypadre.util.utils import _Const
 
 """
 Enum for the different phases of an experiment
 """
 
 
-class _Phases(_const):
+class _Phases(_Const):
     experiment = "experiment"
     run = "run"
     split = "split"
@@ -37,7 +28,7 @@ Enum for the different phases of an experiment
 phases = _Phases()
 
 
-class _ExperimentEvents(_const):
+class _ExperimentEvents(_Const):
     start = "start"
     stop = "stop"
 
@@ -567,7 +558,7 @@ class MetadataEntity:
         pass
 
 
-class _timer_priorities(_const):
+class _timer_priorities(_Const):
     """
     Constant class detailing the different priorites possible for a timer.
     """
@@ -577,7 +568,7 @@ class _timer_priorities(_const):
     LOW_PRIORITY = 3
 
 
-class _timer_defaults(_const):
+class _timer_defaults(_Const):
     """
     Constant class detailing the different default values for a timer.
     """
@@ -686,7 +677,7 @@ class TimeKeeper:
             return old_timer.description, time() - old_timer.time
 
 
-class _timer_defaults(_const):
+class _timer_defaults(_Const):
     """
     Constant class detailing the different default values for a timer.
     """

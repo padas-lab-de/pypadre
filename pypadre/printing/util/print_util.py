@@ -2,7 +2,7 @@
 import itertools
 from typing import List, Set
 
-from StringIO import StringIO
+from io import StringIO
 
 from beautifultable import BeautifulTable
 from beautifultable.enums import Alignment

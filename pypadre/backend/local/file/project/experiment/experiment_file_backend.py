@@ -4,12 +4,11 @@ import os
 from pypadre import Experiment
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_experiment_backend import IExperimentBackend
-from pypadre.backend.local.file.interfaces.i_base_binary_file_backend import IBaseBinaryFileBackend
 from pypadre.backend.local.file.project.experiment.execution.execution_file_backend import PadreExecutionFileBackend
 from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
 
 
-class PadreExperimentFileBackend(IExperimentBackend, IBaseBinaryFileBackend):
+class PadreExperimentFileBackend(IExperimentBackend):
 
     def __init__(self, parent):
         super().__init__(parent)

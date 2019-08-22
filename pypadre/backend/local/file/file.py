@@ -1,9 +1,9 @@
-from pypadre.backend.interfaces.backend.i_backend import IBackend
+from pypadre.backend.interfaces.backend.i_padre_backend import IPadreBackend
 from pypadre.backend.local.file.dataset.dataset_file_backend import PadreDatasetFileBackend
 from pypadre.backend.local.file.project.project_file_backend import PadreProjectFileBackend
 
 
-class PadreFileBackend(IBackend):
+class PadreFileBackend(IPadreBackend):
     """
     Delegator class for handling padre objects at the file repository level. The following files tructure is used:
 

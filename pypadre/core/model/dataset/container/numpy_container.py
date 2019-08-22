@@ -4,16 +4,16 @@ import pandas_profiling as pd_pf
 from scipy import stats
 
 from pypadre.core.model.dataset.attribute import Attribute
-from pypadre.core.model.dataset.container.base_container import AttributesOnlyContainer, IBaseContainer
+from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.dataset.dataset import _Formats
+from pypadre.core.model.dataset import dataset
 
 
 class NumpyContainer(IBaseContainer):
 
-    def __init__(self, data):
+    def __init__(self, data, attributes=None):
         # todo rework binary data into delegate pattern.
-        super().__init__(_Formats.numpy, data)
+        super().__init__(dataset.formats.numpy, data, attributes)
         self._shape = data.shape
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]

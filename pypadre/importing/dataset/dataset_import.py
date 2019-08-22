@@ -9,13 +9,13 @@ import numpy as np
 from padre.PaDREOntology import PaDREOntology
 import sklearn.datasets as ds
 
-from pypadre.base import _const
+from pypadre.util.utils import _Const
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.eventhandler import assert_condition, trigger_event
 
 
-class _Sources(_const):
+class _Sources(_Const):
     file = "file"
     openml = "openml"
     graph = "graph"

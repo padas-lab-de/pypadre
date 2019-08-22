@@ -4,6 +4,7 @@ numpy==1.13.3
 scipy==1.0.0
 click==6.7
 click-shell==1.0
+GitPython==3.0.2
 scikit_learn==0.19.1
 pandas-profiling==1.4.1
 liac-arff==2.2.1

@@ -6,7 +6,8 @@ from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
 from pypadre.base import ChildEntity
 
 
-class IMetricBackend(FileBackend, ISearchable, IStoreable, ChildEntity):
+# noinspection PyAbstractClass
+class IMetricBackend(FileBackend):
 
     """ This is a backend for metrics """
 

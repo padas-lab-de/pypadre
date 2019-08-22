@@ -112,18 +112,8 @@ class PadreConfig:
         self._config = config
 
     @property
-    def http_backend_config(self):
-        # TODO: only return the necessayr parameters to avoid instantiation error
-        return self._config["HTTP BACKEND"]
-
-    @property
     def general(self):
         return self._config["GENERAL"]
-
-    @property
-    def local_backend_config(self):
-        # TODO: only return the necessayr parameters to avoid instantiation error
-        return self._config["LOCAL BACKEND"]
 
     def load(self) -> None:
         """
@@ -147,7 +137,7 @@ class PadreConfig:
         """
         return self._config.keys()
 
-    def set(self, key, value, section='HTTP BACKEND'):
+    def set(self, key, value, section='GENERAL'):
         """
         Set value for given key in config
 
@@ -162,7 +152,7 @@ class PadreConfig:
             self.config[section] = dict()
         self.config[section][key] = value
 
-    def get(self, key, section='HTTP BACKEND'):
+    def get(self, key, section='GENERAL'):
         """
         Get value for given key.
         :param section: Section to be queried

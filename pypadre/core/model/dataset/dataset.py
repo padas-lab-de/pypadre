@@ -16,7 +16,7 @@ from scipy.stats.stats import DescribeResult
 from pypadre.base import MetadataEntity
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.graph_container import GraphContainer
-from pypadre.core.model.dataset.container.base_container import AttributesOnlyContainer, IBaseContainer
+from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
 from pypadre.eventhandler import assert_condition
@@ -24,10 +24,10 @@ from pypadre.importing.base_validator import IValidator
 from pypadre.printing.tablefyable import Tablefyable
 from pypadre.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.util.dict_util import get_dict_attr
-from pypadre.util.utils import _const
+from pypadre.util.utils import _Const
 
 
-class _Formats(_const):
+class _Formats(_Const):
     numpy = "numpy"
     numpyMulti = "numpyMultiDim"
     pandas = "pandas"
@@ -159,12 +159,16 @@ class Dataset(MetadataEntity, Tablefyable):
         :return:
         """
 
+        if self._attributes is None:
+            pass
+            # TODO print warning and try to derive attributes. This should be done by the container while the attributes themselves should be held on the dataset.
+
         if isinstance(data, pd.DataFrame):
-            container = PandasContainer(data)
+            container = PandasContainer(data, self.attributes)
         elif isinstance(data, np.ndarray):
-            container = NumpyContainer(data)
+            container = NumpyContainer(data, self.attributes)
         elif isinstance(data, nx.Graph):
-            container = GraphContainer(data)
+            container = GraphContainer(data, self.attributes)
         else:
             raise ValueError("Unknown data format. Type %s not known." % (type(data)))
 
