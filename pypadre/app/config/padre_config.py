@@ -89,6 +89,7 @@ class PadreConfig:
                 "offline": True,
                 "backends": [
                     {
+                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre"),
                         "base_url": _BASE_URL,
                         "user": "mgrani",
                     },

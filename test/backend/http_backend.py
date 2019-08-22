@@ -15,7 +15,7 @@ class HttpBackends(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(HttpBackends, self).__init__(*args, **kwargs)
-        self.backend = PadreHttpBackend(PadreConfig())
+        self.backend = PadreHttpBackend(PadreConfig().get("backends")[0])
 
     def test_dataset(self):
         dataset_backend: PadreDatasetHttpBackend = self.backend.dataset
