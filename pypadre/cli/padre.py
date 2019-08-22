@@ -7,6 +7,8 @@ Command Line Interface for PADRE.
 # todo support config file https://stackoverflow.com/questions/46358797/python-click-supply-arguments-and-options-from-a-configuration-file
 import os
 import click
+from click_shell import shell
+
 from pypadre.app import p_app, PadreApp, PadreConfig
 from pypadre.app.padre_app import PadreFactory
 from .config import config_cli
@@ -15,10 +17,12 @@ from .project import project_cli
 from .experiment import experiment_cli
 from .metric import metric_cli
 
+
 #################################
 #######      MAIN      ##########
 #################################
-@click.group()
+# @click.group()
+@shell(prompt='padre > ', intro='Starting padre ...')
 @click.option('--config-file', '-c',
               type=click.Path(),
               default=os.path.expanduser('~/.padre.cfg'),

@@ -6,8 +6,6 @@ from abc import ABC, ABCMeta, abstractmethod
 from datetime import datetime
 from time import time
 
-from pypadre.eventhandler import assert_condition
-
 
 class _const:
 

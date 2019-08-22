@@ -108,7 +108,15 @@ class PadreFileBackend(IBackend):
         pass
 
     @property
+    def project(self):
+        pass
+
+    @property
     def experiment(self):
+        pass
+
+    @property
+    def execution(self):
         pass
 
     @property
