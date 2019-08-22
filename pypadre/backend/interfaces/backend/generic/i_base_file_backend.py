@@ -30,7 +30,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, parent, name, **kwargs):
+    def __init__(self, parent, name=None, **kwargs):
         super().__init__(parent=parent)
         self.root_dir = os.path.join(self._parent.root_dir, name)
 
