@@ -22,11 +22,11 @@ class GitBackend(FileBackend):
 
     # Method to create a repository at the root directory of the object.
     # If bare=True, the function creates a bare bones repository
-    def __init__(self, **kwargs):
+    def __init__(self, name=None, **kwargs):
         self._remote_url = kwargs.get('remote_url', None)
         self._remote_name = kwargs.get('remote_name', 'remote')
 
-        super().__init__(**kwargs)
+        super().__init__(name=name, **kwargs)
 
     def _create_repo(self, path, bare=True):
         """
