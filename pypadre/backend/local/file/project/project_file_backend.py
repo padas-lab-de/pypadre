@@ -11,8 +11,10 @@ from pypadre.core.model.project import Project
 class PadreProjectFileBackend(IProjectBackend):
 
     def __init__(self, parent):
-        super().__init__(parent=parent)
-        self.root_dir = os.path.join(self._parent.root_dir, "projects")
+        name = 'projects'
+        placeholder = '{PROJECT_ID}'
+        super().__init__(parent=parent, name=name)
+        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
         self._experiment = PadreExperimentFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)

@@ -5,6 +5,12 @@ from pypadre.backend.local.file.project.experiment.execution.run.split.metric.me
 
 class PadreMetricHttpBackend(PadreMetricFileBackend):
 
+    def to_folder_name(self, obj):
+        pass
+
+    def get_by_dir(self, directory):
+        pass
+
     def __init__(self, parent):
         super().__init__(parent)
 

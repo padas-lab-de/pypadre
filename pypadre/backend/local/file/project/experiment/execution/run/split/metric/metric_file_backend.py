@@ -4,10 +4,16 @@ from pypadre.backend.serialiser import JSonSerializer
 
 
 class PadreMetricFileBackend(IMetricBackend):
+    def to_folder_name(self, obj):
+        pass
+
+    def get_by_dir(self, directory):
+        pass
+
     METRICS_FILE = File("metrics.json", JSonSerializer)
 
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, name=parent.METRICS_FILE_NAME)
 
     def list(self, search, offset=0, size=100):
         pass

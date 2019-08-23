@@ -11,8 +11,10 @@ class PadreExecutionFileBackend(IExecutionBackend):
     CONFIG_FILE = File("experiment.json", JSonSerializer)
 
     def __init__(self, parent):
-        super().__init__(parent)
-        self.root_dir = os.path.join(self._parent.root_dir, "executions")
+        name = 'executions'
+        placeholder = '{EXECUTION_ID}'
+        super().__init__(parent, name=name)
+        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
         self._run = PadreRunFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)

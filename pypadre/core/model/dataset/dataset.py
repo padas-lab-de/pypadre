@@ -10,7 +10,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
-from padre.PaDREOntology import PaDREOntology
+#from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.base import MetadataEntity

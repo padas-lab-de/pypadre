@@ -6,7 +6,7 @@ from abc import abstractmethod, ABCMeta
 import pandas as pd
 import networkx as nx
 import numpy as np
-from padre.PaDREOntology import PaDREOntology
+#from padre.PaDREOntology import PaDREOntology
 import sklearn.datasets as ds
 
 from pypadre.util.utils import _Const

@@ -7,8 +7,14 @@ class PadreResultFileBackend(IResultBackend):
 
     RESULTS_FILE = File("results.json", JSonSerializer)
 
+    def to_folder_name(self, obj):
+        pass
+
+    def get_by_dir(self, directory):
+        pass
+
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, name=parent.RESULTS_FILE_NAME)
 
     def list(self, search, offset=0, size=100):
         pass

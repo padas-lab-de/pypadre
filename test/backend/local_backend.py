@@ -19,10 +19,16 @@ class LocalBackends(unittest.TestCase):
     def test_dataset(self):
         dataset_backend: PadreDatasetFileBackend = self.backend.dataset
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
+        def put():
+            from pypadre.app.dataset.dataset_app import DatasetApp
+            dataset_app = DatasetApp(self, self.backend)
+            datasets = dataset_app.load_defaults()
+
 
     def test_project(self):
         project_backend: PadreProjectFileBackend = self.backend.project
         # TODO
+
 
     def test_experiment(self):
         project_backend: PadreProjectFileBackend = self.backend.project

@@ -11,15 +11,20 @@ from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
 
 class PadreSplitFileBackend(ISplitBackend):
 
+    RESULTS_FILE_NAME = "results.json"
+    METRICS_FILE_NAME = "metrics.json"
+    RESULTS_FILE = File(RESULTS_FILE_NAME, JSonSerializer)
+    METRICS_FILE = File(METRICS_FILE_NAME, JSonSerializer)
+    METADATA_FILE = File("metadata.json", JSonSerializer)
+
     def __init__(self, parent):
-        super().__init__(parent)
-        self.root_dir = os.path.join(self._parent.root_dir, "splits")
+        name = "splits"
+        placeholder = '{SPLIT_ID}'
+
+        super().__init__(parent, name=name)
+        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
         self._result = PadreResultFileBackend(self)
         self._metric = PadreMetricFileBackend(self)
-
-    RESULTS_FILE = File("results.json", JSonSerializer)
-    METRICS_FILE = File("metrics.json", JSonSerializer)
-    METADATA_FILE = File("metadata.json", JSonSerializer)
 
     @property
     def result(self):
