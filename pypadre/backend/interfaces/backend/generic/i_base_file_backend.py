@@ -189,5 +189,16 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param target: target to serialize
         :return:
         """
+        with open(os.path.join(dir, file.name), 'w') as f:
+            f.write(file.serializer.serialise(target))
+
+    def write_file_binary(self, dir, file: File, target):
+        """
+        Write given file object into directory with given name and serializer
+        :param dir: directory
+        :param file: file object containing name and serializer
+        :param target: target to serialize
+        :return:
+        """
         with open(os.path.join(dir, file.name), 'wb') as f:
             f.write(file.serializer.serialise(target))

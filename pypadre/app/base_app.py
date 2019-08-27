@@ -15,7 +15,8 @@ class IBaseApp:
     __metaclass__ = ABCMeta
 
     def __init__(self, backends):
-        self._backends = [] if backends is None else backends
+        b = backends if isinstance(backends, List) else [backends]
+        self._backends = [] if backends is None else b
 
     @property
     def backends(self):
@@ -72,7 +73,8 @@ class BaseChildApp(ChildEntity, IBaseApp):
     __metaclass__ = ABCMeta
 
     def __init__(self, parent: IBaseApp, backends: List[IBackend], **kwargs):
-        super().__init__(parent=parent, backends=backends, **kwargs)
+        ChildEntity.__init__(self, parent=parent, backends=backends, **kwargs)
+        IBaseApp.__init__(self, backends=backends)
 
     def has_print(self) -> bool:
         parent: IBaseApp = self.parent

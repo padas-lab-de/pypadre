@@ -19,6 +19,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
 
     META_FILE = File("metadata.json", JSonSerializer)
     DATA_FILE = File("data.bin", PickleSerializer)
+    GIT_ATTRIBUTES = '.gitattributes.'
 
     def put(self, dataset: Dataset, allow_overwrite=True):
         directory = self.get_dir(self.to_folder_name(dataset))
@@ -32,17 +33,19 @@ class PadreDatasetFileBackend(IDatasetBackend):
             os.mkdir(directory)
 
         self.write_file(directory, self.META_FILE, dataset.metadata)
+        # TODO Write the actual dataset
+        self.write_file_binary(directory, self.DATA_FILE, dataset.data())
         # TODO call git / git-lfs private functions here?
         # Get os version and write content to file
         path = None
         if platform.system() == 'Windows':
-            path = os.path.join((directory, '.gitattributes.'))
+            path = os.path.join(directory, self.GIT_ATTRIBUTES)
         else:
-            path = os.path.join((directory, '.gitattributes'))
+            path = os.path.join(directory, self.GIT_ATTRIBUTES)
 
         f = open(path, "w")
         f.write("*.bin filter=lfs diff=lfs merge=lfs -text")
-        repo = Repo(directory)
+        repo = self._create_repo(path=directory, bare=False)
         self._add_files(repo, file_path=path)
         self._commit(repo=repo, message='Added .gitattributes file for Git LFS')
 

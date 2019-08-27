@@ -15,6 +15,7 @@ class PadreResultFileBackend(IResultBackend):
 
     def __init__(self, parent):
         super().__init__(parent, name=parent.RESULTS_FILE_NAME)
+        self.RESULTS_FILE = File(parent.RESULTS_FILE_NAME, JSonSerializer)
 
     def list(self, search, offset=0, size=100):
         pass

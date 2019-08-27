@@ -257,7 +257,7 @@ class SklearnLoader(ICollectionDataSetLoader):
             else:
                 atts.append(Attribute(str(ix), "Ratio", None, None, n_feat <= ix))
 
-        data_set.set_data(data, attributes=atts)
+        data_set.set_data(data)
         return data_set
 
     @staticmethod
@@ -273,7 +273,7 @@ class SnapLoader(ICollectionDataSetLoader):
         pass
 
     def load_default(self):
-        pass
+        return []
 
     @staticmethod
     def mapping(self, source):
@@ -289,7 +289,7 @@ class KonectLoader(ICollectionDataSetLoader):
         pass
 
     def load_default(self):
-        pass
+        return []
 
     @staticmethod
     def mapping(self, source):
@@ -307,7 +307,7 @@ class OpenMlLoader(ICollectionDataSetLoader):
 
     def load_default(self):
         # TODO load some default datasets
-        pass
+        return []
 
     @staticmethod
     def mapping(self, source):

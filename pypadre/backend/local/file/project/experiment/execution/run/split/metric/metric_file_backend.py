@@ -14,6 +14,7 @@ class PadreMetricFileBackend(IMetricBackend):
 
     def __init__(self, parent):
         super().__init__(parent, name=parent.METRICS_FILE_NAME)
+        self.METRICS_FILE = File(parent.METRICS_FILE_NAME, JSonSerializer)
 
     def list(self, search, offset=0, size=100):
         pass

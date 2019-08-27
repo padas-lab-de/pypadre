@@ -65,8 +65,9 @@ class Dataset(MetadataEntity, Tablefyable):
         :param attributes: Attributes of the data
         :param metadata:
         """
-        super().__init__(id_, **{**{"name": "", "version": "1.0", "description": "", "originalSource": "", "type": "",
-                                    "published": False}, **self._metadata})
+        MetadataEntity.__init__(self, id_, **{**{"name": "", "version": "1.0", "description": "", "originalSource": "",
+                                                 "type": "", "published": False}, **metadata})
+        Tablefyable.__init__(self)
         self._binaries = dict()
         self._attributes = attributes
 
@@ -116,7 +117,8 @@ class Dataset(MetadataEntity, Tablefyable):
             if len(self._binaries) > 1:
                 raise ValueError("More than one binary exists. Pass a format.")
             else:
-                return next(iter(self._binaries))
+                #return next(iter(self._binaries))
+                return self._binaries.get(next(iter(self._binaries)))
 
         if bin_format in self._binaries:
             return self._binaries.get(bin_format)

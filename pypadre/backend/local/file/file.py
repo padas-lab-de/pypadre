@@ -5,7 +5,7 @@ from pypadre.backend.local.file.project.project_file_backend import PadreProject
 
 class PadreFileBackend(IPadreBackend):
     """
-    Delegator class for handling padre objects at the file repository level. The following files tructure is used:
+    Delegator class for handling padre objects at the file repository level. The following files structure is used:
 
     root_dir
       |------datasets\
@@ -25,3 +25,6 @@ class PadreFileBackend(IPadreBackend):
     @property
     def project(self) -> PadreProjectFileBackend:
         return self._project
+
+    def put(self, obj):
+        self._dataset.put(obj)

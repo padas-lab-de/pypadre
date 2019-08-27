@@ -107,7 +107,11 @@ class GitBackend(FileBackend):
         :return:
         """
         if self.is_backend_valid():
-            repo.index.add([file_path])
+            if isinstance(file_path, str):
+                repo.index.add([file_path])
+            else:
+                repo.index.add(file_path)
+
 
     def _get_untracked_files(self, repo):
         return repo.untracked_files if self.is_backend_valid() else None
