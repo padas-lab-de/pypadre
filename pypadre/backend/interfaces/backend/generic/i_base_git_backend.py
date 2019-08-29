@@ -196,7 +196,7 @@ class GitBackend(FileBackend):
         :return:
         """
         # TODO: Possibly, look for in the remote repositories if possible
-        super().list(search_id)
+        return super().list(search_id)
 
     # Abstract method which would create a repo based on the requirements
     @abstractmethod
@@ -205,7 +205,7 @@ class GitBackend(FileBackend):
 
     def get(self, uid):
         # Call the File backend get function
-        return super().get()
+        return super().get(uid=uid)
 
     def get_repo(self, path=None, url=None,  **kwargs):
         """

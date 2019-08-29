@@ -203,6 +203,13 @@ class Dataset(MetadataEntity, Tablefyable):
                                  correlation_overrides=correlation_overrides,
                                  check_recoded=check_recoded)
 
+    def get(self, key):
+        if key == 'id':
+            return self.id
+
+        else:
+            return self.__dict__.get(key, None)
+
     # def profile(self, bins=50, check_correlation=True, correlation_threshold=0.8,
     #             correlation_overrides=None, check_recoded=False):
     #     if "profile" in self.metadata:

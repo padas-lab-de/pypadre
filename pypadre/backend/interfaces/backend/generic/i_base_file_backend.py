@@ -95,7 +95,8 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param uid: Id to search for
         :return: Directory of the object
         """
-        return self.get_dirs_by_search({'id': uid}).pop()
+        dirs = self.get_dirs_by_search({'id': uid})
+        return dirs.pop() if len(dirs) > 0 else []
 
     def has_dir(self, folder_name):
         """
@@ -169,6 +170,22 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         return os.path.exists(os.path.join(dir, file.name))
 
     def get_file_fn(self, dir, file: File):
+        """
+        Method to get a lazy loading function for the file.
+        :param dir: Location of the repo
+        :param file: File object
+        :return: Function to load the file data
+        """
+        def __load_data():
+            if not os.path.exists(os.path.join(dir, file.name)):
+                # TODO Raise exception
+                return None
+            with open(os.path.join(dir, file.name), 'rb') as f:
+                data = file.serializer.deserialize(f.read())
+            return data
+        return __load_data
+
+    def get_file_fn_binary(self, dir, file: File):
         """
         Method to get a lazy loading function for the file.
         :param dir: Location of the repo

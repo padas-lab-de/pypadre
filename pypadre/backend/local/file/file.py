@@ -27,4 +27,8 @@ class PadreFileBackend(IPadreBackend):
         return self._project
 
     def put(self, obj):
+        # Changed to dataset TODO: Modify for project as well
         self._dataset.put(obj)
+
+    def get(self, obj):
+        return self._dataset.get(obj)
