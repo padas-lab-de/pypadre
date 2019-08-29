@@ -1,8 +1,9 @@
 from abc import abstractmethod, ABCMeta
 
 from git import Repo
-
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import FileBackend
+import platform
+import os
 
 """
 For datasets, experiments and projects there would be separate repositories.
@@ -200,8 +201,8 @@ class GitBackend(FileBackend):
 
     # Abstract method which would create a repo based on the requirements
     @abstractmethod
-    def put(self, object):
-        pass
+    def put(self, object, *args):
+        super().put(object, args)
 
     def get(self, uid):
         # Call the File backend get function
@@ -244,6 +245,25 @@ class GitBackend(FileBackend):
     def has_remote_backend(self):
         # TODO Validate the remote_url
         return True if self.remote_url is not None else False
+
+    def add_git_lfs_attribute_file(self, directory, file_extension):
+        # Get os version and write content to file
+        path = None
+        # TODO: Verify path in Windows
+        if platform.system() == 'Windows':
+            path = os.path.join(directory, self.GIT_ATTRIBUTES)
+        else:
+            path = os.path.join(directory, self.GIT_ATTRIBUTES)
+
+        f = open(path, "w")
+        f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
+        repo = self._create_repo(path=directory, bare=False)
+        self._add_files(repo, file_path=path)
+        self._commit(repo=repo, message='Added .gitattributes file for Git LFS')
+
+        # Add all untracked files
+        self._add_untracked_files(repo=repo)
+        self._commit(repo, message=self._DEFAULT_GIT_MSG)
 
     @property
     def remote_name(self, remote_name):

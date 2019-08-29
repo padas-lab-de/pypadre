@@ -205,7 +205,7 @@ class Dataset(MetadataEntity, Tablefyable):
 
     def get(self, key):
         if key == 'id':
-            return self.id
+            return self.name
 
         else:
             return self.__dict__.get(key, None)

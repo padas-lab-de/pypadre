@@ -71,6 +71,22 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         self.delete_dir(self.to_folder_name(obj))
 
+    def put(self, obj, allow_overwrite=True):
+        """
+
+        :param obj:
+        :param allow_overwrite:
+        :return:
+        """
+        directory = self.get_dir(self.to_folder_name(obj))
+        if os.path.exists(directory) and not allow_overwrite:
+            raise ValueError("Object path %s already exists." +
+                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(obj))
+        else:
+            if os.path.exists(directory):
+                shutil.rmtree(directory)
+            os.mkdir(directory)
+
     @abstractmethod
     def to_folder_name(self, obj):
         """
@@ -185,19 +201,6 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
             return data
         return __load_data
 
-    def get_file_fn_binary(self, dir, file: File):
-        """
-        Method to get a lazy loading function for the file.
-        :param dir: Location of the repo
-        :param file: File object
-        :return: Function to load the file data
-        """
-        def __load_data():
-            with open(os.path.join(dir, file.name), 'rb') as f:
-                data = file.serializer.deserialize(f.read())
-            return data
-        return __load_data
-
     def write_file(self, dir, file: File, target):
         """
         Write given file object into directory with given name and serializer
@@ -217,5 +220,15 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param target: target to serialize
         :return:
         """
+        # TODO: Identify file via serializer whether binary or not
         with open(os.path.join(dir, file.name), 'wb') as f:
             f.write(file.serializer.serialise(target))
+
+    def directory(self, obj):
+        """
+        Returns the path of the object
+        :param obj:
+        :return:
+        """
+        return self.get_dir(self.to_folder_name(obj))
+

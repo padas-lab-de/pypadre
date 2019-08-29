@@ -53,7 +53,7 @@ class IDataSetLoader:
     def _create_dataset(**kwargs):
         meta = {**{"id": str(uuid.uuid4()), "name": "",
                    "description": "", "version": 1.0,
-                   "type": PaDREOntology.SubClassesDataset.Multivariat, "targets": [], "published": False}, **kwargs}
+                   "type": "multivariate", "targets": [], "published": False}, **kwargs}
 
         trigger_event('EVENT_WARN', condition=len(meta["targets"]) > 0,
                       source=inspect.currentframe().f_code.co_name,

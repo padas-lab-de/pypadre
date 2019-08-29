@@ -23,7 +23,8 @@ class LocalBackends(unittest.TestCase):
         from pypadre.app.dataset.dataset_app import DatasetApp
         dataset_app = DatasetApp(self, self.backend)
         dataset_app.load_defaults()
-        dataset = dataset_app.get('854a820f-eba6-46b2-9a5e-f308cb305f8c')
+        id = 'Boston House Prices dataset'
+        dataset = dataset_app.get(id)
         print(dataset)
 
     def test_project(self):

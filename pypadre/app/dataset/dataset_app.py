@@ -58,11 +58,20 @@ class DatasetApp(BaseChildApp):
         """
         try:
             DataSetValidator.validate(obj)
-            super().put(obj)
+            for b in self.backends:
+                b.dataset.put(obj)
+            #super().put(obj)
             return obj
+
         except ValidationError as e:
             self.print_("Dataset could not be added. Please fix following problems and add manually: " + str(e))
             return obj
+
+    def get(self, criteria:dict):
+        datasets = []
+        for b in self.backends:
+            datasets.append(b.dataset.get(criteria))
+        return datasets
 
     def load(self, source, **kwargs) -> Dataset:
         """
