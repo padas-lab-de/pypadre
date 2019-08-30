@@ -47,7 +47,7 @@ class PadreProjectFileBackend(IProjectBackend):
 
     def put(self, project):
 
-        directory = self.directory(project)
+        directory = self.to_directory(project)
         # Create the directory with flags, allow_overwrite False and append_data True
         super().put(project, False, True)
         if self.PLACEHOLDER in directory:

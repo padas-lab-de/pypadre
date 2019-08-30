@@ -39,7 +39,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
     def put(self, dataset: Dataset, allow_overwrite=True):
 
         super().put(dataset, allow_overwrite)
-        directory = self.directory(dataset)
+        directory = self.to_directory(dataset)
 
         self.write_file(directory, self.META_FILE, dataset.metadata)
         # TODO Write the actual dataset

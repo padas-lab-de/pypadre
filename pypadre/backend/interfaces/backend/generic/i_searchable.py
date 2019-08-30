@@ -16,4 +16,4 @@ class ISearchable:
     @staticmethod
     def in_search(obj, search: dict):
         # TODO Enable more sophisticated search
-        return all([hasattr(obj, k) and obj.get(k) == v for k, v in search.items()])
+        return all([hasattr(obj, k) and getattr(obj, k) == v for k, v in search.items()])

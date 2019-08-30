@@ -21,13 +21,13 @@ class LocalBackends(unittest.TestCase):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
 
         from pypadre.app.dataset.dataset_app import DatasetApp
-        dataset_app = DatasetApp(self, self.backend)
+        dataset_app = DatasetApp(self, dataset_backend)
         # Puts all the datasets
         dataset_app.load_defaults()
 
         # Gets a dataset by name
         id = 'Boston House Prices dataset'
-        dataset = dataset_app.get(id)
+        dataset = dataset_app.list({'name':id})
         print(dataset)
 
     def test_project(self):
@@ -40,13 +40,8 @@ class LocalBackends(unittest.TestCase):
 
         project_app.put(project)
 
-        p = project_app.get('Test Project')
+        p = project_app.list({'name': 'Test Project'})
         print(p)
-
-        # TODO: Should list all the projects
-        search = {'id': 'Test Project'}
-        project_list = project_app.list(search)
-        print(project_list)
 
 
     def test_experiment(self):

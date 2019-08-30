@@ -10,7 +10,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
-#from padre.PaDREOntology import PaDREOntology
+from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.base import MetadataEntity
@@ -93,7 +93,7 @@ class Dataset(MetadataEntity, Tablefyable):
 
     @property
     def attributes(self):
-        return self._attributes
+        return self._attributesf
 
     def validate(self, options):
         assert_condition(condition=options.get("name") is not None, source=self,
@@ -202,14 +202,14 @@ class Dataset(MetadataEntity, Tablefyable):
                                  correlation_threshold=correlation_threshold,
                                  correlation_overrides=correlation_overrides,
                                  check_recoded=check_recoded)
-
+    '''
     def get(self, key):
         if key == 'id':
             return self.name
 
         else:
             return self.__dict__.get(key, None)
-
+    '''
     # def profile(self, bins=50, check_correlation=True, correlation_threshold=0.8,
     #             correlation_overrides=None, check_recoded=False):
     #     if "profile" in self.metadata:

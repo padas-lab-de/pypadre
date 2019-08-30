@@ -59,7 +59,7 @@ class DatasetApp(BaseChildApp):
         try:
             DataSetValidator.validate(obj)
             for b in self.backends:
-                b.dataset.put(obj)
+                b.put(obj)
             #super().put(obj)
             return obj
 

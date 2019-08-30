@@ -233,7 +233,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         with open(os.path.join(dir, file.name), 'wb') as f:
             f.write(file.serializer.serialise(target))
 
-    def directory(self, obj):
+    def to_directory(self, obj):
         """
         Returns the path of the object
         :param obj:
