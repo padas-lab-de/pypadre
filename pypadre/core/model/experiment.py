@@ -548,7 +548,8 @@ class Experiment(MetadataEntity):
         """
         from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
         import numpy as np
-
+        return True
+        '''
         assert_condition(condition=options.get('workflow', None) is not None, source=self,
                          message="Workflow cannot be none")
         assert_condition(condition=options.get('description', None) is not None, source=self,
@@ -605,4 +606,5 @@ class Experiment(MetadataEntity):
                     actual_estimator_name = alternate_name_mappings.get(estimator)
                 assert_condition(condition=name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
                                  source=self, message='Classifier cannot be trained on regression data')
+        '''
 

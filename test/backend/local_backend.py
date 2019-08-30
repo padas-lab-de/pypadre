@@ -22,18 +22,60 @@ class LocalBackends(unittest.TestCase):
 
         from pypadre.app.dataset.dataset_app import DatasetApp
         dataset_app = DatasetApp(self, self.backend)
+        # Puts all the datasets
         dataset_app.load_defaults()
+
+        # Gets a dataset by name
         id = 'Boston House Prices dataset'
         dataset = dataset_app.get(id)
         print(dataset)
 
     def test_project(self):
         project_backend: PadreProjectFileBackend = self.backend.project
-        # TODO
+        from pypadre.core.model.project import Project
+        from pypadre.app.project.project_app import ProjectApp
+        project_app = ProjectApp(self, project_backend)
+
+        project = Project(name='Test Project', description='Testing the functionalities of project backend')
+
+        project_app.put(project)
+
+        p = project_app.get('Test Project')
+        print(p)
+
+        # TODO: Should list all the projects
+        search = {'id': 'Test Project'}
+        project_list = project_app.list(search)
+        print(project_list)
+
 
     def test_experiment(self):
+        dataset_backend: PadreDatasetFileBackend = self.backend.dataset
+        # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
+
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.app.dataset.dataset_app import DatasetApp
+        dataset_app = DatasetApp(self, self.backend)
+
+        def create_test_pipeline():
+            from sklearn.pipeline import Pipeline
+            from sklearn.svm import SVC
+            from sklearn.decomposition import PCA
+            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+            estimators = [('SVC', SVC(probability=True))]
+            return Pipeline(estimators)
+
         project_backend: PadreProjectFileBackend = self.backend.project
         experiment_backend: PadreExperimentFileBackend = project_backend.experiment
+
+        id = 'Boston House Prices dataset'
+        dataset = dataset_app.get(id)
+        experiment = Experiment(name="Test Experiment SVM",
+                    description="Testing Support Vector Machines via SKLearn Pipeline",
+                    dataset=dataset[0],
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="random")
+
+        experiment_backend.put(experiment=experiment)
         # TODO
 
     def test_execution(self):

@@ -71,15 +71,23 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         self.delete_dir(self.to_folder_name(obj))
 
-    def put(self, obj, allow_overwrite=True):
+    def put(self, obj, args):
         """
 
         :param obj:
-        :param allow_overwrite:
+        :param args:
         :return:
         """
+        allow_overwrite = True if len(args) == 0 else args[0]
+        append_data = False if len(args) <= 1 else args[1]
+
         directory = self.get_dir(self.to_folder_name(obj))
-        if os.path.exists(directory) and not allow_overwrite:
+
+        # If the path exists and data should be appended to the existing folder, do nothing
+        if os.path.exists(directory) and append_data:
+            return
+
+        elif os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Object path %s already exists." +
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(obj))
         else:
@@ -111,6 +119,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param uid: Id to search for
         :return: Directory of the object
         """
+        # TODO: Change the hardcoded 'id' to a key value to be searched
         dirs = self.get_dirs_by_search({'id': uid})
         return dirs.pop() if len(dirs) > 0 else []
 

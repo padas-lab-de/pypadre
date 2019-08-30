@@ -188,7 +188,7 @@ class GitBackend(FileBackend):
         self._remote.push(refspec='{}:{}'.format('master', 'master'))
 
     # database backend functions
-    def list(self, search_id, offset=0, size=100):
+    def list(self, search, offset=0, size=100):
         """
         Function to list repos. Cannot be implemented in GitPython.
         :param search_id: Id to be searched for
@@ -197,7 +197,7 @@ class GitBackend(FileBackend):
         :return:
         """
         # TODO: Possibly, look for in the remote repositories if possible
-        return super().list(search_id)
+        return super().list(search)
 
     # Abstract method which would create a repo based on the requirements
     @abstractmethod

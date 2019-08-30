@@ -10,11 +10,17 @@ from pypadre.core.model.project import Project
 
 class PadreProjectFileBackend(IProjectBackend):
 
+    NAME = 'projects'
+    PLACEHOLDER = '{PROJECT_ID}'
+
     def __init__(self, parent):
-        name = 'projects'
-        placeholder = '{PROJECT_ID}'
-        super().__init__(parent=parent, name=name)
-        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
+
+        super().__init__(parent=parent, name=self.NAME)
+        #self.root_dir = os.path.join(self._parent.root_dir, self.NAME, self.PLACEHOLDER)
+        self.root_dir = os.path.join(self._parent.root_dir, self.NAME)
+        if not os.path.exists(self.root_dir):
+            os.mkdir(self.root_dir)
+
         self._experiment = PadreExperimentFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)
@@ -36,14 +42,19 @@ class PadreProjectFileBackend(IProjectBackend):
         return self.get_by_dir(self.get_dir(name))
 
     def get_by_dir(self, directory):
-        metadata = self.get_file(directory, self.META_FILE)
+        metadata = self.get_file(os.path.join(self.root_dir, directory), self.META_FILE)
         return Project(**metadata)
 
     def put(self, project):
 
-        directory = self.get_dir(self.to_folder_name(project))
+        directory = self.directory(project)
+        # Create the directory with flags, allow_overwrite False and append_data True
+        super().put(project, False, True)
+        if self.PLACEHOLDER in directory:
+            directory = directory.replace(self.PLACEHOLDER, project.name)
         # Create a repo for the project
         # Check if the folder exists, if the folder exists the repo will already be created, else create the repo
+
         if not os.path.exists(directory):
             self._create_repo(path=directory, bare=False)
 

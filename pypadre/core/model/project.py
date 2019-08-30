@@ -33,3 +33,10 @@ class Project(MetadataEntity):
                          message="Name cannot be none")
         assert_condition(condition=options.get('description', None) is not None, source=self,
                          message="Description cannot be none")
+
+    def get(self, key):
+        if key == 'id':
+            return self.name
+
+        else:
+            return self.__dict__.get(key, None)

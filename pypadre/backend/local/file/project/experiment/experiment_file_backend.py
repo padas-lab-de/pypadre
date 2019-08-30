@@ -9,12 +9,13 @@ from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
 
 
 class PadreExperimentFileBackend(IExperimentBackend):
-
+    NAME = 'experiments'
+    placeholder = '{EXPERIMENT_ID}'
     def __init__(self, parent):
-        name = 'experiments'
-        placeholder = '{EXPERIMENT_ID}'
-        super().__init__(parent, name=name)
-        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
+        super().__init__(parent, name=self.NAME)
+        self.root_dir = os.path.join(self._parent.root_dir, self.NAME)
+        if not os.path.exists(self.root_dir):
+            os.mkdir(self.root_dir)
         self._execution = PadreExecutionFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)

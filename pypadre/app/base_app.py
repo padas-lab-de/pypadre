@@ -36,9 +36,11 @@ class IBaseApp:
             backend.put(obj)
 
     def get(self, id):
+        obj_list = []
         for b in self.backends:
             backend: IStoreable = b
-            backend.get(id)
+            obj_list.append(backend.get(id))
+        return obj_list
 
     def delete(self, obj):
         for b in self.backends:
