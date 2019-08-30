@@ -1,50 +1,49 @@
 {
     "layer_order": [
         "conv1",
-        "batchnorm1",
-        "relu1",
+        "batchnorm64",
+        "relu",
         "conv2",
-        "batchnorm2",
-        "relu2",
-        "pool1",
-        "conv3",
-        "batchnorm3",
-        "relu3",
+        "batchnorm64",
+        "relu",
+        "poolmax",
+	    "conv3",
+        "batchnorm128",
+        "relu",
         "conv4",
-        "batchnorm4",
-        "relu4",
-        "pool2",
+        "batchnorm128",
+        "relu",
+        "poolmax",
         "conv5",
-        "batchnorm5",
-        "relu5",
+        "batchnorm256",
+        "relu",
         "conv6",
-        "batchnorm6",
-        "relu6",
+        "batchnorm256",
+        "relu",
         "conv7",
-        "batchnorm7",
-        "relu7",
-        "pool3",
+        "batchnorm256",
+        "relu",
         "conv8",
-        "batchnorm8",
-        "relu8",
+        "batchnorm512",
+        "relu",
         "conv9",
-        "batchnorm9",
-        "relu9",
+        "batchnorm512",
+        "relu",
         "conv10",
-        "batchnorm10",
-        "relu10",
-        "pool4",
+        "batchnorm512",
+        "relu",
+        "poolmax",
         "conv11",
-        "batchnorm11",
-        "relu11",
+        "batchnorm512",
+        "relu",
         "conv12",
-        "batchnorm12",
-        "relu12",
+        "batchnorm512",
+        "relu",
         "conv13",
-        "batchnorm13",
-        "relu13",
-        "pool5",
-        "pool6",
+        "batchnorm512",
+        "relu",
+        "poolmax",
+        "poolavg",
         "linear"
     ],
     "architecture": {
@@ -54,8 +53,7 @@
                 "in_channels": 3,
                 "out_channels": 64,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv2": {
@@ -64,8 +62,7 @@
                 "in_channels": 64,
                 "out_channels": 64,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv3": {
@@ -74,8 +71,7 @@
                 "in_channels": 64,
                 "out_channels": 128,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv4": {
@@ -84,8 +80,7 @@
                 "in_channels": 128,
                 "out_channels": 128,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv5": {
@@ -94,8 +89,7 @@
                 "in_channels": 128,
                 "out_channels": 256,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv6": {
@@ -104,8 +98,7 @@
                 "in_channels": 256,
                 "out_channels": 256,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv7": {
@@ -114,8 +107,7 @@
                 "in_channels": 256,
                 "out_channels": 256,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv8": {
@@ -124,8 +116,7 @@
                 "in_channels": 256,
                 "out_channels": 512,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv9": {
@@ -134,8 +125,7 @@
                 "in_channels": 512,
                 "out_channels": 512,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv10": {
@@ -144,8 +134,7 @@
                 "in_channels": 512,
                 "out_channels": 512,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv11": {
@@ -154,8 +143,7 @@
                 "in_channels": 512,
                 "out_channels": 512,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv12": {
@@ -164,8 +152,7 @@
                 "in_channels": 512,
                 "out_channels": 512,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
         "conv13": {
@@ -174,212 +161,57 @@
                 "in_channels": 512,
                 "out_channels": 512,
                 "kernel_size": 3,
-                "padding": 1,
-                "bias": true
+                "padding": 1
             }
         },
-        "pool1": {
+        "batchnorm64":{
+        	"type": "batchnorm2d",
+        	"params": {
+                "num_features": 64
+            }
+        },
+        "batchnorm128":{
+        	"type": "batchnorm2d",
+        	"params": {
+                "num_features": 128
+            }
+        },
+        "batchnorm256":{
+        	"type": "batchnorm2d",
+        	"params": {
+                "num_features": 256
+            }
+        },
+        "batchnorm512":{
+        	"type": "batchnorm2d",
+        	"params": {
+                "num_features": 512
+            }
+        },
+        "relu": {
+            "type": "relu",
+            "params": {
+                "inplace": true
+            }
+        },
+        "poolmax": {
             "type": "maxpool2d",
             "params": {
                 "kernel_size": 2,
                 "stride": 2
             }
         },
-        "pool2": {
-            "type": "maxpool2d",
-            "params": {
-                "kernel_size": 2,
-                "stride": 2
-            }
-        },
-        "pool3": {
-            "type": "maxpool2d",
-            "params": {
-                "kernel_size": 2,
-                "stride": 2
-            }
-        },
-        "pool4": {
-            "type": "maxpool2d",
-            "params": {
-                "kernel_size": 2,
-                "stride": 2
-            }
-        },
-        "pool5": {
-            "type": "maxpool2d",
-            "params": {
-                "kernel_size": 2,
-                "stride": 2
-            }
-        },
-        "pool6": {
+        "poolavg": {
             "type": "avgpool2d",
             "params": {
                 "kernel_size": 1,
                 "stride": 1
             }
         },
-        "batchnorm1":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 64
-            }
-        },
-        "batchnorm2":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 64
-            }
-        },
-        "batchnorm3":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 128
-            }
-        },
-        "batchnorm4":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 128
-            }
-        },
-        "batchnorm5":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 256
-            }
-        },
-        "batchnorm6":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 256
-            }
-        },
-        "batchnorm7":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 256
-            }
-        },
-        "batchnorm8":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 512
-            }
-        },
-        "batchnorm9":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 512
-            }
-        },
-        "batchnorm10":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 512
-            }
-        },
-        "batchnorm11":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 512
-            }
-        },
-        "batchnorm12":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 512
-            }
-        },
-        "batchnorm13":{
-        	"type": "batchnorm2d",
-        	"params": {
-                "num_features": 512
-            }
-        },
-        "relu1": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu2": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu3": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu4": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu5": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu6": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu7": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu8": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu9": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu10": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu11": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu12": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
-        "relu13": {
-            "type": "relu",
-            "params": {
-                "inplace": true
-            }
-        },
         "linear": {
             "type": "linear",
             "params": {
-                "in_features": 512,
+                "in_features": 2048,
                 "out_features": 10
             }
         },
@@ -401,9 +233,41 @@
             "dampening": 0,
             "weight_decay": 0.0005,
             "Nesterov": false,
-            "lr": 0.001
+            "lr": 0.00125
         }
     },
-    "steps": 80000,
-    "batch_size": 128
+    "train_transform_order": ["TOPILIMAGE", "RANDOMCROP",
+        "RANDOMHORIZONTALFLIP", "TOTENSOR", "NORMALIZE"],
+    "train_transforms": {
+        "topilimage": {},
+        "randomcrop": {
+            "size": 32,
+            "padding": 4
+        },
+        "randomhorizontalflip": {
+            "p": 0.5
+        },
+        "totensor": {},
+        "normalize": {
+            "mean": [0.4914, 0.4822, 0.4465],
+            "std": [0.2023, 0.1994, 0.2010]
+        }
+    },
+    "test_transform_order": ["TOPILIMAGE", "TOTENSOR", "NORMALIZE"],
+    "test_transforms": {
+        "topilimage": {},
+        "totensor": {},
+        "normalize": {
+            "mean": [0.4914, 0.4822, 0.4465],
+            "std": [0.2023, 0.1994, 0.2010]
+        }
+    },
+    "epochs": 200,
+    "batch_size": 128,
+    "test_batch_size": 100,
+    "testpercentage": 0.09092,
+    "testeveryepoch": false,
+    "test_interval": 5000,
+    "display_interval": 1000,
+    "shuffle": false
 }

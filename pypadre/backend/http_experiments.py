@@ -517,6 +517,16 @@ class HttpBackendExperiments:
         """
         pass
 
+    def log_preprocessing_progress(self, curr_value, limit, phase):
+        """
+
+        :param curr_value:
+        :param limit:
+        :param phase:
+        :return:
+        """
+        pass
+
     def log_run_progress(self, curr_value, limit, phase):
         """
 

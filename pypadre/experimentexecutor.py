@@ -241,13 +241,14 @@ class ExperimentExecutor:
             exp_params = deepcopy(experiment_dict)
             exp_params['dataset'] = dataset
             params = exp_params.pop('params', None)
+            preprocessing_params = exp_params.pop('preprocessing_params',None)
             trigger_event('EVENT_LOG', message='Executing experiment: {name}'.format(name=name), source=self)
             c1 = time.time()
             ex = Experiment(**exp_params)
             conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
             pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-            ex.execute(parameters=params)
+            ex.execute(parameters=params,pre_parameters=preprocessing_params)
             self._experiment_objects.append(ex)
             c2 = time.time()
             trigger_event('EVENT_LOG',
