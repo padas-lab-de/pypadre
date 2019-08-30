@@ -23,3 +23,5 @@ notebook==5.7.4
 seaborn==0.9.0
 matplotlib==3.0.0
 Sphinx==2.0.1
+pypadre-ontology>=0.3.0
+pypadre-protobuf>=0.3.0

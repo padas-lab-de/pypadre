@@ -31,6 +31,36 @@ build:
     paths:
       - ./dist/pypadre*
 
+python-release:
+  image: python:3.6.8-stretch
+  only:
+    - /^prep-v.*$/
+  except:
+    - branches
+  stage: release
+  variables:
+    TWINE_USERNAME: $PYPI_USER
+    TWINE_PASSWORD: $PYPI_PW
+  script:
+    - source ./setenv.sh
+    - apt-get update
+    - apt-get install --assume-yes sshpass openssh-client
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install sphinx
+    - pip install twine
+    - sed -i "s/pypadre-ontology>=.*/pypadre-ontology>=$VERSION/g" requirements.txt
+    - sed -i "s/pypadre-protobuf>=.*/pypadre-protobuf>=$VERSION/g" requirements.txt
+    - sed -i "s/__version__ = .*/__version__ = '$VERSION'/g" ./padre/_version.py
+    - sed -i "s/release = .*/release = '$VERSION'/g" setup.py
+    - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install --extra-index-url https://$PYPI_USER:$PYPI_PW@$PYPI_URL || true # Enforce the order of the installation # Update requirements txt with version number
+    - python -m unittest discover -s ./tests/unit-tests/
+    - python setup.py sdist
+    - twine upload --repository-url $PYPI_URL dist/*
+  artifacts:
+    paths:
+      - PyPaDRe/sdist/*
 
 #release: # Missing version bump, and deployment on some pip repo
 #  image: python:3.6.8-stretch
