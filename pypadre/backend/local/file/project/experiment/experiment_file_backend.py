@@ -48,13 +48,28 @@ class PadreExperimentFileBackend(IExperimentBackend):
         return self.get_by_dir(self.get_dir(name))
 
     def get_by_dir(self, directory):
-        metadata = self.get_file(directory, self.META_FILE)
-        config = self.get_file(directory, self.CONFIG_FILE)
-        workflow = self.get_file(directory, self.WORKFLOW_FILE)
-        preprocess_workflow = self.get_file(directory, self.PREPROCESS_WORKFLOW_FILE)
+        import glob
+        import uuid
+
+        path = glob.glob(os.path.join(self.replace_placeholders_with_wildcard(self.root_dir), directory))[0]
+
+
+        metadata = self.get_file(path, self.META_FILE)
+        config = self.get_file(path, self.CONFIG_FILE)
+        workflow = self.get_file(path, self.WORKFLOW_FILE)
+        preprocess_workflow = self.get_file(path, self.PREPROCESS_WORKFLOW_FILE)
+
+        if metadata.get('id', None) is None:
+            id_ = uuid.uuid4()
 
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
-        ex = Experiment(ex_id=id_, **experiment_params[id_])
+        #experiment_params = config
+        experiment_params = dict()
+        experiment_params["workflow"] = workflow.pipeline
+        experiment_params["preprocessing"] = preprocess_workflow
+        #dataset_name = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
+        #experiment_params["dataset"] = self._data_repository.get(dataset_name)
+        ex = Experiment(ex_id=id_, **experiment_params)
         return ex
 
     def put_progress(self, experiment, **kwargs):

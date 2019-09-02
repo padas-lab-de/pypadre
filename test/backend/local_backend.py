@@ -63,6 +63,8 @@ class LocalBackends(unittest.TestCase):
                     workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
 
         self.app.experiments.put(experiment)
+
+        self.app.experiments.list({'name': 'Test Experiment SVM'})
         # TODO
 
     def test_execution(self):

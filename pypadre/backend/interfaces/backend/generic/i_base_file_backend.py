@@ -165,7 +165,11 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
 
     def find_dirs(self, matcher, strip_postfix=""):
         # TODO postfix stripping?
-        files = [f for f in os.listdir(self.root_dir) if f.endswith(strip_postfix)]
+        import glob
+        files = self.get_all_objects_in_root_path()
+        #files = [f for f in os.listdir(self.root_dir) if f.endswith(strip_postfix)]
+
+
         if matcher is not None:
             rid = re.compile(matcher)
             files = [f for f in files if rid.match(f)]
@@ -280,3 +284,16 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         root = path.replace(obj.name, '')
         if not os.path.exists(root):
             os.mkdir(root)
+
+    def replace_placeholders_with_wildcard(self, path):
+        import re
+        return re.sub("{.*?}", "*", path)
+
+    def get_all_objects_in_root_path(self):
+        import glob
+        sub_directory_names = []
+        for path in glob.glob(self.replace_placeholders_with_wildcard(self.root_dir)):
+          if len(os.listdir(path)) > 0:
+              sub_directory_names += os.listdir(path)
+
+        return sub_directory_names
