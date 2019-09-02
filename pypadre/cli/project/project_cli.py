@@ -8,6 +8,9 @@ import click
 #################################
 ####### PROJECT FUNCTIONS ##########
 #################################
+from pypadre.app import PadreApp
+from pypadre.core.model.project import Project
+
 
 @click.group(name="project", invoke_without_command=True)
 @click.pass_context
@@ -32,13 +35,16 @@ def select(ctx, id):
 @click.pass_context
 def list(ctx):
     # List all the projects that are currently saved
-    # TODO
-    ctx
+    app: PadreApp = ctx.obj["pypadre"]
+    # TODO fill search
+    app.print_tables(app.projects.list())
 
 
 @project.command(name="create")
 @click.pass_context
 def create(ctx):
     # Create a new project
-    # TODO
-    ctx
+    app: PadreApp = ctx.obj["pypadre"]
+    # TODO fill project data
+    p = Project()
+    app.projects.put(p)

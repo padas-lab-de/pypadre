@@ -39,7 +39,7 @@ setup(
     description='PaDRe aims to solve problems about reproducibility',
     entry_points='''
        [console_scripts]
-       pypadre=pypadre.app.padre_cli:main
+       pypadre=pypadre.cli.pypadre:main
    ''',
     install_requires=install_requires,
    command_options={

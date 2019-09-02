@@ -1,5 +1,5 @@
 msgpack_numpy==0.4.1
-requests==2.13.0
+requests>=2.18.0
 numpy==1.13.3
 scipy==1.0.0
 click==6.7

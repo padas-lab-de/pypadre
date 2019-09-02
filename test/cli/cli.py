@@ -10,7 +10,7 @@ from pypadre.app.project.experiment.execution.run.run_app import RunApp
 from pypadre.app.project.experiment.execution.run.split.split_app import SplitApp
 from pypadre.app.project.experiment.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
-from pypadre.cli.padre import pypadre
+from pypadre.cli.pypadre import pypadre
 
 
 class PadreCli(unittest.TestCase):

@@ -22,6 +22,23 @@ class IBaseApp:
     def backends(self):
         return self._backends
 
+    @abstractmethod
+    def has_print(self) -> bool:
+        pass
+
+    @abstractmethod
+    def print_(self, output, **kwargs):
+        pass
+
+
+class BaseChildApp(ChildEntity, IBaseApp):
+    """ Base class for apps being a child of another app. """
+    __metaclass__ = ABCMeta
+
+    def __init__(self, parent: IBaseApp, backends: List[IBackend], **kwargs):
+        ChildEntity.__init__(self, parent=parent, backends=backends, **kwargs)
+        IBaseApp.__init__(self, backends=backends)
+
     def list(self, search, offset=0, size=100) -> list:
         entities = []
         for b in self.backends:
@@ -51,32 +68,6 @@ class IBaseApp:
         for b in self.backends:
             backend: IStoreable = b
             backend.delete_by_id(id)
-
-    def print(self, obj):
-        if self.has_print():
-            self.print_(obj)
-
-    def print_tables(self, objects: List[Tablefyable], **kwargs):
-        if self.has_print():
-            self.print_("Loading.....")
-            self.print_(to_table(objects, **kwargs))
-
-    @abstractmethod
-    def has_print(self) -> bool:
-        pass
-
-    @abstractmethod
-    def print_(self, output, **kwargs):
-        pass
-
-
-class BaseChildApp(ChildEntity, IBaseApp):
-    """ Base class for apps being a child of another app. """
-    __metaclass__ = ABCMeta
-
-    def __init__(self, parent: IBaseApp, backends: List[IBackend], **kwargs):
-        ChildEntity.__init__(self, parent=parent, backends=backends, **kwargs)
-        IBaseApp.__init__(self, backends=backends)
 
     def has_print(self) -> bool:
         parent: IBaseApp = self.parent
