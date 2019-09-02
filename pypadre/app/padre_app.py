@@ -17,6 +17,7 @@ Architecture of the module
 
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
+import ast
 from typing import List
 
 from jsonschema import ValidationError
@@ -53,12 +54,17 @@ class PadreFactory:
     @staticmethod
     def _parse_backends(config):
         _backends = config.get("backends", "GENERAL")
+
+        # TODO why do we sometimes get a string instead of a list?
+        if isinstance(_backends, str):
+            _backends = ast.literal_eval(_backends)
+
         backends = []
         for b in _backends:
-            if hasattr(b, 'base_url'):
+            if 'base_url' in b:
                 # TODO check for validity
                 backends.append(PadreHttpBackend(b))
-            elif hasattr(b, 'root_dir'):
+            elif 'root_dir' in b:
                 # TODO check for validity
                 backends.append(PadreFileBackend(b))
             else:

@@ -28,11 +28,11 @@ def dataset():
 @click.option('--search', default=None,
               help='search string')
 @click.option('--column', help="Column to print", default=None, multiple=True)
-@dataset.pass_context
+@click.pass_context
 def find(ctx, search, offset, size, column):
     """list all available datasets"""
     # TODO like pageable (sort, offset etc.)
-    print(to_table(list(cast(DatasetApp, ctx.obj["pypadre"].datasets).list(search=search, offset=offset, size=size))),
+    print(to_table(list(cast(DatasetApp, ctx.obj["pypadre-app"].datasets).list(search=search, offset=offset, size=size))),
           *column)
 
 
@@ -41,7 +41,7 @@ def find(ctx, search, offset, size, column):
 @click.pass_context
 def get(ctx, dataset_id):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    print(cast(DatasetApp, ctx.obj["pypadre"].datasets).get(dataset_id))
+    print(cast(DatasetApp, ctx.obj["pypadre-app"].datasets).get(dataset_id))
 
 
 @dataset.command(name="sync")
@@ -50,7 +50,7 @@ def get(ctx, dataset_id):
 @click.pass_context
 def sync(ctx, dataset_id, mode):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    cast(DatasetApp, ctx.obj["pypadre"].datasets).sync(name=dataset_id, mode=mode)
+    cast(DatasetApp, ctx.obj["pypadre-app"].datasets).sync(name=dataset_id, mode=mode)
 
 
 @dataset.command(name="load", context_settings=dict(
@@ -68,7 +68,7 @@ def dataset(ctx, source=None, file=None):
     for item in ctx.args:
         arguments.update([item.split('=')])
 
-    ds_app = cast(DatasetApp, ctx.obj["pypadre"].datasets)
+    ds_app = cast(DatasetApp, ctx.obj["pypadre-app"].datasets)
     if file is not None:
         print(ds_app.load(file, **arguments))
 

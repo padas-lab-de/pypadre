@@ -4,6 +4,10 @@ Command Line Interface for PADRE.
 """
 import click
 
+from pypadre.app import PadreConfig
+from pypadre.app.padre_app import PadreFactory
+
+
 @click.group()
 def config():
     """
@@ -11,6 +15,11 @@ def config():
 
     Default config file: ~/.padre.cfg
     """
+
+
+def _get_app(ctx) -> PadreConfig:
+    return ctx.obj["config-app"]
+
 
 @config.command(name="get")
 @click.option('--param', default=None, help='Get value of given param')
@@ -23,9 +32,9 @@ def get(ctx, param, section):
     Default config file: ~/.padre.cfg
     """
     if section is None:
-        result = ctx.obj["pypadre"].config.get(param)
+        result = _get_app(ctx).get(param)
     else:
-        result = ctx.obj["pypadre"].config.get(param, section)
+        result = _get_app(ctx).get(param, section=section)
     print(result)
 
 
@@ -38,10 +47,13 @@ def set_config_param(ctx, param, section):
     Sets key, value in config. param must be a tuple
     """
     if section is None:
-        ctx.obj["pypadre"].config.set(param[0], param[1])
+        _get_app(ctx).set(param[0], param[1])
     else:
-        ctx.obj["pypadre"].config.set(param[0], param[1], section)
-    ctx.obj["pypadre"].config.save()
+        _get_app(ctx).set(param[0], param[1], section)
+    _get_app(ctx).save()
+
+    # Reinitialize app with changed configuration
+    ctx.obj['pypadre-app'] = PadreFactory.get(_get_app(ctx))
 
 
 @config.command(name="list")
@@ -51,5 +63,8 @@ def list_config_params(ctx, section):
     """
     List all values in config
     """
-    result = ctx.obj["pypadre"].config.config[section].keys()
+    if section is None:
+        result = _get_app(ctx).config['GENERAL'].keys()
+    else:
+        result = _get_app(ctx).config[section].keys()
     print(result)
