@@ -81,7 +81,7 @@ class PadreRunFileBackend(IRunBackend):
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(run.id))
         else:
             shutil.rmtree(directory)
-        os.mkdir(directory)
+        os.makedirs(directory)
 
         self.write_file(directory, self.META_FILE, run.metadata)
         self.write_file(directory, self.HYPERPARAMETER_FILE, run.experiment.hyperparameters())

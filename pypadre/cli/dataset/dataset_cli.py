@@ -16,10 +16,12 @@ from pypadre.printing.util.print_util import to_table
 @click.group()
 def dataset():
     """
-    commands for the configuration
-
-    Default config file: ~/.padre.cfg
+    commands for the data sets
     """
+
+
+def _get_app(ctx) -> DatasetApp:
+    return ctx.obj["pypadre-app"].datasets
 
 
 @dataset.command(name="list")
@@ -28,11 +30,11 @@ def dataset():
 @click.option('--search', default=None,
               help='search string')
 @click.option('--column', help="Column to print", default=None, multiple=True)
-@dataset.pass_context
+@click.pass_context
 def find(ctx, search, offset, size, column):
     """list all available datasets"""
     # TODO like pageable (sort, offset etc.)
-    print(to_table(list(cast(DatasetApp, ctx.obj["pypadre"].datasets).list(search=search, offset=offset, size=size))),
+    print(to_table(_get_app(ctx).list(search=search, offset=offset, size=size)),
           *column)
 
 
@@ -41,7 +43,7 @@ def find(ctx, search, offset, size, column):
 @click.pass_context
 def get(ctx, dataset_id):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    print(cast(DatasetApp, ctx.obj["pypadre"].datasets).get(dataset_id))
+    print(_get_app(ctx).get(dataset_id))
 
 
 @dataset.command(name="sync")
@@ -50,27 +52,32 @@ def get(ctx, dataset_id):
 @click.pass_context
 def sync(ctx, dataset_id, mode):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    cast(DatasetApp, ctx.obj["pypadre"].datasets).sync(name=dataset_id, mode=mode)
+    _get_app(ctx).sync(name=dataset_id, mode=mode)
 
 
 @dataset.command(name="load", context_settings=dict(
     ignore_unknown_options=True,
     allow_extra_args=True,
 ))
-# @click.option('--binary/--no-binary', default=True, help='download binary')
-@click.option('--source', '-s', default="sklearn", help='Source for the download', type=click.STRING)
-@click.option('--file', '-s', help='Source for the download', type=click.Path(exists=True))
+# @click.option('--binary/--no-binary', default=True, help='download binary'
+@click.option('--defaults', '-d', help='Load defaults', is_flag=True)
+@click.option('--source', '-s', help='Source for the download', type=click.STRING)
+@click.option('--file', '-f', help='Source if you want to load a file', type=click.Path(exists=True))
 @click.pass_context
-def dataset(ctx, source=None, file=None):
+def load(ctx, defaults, source=None, file=None):
     """downloads the dataset with the given id."""
 
     arguments = dict()
     for item in ctx.args:
         arguments.update([item.split('=')])
 
-    ds_app = cast(DatasetApp, ctx.obj["pypadre"].datasets)
+    ds_app = _get_app(ctx)
+
     if file is not None:
         print(ds_app.load(file, **arguments))
 
-    if source is not None:
+    elif source is not None:
         print(ds_app.load(source, **arguments))
+
+    if defaults:
+        ds_app.load_defaults()

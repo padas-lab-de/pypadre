@@ -26,7 +26,7 @@ class PadreProjectFileBackend(IProjectBackend):
         # self.root_dir = os.path.join(self._parent.root_dir, self.NAME, self.PLACEHOLDER)
         self.root_dir = os.path.join(self._parent.root_dir, self.NAME)
         if not os.path.exists(self.root_dir):
-            os.mkdir(self.root_dir)
+            os.makedirs(self.root_dir)
 
         self._experiment = PadreExperimentFileBackend(self)
 

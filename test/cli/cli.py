@@ -15,11 +15,11 @@ from pypadre.cli.pypadre import pypadre
 
 class PadreCli(unittest.TestCase):
 
-    def test_cli(self):
+    def test_dataset(self):
         runner = CliRunner()
 
-        result = runner.invoke(pypadre, [])
-        # TODO test cli
+        result = runner.invoke(pypadre, ['dataset', 'load', '-d'])
+        print(result)
 
 if __name__ == '__main__':
     unittest.main()

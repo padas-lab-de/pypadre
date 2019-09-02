@@ -37,15 +37,12 @@ def pypadre(ctx, config_file, base_url):
 
     Default config file: ~/.padre.cfg
     """
-    # load default config
+    # load default configuration
     config = PadreConfig(config_file)
-    # override defaults
-    if base_url is not None:
-        config["HTTP BACKEND"]["base_url"] = base_url
     # create context object
     ctx.obj = {
-        'config-file': config_file,
-        'pypadre': PadreFactory.get(config)
+        'config-app': config,
+        'pypadre-app': PadreFactory.get(config)
     }
 
 
@@ -58,14 +55,14 @@ def authenticate(ctx, user, passwd):
     To generate new token in config. Authenticate with given credentials, in case credentials
     are not provided default credentials will be used.
     """
-    ctx.obj["pypadre"].authenticate(user, passwd)
+    ctx.obj["pypadre-app"].authenticate(user, passwd)
 
 
-pypadre.add_command(config_cli)
-pypadre.add_command(dataset_cli)
-pypadre.add_command(project_cli)
-pypadre.add_command(experiment_cli)
-pypadre.add_command(metric_cli)
+pypadre.add_command(config_cli.config)
+pypadre.add_command(dataset_cli.dataset)
+pypadre.add_command(project_cli.project)
+pypadre.add_command(experiment_cli.experiment)
+pypadre.add_command(metric_cli.metric)
 
 if __name__ == '__main__':
     pypadre()

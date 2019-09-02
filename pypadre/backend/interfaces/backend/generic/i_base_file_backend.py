@@ -101,7 +101,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         else:
             if os.path.exists(directory):
                 shutil.rmtree(directory)
-            os.mkdir(directory)
+            os.makedirs(directory)
 
     @abstractmethod
     def to_folder_name(self, obj):
@@ -283,7 +283,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         # Path is obtained by removing the name of the object from the whole passed path
         root = path.replace(obj.name, '')
         if not os.path.exists(root):
-            os.mkdir(root)
+            os.makedirs(root)
 
     def replace_placeholders_with_wildcard(self, path):
         import re

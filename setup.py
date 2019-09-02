@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
 # from sphinx.setup_command import BuildDoc
 import re
-import os
 
 # cmdclass = {'build_sphinx': BuildDoc}
 
@@ -39,7 +38,7 @@ setup(
     description='PaDRe aims to solve problems about reproducibility',
     entry_points='''
        [console_scripts]
-       pypadre=pypadre.cli.pypadre:main
+       pypadre=pypadre.cli.pypadre:pypadre
    ''',
     install_requires=install_requires,
    command_options={

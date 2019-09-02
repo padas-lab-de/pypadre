@@ -17,8 +17,8 @@ def experiment(ctx):
     commands for experiments
     """
     if ctx.invoked_subcommand is None:
-        if ctx.obj["pypadre"].config.get("experiment", "DEFAULTS") is not None:
-            click.echo('Current default project is ' + ctx.obj["pypadre"].config.get("experiment", "DEFAULTS"))
+        if ctx.obj["pypadre-app"].config.get("experiment", "DEFAULTS") is not None:
+            click.echo('Current default project is ' + ctx.obj["pypadre-app"].config.get("experiment", "DEFAULTS"))
 
 
 @experiment.command(name="select")
@@ -26,34 +26,34 @@ def experiment(ctx):
 @click.pass_context
 def select(ctx, id):
     # Set as active project
-    ctx.obj["pypadre"].config.set("experiment", id, "DEFAULTS")
+    ctx.obj["pypadre-app"].config.set("experiment", id, "DEFAULTS")
 
 
 @experiment.command(name="list")
 @click.pass_context
 def list(ctx):
     # List all the experiments that are currently saved
-    print(ctx.obj["pypadre"].experiment_creator.experiment_names)
+    print(ctx.obj["pypadre-app"].experiment_creator.experiment_names)
 
 
 @experiment.command(name="components")
 @click.pass_context
 def show_components(ctx):
     # List all the components of the workflow
-    print(ctx.obj["pypadre"].experiment_creator.components)
+    print(ctx.obj["pypadre-app"].experiment_creator.components)
 
 
 @experiment.command(name="parameters")
 @click.argument('estimator')
 @click.pass_context
 def components(ctx, estimator):
-    print(ctx.obj["pypadre"].experiment_creator.get_estimator_params(estimator))
+    print(ctx.obj["pypadre-app"].experiment_creator.get_estimator_params(estimator))
 
 
 @experiment.command(name="datasets")
 @click.pass_context
 def datasets(ctx):
-    print(ctx.obj["pypadre"].experiment_creator.get_dataset_names())
+    print(ctx.obj["pypadre-app"].experiment_creator.get_dataset_names())
 
 
 @experiment.command(name='set_params')
@@ -61,14 +61,14 @@ def datasets(ctx):
 @click.option("--parameters", default=None, help='Name of the parameter and the parameters.')
 @click.pass_context
 def set_parameters(ctx, experiment, parameters):
-    ctx.obj["pypadre"].experiment_creator.set_param_values(experiment, parameters)
+    ctx.obj["pypadre-app"].experiment_creator.set_param_values(experiment, parameters)
 
 
 @experiment.command(name='get_params')
 @click.option("--experiment", default=None, help='Name of the experiment from which parameters are to be retrieved')
 @click.pass_context
 def get_parameters(ctx, experiment):
-    print(ctx.obj["pypadre"].experiment_creator.get_param_values(experiment))
+    print(ctx.obj["pypadre-app"].experiment_creator.get_param_values(experiment))
 
 
 @experiment.command(name="create_experiment")
@@ -82,15 +82,15 @@ def create_experiment(ctx, name, description, dataset, workflow, backend):
     workflow_obj = None
     if workflow is not None:
         estimator_list = (workflow.replace(", ", ",")).split(sep=",")
-        workflow_obj = ctx.obj["pypadre"].experiment_creator.create_test_pipeline(estimator_list)
+        workflow_obj = ctx.obj["pypadre-app"].experiment_creator.create_test_pipeline(estimator_list)
 
-    ctx.obj["pypadre"].experiment_creator.create(name, description, dataset, workflow_obj)
+    ctx.obj["pypadre-app"].experiment_creator.create(name, description, dataset, workflow_obj)
 
 
 @experiment.command(name="run")
 @click.pass_context
 def execute(ctx):
-    ctx.obj["pypadre"].experiment_creator.execute()
+    ctx.obj["pypadre-app"].experiment_creator.execute()
 
 
 @experiment.command(name="do_experiments")
@@ -108,7 +108,7 @@ def do_experiment(ctx, experiments, datasets):
             curr_exp_datasets = datasets_list[idx].split(sep=",")
             experiment_datasets_dict[experiments_list[idx]] = copy.deepcopy(curr_exp_datasets)
 
-        ctx.obj["pypadre"].experiment_creator.do_experiments(experiment_datasets_dict)
+        ctx.obj["pypadre-app"].experiment_creator.do_experiments(experiment_datasets_dict)
 
 
 @experiment.command(name="load_config_file")
@@ -118,8 +118,8 @@ def load_config_file(ctx, filename):
     import os
 
     if os.path.exists(filename):
-        ctx.obj["pypadre"].experiment_creator.parse_config_file(filename)
-        ctx.obj["pypadre"].experiment_creator.execute()
+        ctx.obj["pypadre-app"].experiment_creator.parse_config_file(filename)
+        ctx.obj["pypadre-app"].experiment_creator.execute()
 
     else:
         print('File does not exist')

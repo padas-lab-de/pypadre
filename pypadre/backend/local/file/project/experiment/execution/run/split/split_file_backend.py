@@ -75,7 +75,7 @@ class PadreSplitFileBackend(ISplitBackend):
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(split.id))
         else:
             shutil.rmtree(directory)
-        os.mkdir(directory)
+        os.makedirs(directory)
 
         self.write_file(directory, self.METADATA_FILE, split.metadata)
         # TODO updating metrics and results could be done here or in an own function
