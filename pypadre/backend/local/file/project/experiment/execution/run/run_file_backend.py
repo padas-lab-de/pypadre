@@ -10,8 +10,15 @@ from pypadre.core import Run
 
 
 class PadreRunFileBackend(IRunBackend):
+    @staticmethod
+    def _placeholder():
+        return '{RUN_ID}'
+
+    @staticmethod
+    def _get_parent_of(obj: Run):
+        return obj.execution
+
     NAME = "runs"
-    PLACEHOLDER = '{RUN_ID}'
 
     def __init__(self, parent):
         super().__init__(parent, name=self.NAME)

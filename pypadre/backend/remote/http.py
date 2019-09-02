@@ -44,21 +44,6 @@ class PadreExperimentFileBackend(IExperimentBackend):
         pass
 
 
-class PadreResultFileBackend(IResultBackend):
-
-    def list(self, search, offset=0, size=100):
-        pass
-
-    def get(self, uid):
-        pass
-
-    def put(self, obj):
-        pass
-
-    def delete(self, uid):
-        pass
-
-
 class PadreRunFileBackend(IRunBackend):
 
     def put_progress(self, obj):

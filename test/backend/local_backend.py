@@ -1,6 +1,6 @@
 import unittest
 
-from pypadre.app import PadreConfig
+from pypadre.app import PadreConfig, PadreApp
 from pypadre.backend.local.file.dataset.dataset_file_backend import PadreDatasetFileBackend
 from pypadre.backend.local.file.file import PadreFileBackend
 from pypadre.backend.local.file.project.experiment.execution.execution_file_backend import PadreExecutionFileBackend
@@ -14,49 +14,35 @@ class LocalBackends(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(LocalBackends, self).__init__(*args, **kwargs)
-        self.backend = PadreFileBackend(PadreConfig().get("backends")[1])
+        self.app = PadreApp(printer=print, backends=[PadreFileBackend(PadreConfig().get("backends")[1])])
 
     def test_dataset(self):
-        dataset_backend: PadreDatasetFileBackend = self.backend.dataset
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
 
-        from pypadre.app.dataset.dataset_app import DatasetApp
-        dataset_app = DatasetApp(self, dataset_backend)
         # Puts all the datasets
-        dataset_app.load_defaults()
+        self.app.datasets.load_defaults()
 
         # Gets a dataset by name
         id = 'Boston House Prices dataset'
-        dataset = dataset_app.list({'name':id})
+        dataset = self.app.datasets.list({'name':id})
         print(dataset)
 
     def test_project(self):
-        project_backend: PadreProjectFileBackend = self.backend.project
         from pypadre.core.model.project import Project
         from pypadre.app.project.project_app import ProjectApp
-        project_app = ProjectApp(self, project_backend)
 
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
 
-        project_app.put(project)
+        self.app.projects.put(project)
 
-        p = project_app.list({'name': 'Test Project'})
+        p = self.app.projects.list({'name': 'Test Project'})
         print(p)
-
 
     def test_experiment(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
 
         from pypadre.core.model.experiment import Experiment
-        from pypadre.app.dataset.dataset_app import DatasetApp
         from pypadre.core.model.project import Project
-        from pypadre.app.project.project_app import ProjectApp
-
-        dataset_backend: PadreDatasetFileBackend = self.backend.dataset
-        dataset_app = DatasetApp(self, dataset_backend)
-
-        project_backend: PadreProjectFileBackend = self.backend.project
-        project_app = ProjectApp(self, project_backend)
 
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
 
@@ -68,17 +54,15 @@ class LocalBackends(unittest.TestCase):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
-        project_backend: PadreProjectFileBackend = self.backend.project
-        experiment_backend: PadreExperimentFileBackend = project_backend.experiment
-
         id = 'Boston House Prices dataset'
-        dataset = dataset_app.list({'name': id})
+        dataset = self.app.datasets.list({'name': id})
+
         experiment = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=dataset[0],
                     workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
 
-        experiment_backend.put(experiment=experiment)
+        self.app.experiments.put(experiment=experiment)
         # TODO
 
     def test_execution(self):

@@ -7,9 +7,18 @@ from pypadre.backend.interfaces.backend.i_split_backend import ISplitBackend
 from pypadre.backend.local.file.project.experiment.execution.run.split.result.result_file_backend import PadreResultFileBackend
 from pypadre.backend.local.file.project.experiment.execution.run.split.metric.metric_file_backend import PadreMetricFileBackend
 from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
+from pypadre.core.model.split.split import Split
 
 
 class PadreSplitFileBackend(ISplitBackend):
+
+    @staticmethod
+    def _placeholder():
+        return '{SPLIT_ID}'
+
+    @staticmethod
+    def _get_parent_of(obj: Split):
+        return obj.run
 
     RESULTS_FILE_NAME = "results.json"
     METRICS_FILE_NAME = "metrics.json"
@@ -17,7 +26,6 @@ class PadreSplitFileBackend(ISplitBackend):
     METRICS_FILE = File(METRICS_FILE_NAME, JSonSerializer)
     METADATA_FILE = File("metadata.json", JSonSerializer)
     NAME = "splits"
-    PLACEHOLDER = '{SPLIT_ID}'
 
     def __init__(self, parent):
 
@@ -74,6 +82,7 @@ class PadreSplitFileBackend(ISplitBackend):
         os.mkdir(directory)
 
         self.write_file(directory, self.METADATA_FILE, split.metadata)
+        # TODO updating metrics and results could be done here or in an own function
 
     def delete(self, uid):
         pass

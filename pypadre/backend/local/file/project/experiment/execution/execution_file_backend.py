@@ -4,12 +4,20 @@ from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_execution_backend import IExecutionBackend
 from pypadre.backend.local.file.project.experiment.execution.run.run_file_backend import PadreRunFileBackend
 from pypadre.backend.serialiser import JSonSerializer
+from pypadre.core.model.execution import Execution
 
 
 class PadreExecutionFileBackend(IExecutionBackend):
 
+    @staticmethod
+    def _placeholder():
+        return '{EXECUTION_ID}'
+
+    @staticmethod
+    def _get_parent_of(obj: Execution):
+        return obj.experiment
+
     CONFIG_FILE = File("experiment.json", JSonSerializer)
-    PLACEHOLDER = '{EXECUTION_ID}'
     NAME = 'executions'
     META_FILE = File("metadata.json", JSonSerializer)
 
