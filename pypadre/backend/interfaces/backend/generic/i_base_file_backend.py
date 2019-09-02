@@ -258,13 +258,25 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
 
     def replace_placeholder(self, obj, path):
         # If a placeholder is present it should be replaced
+        if not hasattr(self, '_placeholder'):
+            return path
+
         if self._placeholder() is not None and self._placeholder() in path:
-            return self.parent.replace_placeholder(self._get_parent_of(obj),
-                                                   path.replace(self._placeholder(), self.to_folder_name(obj)))
+            if hasattr(self.parent, 'replace_placeholder'):
+                return self.parent.replace_placeholder(self._get_parent_of(obj),
+                                                       path.replace(self._placeholder(), self.to_folder_name(obj)))
+            else:
+                return path.replace(self._placeholder(), self.to_folder_name(obj))
 
         # If no placeholder is present we can call the parent placeholder replacement function
-        if isinstance(self, ChildEntity) and hasattr(self.parent, 'replace_placeholder'):
+        elif isinstance(self, ChildEntity) and hasattr(self.parent, 'replace_placeholder'):
             return self.parent.replace_placeholder(self._get_parent_of(obj), path)
 
         # If we are in a root directory we can stop
         return path
+
+    def create_root_directory(self, obj, path):
+        # Path is obtained by removing the name of the object from the whole passed path
+        root = path.replace(obj.name, '')
+        if not os.path.exists(root):
+            os.mkdir(root)
