@@ -27,11 +27,8 @@ from .metric import metric_cli
               type=click.Path(),
               default=os.path.expanduser('~/.padre.cfg'),
               )
-@click.option('--base-url', '-b', envvar="PADRE_URL",
-              type=str,
-              help="Base url for the PADRE REST API")
 @click.pass_context
-def pypadre(ctx, config_file, base_url):
+def pypadre(ctx, config_file):
     """
     setup padre command line interface using the provided config file
 

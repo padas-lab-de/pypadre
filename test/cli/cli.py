@@ -1,10 +1,11 @@
-
+import os
 import unittest
 
 from click.testing import CliRunner
 
-from pypadre.app import PadreApp
+from pypadre.app import PadreApp, PadreConfig
 from pypadre.app.dataset.dataset_app import DatasetApp
+from pypadre.app.padre_app import PadreFactory
 from pypadre.app.project.experiment.execution.execution_app import ExecutionApp
 from pypadre.app.project.experiment.execution.run.run_app import RunApp
 from pypadre.app.project.experiment.execution.run.split.split_app import SplitApp
@@ -15,12 +16,32 @@ from pypadre.cli.pypadre import pypadre
 
 class PadreCli(unittest.TestCase):
 
+    def __init__(self, *args, **kwargs):
+        super(PadreCli, self).__init__(*args, **kwargs)
+        config = PadreConfig(config_file=os.path.join(os.path.expanduser("~"), ".padre-test.cfg"))
+        config.set("backends", str([
+                    {
+                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre-test")
+                    }
+                ]))
+
+    def tearDown(self):
+        pass
+        # delete data content
+
+    def __del__(self):
+        pass
+        # delete configuration
+
     def test_dataset(self):
         runner = CliRunner()
 
-        result = runner.invoke(pypadre, ['dataset', 'load', '-d'])
+        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
+                                         'dataset', 'load', '-d'])
         assert result.exit_code == 0
-        result = runner.invoke(pypadre, ['dataset', 'list'])
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
+                                         'dataset', 'list'])
         assert 'Boston' in result.output
         print(result)
 

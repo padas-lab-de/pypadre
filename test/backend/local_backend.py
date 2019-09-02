@@ -30,7 +30,6 @@ class LocalBackends(unittest.TestCase):
         pass
         # delete configuration
 
-
     def test_dataset(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
 

@@ -60,7 +60,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param search: search object. You can pass key value pairs to search for.
         """
         folder = ""
-        if 'folder' in search:
+        if search is not None and 'folder' in search:
             folder = search.get('folder')
         dirs = self.find_dirs(folder)
         return self.filter([self.get_by_dir(d) for d in dirs], search)

@@ -22,7 +22,7 @@ class PadreDatasetHttpBackend(PadreDatasetFileBackend):
         :param search_metadata: dict with regular expressions per metadata key. Default None
         """
         # todo apply the search metadata filter.
-        pass
+        return super().list(search, offset=offset, size=size)
 
     def get(self, uid):
         pass

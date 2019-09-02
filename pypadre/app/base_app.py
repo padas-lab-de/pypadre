@@ -44,7 +44,6 @@ class BaseChildApp(ChildEntity, IBaseApp):
         for b in self.backends:
             backend: ISearchable = b
             [entities.append(e) for e in backend.list(search=search) if len(entities) < size and e not in entities]
-
         return entities
 
     def put(self, obj):

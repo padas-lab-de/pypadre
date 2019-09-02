@@ -11,6 +11,8 @@ class ISearchable:
 
     @staticmethod
     def filter(objs: list, search: dict):
+        if search is None:
+            return objs
         return [o for o in objs if ISearchable.in_search(o, search)]
 
     @staticmethod
