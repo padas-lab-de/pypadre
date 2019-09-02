@@ -40,7 +40,7 @@ class PadreExecutionFileBackend(IExecutionBackend):
         :return:
         """
         # TODO might be changed. Execution get folder name or id by git commit hash?
-        return self.get_by_dir(self.get_dir(uid))
+        return super().get(uid)
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, self.META_FILE)
@@ -48,7 +48,7 @@ class PadreExecutionFileBackend(IExecutionBackend):
         pass
 
     def put(self, execution, allow_overwrite=True):
-        directory = self.get_dir(self.to_folder_name(execution))
+        directory = self.to_directory(execution)
 
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Experiment %s already exists." +

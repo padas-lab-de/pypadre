@@ -12,7 +12,7 @@ if __name__ == '__main__':
     print("Available datasets after deletion:")
     p_app.datasets.list()
     for ds in ds_import.load_sklearn_toys():
-        p_app.datasets.put(ds, upload=False)
+        p_app.datasets.put(ds)
     datasets = p_app.datasets.list()
     for ds in datasets:
         dataset = p_app.datasets.get(ds, force_download=False)

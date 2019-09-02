@@ -3,6 +3,8 @@ import re
 import shutil
 from abc import abstractmethod, ABCMeta
 
+from deprecated import deprecated
+
 from pypadre.backend.interfaces.backend.generic.i_searchable import ISearchable
 from pypadre.backend.interfaces.backend.generic.i_storeable import IStoreable
 from pypadre.backend.interfaces.backend.i_backend import IBackend
@@ -77,7 +79,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param obj: Object to delete
         :return:
         """
-        self.delete_dir(self.to_folder_name(obj))
+        self.delete_dir(self.to_directory(obj))
 
     def put(self, obj, *args):
         """
@@ -89,7 +91,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         allow_overwrite = True if len(args) == 0 else args[0]
         append_data = False if len(args) <= 1 else args[1]
 
-        directory = self.get_dir(self.to_folder_name(obj))
+        directory = self.to_directory(obj)
 
         # If the path exists and data should be appended to the existing folder, do nothing
         if os.path.exists(directory) and append_data:
@@ -131,13 +133,13 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         dirs = self.get_dirs_by_search({'id': uid})
         return dirs.pop() if len(dirs) > 0 else []
 
-    def has_dir(self, folder_name):
+    def has_dir(self, directory):
         """
         Checks if a directory with given folder name exists in the current root dir.
-        :param folder_name: Name of the folder to check for
+        :param directory: Name of the folder to check for
         :return: true if the directory exists
         """
-        return os.path.exists(self.get_dir(folder_name))
+        return os.path.exists(directory)
 
     def get_dirs_by_search(self, search):
         """
@@ -145,23 +147,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param search: The search object
         :return: List of directories validated for the search
         """
-        return [self.get_dir(self.to_folder_name(o)) for o in self.list(search)]
-
-    def get_dir(self, folder_name):
-        """
-        Get the directory with given folder name.
-        :param folder_name: Folder name
-        :return: Directory (path)
-        """
-        return get_path(self.root_dir, str(folder_name), create=False)
-
-    def make_dir(self, folder_name):
-        """
-        Get the directory with given folder name.
-        :param folder_name: Folder name
-        :return: Directory (path)
-        """
-        return get_path(self.root_dir, str(folder_name), create=True)
+        return [self.to_directory(o) for o in self.list(search)]
 
     def find_dirs(self, matcher, strip_postfix=""):
         # TODO postfix stripping?
@@ -179,13 +165,13 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
             return [dir[:-1 * len(strip_postfix)] for dir in dirs
                     if dir is not None and len(dir) >= len(strip_postfix)]
 
-    def delete_dir(self, folder_name):
+    def delete_dir(self, directory):
         """
-        :param folder_name: the folder name of the object to delete
+        :param directory: the folder name of the object to delete
         :return:
         """
-        if self.has_dir(folder_name):
-            shutil.rmtree(self.get_dir(folder_name))
+        if self.has_dir(directory):
+            shutil.rmtree(directory)
 
     def get_file(self, dir, file: File):
         """
@@ -239,7 +225,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param obj:
         :return:
         """
-        return self.replace_placeholder(obj, self.get_dir(self.to_folder_name(obj)))
+        return self.replace_placeholder(obj, get_path(self.root_dir, self.to_folder_name(obj)))
 
     @staticmethod
     @abstractmethod

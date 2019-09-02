@@ -15,5 +15,5 @@ class IExecutionBackend(FileBackend):
         pass
 
     @abstractmethod
-    def put(self):
+    def put(self, execution, allow_overwrite=True):
         pass

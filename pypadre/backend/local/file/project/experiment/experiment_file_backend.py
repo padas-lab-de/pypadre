@@ -1,5 +1,6 @@
 import copy
 import os
+import re
 
 from pypadre import Experiment
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
@@ -45,7 +46,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
         :param name: Name of the dataset
         :return:
         """
-        return self.get_by_dir(self.get_dir(name))
+        return self.list({'folder': re.escape(name)})
 
     def get_by_dir(self, directory):
         import glob

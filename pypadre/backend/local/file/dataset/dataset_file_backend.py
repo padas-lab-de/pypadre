@@ -1,5 +1,6 @@
 import os
 import platform
+import re
 import shutil
 
 from git import Repo
@@ -60,7 +61,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
         if len(directory) == 0:
             return None
 
-        metadata = self.get_file(os.path.join(self.root_dir, directory), self.META_FILE)
+        metadata = self.get_file(directory, self.META_FILE)
 
         attributes = metadata.pop("attributes", None)
         # print(type(metadata))
@@ -99,7 +100,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
         :param name: Name of the dataset
         :return:
         """
-        return self.get_by_dir(self.get_dir(name))
+        return self.list({'folder': re.escape(name)})
 
     def verify_attributes(self, metadata, attributes, fill_missing_attributes=True):
 

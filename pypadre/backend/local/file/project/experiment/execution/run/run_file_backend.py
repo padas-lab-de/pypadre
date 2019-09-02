@@ -61,8 +61,7 @@ class PadreRunFileBackend(IRunBackend):
         :return:
         """
 
-        directory = self.get_dir(uid)
-        return self.get_by_dir(directory)
+        return super().get(uid)
 
     def put(self, run, allow_overwrite=False):
         """
@@ -74,7 +73,7 @@ class PadreRunFileBackend(IRunBackend):
         if run.id is None:  # this is a new experiment
             run.id = uuid.uuid4()
 
-        directory = self.get_dir(self.to_folder_name(run))
+        directory = self.to_directory(run)
 
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Run %s already exists." +

@@ -1,4 +1,5 @@
 import os
+import re
 
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_project_backend import IProjectBackend
@@ -46,10 +47,13 @@ class PadreProjectFileBackend(IProjectBackend):
         :param name: Name of the dataset
         :return:
         """
-        return self.get_by_dir(self.get_dir(name))
+        return self.list({'folder': re.escape(name)})
 
     def get_by_dir(self, directory):
-        metadata = self.get_file(os.path.join(self.root_dir, directory), self.META_FILE)
+        metadata = self.get_file(directory, self.META_FILE)
+        if metadata is None:
+            # TODO write code
+            raise ValueError()
         return Project(**metadata)
 
     def put(self, project, **kwargs):

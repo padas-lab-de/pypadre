@@ -21,7 +21,7 @@ print("Datasets available on openMl for Iris")
 print(downloads)
 print("Downloaded External Datasets: ")
 for externel_dataset in p_app.datasets.download(downloads):
-    p_app.datasets.put(externel_dataset, upload=True)
+    p_app.datasets.put(externel_dataset)
 
 print("Total available datasets in Padre")
 for ds in p_app.datasets.list():

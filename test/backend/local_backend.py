@@ -1,8 +1,8 @@
+import os
 import unittest
 
-from pypadre.app import PadreConfig, PadreApp
-from pypadre.backend.local.file.dataset.dataset_file_backend import PadreDatasetFileBackend
-from pypadre.backend.local.file.file import PadreFileBackend
+from pypadre.app import PadreConfig
+from pypadre.app.padre_app import PadreFactory
 from pypadre.backend.local.file.project.experiment.execution.execution_file_backend import PadreExecutionFileBackend
 from pypadre.backend.local.file.project.experiment.execution.run.run_file_backend import PadreRunFileBackend
 from pypadre.backend.local.file.project.experiment.execution.run.split.split_file_backend import PadreSplitFileBackend
@@ -14,7 +14,22 @@ class LocalBackends(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(LocalBackends, self).__init__(*args, **kwargs)
-        self.app = PadreApp(printer=print, backends=[PadreFileBackend(PadreConfig().get("backends")[1])])
+        config = PadreConfig(config_file=os.path.join(os.path.expanduser("~"), ".padre-test.cfg"))
+        config.set("backends", str([
+                    {
+                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre-test")
+                    }
+                ]))
+        self.app = PadreFactory.get(config)
+
+    def tearDown(self):
+        pass
+        # delete data content
+
+    def __del__(self):
+        pass
+        # delete configuration
+
 
     def test_dataset(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
@@ -29,7 +44,6 @@ class LocalBackends(unittest.TestCase):
 
     def test_project(self):
         from pypadre.core.model.project import Project
-        from pypadre.app.project.project_app import ProjectApp
 
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
 
@@ -49,7 +63,6 @@ class LocalBackends(unittest.TestCase):
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC
-            from sklearn.decomposition import PCA
             # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
