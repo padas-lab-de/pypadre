@@ -37,7 +37,7 @@ def pypadre(ctx, config_file, base_url):
 
     Default config file: ~/.padre.cfg
     """
-    # load default config
+    # load default configuration
     config = PadreConfig(config_file)
     # create context object
     ctx.obj = {
