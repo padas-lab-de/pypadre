@@ -36,6 +36,8 @@ from pypadre.backend.local.file.file import PadreFileBackend
 from pypadre.backend.remote.http.http import PadreHttpBackend
 from pypadre.base import PadreLogger
 from pypadre.eventhandler import add_logger
+from pypadre.printing.tablefyable import Tablefyable
+from pypadre.printing.util.print_util import to_table
 
 logger = PadreLogger()
 add_logger(logger=logger)
@@ -112,6 +114,15 @@ class PadreApp(IBaseApp):
     @property
     def splits(self):
         return self._split_app
+
+    def print(self, obj):
+        if self.has_print():
+            self.print_(obj)
+
+    def print_tables(self, objects: List[Tablefyable], **kwargs):
+        if self.has_print():
+            self.print_("Loading.....")
+            self.print_(to_table(objects, **kwargs))
 
     def has_print(self) -> bool:
         return self._print is None
