@@ -32,7 +32,7 @@ class IDataSetLoader:
 
     @staticmethod
     @abstractmethod
-    def mapping(self, source):
+    def mapping(source):
         """
         Check if loader should be used by parsing source.
         :return: True if loader should be used
@@ -81,7 +81,7 @@ class ICollectionDataSetLoader(IDataSetLoader):
 class CSVLoader(IDataSetLoader):
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return str.startswith("/") or str.startswith(".") and str.endswith(".csv")
 
     def load(self, source, **kwargs):
@@ -129,7 +129,7 @@ class CSVLoader(IDataSetLoader):
 class PandasLoader(IDataSetLoader):
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return isinstance(source, pd.DataFrame)
 
     def load(self, source, target_features=None, **kwargs):
@@ -162,7 +162,7 @@ class PandasLoader(IDataSetLoader):
 class NumpyLoader(IDataSetLoader):
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return isinstance(source, np.ndarray)
 
     def load(self, source, columns=None, target_features=None, **kwargs):
@@ -195,7 +195,7 @@ class NumpyLoader(IDataSetLoader):
 class NetworkXLoader(IDataSetLoader):
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return isinstance(source, nx.Graph)
 
     def load(self, **kwargs):
@@ -229,7 +229,7 @@ class SklearnLoader(ICollectionDataSetLoader):
             yield self.load("sklearn", utility=loader[0], type=loader[1][1], originalSource=loader[2])
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return source.__eq__("sklearn")
 
     def load(self, source, utility: str = None, **kwargs):
@@ -276,7 +276,7 @@ class SnapLoader(ICollectionDataSetLoader):
         return []
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return source.__eq__("snap")
 
     def load(self, **kwargs):
@@ -292,7 +292,7 @@ class KonectLoader(ICollectionDataSetLoader):
         return []
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return source.__eq__("konect")
 
     def load(self, **kwargs):
@@ -310,7 +310,7 @@ class OpenMlLoader(ICollectionDataSetLoader):
         return []
 
     @staticmethod
-    def mapping(self, source):
+    def mapping(source):
         return source.__eq__("openml")
 
     def load(self, **kwargs):

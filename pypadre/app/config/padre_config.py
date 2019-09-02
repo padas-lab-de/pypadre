@@ -162,4 +162,17 @@ class PadreConfig:
         :type key: str
         :return: Found value or False
         """
+        # TODO lists seem not be be supported in base config files of python. Don't hardcode
+        if key == "backends":
+            return ast.literal_eval(self._config[section][key])
+        return self._config[section][key]
+
+    def get_list(self, key, section='GENERAL') -> list:
+        """
+        Get value for given key.
+        :param section: Section to be queried
+        :param key: Any key in config for any section
+        :type key: str
+        :return: Found value or False
+        """
         return self._config[section][key]

@@ -166,19 +166,18 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
     def find_dirs(self, matcher, strip_postfix=""):
         # TODO postfix stripping?
         import glob
-        files = self.get_all_objects_in_root_path()
-        #files = [f for f in os.listdir(self.root_dir) if f.endswith(strip_postfix)]
-
+        dirs = self._get_all_dirs()
+        #dirs = [f for f in os.listdir(self.root_dir) if f.endswith(strip_postfix)]
 
         if matcher is not None:
             rid = re.compile(matcher)
-            files = [f for f in files if rid.match(f)]
+            dirs = [d for d in dirs if rid.match(d)]
 
         if len(strip_postfix) == 0:
-            return files
+            return dirs
         else:
-            return [file[:-1 * len(strip_postfix)] for file in files
-                    if file is not None and len(file) >= len(strip_postfix)]
+            return [dir[:-1 * len(strip_postfix)] for dir in dirs
+                    if dir is not None and len(dir) >= len(strip_postfix)]
 
     def delete_dir(self, folder_name):
         """
@@ -279,21 +278,10 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         # If we are in a root directory we can stop
         return path
 
-    def create_root_directory(self, obj, path):
-        # Path is obtained by removing the name of the object from the whole passed path
-        root = path.replace(obj.name, '')
-        if not os.path.exists(root):
-            os.makedirs(root)
-
-    def replace_placeholders_with_wildcard(self, path):
+    def _replace_placeholders_with_wildcard(self, path):
         import re
         return re.sub("{.*?}", "*", path)
 
-    def get_all_objects_in_root_path(self):
+    def _get_all_dirs(self):
         import glob
-        sub_directory_names = []
-        for path in glob.glob(self.replace_placeholders_with_wildcard(self.root_dir)):
-          if len(os.listdir(path)) > 0:
-              sub_directory_names += os.listdir(path)
-
-        return sub_directory_names
+        return glob.glob(self._replace_placeholders_with_wildcard(self.root_dir) + "/*")

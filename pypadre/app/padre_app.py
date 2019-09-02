@@ -55,10 +55,6 @@ class PadreFactory:
     def _parse_backends(config):
         _backends = config.get("backends", "GENERAL")
 
-        # TODO why do we sometimes get a string instead of a list?
-        if isinstance(_backends, str):
-            _backends = ast.literal_eval(_backends)
-
         backends = []
         for b in _backends:
             if 'base_url' in b:

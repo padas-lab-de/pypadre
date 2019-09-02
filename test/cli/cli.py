@@ -19,6 +19,9 @@ class PadreCli(unittest.TestCase):
         runner = CliRunner()
 
         result = runner.invoke(pypadre, ['dataset', 'load', '-d'])
+        assert result.exit_code == 0
+        result = runner.invoke(pypadre, ['dataset', 'list'])
+        assert 'Boston' in result.output
         print(result)
 
 if __name__ == '__main__':

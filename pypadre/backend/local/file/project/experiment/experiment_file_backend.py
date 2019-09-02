@@ -51,7 +51,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
         import glob
         import uuid
 
-        path = glob.glob(os.path.join(self.replace_placeholders_with_wildcard(self.root_dir), directory))[0]
+        path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
 
 
         metadata = self.get_file(path, self.META_FILE)
@@ -81,7 +81,6 @@ class PadreExperimentFileBackend(IExperimentBackend):
         self._parent.put(experiment.project)
 
         directory = self.to_directory(experiment)
-        self.create_root_directory(experiment, directory)
         #directory = self.replace_placeholder(experiment.project, directory)
 
         if os.path.exists(directory) and not allow_overwrite:
