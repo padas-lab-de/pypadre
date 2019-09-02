@@ -10,12 +10,12 @@ from pypadre.core import Run
 
 
 class PadreRunFileBackend(IRunBackend):
+    NAME = "runs"
+    PLACEHOLDER = '{RUN_ID}'
 
     def __init__(self, parent):
-        name = "runs"
-        placeholder = '{RUN_ID}'
-        super().__init__(parent, name=name)
-        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
+        super().__init__(parent, name=self.NAME)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
         self._split = PadreSplitFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)

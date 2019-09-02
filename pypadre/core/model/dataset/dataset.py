@@ -10,7 +10,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
-from padre.PaDREOntology import PaDREOntology
+#from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.base import MetadataEntity
@@ -93,7 +93,7 @@ class Dataset(MetadataEntity, Tablefyable):
 
     @property
     def attributes(self):
-        return self._attributesf
+        return self._attributes
 
     def validate(self, options):
         assert_condition(condition=options.get("name") is not None, source=self,

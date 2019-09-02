@@ -45,12 +45,22 @@ class LocalBackends(unittest.TestCase):
 
 
     def test_experiment(self):
-        dataset_backend: PadreDatasetFileBackend = self.backend.dataset
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
 
         from pypadre.core.model.experiment import Experiment
         from pypadre.app.dataset.dataset_app import DatasetApp
-        dataset_app = DatasetApp(self, self.backend)
+        from pypadre.core.model.project import Project
+        from pypadre.app.project.project_app import ProjectApp
+
+        dataset_backend: PadreDatasetFileBackend = self.backend.dataset
+        dataset_app = DatasetApp(self, dataset_backend)
+
+        project_backend: PadreProjectFileBackend = self.backend.project
+        project_app = ProjectApp(self, project_backend)
+
+        project = Project(name='Test Project', description='Testing the functionalities of project backend')
+
+        project_app.put(project)
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -64,11 +74,11 @@ class LocalBackends(unittest.TestCase):
         experiment_backend: PadreExperimentFileBackend = project_backend.experiment
 
         id = 'Boston House Prices dataset'
-        dataset = dataset_app.get(id)
+        dataset = dataset_app.list({'name': id})
         experiment = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=dataset[0],
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="random")
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
 
         experiment_backend.put(experiment=experiment)
         # TODO

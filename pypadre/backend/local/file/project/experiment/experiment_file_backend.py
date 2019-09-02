@@ -13,7 +13,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
     PLACEHOLDER = '{EXPERIMENT_ID}'
     def __init__(self, parent):
         super().__init__(parent, name=self.NAME)
-        self.root_dir = os.path.join(self._parent.root_dir, self.NAME, self.PLACEHOLDER)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
         self._execution = PadreExecutionFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)
@@ -29,7 +29,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
         pass
 
     def to_folder_name(self, experiment):
-        return experiment.id
+        return experiment.name
 
     def get_by_name(self, name):
         """
@@ -54,14 +54,21 @@ class PadreExperimentFileBackend(IExperimentBackend):
         self.log("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
     def put(self, experiment, allow_overwrite=True):
+        # TODO: Experiment ID is returning None but it should return the experiment name
+        self._parent.put(experiment.project)
+
         directory = self.get_dir(self.to_folder_name(experiment))
+        directory = self._parent.replace_placeholder(experiment.project, directory)
 
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Experiment %s already exists." +
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(experiment.name))
 
+        elif not os.path.exists(directory):
+            os.mkdir(directory)
+
         self.write_file(directory, self.META_FILE, experiment.metadata)
-        self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow)
+        self.write_file_binary(directory, self.WORKFLOW_FILE, experiment.workflow)
 
         # TODO when to write experiment.json???
         # TODO: Experiment.json should be written within the execution folder as any change

@@ -92,6 +92,8 @@ class Experiment(MetadataEntity):
                  **options):
 
         self._dataset = options.pop("dataset", None)
+        self.project = options.pop('project', None)
+
         assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
         assert_condition(condition=isinstance(self._dataset, Dataset),
                          source=self, message='Experiment dataset is not of type Dataset')

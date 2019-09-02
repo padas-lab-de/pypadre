@@ -16,13 +16,13 @@ class PadreSplitFileBackend(ISplitBackend):
     RESULTS_FILE = File(RESULTS_FILE_NAME, JSonSerializer)
     METRICS_FILE = File(METRICS_FILE_NAME, JSonSerializer)
     METADATA_FILE = File("metadata.json", JSonSerializer)
+    NAME = "splits"
+    PLACEHOLDER = '{SPLIT_ID}'
 
     def __init__(self, parent):
-        name = "splits"
-        placeholder = '{SPLIT_ID}'
 
-        super().__init__(parent, name=name)
-        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
+        super().__init__(parent, name=self.NAME)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
         self._result = PadreResultFileBackend(self)
         self._metric = PadreMetricFileBackend(self)
 

@@ -9,15 +9,14 @@ from pypadre.backend.serialiser import JSonSerializer
 class PadreExecutionFileBackend(IExecutionBackend):
 
     CONFIG_FILE = File("experiment.json", JSonSerializer)
+    PLACEHOLDER = '{EXECUTION_ID}'
+    NAME = 'executions'
+    META_FILE = File("metadata.json", JSonSerializer)
 
     def __init__(self, parent):
-        name = 'executions'
-        placeholder = '{EXECUTION_ID}'
-        super().__init__(parent, name=name)
-        self.root_dir = os.path.join(self._parent.root_dir, name, placeholder)
+        super().__init__(parent, name=self.NAME)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
         self._run = PadreRunFileBackend(self)
-
-    META_FILE = File("metadata.json", JSonSerializer)
 
     @property
     def run(self):

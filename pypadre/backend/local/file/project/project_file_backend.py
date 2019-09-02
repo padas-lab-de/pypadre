@@ -60,3 +60,7 @@ class PadreProjectFileBackend(IProjectBackend):
 
         # Write metadata of the project
         self.write_file(directory, self.META_FILE, project.metadata)
+
+    def replace_placeholder(self, project, path):
+        if self.PLACEHOLDER in path:
+            return path.replace(self.PLACEHOLDER, project.name)

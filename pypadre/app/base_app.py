@@ -23,7 +23,7 @@ class IBaseApp:
         return self._backends
 
     def list(self, search, offset=0, size=100) -> list:
-        entities = list()
+        entities = []
         for b in self.backends:
             backend: ISearchable = b
             [entities.append(e) for e in backend.list(search=search) if len(entities) < size and e not in entities]
