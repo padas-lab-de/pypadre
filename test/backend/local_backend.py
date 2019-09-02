@@ -62,7 +62,7 @@ class LocalBackends(unittest.TestCase):
                     dataset=dataset[0],
                     workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
 
-        self.app.experiments.put(experiment=experiment)
+        self.app.experiments.put(experiment)
         # TODO
 
     def test_execution(self):

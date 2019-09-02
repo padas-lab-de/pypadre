@@ -22,7 +22,7 @@ class PadreRunFileBackend(IRunBackend):
 
     def __init__(self, parent):
         super().__init__(parent, name=self.NAME)
-        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent._placeholder(), self.NAME)
         self._split = PadreSplitFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)

@@ -84,8 +84,8 @@ class PadreApp(IBaseApp):
         self._experiment_app = ExperimentApp(self, [backend.project.experiment for backend in backends] if backends is not None else None)
         self._execution_app = ExecutionApp(self, [backend.project.experiment.execution for backend in backends] if backends is not None else None)
         self._run_app = RunApp(self, [backend.project.experiment.execution.run for backend in backends] if backends is not None else None)
-        self._split_app = SplitApp(self, [backend.project.experiment.execution.split for backend in backends] if backends is not None else None)
-        self._metric_app = MetricApp(self, [backend.project.experiment.execution.split.metric for backend in backends] if backends is not None else None)
+        self._split_app = SplitApp(self, [backend.project.experiment.execution.run.split for backend in backends] if backends is not None else None)
+        #self._metric_app = MetricApp(self, [backend.project.experiment.execution.split.metric for backend in backends] if backends is not None else None)
 
     @property
     def backends(self):

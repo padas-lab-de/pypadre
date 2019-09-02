@@ -21,7 +21,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
 
     def __init__(self, parent):
         super().__init__(parent, name=self.NAME)
-        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent._placeholder(), self.NAME)
         self._execution = PadreExecutionFileBackend(self)
 
     META_FILE = File("metadata.json", JSonSerializer)
@@ -65,8 +65,8 @@ class PadreExperimentFileBackend(IExperimentBackend):
         # TODO: Experiment ID is returning None but it should return the experiment name
         self._parent.put(experiment.project)
 
-        directory = self.get_dir(self.to_folder_name(experiment))
-        directory = self._parent.replace_placeholder(experiment.project, directory)
+        directory = self.to_directory(experiment)
+        #directory = self.replace_placeholder(experiment.project, directory)
 
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Experiment %s already exists." +
