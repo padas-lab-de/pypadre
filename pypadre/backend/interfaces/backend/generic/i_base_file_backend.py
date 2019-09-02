@@ -239,5 +239,36 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param obj:
         :return:
         """
-        return self.get_dir(self.to_folder_name(obj))
+        return self.replace_placeholder(obj, self.get_dir(self.to_folder_name(obj)))
 
+    @staticmethod
+    @abstractmethod
+    def _placeholder():
+        """
+        # Every file backend should define a placeholder to represent an object id in a root directory template.
+        :return: Placeholder for the path string
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _get_parent_of(obj):
+        """
+        The backend also implements logic to retrieve a parent of the object which should be used in the backend.
+        Given for example a run the backend should be able to get an experiment. :param obj: :return:
+        """
+        pass
+
+    @abstractmethod
+    def replace_placeholder(self, obj, path):
+        # If a placeholder is present it should be replaced
+        if self._placeholder() in path:
+            return self.parent.replace_placeholder(self._get_parent_of(obj),
+                                                   path.replace(self._placeholder(), self.to_folder_name(obj)))
+
+        # If no placeholder is present we can call the parent placeholder replacement function
+        if self is ChildEntity:
+            return self.parent.replace_placeholder(self._get_parent_of(obj), path)
+
+        # If we are in a root directory we can stop
+        return path

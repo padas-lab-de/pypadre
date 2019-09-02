@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_project_backend import IProjectBackend
@@ -10,13 +9,21 @@ from pypadre.core.model.project import Project
 
 class PadreProjectFileBackend(IProjectBackend):
 
+    @staticmethod
+    def _placeholder():
+        return '{PROJECT_ID}'
+
+    @staticmethod
+    def _get_parent_of(obj: Project):
+        # Projects have no parents
+        return None
+
     NAME = 'projects'
-    PLACEHOLDER = '{PROJECT_ID}'
 
     def __init__(self, parent):
 
         super().__init__(parent=parent, name=self.NAME)
-        #self.root_dir = os.path.join(self._parent.root_dir, self.NAME, self.PLACEHOLDER)
+        # self.root_dir = os.path.join(self._parent.root_dir, self.NAME, self.PLACEHOLDER)
         self.root_dir = os.path.join(self._parent.root_dir, self.NAME)
         if not os.path.exists(self.root_dir):
             os.mkdir(self.root_dir)
@@ -45,22 +52,17 @@ class PadreProjectFileBackend(IProjectBackend):
         metadata = self.get_file(os.path.join(self.root_dir, directory), self.META_FILE)
         return Project(**metadata)
 
-    def put(self, project):
+    def put(self, project, **kwargs):
 
         directory = self.to_directory(project)
+
         # Create the directory with flags, allow_overwrite False and append_data True
         super().put(project, False, True)
-        if self.PLACEHOLDER in directory:
-            directory = directory.replace(self.PLACEHOLDER, project.name)
+
         # Create a repo for the project
         # Check if the folder exists, if the folder exists the repo will already be created, else create the repo
-
         if not os.path.exists(directory):
             self._create_repo(path=directory, bare=False)
 
         # Write metadata of the project
         self.write_file(directory, self.META_FILE, project.metadata)
-
-    def replace_placeholder(self, project, path):
-        if self.PLACEHOLDER in path:
-            return path.replace(self.PLACEHOLDER, project.name)

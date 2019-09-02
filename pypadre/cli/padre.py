@@ -31,7 +31,7 @@ from .metric import metric_cli
               type=str,
               help="Base url for the PADRE REST API")
 @click.pass_context
-def pypadre_cli(ctx, config_file, base_url):
+def pypadre(ctx, config_file, base_url):
     """
     setup padre command line interface using the provided config file
 
@@ -49,7 +49,7 @@ def pypadre_cli(ctx, config_file, base_url):
     }
 
 
-@pypadre_cli.command(name="authenticate")
+@pypadre.command(name="authenticate")
 @click.option('--user', default=None, help='User on server')
 @click.option('--passwd', default=None, help='Password for given user')
 @click.pass_context
@@ -61,11 +61,11 @@ def authenticate(ctx, user, passwd):
     ctx.obj["pypadre"].authenticate(user, passwd)
 
 
-pypadre_cli.add_command(config_cli)
-pypadre_cli.add_command(dataset_cli)
-pypadre_cli.add_command(project_cli)
-pypadre_cli.add_command(experiment_cli)
-pypadre_cli.add_command(metric_cli)
+pypadre.add_command(config_cli)
+pypadre.add_command(dataset_cli)
+pypadre.add_command(project_cli)
+pypadre.add_command(experiment_cli)
+pypadre.add_command(metric_cli)
 
 if __name__ == '__main__':
-    pypadre_cli()
+    pypadre()
