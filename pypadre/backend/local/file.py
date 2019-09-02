@@ -150,9 +150,9 @@
 #         if os.path.exists(dir):
 #             if not append_runs:
 #                 shutil.rmtree(dir)
-#                 os.mkdir(dir)
+#                 os.makedirs(dir)
 #         else:
-#             os.mkdir(dir)
+#             os.makedirs(dir)
 #
 #         self._file = open(os.path.join(dir, "log.txt"), "a")
 #
@@ -249,7 +249,7 @@
 #         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id))
 #         if os.path.exists(dir):
 #             shutil.rmtree(dir)
-#         os.mkdir(dir)
+#         os.makedirs(dir)
 #
 #         with open(os.path.join(dir, "metadata.json"), 'w') as f:
 #             f.write(self._metadata_serializer.serialise(run.metadata))
@@ -309,7 +309,7 @@
 #         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id, split_id))
 #         if os.path.exists(dir):
 #             shutil.rmtree(dir)
-#         os.mkdir(dir)
+#         os.makedirs(dir)
 #         with open(os.path.join(dir, "metadata.json"), 'w') as f:
 #             f.write(self._metadata_serializer.serialise(split.metadata))
 #         self._split_dir = dir

@@ -74,7 +74,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(experiment.name))
 
         elif not os.path.exists(directory):
-            os.mkdir(directory)
+            os.makedirs(directory)
 
         self.write_file(directory, self.META_FILE, experiment.metadata)
         self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow, 'wb')
