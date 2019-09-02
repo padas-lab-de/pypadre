@@ -11,16 +11,24 @@ from pypadre.util.file_util import get_path
 
 
 class File:
-    def __init__(self, name, serializer):
+    def __init__(self, name, serializer, binary=False):
         self._name = name
         self._serializer = serializer
 
     @property
     def name(self):
+        """
+        Files have a name in the directory structure
+        :return: Name
+        """
         return self._name
 
     @property
     def serializer(self):
+        """
+        A file defines its serializer for peristing purposes.
+        :return: The serializer to use
+        """
         return self._serializer
 
 
@@ -71,7 +79,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         self.delete_dir(self.to_folder_name(obj))
 
-    def put(self, obj, args):
+    def put(self, obj, *args):
         """
 
         :param obj:
@@ -210,27 +218,16 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
             return data
         return __load_data
 
-    def write_file(self, dir, file: File, target):
+    def write_file(self, dir, file: File, target, mode="w"):
         """
         Write given file object into directory with given name and serializer
         :param dir: directory
         :param file: file object containing name and serializer
         :param target: target to serialize
+        :param mode: The mode to use when writing to disk
         :return:
         """
-        with open(os.path.join(dir, file.name), 'w') as f:
-            f.write(file.serializer.serialise(target))
-
-    def write_file_binary(self, dir, file: File, target):
-        """
-        Write given file object into directory with given name and serializer
-        :param dir: directory
-        :param file: file object containing name and serializer
-        :param target: target to serialize
-        :return:
-        """
-        # TODO: Identify file via serializer whether binary or not
-        with open(os.path.join(dir, file.name), 'wb') as f:
+        with open(os.path.join(dir, file.name), mode) as f:
             f.write(file.serializer.serialise(target))
 
     def to_directory(self, obj):
@@ -259,7 +256,6 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         pass
 
-    @abstractmethod
     def replace_placeholder(self, obj, path):
         # If a placeholder is present it should be replaced
         if self._placeholder() in path:

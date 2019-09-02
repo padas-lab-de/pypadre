@@ -18,7 +18,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
         super().__init__(parent=parent, name="datasets")
 
     META_FILE = File("metadata.json", JSonSerializer)
-    DATA_FILE = File("data.bin", PickleSerializer)
+    DATA_FILE = File("data.bin", PickleSerializer, True)
     GIT_ATTRIBUTES = '.gitattributes.'
     NAME = "name"
     MEASUREMENT_LEVEL = "measurementLevel"
@@ -43,7 +43,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
 
         self.write_file(directory, self.META_FILE, dataset.metadata)
         # TODO Write the actual dataset
-        self.write_file_binary(directory, self.DATA_FILE, dataset.data())
+        self.write_file(directory, self.DATA_FILE, dataset.data(), 'wb')
         # TODO call git / git-lfs private functions here?
 
         self.add_git_lfs_attribute_file(directory, "*.bin")

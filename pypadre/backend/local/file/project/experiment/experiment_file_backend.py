@@ -9,8 +9,16 @@ from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
 
 
 class PadreExperimentFileBackend(IExperimentBackend):
+    @staticmethod
+    def _placeholder():
+        return '{EXPERIMENT_ID}'
+
+    @staticmethod
+    def _get_parent_of(obj: Experiment):
+        return obj.project
+
     NAME = 'experiments'
-    PLACEHOLDER = '{EXPERIMENT_ID}'
+
     def __init__(self, parent):
         super().__init__(parent, name=self.NAME)
         self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
@@ -68,7 +76,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
             os.mkdir(directory)
 
         self.write_file(directory, self.META_FILE, experiment.metadata)
-        self.write_file_binary(directory, self.WORKFLOW_FILE, experiment.workflow)
+        self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow, 'wb')
 
         # TODO when to write experiment.json???
         # TODO: Experiment.json should be written within the execution folder as any change
