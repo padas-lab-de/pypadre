@@ -23,7 +23,7 @@ class PadreExecutionFileBackend(IExecutionBackend):
 
     def __init__(self, parent):
         super().__init__(parent, name=self.NAME)
-        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent._placeholder(), self.NAME)
         self._run = PadreRunFileBackend(self)
 
     @property

@@ -4,8 +4,6 @@ import uuid
 
 from pypadre.backend.interfaces.backend.generic.i_base_file_backend import File
 from pypadre.backend.interfaces.backend.i_split_backend import ISplitBackend
-from pypadre.backend.local.file.project.experiment.execution.run.split.result.result_file_backend import PadreResultFileBackend
-from pypadre.backend.local.file.project.experiment.execution.run.split.metric.metric_file_backend import PadreMetricFileBackend
 from pypadre.backend.serialiser import JSonSerializer, PickleSerializer
 from pypadre.core.model.split.split import Split
 
@@ -30,9 +28,7 @@ class PadreSplitFileBackend(ISplitBackend):
     def __init__(self, parent):
 
         super().__init__(parent, name=self.NAME)
-        self.root_dir = os.path.join(self._parent.root_dir, self._parent.PLACEHOLDER, self.NAME)
-        self._result = PadreResultFileBackend(self)
-        self._metric = PadreMetricFileBackend(self)
+        self.root_dir = os.path.join(self._parent.root_dir, self._parent._placeholder(), self.NAME)
 
     @property
     def result(self):

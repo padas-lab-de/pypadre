@@ -14,6 +14,14 @@ from pypadre.core.model.dataset.dataset import Dataset
 
 class PadreDatasetFileBackend(IDatasetBackend):
 
+    @staticmethod
+    def _placeholder():
+        pass
+
+    @staticmethod
+    def _get_parent_of(obj):
+        pass
+
     def __init__(self, parent):
         super().__init__(parent=parent, name="datasets")
 

@@ -258,12 +258,12 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
 
     def replace_placeholder(self, obj, path):
         # If a placeholder is present it should be replaced
-        if self._placeholder() in path:
+        if self._placeholder() is not None and self._placeholder() in path:
             return self.parent.replace_placeholder(self._get_parent_of(obj),
                                                    path.replace(self._placeholder(), self.to_folder_name(obj)))
 
         # If no placeholder is present we can call the parent placeholder replacement function
-        if self is ChildEntity:
+        if isinstance(self, ChildEntity) and hasattr(self.parent, 'replace_placeholder'):
             return self.parent.replace_placeholder(self._get_parent_of(obj), path)
 
         # If we are in a root directory we can stop
