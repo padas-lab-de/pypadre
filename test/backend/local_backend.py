@@ -60,8 +60,6 @@ class LocalBackends(unittest.TestCase):
 
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
 
-        project_app.put(project)
-
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC
