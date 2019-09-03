@@ -12,6 +12,10 @@ class Execution(MetadataEntity, Tablefyable):
     _id = None
     _metadata = None
 
+    @classmethod
+    def register_columns(cls):
+        cls._register_columns({'hash': 'hash', 'cmd': 'cmd'})
+
     def __init__(self, experiment, codehash, command, **options):
         # Validate input types
         from uuid import uuid4
@@ -35,7 +39,6 @@ class Execution(MetadataEntity, Tablefyable):
             self.name = self._hash
 
         # Add entries for tablefyable
-        self._registry.update({'hash': get_dict_attr(self, 'hash').fget, 'cmd': get_dict_attr(self, 'cmd')})
 
         self._experiment_configuration = self.\
             create_experiment_configuration_dict(params=parameters,
