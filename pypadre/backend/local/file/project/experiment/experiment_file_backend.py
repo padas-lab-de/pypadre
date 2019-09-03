@@ -68,8 +68,8 @@ class PadreExperimentFileBackend(IExperimentBackend):
         experiment_params = dict()
         experiment_params["workflow"] = workflow.pipeline
         experiment_params["preprocessing"] = preprocess_workflow
-        #dataset_name = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
-        #experiment_params["dataset"] = self._data_repository.get(dataset_name)
+        dataset_id = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
+        #experiment_params["dataset"] = DATASETBACKEND.get(dataset_id)
         ex = Experiment(ex_id=id_, **experiment_params)
         return ex
 

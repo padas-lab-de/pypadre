@@ -225,7 +225,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param obj:
         :return:
         """
-        return self.replace_placeholder(obj, get_path(self.root_dir, self.to_folder_name(obj)))
+        return self.replace_placeholder(obj, get_path(self.root_dir, self.to_folder_name(obj), False))
 
     @staticmethod
     @abstractmethod

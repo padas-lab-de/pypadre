@@ -57,7 +57,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.experiment import Experiment
         from pypadre.core.model.project import Project
 
-        project = Project(name='Test Project', description='Testing the functionalities of project backend')
+        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
