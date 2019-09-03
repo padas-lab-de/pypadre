@@ -59,6 +59,7 @@ class IDataSetLoader:
                       source=inspect.currentframe().f_code.co_name,
                       message='No targets defined. Program will crash when used for supervised learning')
 
+        # TODO extract attributes
         return Dataset(meta["id"], **meta)
 
 
@@ -242,7 +243,6 @@ class SklearnLoader(ICollectionDataSetLoader):
 
         meta = {**{"name": name, "description": description,
                    "originalSource": "https://imported/from/pandas/Dataframe.html"}, **kwargs}
-        data_set = self._create_dataset(**meta)
 
         n_feat = bunch.data.shape[1]
         if len(bunch.target.shape) == 1:
@@ -257,6 +257,8 @@ class SklearnLoader(ICollectionDataSetLoader):
             else:
                 atts.append(Attribute(str(ix), "Ratio", None, None, n_feat <= ix))
 
+        meta["attributes"] = atts
+        data_set = self._create_dataset(**meta)
         data_set.set_data(data)
         return data_set
 

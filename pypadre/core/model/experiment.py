@@ -1,4 +1,3 @@
-import itertools
 import platform
 import pypadre.core.visitors.parameter
 
@@ -177,7 +176,7 @@ class Experiment(MetadataEntity):
         return self._workflow
 
     @property
-    def validate(self):
+    def validation_obj(self):
         return self._validation_obj
 
     @property
@@ -223,132 +222,20 @@ class Experiment(MetadataEntity):
     def workflow(self):
         return self._workflow
 
-    def run(self, append_runs: bool = False):
-        """
-        runs the experiment
-        :param append_runs: If true, the runs will be appended if the experiment exists already.
-        Otherwise, the experiment will be deleted
-        :return:
-        """
-        from copy import deepcopy
-
-        # Update metadata with version details of packages used in the workflow
-        self.update_experiment_metadata_with_workflow()
-
-        # todo allow split wise execution of the individual workflow steps. some kind of reproduction / debugging mode
-        # which gives access to one split, the model of the split etc.
-        # todo allow to append runs for experiments
-        # register experiment through logger
-        # self.logger.log_start_experiment(self, append_runs)
+    def execute(self, parameters=None, pre_parameters=None):
+        from pypadre.core.model.execution import Execution
         trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+        # Only a single execution run of the experiment or not
+        single_run = True if parameters is None else False
 
-        r = Run(self, self._workflow, **dict(self._metadata))
-        r.do_splits()
-        if self._keep_runs:
-            self._runs.append(r)
-        self._results.append(deepcopy(r.results))
-        self._metrics.append(deepcopy(r.metrics))
-        self._hyperparameters = [(deepcopy(r.hyperparameters))]
-        self._last_run = r
-        self._run_split_dict[str(r.id) + '.run'] = r.split_ids
-        trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
+        # Only a single transformation run of the experiment or not
+        single_transformation = True if pre_parameters is None else False
 
-    def execute(self, parameters=None):
-        """
-        This function searches a grid of the parameter combinations given into the function
-        :param parameters: A nested dictionary, where the outermost key is the estimator name and
-        the second level key is the parameter name, and the value is a list of possible parameters
-        :return: None
-        """
-
-        from copy import deepcopy
-
-        assert_condition(condition=parameters is None or isinstance(parameters, dict),
-                         source=self,
-                         message='Incorrect parameter type to the execute function')
-
-        if self._preprocessed_workflow is not None:
-            self.preprocess()
-
-        if parameters is None:
-            self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
-            self.run()
-
-            # Fire event
-            trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
-            return
-
-        # Update metadata with version details of packages used in the workflow
-        self.update_experiment_metadata_with_workflow()
-
-        # Generate every possible combination of the provided hyper parameters.
-        workflow = self._workflow
-        master_list = []
-        params_list = []
-
-        # Fire event
-        trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
-
-        for estimator in parameters:
-            param_dict = parameters.get(estimator)
-            assert_condition(condition=isinstance(param_dict, dict),
-                             source=self,
-                             message='Parameter dictionary is not of type dictionary for estimator:' + estimator)
-            for params in param_dict:
-                # Append only the parameters to create a master list
-                master_list.append(param_dict.get(params))
-
-                # Append the estimator name followed by the parameter to create a ordered list.
-                # Ordering of estimator.parameter corresponds to the value in the resultant grid tuple
-                params_list.append(''.join([estimator, '.', params]))
-        grid = itertools.product(*master_list)
-
-        self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
-
-        # Fire event
-        trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
-
-        # Get the total number of iterations
-        grid_size = 1
-        for idx in range(0, len(master_list)):
-            grid_size *= len(master_list[idx])
-
-        # Starting index
-        curr_executing_index = 1
-
-        # For each tuple in the combination create a run
-        for element in grid:
-            trigger_event('EVENT_LOG_EVENT', source=self,
-                          message="Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
-            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size), phase='start')
-            # Get all the parameters to be used on set_param
-            for param, idx in zip(params_list, range(0, len(params_list))):
-                split_params = param.split(sep='.')
-                estimator = workflow._pipeline.named_steps.get(split_params[0])
-
-                if estimator is None:
-                    assert_condition(condition=estimator is not None, source=self,
-                                  message=f"Estimator {split_params[0]} is not present in the pipeline")
-                    break
-
-                estimator.set_params(**{split_params[1]: element[idx]})
-
-            r = Run(self, workflow, **dict(self._metadata))
-            r.do_splits()
-            self._run_split_dict[str(r.id)+'.run'] = r.split_ids
-            if self._keep_runs:
-                self._runs.append(r)
-
-            self._results.append(deepcopy(r.results))
-            self._metrics.append(deepcopy(r.metrics))
-            self._last_run = r
-            self._hyperparameters.append(deepcopy(r.hyperparameters))
-
-            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
-                          phase='stop')
-            curr_executing_index += 1
-
-        # Fire event
+        execution = Execution(self, codehash='abdauoasg45qyh34t', command=None, append_runs=True,
+                              parameters=parameters, preparameters=pre_parameters, single_run=single_run,
+                              single_transformation=single_transformation)
+        execution.execute(parameters=parameters, preprocessed_workflow=self._preprocessed_workflow,
+                          single_run=single_run)
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def preprocess(self):
@@ -367,70 +254,6 @@ class Experiment(MetadataEntity):
         self._preprocessed_dataset.replace_data(preprocessed_data, self._keep_attributes)
         # Set flag
         self._preprocessed = True
-
-    def create_experiment_configuration_dict(self, params=None, single_run=False):
-        """
-        This function creates a dictionary that can be written as a JSON file for replicating the experiments.
-
-        :param params: The parameters for the estimators that make up the grid
-        :param single_run: If the execution is done for a single run
-
-        :return: Experiment dictionary containing the pipeline, backend, parameters etc
-        """
-        from copy import deepcopy
-
-        name = self.name
-        description = self.metadata.get('description', None)
-        strategy = self.metadata.get('strategy', None)
-        dataset = self.dataset.name
-        workflow = list(self.workflow.pipeline.named_steps.keys())
-
-        complete_experiment_dict = dict()
-
-        experiment_dict = dict()
-        experiment_dict['name'] = name
-        experiment_dict['description'] = description
-        experiment_dict['strategy'] = strategy
-        experiment_dict['dataset'] = dataset
-        experiment_dict['workflow'] = workflow
-
-        # If there is a preprocessing pipeline, add it to the configuration
-        if self._preprocessed is True:
-            preprocessing_workflow = list(self._preprocessed_workflow.named_steps.keys())
-            experiment_dict['preprocessing'] = preprocessing_workflow
-
-        if single_run is True:
-            estimator_dict = dict()
-            # All the parameters of the estimators need to be filled into the params dictionary
-            estimators = self.workflow.pipeline.named_steps
-            for estimator in estimators:
-
-                obj_params = estimators.get(estimator).get_params()
-                estimator_name = estimator
-                if name_mappings.get(estimator, None) is None:
-                    estimator_name = alternate_name_mappings.get(estimator)
-
-                params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
-                params = estimators.get(estimator).get_params()
-                param_dict = dict()
-                for param in params_list:
-                    for framework in supported_frameworks:
-                        if param.get(framework, None) is not None:
-                            break
-                    param_name = param.get(framework).get('path')
-                    param_dict[param_name] = obj_params.get(param_name)
-
-                estimator_dict[estimator] = deepcopy(param_dict)
-
-            experiment_dict['params'] = estimator_dict
-
-        else:
-            # Only those parameters that are passed to the grid search need to be filled
-            experiment_dict['params'] = params
-
-        complete_experiment_dict[name] = deepcopy(experiment_dict)
-
-        return complete_experiment_dict
 
     @property
     def runs(self):
@@ -550,10 +373,13 @@ class Experiment(MetadataEntity):
         """
         from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
         import numpy as np
-        return True
-        '''
+        """
         assert_condition(condition=options.get('workflow', None) is not None, source=self,
                          message="Workflow cannot be none")
+                         
+        assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
+                         message='Workflow does not have a fit function')
+        """
         assert_condition(condition=options.get('description', None) is not None, source=self,
                          message="Description cannot be none")
         assert_condition(condition=isinstance(options.get("keep_runs", True), bool), source=self,
@@ -562,16 +388,11 @@ class Experiment(MetadataEntity):
                          message='keep_splits parameter has to be of type bool')
         assert_condition(condition=isinstance(options.get('sk_learn_stepwise', False), bool), source=self,
                          message='keep_splits parameter has to be of type bool')
-        assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
-                         message='Workflow does not have a fit function')
         assert_condition(condition=isinstance(options.get('name', 'noname'), str) or options.get('name') is None,
                          source=self, message='Experiment name should be of type string')
         assert_condition(condition=isinstance(options.get('description', 'noname'), str),
                          source=self, message='Experiment description should be of type string')
-        assert_condition(condition=options.get('dataset', None) is not None, source=self,
-                         message="Dataset cannot be none")
-        assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
-                         source=self, message='Experiment dataset is not of type Dataset')
+
         assert_condition(condition=options.get('preprocessing', None) is None or hasattr(options.get('preprocessing',
                                                                                                      dict()),
                                                                                          'fit_transform') is True,
@@ -579,6 +400,13 @@ class Experiment(MetadataEntity):
                          message='Preprocessing workflow does not have a fit_transform function')
 
         # Check if all estimator names are present in the name mappings
+        """
+        
+        assert_condition(condition=isinstance(options.get('dataset', dict()), Dataset),
+                         source=self, message='Experiment dataset is not of type Dataset')
+        assert_condition(condition=options.get('dataset', None) is not None, source=self,
+                        message="Dataset cannot be none")
+        
         workflow = options.get('workflow')
         for estimator in workflow.named_steps:
             assert_condition(condition=name_mappings.get(estimator, None) is not None or
@@ -608,5 +436,8 @@ class Experiment(MetadataEntity):
                     actual_estimator_name = alternate_name_mappings.get(estimator)
                 assert_condition(condition=name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
                                  source=self, message='Classifier cannot be trained on regression data')
-        '''
+
+        """
+        return True
+
 

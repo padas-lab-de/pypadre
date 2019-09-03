@@ -511,7 +511,7 @@ class MetadataEntity:
         if self._metadata and "name" in self._metadata:
             return self._metadata["name"]
         else:
-            return self._id
+            return str(self._id)
 
     @name.setter
     def name(self, name):
