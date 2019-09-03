@@ -49,7 +49,6 @@ class PadreCli(unittest.TestCase):
                                          'dataset', 'get',
                                          re.search('([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+)',
                                                    result.output).group(0)])
-        print(result)
         assert 'Diabetes' in result.output
 
     def test_project(self):

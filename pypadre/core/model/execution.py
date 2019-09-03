@@ -14,6 +14,7 @@ class Execution(MetadataEntity, Tablefyable):
 
     @classmethod
     def register_columns(cls):
+        # Add entries for tablefyable
         cls._register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
     def __init__(self, experiment, codehash, command, **options):
@@ -37,8 +38,6 @@ class Execution(MetadataEntity, Tablefyable):
 
         if self.name is None:
             self.name = self._hash
-
-        # Add entries for tablefyable
 
         self._experiment_configuration = self.\
             create_experiment_configuration_dict(params=parameters,
