@@ -186,7 +186,15 @@ class Dataset(MetadataEntity, Tablefyable):
         :return: (n_examples, n_attributes)
         """
         container: IBaseContainer = self.container(bin_format)
-        return container.shape()
+        return container.shape
+
+    def targets(self, bin_format=None):
+        container: IBaseContainer = self.container(bin_format)
+        return container.targets
+
+    def features(self, bin_format=None):
+        container: IBaseContainer = self.container(bin_format)
+        return container.features
 
     def describe(self, bin_format=None):
         container: IBaseContainer = self.container(bin_format)

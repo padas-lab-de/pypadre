@@ -18,8 +18,8 @@ class NumpyContainer(IBaseContainer):
         if attributes is None:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
             self._data = data
-            self._targets_idx = None
-            self._features_idx = np.arange(self._shape[1])
+            self._targets_idx = self._shape[1] - 1
+            self._features_idx = np.arange(self._shape[1] - 1)
         else:
             if len(attributes) != data.shape[1]:
                 raise ValueError("Incorrect number of attributes."

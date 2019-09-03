@@ -55,6 +55,9 @@ class PadreExecutionFileBackend(IExecutionBackend):
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(
                                  self.to_folder_name(execution)))
 
+        elif not os.path.exists(directory):
+            os.makedirs(directory)
+
         self.write_file(directory, self.META_FILE, execution.metadata)
 
         # The code for each execution changes. So it is necessary to write the experiment.json file too
