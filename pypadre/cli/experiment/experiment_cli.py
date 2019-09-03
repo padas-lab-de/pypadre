@@ -14,7 +14,7 @@ import click
 @click.pass_context
 def experiment(ctx):
     """
-    commands for experiments
+    Commands for experiments.
     """
     if ctx.invoked_subcommand is None:
         if ctx.obj["pypadre-app"].config.get("experiment", "DEFAULTS") is not None:

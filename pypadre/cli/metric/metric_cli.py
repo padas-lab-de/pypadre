@@ -11,9 +11,7 @@ import click
 @click.option('-e', '--experiment')
 def metric(ctx, experiment):
     """
-    commands for the configuration
-
-    Default config file: ~/.padre.cfg
+    Commands for the metrics.
     """
     ctx.obj["experiment"] = experiment
 

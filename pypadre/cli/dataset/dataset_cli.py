@@ -18,7 +18,7 @@ from pypadre.printing.util.print_util import to_table
 @click.group()
 def dataset():
     """
-    commands for the data sets
+    Commands for datasets.
     """
 
 
@@ -27,18 +27,18 @@ def _get_app(ctx) -> DatasetApp:
 
 
 @dataset.command(name="list")
-@click.option('--columns', help='Show only columns which are available', is_flag=True)
-@click.option('--offset', '-o', default=0, help='start number of the dataset')
-@click.option('--limit', '-l', default=100, help='Number of datasets to retrieve')
+@click.option('--columns', help='Show available column names', is_flag=True)
+@click.option('--offset', '-o', default=0, help='Starting position of the retrieval')
+@click.option('--limit', '-l', default=100, help='Number to retrieve')
 @click.option('--search', '-s', default=None,
-              help='search string')
+              help='Search dictonary.')# TODO further search instructions
 @click.option('--column', '-c', help="Column to print", default=None, multiple=True)
 @click.pass_context
 def list(ctx, columns, search, offset, limit, column):
+    """Search for datasets."""
     if columns:
         print(Dataset.tablefy_columns())
         return 0
-    """list all available datasets"""
     # TODO like pageable (sort, offset etc.)
     print(to_table(_get_app(ctx).list(search=search, offset=offset, size=limit),
           columns=column))
@@ -49,7 +49,8 @@ def list(ctx, columns, search, offset, limit, column):
 @click.option('--simple', '-s', help='Show only simple info', is_flag=True)
 @click.pass_context
 def get(ctx, dataset_id, simple=False):
-    """downloads the dataset with the given id. id can be either a number or a valid url"""
+    """Show dataset with the given id."""
+    # TODO allow for download
     if simple:
         print('\n'.join(map(str, _get_app(ctx).get(dataset_id))))
     else:
@@ -61,7 +62,7 @@ def get(ctx, dataset_id, simple=False):
 @click.option('--mode', '-m', help='Mode for the sync', type=click.STRING)
 @click.pass_context
 def sync(ctx, dataset_id, mode):
-    """downloads the dataset with the given id. id can be either a number or a valid url"""
+    """Synchronizes the backends."""
     _get_app(ctx).sync(name=dataset_id, mode=mode)
 
 
@@ -75,7 +76,7 @@ def sync(ctx, dataset_id, mode):
 @click.option('--file', '-f', help='Source if you want to load a file', type=click.Path(exists=True))
 @click.pass_context
 def load(ctx, defaults, source=None, file=None):
-    """downloads the dataset with the given id."""
+    """Loads the dataset from given source."""
 
     arguments = dict()
     for item in ctx.args:

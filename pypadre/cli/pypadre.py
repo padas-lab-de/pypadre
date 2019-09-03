@@ -30,7 +30,7 @@ from .metric import metric_cli
 @click.pass_context
 def pypadre(ctx, config_file):
     """
-    Setup padre command line interface using the provided config file
+    Setup padre command line interface using the provided config file.
 
     Default config file: ~/.padre.cfg
     """
@@ -49,7 +49,7 @@ def pypadre(ctx, config_file):
 @click.pass_context
 def authenticate(ctx, user, passwd):
     """
-    To generate new token in config. Authenticate with given credentials, in case credentials
+    Get new authentication token and store it in the config. Authenticate with given credentials, in case credentials
     are not provided default credentials will be used.
     """
     ctx.obj["pypadre-app"].authenticate(user, passwd)

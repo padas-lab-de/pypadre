@@ -15,18 +15,18 @@ class Tablefyable:
 
     @classmethod
     @abstractmethod
-    def register_columns(cls):
+    def tablefy_register_columns(cls):
         pass
 
     @classmethod
-    def _register_columns(cls, properties):
+    def _tablefy_register_columns(cls, properties):
         if cls.__name__ not in registry:
             registry[cls.__name__] = OrderedDict()
             registry[cls.__name__].update(properties)
 
     @classmethod
     def _tablefy_columns(cls):
-        cls._check_init()
+        cls._tablefy_check_init()
         return registry[cls.__name__].keys()
 
     @classmethod
@@ -34,9 +34,9 @@ class Tablefyable:
         return ", ".join(cls._tablefy_columns())
 
     @classmethod
-    def _check_init(cls):
+    def _tablefy_check_init(cls):
         if cls.__name__ not in registry:
-            cls.register_columns()
+            cls.tablefy_register_columns()
 
     def tablefy_header(self, *args):
         """
@@ -44,7 +44,7 @@ class Tablefyable:
         :param args: Names of the attributes to print
         :return:
         """
-        self.__class__._check_init()
+        self.__class__._tablefy_check_init()
         return [key for key, value in registry[self.__class__.__name__].items()
                 if len(args) == 0 or len(args) >= 1 and key in args]
 
@@ -54,7 +54,7 @@ class Tablefyable:
         :param args: Names of the attributes to print
         :return:
         """
-        self.__class__._check_init()
+        self.__class__._tablefy_check_init()
         return [get_dict_attr(self, value)(self) if callable(get_dict_attr(self, value)) else
                 get_dict_attr(self, value).fget(self) for key, value in registry[self.__class__.__name__].items()
                 if len(args) == 0 or len(args) >= 1 and key in args]

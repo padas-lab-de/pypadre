@@ -13,9 +13,9 @@ class Execution(MetadataEntity, Tablefyable):
     _metadata = None
 
     @classmethod
-    def register_columns(cls):
+    def tablefy_register_columns(cls):
         # Add entries for tablefyable
-        cls._register_columns({'hash': 'hash', 'cmd': 'cmd'})
+        cls._tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
     def __init__(self, experiment, codehash, command, **options):
         # Validate input types

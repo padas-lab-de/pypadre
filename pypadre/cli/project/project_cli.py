@@ -20,7 +20,7 @@ from pypadre.core.model.project import Project
 @click.pass_context
 def project(ctx):
     """
-    Commands for projects
+    Commands for projects.
     """
 
     #if ctx.invoked_subcommand is None:

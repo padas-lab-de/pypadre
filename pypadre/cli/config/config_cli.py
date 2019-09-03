@@ -11,7 +11,7 @@ from pypadre.app.padre_app import PadreFactory
 @click.group()
 def config():
     """
-    commands for the configuration
+    Commands for the configuration.
 
     Default config file: ~/.padre.cfg
     """

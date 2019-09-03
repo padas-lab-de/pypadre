@@ -60,8 +60,8 @@ class DataSetValidator(IValidator):
 class Dataset(MetadataEntity, Tablefyable):
 
     @classmethod
-    def register_columns(cls):
-        cls._register_columns({'id': 'id', 'name': 'name', 'type': 'type'})
+    def tablefy_register_columns(cls):
+        cls._tablefy_register_columns({'id': 'id', 'name': 'name', 'type': 'type'})
 
     def __init__(self, id_=None, attributes: List[Attribute]=None, **metadata):
         """
