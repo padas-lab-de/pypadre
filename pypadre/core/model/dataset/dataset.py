@@ -59,6 +59,10 @@ class DataSetValidator(IValidator):
 
 class Dataset(MetadataEntity, Tablefyable):
 
+    @classmethod
+    def register_columns(cls):
+        cls._register_columns({'id': 'id', 'name': 'name', 'type': 'type'})
+
     def __init__(self, id_=None, attributes: List[Attribute]=None, **metadata):
         """
         :param id_:
@@ -70,10 +74,6 @@ class Dataset(MetadataEntity, Tablefyable):
         Tablefyable.__init__(self)
         self._binaries = dict()
         self._attributes = attributes
-
-        # Add entries for tablefyable
-        self._registry.update({'id': get_dict_attr(self, 'id').fget, 'name': get_dict_attr(self, 'name').fget,
-                               'type': get_dict_attr(self, 'type').fget})
 
     @property
     def type(self):
@@ -210,6 +210,7 @@ class Dataset(MetadataEntity, Tablefyable):
         else:
             return self.__dict__.get(key, None)
     '''
+
     # def profile(self, bins=50, check_correlation=True, correlation_threshold=0.8,
     #             correlation_overrides=None, check_recoded=False):
     #     if "profile" in self.metadata:
@@ -256,21 +257,25 @@ class Dataset(MetadataEntity, Tablefyable):
         for k, v in self.describe().items():
             # todo printing the statistics is not ideal. needs to be improved
             if k == "stats" and isinstance(v, DescribeResult):
-                table = get_default_table()
-                h = ["statistic"]
-                for a in self.attributes:
-                    h.append(a.name)
-                table.column_headers = h
-                for m in [("min", v.minmax[0]), ("max", v.minmax[1]), ("mean", v.mean),
-                          ("kurtosis", v.kurtosis), ("skewness", v.skewness)]:
-                    r = [m[0]]
-                    for val in m[1]:
-                        r.append(val)
-                    table.append_row(r)
-                sb.append(table)
+                if self.attributes is None:
+                    sb.append("No attribute metadata found on " + str(self))
+                    # TODO inform user about problems
+                else:
+                    table = get_default_table()
+                    h = ["statistic"]
+                    for a in self.attributes:
+                        h.append(a.name)
+                    table.column_headers = h
+                    for m in [("min", v.minmax[0]), ("max", v.minmax[1]), ("mean", v.mean),
+                              ("kurtosis", v.kurtosis), ("skewness", v.skewness)]:
+                        r = [m[0]]
+                        for val in m[1]:
+                            r.append(val)
+                        table.append_row(r)
+                    sb.append(table)
             else:
                 sb.append_line("\t%s=%s" % (k, str(v)))
-        return sb
+        return str(sb)
 
 
 class Transformation(Dataset):

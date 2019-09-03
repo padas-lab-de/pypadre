@@ -1,16 +1,42 @@
+from abc import abstractmethod, ABCMeta
 from collections import OrderedDict
+
+from pypadre.util.dict_util import get_dict_attr
+
+registry = OrderedDict()
 
 
 class Tablefyable:
+    __metaclass__ = ABCMeta
     """
-    Used to allow for table printing of the object. Fill the registry for printing in following way:
-    self._registry.update({'id': get_dict_attr(self, 'id').fget, 'name': get_dict_attr(self, 'name').fget,
-                               'type': get_dict_attr(self, 'type').fget, 'size': get_dict_attr(self, 'size').fget,
-                               'format': get_dict_attr(self, 'binary_format')})
+    Used to allow for table printing of the object. Fill the registry for printing by implementing the _register_columns
+     function.
     """
 
-    def __init__(self):
-        self._registry = OrderedDict()
+    @classmethod
+    @abstractmethod
+    def register_columns(cls):
+        pass
+
+    @classmethod
+    def _register_columns(cls, properties):
+        if cls.__name__ not in registry:
+            registry[cls.__name__] = OrderedDict()
+            registry[cls.__name__].update(properties)
+
+    @classmethod
+    def _tablefy_columns(cls):
+        cls._check_init()
+        return registry[cls.__name__].keys()
+
+    @classmethod
+    def tablefy_columns(cls):
+        return ", ".join(cls._tablefy_columns())
+
+    @classmethod
+    def _check_init(cls):
+        if cls.__name__ not in registry:
+            cls.register_columns()
 
     def tablefy_header(self, *args):
         """
@@ -18,7 +44,9 @@ class Tablefyable:
         :param args: Names of the attributes to print
         :return:
         """
-        return [key for key, value in self._registry.items() if len(args) == 0 or len(args) >= 1 and key in args]
+        self.__class__._check_init()
+        return [key for key, value in registry[self.__class__.__name__].items()
+                if len(args) == 0 or len(args) >= 1 and key in args]
 
     def tablefy_to_row(self, *args):
         """
@@ -26,7 +54,10 @@ class Tablefyable:
         :param args: Names of the attributes to print
         :return:
         """
-        return [value(self) for key, value in self._registry.items() if len(args) == 0 or len(args) >= 1 and key in args]
+        self.__class__._check_init()
+        return [get_dict_attr(self, value)(self) if callable(get_dict_attr(self, value)) else
+                get_dict_attr(self, value).fget(self) for key, value in registry[self.__class__.__name__].items()
+                if len(args) == 0 or len(args) >= 1 and key in args]
 
 
 

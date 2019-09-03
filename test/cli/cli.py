@@ -1,4 +1,5 @@
 import os
+import re
 import unittest
 
 from click.testing import CliRunner
@@ -43,7 +44,20 @@ class PadreCli(unittest.TestCase):
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
                                          'dataset', 'list'])
         assert 'Boston' in result.output
+
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
+                                         'dataset', 'get',
+                                         re.search('([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+)',
+                                                   result.output).group(0)])
         print(result)
+        assert 'Diabetes' in result.output
+
+    def test_project(self):
+        runner = CliRunner()
+
+        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
+                                         'project', 'create', '-d'])
 
 if __name__ == '__main__':
     unittest.main()

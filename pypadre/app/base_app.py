@@ -55,7 +55,9 @@ class BaseChildApp(ChildEntity, IBaseApp):
         obj_list = []
         for b in self.backends:
             backend: IStoreable = b
-            obj_list.append(backend.get(id))
+            obj = backend.get(id)
+            if obj is not None:
+                obj_list.append(obj)
         return obj_list
 
     def delete(self, obj):

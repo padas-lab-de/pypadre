@@ -10,6 +10,8 @@ import click
 ####### DATASETS FUNCTIONS ##########
 #################################
 from pypadre.app.dataset.dataset_app import DatasetApp
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.printing.tablefyable import registry
 from pypadre.printing.util.print_util import to_table
 
 
@@ -25,25 +27,33 @@ def _get_app(ctx) -> DatasetApp:
 
 
 @dataset.command(name="list")
-@click.option('--offset', default=0, help='start number of the dataset')
-@click.option('--size', default=100, help='Number of datasets to retrieve')
-@click.option('--search', default=None,
+@click.option('--columns', help='Show only columns which are available', is_flag=True)
+@click.option('--offset', '-o', default=0, help='start number of the dataset')
+@click.option('--limit', '-l', default=100, help='Number of datasets to retrieve')
+@click.option('--search', '-s', default=None,
               help='search string')
-@click.option('--column', help="Column to print", default=None, multiple=True)
+@click.option('--column', '-c', help="Column to print", default=None, multiple=True)
 @click.pass_context
-def find(ctx, search, offset, size, column):
+def list(ctx, columns, search, offset, limit, column):
+    if columns:
+        print(Dataset.tablefy_columns())
+        return 0
     """list all available datasets"""
     # TODO like pageable (sort, offset etc.)
-    print(to_table(_get_app(ctx).list(search=search, offset=offset, size=size)),
-          *column)
+    print(to_table(_get_app(ctx).list(search=search, offset=offset, size=limit),
+          columns=column))
 
 
 @dataset.command(name="get")
 @click.argument('dataset_id')
+@click.option('--simple', '-s', help='Show only simple info', is_flag=True)
 @click.pass_context
-def get(ctx, dataset_id):
+def get(ctx, dataset_id, simple=False):
     """downloads the dataset with the given id. id can be either a number or a valid url"""
-    print(_get_app(ctx).get(dataset_id))
+    if simple:
+        print('\n'.join(map(str, _get_app(ctx).get(dataset_id))))
+    else:
+        print('\n'.join([d.to_detail_string() for d in _get_app(ctx).get(dataset_id)]))
 
 
 @dataset.command(name="sync")

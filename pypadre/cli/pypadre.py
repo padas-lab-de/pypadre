@@ -22,7 +22,7 @@ from .metric import metric_cli
 #######      MAIN      ##########
 #################################
 # @click.group()
-@shell(prompt='padre > ', intro='Starting padre ...')
+@shell(prompt='pypadre > ', intro='Starting padre ...')
 @click.option('--config-file', '-c',
               type=click.Path(),
               default=os.path.expanduser('~/.padre.cfg'),
@@ -30,7 +30,7 @@ from .metric import metric_cli
 @click.pass_context
 def pypadre(ctx, config_file):
     """
-    setup padre command line interface using the provided config file
+    Setup padre command line interface using the provided config file
 
     Default config file: ~/.padre.cfg
     """

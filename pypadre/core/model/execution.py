@@ -7,6 +7,10 @@ from pypadre.util.dict_util import get_dict_attr
 class Execution(MetadataEntity, Tablefyable):
     """ A execution should save data about the running env and the version of the code on which it was run """
 
+    @classmethod
+    def register_columns(cls):
+        cls._register_columns({'hash': get_dict_attr(Execution, 'hash').fget, 'cmd': get_dict_attr(Execution, 'cmd').fget})
+
     _id = None
     _metadata = None
 
@@ -18,9 +22,6 @@ class Execution(MetadataEntity, Tablefyable):
         self._runs = []
         self._hash = codehash
         self._cmd = command
-
-        # Add entries for tablefyable
-        self._registry.update({'hash': get_dict_attr(self, 'hash').fget, 'cmd': get_dict_attr(self, 'cmd')})
 
     @property
     def hash(self):
