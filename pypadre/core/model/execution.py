@@ -20,10 +20,10 @@ class Execution(MetadataEntity, Tablefyable):
     def __init__(self, experiment, codehash, command, **options):
         # Validate input types
         from uuid import uuid4
-        parameters = options.pop('parameters')
-        preparameters = options.pop('preparameters')
-        single_run = options.pop('single_run')
-        single_transformation = options.pop('single_transformation')
+        parameters = options.pop('parameters', None)
+        preparameters = options.pop('preparameters', None)
+        single_run = options.pop('single_run', True)
+        single_transformation = options.pop('single_transformation', True)
 
         self.validate_input_parameters(experiment=experiment, options=options)
         super().__init__(id_=options.pop("id", codehash), **options)
@@ -42,8 +42,8 @@ class Execution(MetadataEntity, Tablefyable):
         self._experiment_configuration = self.\
             create_experiment_configuration_dict(params=parameters,
                                                  preprocessing_params=preparameters,
-                                                 single_transformation=False,
-                                                 single_run=False)
+                                                 single_transformation=single_run,
+                                                 single_run=single_transformation)
 
     @property
     def hash(self):
@@ -240,7 +240,9 @@ class Execution(MetadataEntity, Tablefyable):
                 obj_params = estimators.get(estimator).get_params()
                 estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    estimator_name = alternate_name_mappings.get(str(estimator).lower())
+                    estimator_name = alternate_name_mappings.get(str(estimator))
+                    if estimator_name is None:
+                        estimator_name = alternate_name_mappings.get(str(estimator).lower())
 
                 params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
                 param_dict = dict()

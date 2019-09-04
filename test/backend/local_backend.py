@@ -105,10 +105,15 @@ class LocalBackends(unittest.TestCase):
                                 dataset=dataset[0],
                                 workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
 
-        execution = Execution(experiment, codehash='abdauoasg45qyh34t', command=None, append_runs=True, parameters=None,
+        codehash = 'abdauoasg45qyh34t'
+        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
                               preparameters=None, single_run=True,
                               single_transformation=True)
         self.app.executions.put(execution)
+
+        executions = self.app.executions.list({'name': codehash})
+        for execution_ in executions:
+            assert codehash in execution_.name
 
 
 
@@ -120,8 +125,10 @@ class LocalBackends(unittest.TestCase):
         run_backend: PadreRunFileBackend = execution_backend.run
         """
 
-        from pypadre.core.model.experiment import Experiment
         from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.core.model.execution import Execution
+        from pypadre.core.model.run import Run
 
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
 
@@ -132,16 +139,23 @@ class LocalBackends(unittest.TestCase):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
-        id = 'Iris Plants Database'
+        id = 'Boston House Prices dataset'
         dataset = self.app.datasets.list({'name': id})
-        workflow = create_test_pipeline()
+
         experiment = Experiment(name="Test Experiment SVM",
                                 description="Testing Support Vector Machines via SKLearn Pipeline",
                                 dataset=dataset[0],
-                                workflow=workflow, keep_splits=True, strategy="random", project=project)
+                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
 
-        self.app.experiments.put(experiment)
-        experiment.execute()
+        codehash = 'abdauoasg45qyh34t'
+        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
+                              preparameters=None, single_run=True,
+                              single_transformation=True)
+
+        executions = self.app.executions.list({'name': codehash})
+
+        run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
+        self.app.runs.put(run)
 
     def test_split(self):
         project_backend: PadreProjectFileBackend = self.backend.project

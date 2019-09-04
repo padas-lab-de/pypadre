@@ -17,6 +17,7 @@ class Run(MetadataEntity):
     _metadata = None
 
     def __init__(self, execution, workflow, **options):
+        from uuid  import uuid4
         self.validate_parameters(execution=execution, workflow=workflow, options=options)
         self._execution = execution
         self._workflow = workflow
@@ -30,7 +31,7 @@ class Run(MetadataEntity):
         super().__init__(self._id, **options)
 
         if self._id is None:
-            self._id = uuid.uuid4()
+            self._id = uuid4()
 
     def do_splits(self):
         from copy import deepcopy

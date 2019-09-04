@@ -34,7 +34,7 @@ class PadreRunFileBackend(IRunBackend):
         return self._split
 
     def to_folder_name(self, run):
-        return run.id
+        return str(run.id)
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, self.META_FILE)
@@ -78,10 +78,13 @@ class PadreRunFileBackend(IRunBackend):
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Run %s already exists." +
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(run.id))
+
+        elif not os.path.exists(directory):
+            os.makedirs(directory)
+
         else:
             shutil.rmtree(directory)
-        os.makedirs(directory)
 
         self.write_file(directory, self.META_FILE, run.metadata)
         self.write_file(directory, self.HYPERPARAMETER_FILE, run.experiment.hyperparameters())
-        self.write_file(directory, self.WORKFLOW_FILE, run.workflow)
+        self.write_file(directory, self.WORKFLOW_FILE, run.workflow, "wb")
