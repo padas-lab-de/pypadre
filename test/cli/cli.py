@@ -3,6 +3,7 @@ import re
 import unittest
 
 from click.testing import CliRunner
+from jsonschema import ValidationError, validate
 
 from pypadre.app import PadreApp, PadreConfig
 from pypadre.app.dataset.dataset_app import DatasetApp

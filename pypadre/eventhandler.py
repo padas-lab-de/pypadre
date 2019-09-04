@@ -297,6 +297,7 @@ def assert_condition(**args):
     :param condition: The condition to be checked
     :param source: Source of the condition
     :param message: Message to be logged if the condition fails
+    :param handler: Handler to call if we fail instead of raising an error
     :return:
     """
 
@@ -304,11 +305,14 @@ def assert_condition(**args):
     condition = args.pop('condition', False)
     source = args.get('source', None)
     message = args.get('message', None)
+    handler = args.get('handler', None)
     if not condition:
         for logger in logger_list:
             for error_event_handler in error_event_handlers:
                 error_event_handler(args)
 
+        if handler is not None:
+            return handler(**args)
         # Raise exception only after all loggers have logged the exception
         raise ValidationError(str(source) + ":\t" + message)
 

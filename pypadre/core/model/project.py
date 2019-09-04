@@ -4,7 +4,7 @@ import pypadre.core.visitors.parameter
 
 from collections import OrderedDict
 from pypadre.eventhandler import trigger_event, assert_condition
-from pypadre.base import MetadataEntity
+from pypadre.base import MetadataEntity, Validateable
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
 from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
@@ -13,8 +13,11 @@ from pypadre.core.model.split.custom_split import split_obj
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
 
 
-class Project(MetadataEntity):
+class Project(MetadataEntity, Validateable):
     """ A project should group experiments """
+
+    def handle_failure(self, e):
+        pass
 
     _id = None
     _metadata = None
@@ -23,7 +26,7 @@ class Project(MetadataEntity):
         # Validate input types
         self.validate_input_parameters(options=options)
 
-        super().__init__(id_=options.pop("id", None), **options)
+        super().__init__(id_=options.pop("id", None), schema={}, **options)
 
         self._experiments = []
         self._sub_projects = []

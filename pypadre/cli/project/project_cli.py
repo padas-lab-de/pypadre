@@ -12,6 +12,7 @@ from click_shell import shell, make_click_shell
 
 from pypadre.app import PadreApp
 from pypadre.app.project.project_app import ProjectApp
+from pypadre.base import ValidationErrorHandler
 from pypadre.cli.experiment import experiment_cli
 from pypadre.core.model.project import Project
 
@@ -59,9 +60,10 @@ def create(ctx):
     Create a new project
     """
     # Create a new project
-    # TODO fill project data
-    p = Project()
-    name = click.prompt('Please enter a name for your project', type=int)
+    def handle_missing_name(obj, e, options):
+        name = click.prompt('Please enter a name for your project', type=str)
+
+    p = Project(validation_error_handlers=[ValidationErrorHandler(absolute_path=["name"], validator="value", handle=handle_missing_name)])
     description = click.prompt('Please enter a description for your project', type=int)
     _get_app(ctx).put(p)
 
