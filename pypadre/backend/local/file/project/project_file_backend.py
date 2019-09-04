@@ -65,8 +65,7 @@ class PadreProjectFileBackend(IProjectBackend):
 
         # Create a repo for the project
         # Check if the folder exists, if the folder exists the repo will already be created, else create the repo
-        if not os.path.exists(directory):
-            self._create_repo(path=directory, bare=False)
+        self._create_repo(path=directory, bare=False)
 
         # Write metadata of the project
         self.write_file(directory, self.META_FILE, project.metadata)

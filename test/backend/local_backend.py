@@ -174,7 +174,7 @@ class LocalBackends(unittest.TestCase):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
-        id = 'Boston House Prices dataset'
+        id = 'Iris Plants Database'
         dataset = self.app.datasets.list({'name': id})
 
         experiment = Experiment(name="Test Experiment SVM",
@@ -190,8 +190,6 @@ class LocalBackends(unittest.TestCase):
         run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
         split = Split(run=run, num=0, train_idx=list(range(1, 1000+1)), val_idx=None, test_idx=list(range(1000, 1100+1)), keep_splits=True)
         self.app.splits.put(split)
-
-
 
 
 if __name__ == '__main__':

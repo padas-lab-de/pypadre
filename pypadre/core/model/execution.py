@@ -4,7 +4,7 @@ from pypadre.printing.tablefyable import Tablefyable
 from pypadre.util.dict_util import get_dict_attr
 from pypadre.eventhandler import assert_condition, trigger_event
 from pypadre.core.model.run import  Run
-
+from collections import OrderedDict
 
 class Execution(MetadataEntity, Tablefyable):
     """ A execution should save data about the running env and the version of the code on which it was run """
@@ -24,6 +24,7 @@ class Execution(MetadataEntity, Tablefyable):
         preparameters = options.pop('preparameters', None)
         single_run = options.pop('single_run', True)
         single_transformation = options.pop('single_transformation', True)
+        self._keep_runs = options.get('keep_runs', True)
 
         self.validate_input_parameters(experiment=experiment, options=options)
         super().__init__(id_=options.pop("id", codehash), **options)
@@ -45,9 +46,21 @@ class Execution(MetadataEntity, Tablefyable):
                                                  single_transformation=single_run,
                                                  single_run=single_transformation)
 
+        self._results = []
+        self._metrics = []
+        self._run_split_dict = OrderedDict()
+
     @property
     def hash(self):
         return self._hash
+
+    @property
+    def results(self):
+        return self._results
+
+    @property
+    def metrics(self):
+        return self._metrics
 
     @property
     def cmd(self):

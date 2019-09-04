@@ -66,10 +66,13 @@ class PadreExperimentFileBackend(IExperimentBackend):
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
         #experiment_params = config
         experiment_params = dict()
+        experiment_params['name'] = metadata.get('name')
+        experiment_params['description'] = metadata.get('description')
+        experiment_params['keep_splits'] = metadata.get('keep_splits')
+        experiment_params['strategy'] = metadata.get('strategy')
         experiment_params["workflow"] = workflow.pipeline
         experiment_params["preprocessing"] = preprocess_workflow
-        dataset_id = self._data_repository.get_dataset_name_by_id(metadata["dataset_id"])
-        #experiment_params["dataset"] = DATASETBACKEND.get(dataset_id)
+        experiment_params["dataset"] = self.parent.parent.dataset.get(metadata['dataset_id'])
         ex = Experiment(ex_id=id_, **experiment_params)
         return ex
 

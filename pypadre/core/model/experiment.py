@@ -234,8 +234,7 @@ class Experiment(MetadataEntity):
         execution = Execution(self, codehash='abdauoasg45qyh34t', command=None, append_runs=True,
                               parameters=parameters, preparameters=pre_parameters, single_run=single_run,
                               single_transformation=single_transformation)
-        execution.execute(parameters=parameters, preprocessed_workflow=self._preprocessed_workflow,
-                          single_run=single_run)
+        execution.execute(parameters=parameters, preprocessed_workflow=self._preprocessed_workflow)
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
     def preprocess(self):

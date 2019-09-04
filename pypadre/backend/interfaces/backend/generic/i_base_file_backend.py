@@ -88,8 +88,8 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         :param args:
         :return:
         """
-        allow_overwrite = True if len(args) == 0 else args[0]
-        append_data = False if len(args) <= 1 else args[1]
+        allow_overwrite = True if len(args[0]) == 0 else args[0][0]
+        append_data = False if len(args[0]) <= 1 else args[0][1]
 
         directory = self.to_directory(obj)
 
