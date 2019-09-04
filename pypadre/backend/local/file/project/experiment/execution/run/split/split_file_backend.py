@@ -39,7 +39,7 @@ class PadreSplitFileBackend(ISplitBackend):
         return self._metric
 
     def to_folder_name(self, split):
-        return split.id
+        return str(split.id)
 
     def get_by_dir(self, directory):
         pass
@@ -73,9 +73,11 @@ class PadreSplitFileBackend(ISplitBackend):
         if os.path.exists(directory) and not allow_overwrite:
             raise ValueError("Split %s already exists." +
                              "Overwriting not explicitly allowed. Set allow_overwrite=True".format(split.id))
+        elif not os.path.exists(directory):
+            os.makedirs(directory)
+
         else:
             shutil.rmtree(directory)
-        os.makedirs(directory)
 
         self.write_file(directory, self.METADATA_FILE, split.metadata)
         # TODO updating metrics and results could be done here or in an own function

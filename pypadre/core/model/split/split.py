@@ -195,7 +195,7 @@ class Split(MetadataEntity):
         trigger_event('EVENT_START_SPLIT', split=self)
 
         # log run start here.
-        workflow = self._run.experiment.workflow
+        workflow = self._run.execution.experiment.workflow
 
         # Fire event
         trigger_event('EVENT_LOG_EVENT',

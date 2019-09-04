@@ -158,12 +158,40 @@ class LocalBackends(unittest.TestCase):
         self.app.runs.put(run)
 
     def test_split(self):
-        project_backend: PadreProjectFileBackend = self.backend.project
-        experiment_backend: PadreExperimentFileBackend = project_backend.experiment
-        execution_backend: PadreExecutionFileBackend = experiment_backend.execution
-        run_backend: PadreRunFileBackend = execution_backend.run
-        split_backend: PadreSplitFileBackend = run_backend.split
-        # TODO
+
+        from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.core.model.execution import Execution
+        from pypadre.core.model.run import Run
+        from pypadre.core.model.split.split import Split
+
+        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+
+        def create_test_pipeline():
+            from sklearn.pipeline import Pipeline
+            from sklearn.svm import SVC
+            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+            estimators = [('SVC', SVC(probability=True))]
+            return Pipeline(estimators)
+
+        id = 'Boston House Prices dataset'
+        dataset = self.app.datasets.list({'name': id})
+
+        experiment = Experiment(name="Test Experiment SVM",
+                                description="Testing Support Vector Machines via SKLearn Pipeline",
+                                dataset=dataset[0],
+                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+
+        codehash = 'abdauoasg45qyh34t'
+        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
+                              preparameters=None, single_run=True,
+                              single_transformation=True)
+
+        run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
+        split = Split(run=run, num=0, train_idx=list(range(1, 1000+1)), val_idx=None, test_idx=list(range(1000, 1100+1)), keep_splits=True)
+        self.app.splits.put(split)
+
+
 
 
 if __name__ == '__main__':
