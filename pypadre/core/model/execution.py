@@ -27,7 +27,7 @@ class Execution(MetadataEntity, Tablefyable):
         self._keep_runs = options.get('keep_runs', True)
 
         self.validate_input_parameters(experiment=experiment, options=options)
-        super().__init__(id_=options.pop("id", codehash), **options)
+        super().__init__(id_=options.get("id", codehash), **options)
         Tablefyable.__init__(self)
 
         self._experiment = experiment

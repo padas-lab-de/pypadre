@@ -103,6 +103,15 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
                 shutil.rmtree(directory)
             os.makedirs(directory)
 
+    def patch(self, obj, *args):
+        """
+
+        :param obj:
+        :param args:
+        :return:
+        """
+        self.put(obj, args)
+
     @abstractmethod
     def to_folder_name(self, obj):
         """

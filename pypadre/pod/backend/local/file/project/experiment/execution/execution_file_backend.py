@@ -60,5 +60,22 @@ class PadreExecutionFileBackend(IExecutionBackend):
 
         self.write_file(directory, self.META_FILE, execution.metadata)
 
-        # The code for each execution changes. So it is necessary to write the experiment.json file too
+        # The code for each execution changes. So it is necessary to write the experiment.json file too.
+        self.write_file(directory, self.CONFIG_FILE, execution.config)
+
+    def patch(self, execution, allow_overwrite=True):
+        directory = self.to_directory(execution)
+
+        if os.path.exists(directory):
+            metadata = self.get_file(directory, self.META_FILE)
+            # Patch the existing metadata with the metadata of the project
+            execution.merge_metadata(metadata=metadata)
+
+        elif not os.path.exists(directory):
+            os.makedirs(directory)
+
+        self.write_file(directory, self.META_FILE, execution.metadata)
+
+        # The configuration for the execution MUST be identical, else throw an error.
+        # So there is no need to rewrite the config file. Any change should create a new execution
         self.write_file(directory, self.CONFIG_FILE, execution.config)
