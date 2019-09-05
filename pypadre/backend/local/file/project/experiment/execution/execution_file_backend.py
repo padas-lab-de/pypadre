@@ -60,7 +60,7 @@ class PadreExecutionFileBackend(IExecutionBackend):
 
         self.write_file(directory, self.META_FILE, execution.metadata)
 
-        # The code for each execution changes. So it is necessary to write the experiment.json file too
+        # The code for each execution changes. So it is necessary to write the experiment.json file too.
         self.write_file(directory, self.CONFIG_FILE, execution.config)
 
     def patch(self, execution, allow_overwrite=True):
