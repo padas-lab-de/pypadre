@@ -3,9 +3,9 @@ import pandas as pd
 import pandas_profiling as pd_pf
 from scipy import stats
 
+from pypadre.core.model.dataset import dataset
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
-from pypadre.core.model.dataset import dataset
 
 
 class PandasContainer(IBaseContainer):

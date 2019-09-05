@@ -7,13 +7,15 @@ on multiple datasets.
 """
 import ast
 import importlib
-import numpy as np
 from copy import deepcopy
-from pypadre.eventhandler import trigger_event, assert_condition
-from pypadre.ds_import import load_sklearn_toys
+
+import numpy as np
+
+from pypadre.core import Experiment
 from pypadre.core.visitors.mappings import name_mappings
 from pypadre.core.visitors.mappings import supported_frameworks
-from pypadre.core import Experiment
+from pypadre.ds_import import load_sklearn_toys
+from pypadre.eventhandler import trigger_event, assert_condition
 
 
 class ExperimentCreator:

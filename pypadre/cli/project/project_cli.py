@@ -3,18 +3,15 @@ Command Line Interface for PADRE.
 
 """
 import click
-
-
 #################################
 ####### PROJECT FUNCTIONS ##########
 #################################
-from click_shell import shell, make_click_shell
+from click_shell import make_click_shell
 
-from pypadre.app import PadreApp
 from pypadre.app.project.project_app import ProjectApp
-from pypadre.base import ValidationErrorHandler
 from pypadre.cli.experiment import experiment_cli
 from pypadre.core.model.project import Project
+from pypadre.validation import ValidationErrorHandler, ValidateableFactory
 
 
 @click.group(name="project", invoke_without_command=True)
@@ -53,18 +50,16 @@ def list(ctx, search, offset, limit, column):
 
 
 @project.command(name="create")
-@click.option('--simple', '-s', help="Column to print", default=None, multiple=True)
 @click.pass_context
 def create(ctx):
     """
     Create a new project
     """
     # Create a new project
-    def handle_missing_name(obj, e, options):
-        name = click.prompt('Please enter a name for your project', type=str)
+    def handle_missing(e):
+        return click.prompt('Please enter a name for your project', type=str)
 
-    p = Project(validation_error_handlers=[ValidationErrorHandler(absolute_path=["name"], validator="value", handle=handle_missing_name)])
-    description = click.prompt('Please enter a description for your project', type=int)
+    p = ValidateableFactory.make(Project, handlers=[ValidationErrorHandler(validator="required", handle=handle_missing)])
     _get_app(ctx).put(p)
 
 

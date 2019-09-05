@@ -2,28 +2,24 @@
 Modul containing import methods from different packages / repositories.
 """
 
-import arff
 import copy
+import json
+import os.path
+import tempfile
+from multiprocessing import Process
+
+import arff
 import networkx as nx
 import numpy as np
 import openml as oml
-import os.path
 import pandas as pd
-import sklearn.datasets as ds
-import tempfile
-import json
+import pypadre.core.backend.http.protobuffer.proto_organizer as proto
 import requests
-import uuid
-import pypadre
-
-from deprecated import deprecated
-from multiprocessing import Process
 from requests.exceptions import ConnectionError
-from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.model.dataset.attribute import Attribute
-from pypadre.eventhandler import assert_condition, trigger_event
-import pypadre.backend.http.protobuffer.proto_organizer as proto
 
+import pypadre
+from pypadre.core.model.dataset.attribute import Attribute
+from pypadre.core.model.dataset.dataset import Dataset
 
 # def _split_DESCR(s):
 #     s = s.strip()
@@ -582,7 +578,7 @@ def createServerDataset(dataset,auth_token,url="http://localhost:8080"):
 
     binary = tempfile.TemporaryFile(mode='w+b')
 
-    proto_enlarged = pypadre.backend.http.http.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
+    proto_enlarged = pypadre.core.backend.http.http.protobuffer.proto_organizer.createProtobuffer(dataset, binary)
 
     hed = {'Authorization': auth_token}
 

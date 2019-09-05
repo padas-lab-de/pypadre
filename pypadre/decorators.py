@@ -1,8 +1,9 @@
+import copy
+import itertools
 import pprint
 from functools import wraps
+
 from pypadre.core import Experiment
-import itertools
-import copy
 
 _experiments = {}
 

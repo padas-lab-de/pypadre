@@ -14,6 +14,8 @@ from pypadre.app.project.experiment.execution.run.split.split_app import SplitAp
 from pypadre.app.project.experiment.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
 from pypadre.cli.pypadre import pypadre
+from pypadre.core.model.project import Project
+from pypadre.validation import ValidateableFactory, ValidationErrorHandler
 
 
 class PadreCli(unittest.TestCase):
@@ -53,11 +55,19 @@ class PadreCli(unittest.TestCase):
         assert 'Diabetes' in result.output
 
     def test_project(self):
+        def handle_missing(obj, e):
+            return "a"
+
+        p = ValidateableFactory.make(Project, handlers=[
+            ValidationErrorHandler(validator="required", handle=handle_missing)])
+
         runner = CliRunner()
 
         runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
-                                         'project', 'create', '-d'])
+                                         'project', 'create'])
+
+        assert 'Diabetes' in result.output
 
 if __name__ == '__main__':
     unittest.main()

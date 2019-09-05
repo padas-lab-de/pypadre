@@ -9,21 +9,18 @@ from typing import List
 import networkx as nx
 import numpy as np
 import pandas as pd
-from jsonschema import ValidationError
-#from padre.PaDREOntology import PaDREOntology
+# from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.base import MetadataEntity
 from pypadre.core.model.dataset.attribute import Attribute
-from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
+from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
 from pypadre.eventhandler import assert_condition
-from pypadre.importing.base_validator import IValidator
 from pypadre.printing.tablefyable import Tablefyable
 from pypadre.printing.util.print_util import StringBuilder, get_default_table
-from pypadre.util.dict_util import get_dict_attr
 from pypadre.util.utils import _Const
 
 
@@ -37,24 +34,24 @@ class _Formats(_Const):
 formats = _Formats()
 
 
-class DataSetValidator(IValidator):
-
-    @staticmethod
-    def validate(obj):
-        # TODO validate if metadata are fine. This should prompt the user to input something if the validation fails.
-        # TODO Maybe validate with json schema or ontology
-
-        if not obj.metadata.get("name"):
-            raise ValidationError("name has to be set for a dataset")
-
-        if not obj.metadata.get("version"):
-            raise ValidationError("version has to be set for a dataset")
-
-        if not obj.metadata.get("originalSource"):
-            raise ValidationError("originalSource has to be set for a dataset")
-
-        if not obj.metadata.get("type"):
-            raise ValidationError("type has to be set for a dataset")
+# class DataSetValidator(IValidator):
+#
+#     @staticmethod
+#     def validate(obj):
+#         # TODO validate if metadata are fine. This should prompt the user to input something if the validation fails.
+#         # TODO Maybe validate with json schema or ontology
+#
+#         if not obj.metadata.get("name"):
+#             raise ValidationError("name has to be set for a dataset")
+#
+#         if not obj.metadata.get("version"):
+#             raise ValidationError("version has to be set for a dataset")
+#
+#         if not obj.metadata.get("originalSource"):
+#             raise ValidationError("originalSource has to be set for a dataset")
+#
+#         if not obj.metadata.get("type"):
+#             raise ValidationError("type has to be set for a dataset")
 
 
 class Dataset(MetadataEntity, Tablefyable):

@@ -1,19 +1,12 @@
-import itertools
-import platform
-import pypadre.core.visitors.parameter
+from importlib import resources
 
-from collections import OrderedDict
-from pypadre.eventhandler import trigger_event, assert_condition
-from pypadre.base import MetadataEntity, Validateable
-from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
-from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
-from pypadre.core.model.run import Run
-from pypadre.core.model.split.custom_split import split_obj
-from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
+from jsonpickle import json
+
+from pypadre.base import MetadataEntity
+from pypadre.validation import Validateable
 
 
-class Project(MetadataEntity, Validateable):
+class Project(Validateable, MetadataEntity):
     """ A project should group experiments """
 
     def handle_failure(self, e):
@@ -24,18 +17,14 @@ class Project(MetadataEntity, Validateable):
 
     def __init__(self, **options):
         # Validate input types
-        self.validate_input_parameters(options=options)
 
-        super().__init__(id_=options.pop("id", None), schema={}, **options)
+        with resources.open_text('pypadre.res.schema', 'project.json') as f:
+            schema = json.loads(f.read())
+
+        super(Project, self).__init__(id_=options.pop("id", None), schema=schema, **options)
 
         self._experiments = []
         self._sub_projects = []
-
-    def validate_input_parameters(self, options):
-        assert_condition(condition=options.get('name', None) is not None, source=self,
-                         message="Name cannot be none")
-        assert_condition(condition=options.get('description', None) is not None, source=self,
-                         message="Description cannot be none")
 
     def get(self, key):
         if key == 'id':

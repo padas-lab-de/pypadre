@@ -2,13 +2,13 @@
 import unittest
 
 from pypadre.app import PadreConfig
-from pypadre.backend.remote.http.dataset.dataset_http_backend import PadreDatasetHttpBackend
-from pypadre.backend.remote.http.http import PadreHttpBackend
-from pypadre.backend.remote.http.project.experiment.execution.execution_http_backend import PadreExecutionHttpBackend
-from pypadre.backend.remote.http.project.experiment.execution.run.run_http_backend import PadreRunHttpBackend
-from pypadre.backend.remote.http.project.experiment.execution.run.split.split_http_backend import PadreSplitHttpBackend
-from pypadre.backend.remote.http.project.experiment.experiment_http_backend import PadreExperimentHttpBackend
-from pypadre.backend.remote.http.project.project_http_backend import PadreProjectHttpBackend
+from pypadre.core.backend.remote.http.dataset.dataset_http_backend import PadreDatasetHttpBackend
+from pypadre.core.backend.remote.http.http import PadreHttpBackend
+from pypadre.core.backend.remote.http.project.experiment.execution.execution_http_backend import PadreExecutionHttpBackend
+from pypadre.core.backend.remote.http.project.experiment.execution.run.run_http_backend import PadreRunHttpBackend
+from pypadre.core.backend.remote.http.project.experiment.execution.run.split.split_http_backend import PadreSplitHttpBackend
+from pypadre.core.backend.remote.http.project.experiment.experiment_http_backend import PadreExperimentHttpBackend
+from pypadre.core.backend.remote.http.project.project_http_backend import PadreProjectHttpBackend
 
 
 class HttpBackends(unittest.TestCase):

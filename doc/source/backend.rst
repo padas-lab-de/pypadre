@@ -15,11 +15,11 @@ and HttpBackendExperiments.
 Base class for Http backend is used to setup server information, authenticate user, check if client is online,
 retrieve token and do generic http calls.
 
-Important functions for base class :class:`pypadre.backend.http.PadreHTTPClient` are following
+Important functions for base class :class:`pypadre.core.backend.http.PadreHTTPClient` are following
 
-#. .. autofunction:: pypadre.backend.http.PadreHTTPClient.authenticate
+#. .. autofunction:: pypadre.core.backend.http.PadreHTTPClient.authenticate
 
-#. .. autofunction:: pypadre.backend.http.PadreHTTPClient.get_access_token
+#. .. autofunction:: pypadre.core.backend.http.PadreHTTPClient.get_access_token
 
 Http backend is further divided into Http Experiments and Datasets backends
 
@@ -28,13 +28,13 @@ Http backend is further divided into Http Experiments and Datasets backends
 Http experiments backend is used to communicate experiments, runs and splits, metrics and results information between
 client and server. Following are some important functions implemented in this backend.
 
-#. .. autofunction:: pypadre.backend.http_experiments.HttpBackendExperiments.put_experiment
-#. .. autofunction:: pypadre.backend.http_experiments.HttpBackendExperiments.get_experiment
-#. .. autofunction:: pypadre.backend.http_experiments.HttpBackendExperiments.list_experiments
-#. .. autofunction:: pypadre.backend.http_experiments.HttpBackendExperiments.put_run
-#. .. autofunction:: pypadre.backend.http_experiments.HttpBackendExperiments.get_run
-#. .. autofunction:: pypadre.backend.http_experiments.HttpBackendExperiments.put_split
-#. .. autofunction:: pypadre.backend.http_experiments.HttpBackendExperiments.get_split
+#. .. autofunction:: pypadre.core.backend.http_experiments.HttpBackendExperiments.put_experiment
+#. .. autofunction:: pypadre.core.backend.http_experiments.HttpBackendExperiments.get_experiment
+#. .. autofunction:: pypadre.core.backend.http_experiments.HttpBackendExperiments.list_experiments
+#. .. autofunction:: pypadre.core.backend.http_experiments.HttpBackendExperiments.put_run
+#. .. autofunction:: pypadre.core.backend.http_experiments.HttpBackendExperiments.get_run
+#. .. autofunction:: pypadre.core.backend.http_experiments.HttpBackendExperiments.put_split
+#. .. autofunction:: pypadre.core.backend.http_experiments.HttpBackendExperiments.get_split
 
 2. Http Datasets Backend
 ***************************

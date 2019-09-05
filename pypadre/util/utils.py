@@ -1,6 +1,7 @@
-import os
-from ..constants import  RESOURCE_DIRECTORY_PATH
 import ctypes
+import os
+
+from ..constants import RESOURCE_DIRECTORY_PATH
 
 
 class ResourceDirectory:

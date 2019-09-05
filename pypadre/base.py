@@ -2,18 +2,10 @@
 Modul containing basic padre datastructures
 """
 import sys
-import urllib.request, json
 from abc import ABC, ABCMeta, abstractmethod
-from collections import deque
 from datetime import datetime
 from time import time
-from typing import List
 
-from cerberus import Validator
-from cerberus.errors import BasicErrorHandler
-from jsonschema import validate, ValidationError
-
-from pypadre.eventhandler import trigger_event
 from pypadre.util.utils import _Const
 
 """
@@ -479,6 +471,8 @@ class MetadataEntity:
     """
 
     def __init__(self, id_=None, **metadata):
+        # See https://rhettinger.wordpress.com/2011/05/26/super-considered-super/
+        super().__init__()
         self.validate(metadata)
         self._metadata = dict(metadata)
 
@@ -747,79 +741,3 @@ class ChildEntity:
 # TODO: A better way of using the default timer
 # A static object shared throughout the instances of _LoggerMixin
 default_timer = TimeKeeper(timer_defaults.DEFAULT_PRIORITY)
-
-
-class ValidationErrorHandler:
-    """ Class to handle errors on the validation of an validatable. """
-
-    def __init__(self, absolute_path=None, validator=None, handle=None):
-        self._absolute_path = absolute_path
-        self._validator = validator
-        self._handle = handle
-
-    @property
-    def validator(self):
-        return self._validator
-
-    @property
-    def absolute_path(self):
-        return self.absolute_path
-
-    def handle(self, e):
-        if (not self._absolute_path or deque(self._absolute_path) == e.absolute_path) and (
-                not self._validator or self.validator in e.validator):
-            if self._handle is None:
-                self._default_handle(e)
-            else:
-                self._handle(self, e)
-        else:
-            raise e
-
-    @abstractmethod
-    def _default_handle(self, e):
-        print("Validation handler triggered: " + str(self))
-        raise e
-
-
-class Validateable:
-    """ This class implements basic logic for validating the state of it's input parameters """
-    __metaclass__ = ABCMeta
-
-    # noinspection PyBroadException
-    def __init__(self, validation_error_handlers: List[ValidationErrorHandler], schema=None, schema_path=None,
-                 schema_url=None, **options):
-
-        # Load schema externally
-        if schema is None:
-            try:
-                if schema_url is not None:
-                    with urllib.request.urlopen(schema_url) as url:
-                        schema = json.loads(url.read().decode())
-            except:
-                trigger_event('EVENT_WARN', source=self,
-                              message='Failed on loading schema file from url ' + schema_url)
-
-        # Load schema from file
-        if schema is None:
-            try:
-                if schema_path is not None:
-                    with open(schema_path, 'r') as f:
-                        schema_data = f.read()
-                    schema = json.loads(schema_data)
-            except:
-                trigger_event('EVENT_WARN', source=self, message='Failed on loading schema file from disk ' + schema_path)
-
-        # Fail if no schema is provided
-        if schema is None:
-            raise ValueError("A validateable object needs a schema to validate to.")
-        self.validation_error_handlers = validation_error_handlers
-        try:
-            validate(options, schema)
-        except ValidationError as e:
-            self.handle_failure(e)
-
-    def handle_failure(self, e: ValidationError):
-        if self.validation_error_handlers is None:
-            raise e
-        for handler in self.validation_error_handlers:
-            handler.handle(e)

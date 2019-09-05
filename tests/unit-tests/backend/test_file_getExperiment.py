@@ -12,7 +12,7 @@ import uuid
 from pypadre.app import p_app
 from pypadre.core import Experiment
 from pypadre.ds_import import load_sklearn_toys
-from pypadre.backend.serialiser import JSonSerializer
+from pypadre.core.backend.serialiser import JSonSerializer
 
 
 class TestFileGetExperiment(unittest.TestCase):

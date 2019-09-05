@@ -7,15 +7,16 @@ The experiments could be run
 4. Parallelly on the server
 5. Use a queueing system
 """
-from pypadre.core import Experiment
-from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.ds_import import load_sklearn_toys
 import threading
 import time
 from copy import deepcopy
-from sklearn.externals.joblib import Parallel, delayed
-from pypadre.eventhandler import trigger_event, assert_condition
 
+from sklearn.externals.joblib import Parallel, delayed
+
+from pypadre.core import Experiment
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.ds_import import load_sklearn_toys
+from pypadre.eventhandler import trigger_event, assert_condition
 
 EXPERIMENT_EXECUTION_QUEUE = []
 

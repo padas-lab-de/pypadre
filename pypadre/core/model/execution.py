@@ -1,10 +1,10 @@
-from pypadre.base import MetadataEntity
-from pypadre.eventhandler import assert_condition
-from pypadre.printing.tablefyable import Tablefyable
-from pypadre.util.dict_util import get_dict_attr
-from pypadre.eventhandler import assert_condition, trigger_event
-from pypadre.core.model.run import  Run
 from collections import OrderedDict
+
+from pypadre.base import MetadataEntity
+from pypadre.core.model.run import Run
+from pypadre.eventhandler import assert_condition, trigger_event
+from pypadre.printing.tablefyable import Tablefyable
+
 
 class Execution(MetadataEntity, Tablefyable):
     """ A execution should save data about the running env and the version of the code on which it was run """

@@ -3,11 +3,11 @@ import unittest
 
 from pypadre.app import PadreConfig
 from pypadre.app.padre_app import PadreFactory
-from pypadre.backend.local.file.project.experiment.execution.execution_file_backend import PadreExecutionFileBackend
-from pypadre.backend.local.file.project.experiment.execution.run.run_file_backend import PadreRunFileBackend
-from pypadre.backend.local.file.project.experiment.execution.run.split.split_file_backend import PadreSplitFileBackend
-from pypadre.backend.local.file.project.experiment.experiment_file_backend import PadreExperimentFileBackend
-from pypadre.backend.local.file.project.project_file_backend import PadreProjectFileBackend
+from pypadre.core.backend.local.file.project.experiment.execution.execution_file_backend import PadreExecutionFileBackend
+from pypadre.core.backend.local.file.project.experiment.execution.run.run_file_backend import PadreRunFileBackend
+from pypadre.core.backend.local.file.project.experiment.execution.run.split.split_file_backend import PadreSplitFileBackend
+from pypadre.core.backend.local.file.project.experiment.experiment_file_backend import PadreExperimentFileBackend
+from pypadre.core.backend.local.file.project.project_file_backend import PadreProjectFileBackend
 
 
 class LocalBackends(unittest.TestCase):

@@ -1,17 +1,14 @@
 # noinspection PyUnresolvedReferences
 import itertools
-from typing import List, Set
-
+import sys
+import threading
+import time
 from io import StringIO
+from typing import List
 
 from beautifultable import BeautifulTable
 from beautifultable.enums import Alignment
 
-import sys
-import time
-import threading
-
-from pypadre.eventhandler import assert_condition
 from pypadre.printing.tablefyable import Tablefyable
 
 

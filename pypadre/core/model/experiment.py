@@ -1,15 +1,15 @@
 import platform
-import pypadre.core.visitors.parameter
-
 from collections import OrderedDict
-from pypadre.eventhandler import trigger_event, assert_condition
+
+import pypadre.core.visitors.parameter
 from pypadre.base import MetadataEntity
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
 from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
-from pypadre.core.model.run import Run
 from pypadre.core.model.split.custom_split import split_obj
-from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
+from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
+from pypadre.eventhandler import trigger_event, assert_condition
+
+
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -370,8 +370,6 @@ class Experiment(MetadataEntity):
         :param options: Dictionary containing the parameters given to the constructor of the class
         :return: True if successful validation of parameters, False if not
         """
-        from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
-        import numpy as np
         """
         assert_condition(condition=options.get('workflow', None) is not None, source=self,
                          message="Workflow cannot be none")

@@ -8,7 +8,7 @@ import unittest
 
 from mock import MagicMock
 
-from pypadre.backend.http.http_experiments import HttpBackendExperiments
+from pypadre.core.backend.http.http_experiments import HttpBackendExperiments
 
 
 class TestListExperiments(unittest.TestCase):

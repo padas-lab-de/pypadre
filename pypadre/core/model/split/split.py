@@ -1,8 +1,11 @@
-import numpy as np
 import uuid
-from pypadre.eventhandler import trigger_event, assert_condition
+
+import numpy as np
+
 from pypadre.base import MetadataEntity, exp_events, phases
 from pypadre.core.model.split.custom_split import split_obj
+from pypadre.eventhandler import trigger_event, assert_condition
+
 
 class Splitter:
     """

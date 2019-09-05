@@ -2,10 +2,11 @@
 The configuration-file 'mappings.json' is read during import of the module and stored statically inside the module.
 """
 
+import importlib
 import json
 import os
+
 import pip._internal.utils.misc as pip
-import importlib
 
 type_mappings = {}
 name_mappings = {}

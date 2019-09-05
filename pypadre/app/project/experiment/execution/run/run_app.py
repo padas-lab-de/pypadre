@@ -1,7 +1,7 @@
 from typing import List
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.backend.interfaces.backend.i_backend import IBackend
+from pypadre.core.backend.interfaces.backend.i_backend import IBackend
 
 
 class RunApp(BaseChildApp):

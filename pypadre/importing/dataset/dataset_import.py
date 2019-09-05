@@ -3,16 +3,16 @@ import os
 import uuid
 from abc import abstractmethod, ABCMeta
 
-import pandas as pd
 import networkx as nx
 import numpy as np
-#from padre.PaDREOntology import PaDREOntology
+import pandas as pd
+# from padre.PaDREOntology import PaDREOntology
 import sklearn.datasets as ds
 
-from pypadre.util.utils import _Const
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.eventhandler import assert_condition, trigger_event
+from pypadre.util.utils import _Const
 
 
 class _Sources(_Const):

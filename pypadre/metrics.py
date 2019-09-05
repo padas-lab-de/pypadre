@@ -6,9 +6,11 @@ could be recalculated.
 
 import copy
 import json
-import numpy as np
 import os
+
+import numpy as np
 import pandas as pd
+
 from pypadre.eventhandler import trigger_event, assert_condition
 
 REGRESSION = 'regression'

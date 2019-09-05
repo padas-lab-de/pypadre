@@ -5,9 +5,9 @@ General visitors, that can be combined recursively to extract arbitrary data fro
 import abc
 from abc import abstractmethod
 
-from .schema import SchemaMismatch
 from .mappings import type_mappings
 from .parameter import Parameter
+from .schema import SchemaMismatch
 
 
 class Visitor(abc.ABC):

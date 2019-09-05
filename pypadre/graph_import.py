@@ -1,20 +1,21 @@
 """
 Module containing python classes for managing graphs
 """
+import copy
+import gzip
 import os
 import tarfile
 import tempfile
-import gzip
+from urllib.request import urlopen
+from urllib.request import urlopen as uReq
+
 import networkx as nx
 import numpy as np
-from urllib.request import urlopen
 import pandas as pd
-from urllib.request import urlopen as uReq
 from bs4 import BeautifulSoup as soup
-from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.model.dataset.attribute import Attribute
-import copy
 
+from pypadre.core.model.dataset.attribute import Attribute
+from pypadre.core.model.dataset.dataset import Dataset
 
 
 def pandas_to_networkx(df, source, target, create_using, node_attr=[], edge_attr=[]):

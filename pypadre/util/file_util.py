@@ -1,5 +1,4 @@
 import os
-import re
 
 
 def get_path(root_dir, name, create=True):

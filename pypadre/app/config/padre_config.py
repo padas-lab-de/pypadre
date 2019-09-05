@@ -1,6 +1,6 @@
 import ast
-import os
 import configparser
+import os
 
 from pypadre.util.dict_util import dict_merge
 
