@@ -51,6 +51,11 @@ class BaseChildApp(ChildEntity, IBaseApp):
             backend: IStoreable = b
             backend.put(obj)
 
+    def patch(self, obj):
+        for b in self.backends:
+            backend: IStoreable = b
+            backend.patch(obj)
+
     def get(self, id):
         obj_list = []
         for b in self.backends:

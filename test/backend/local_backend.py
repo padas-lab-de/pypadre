@@ -47,7 +47,7 @@ class LocalBackends(unittest.TestCase):
 
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
 
-        self.app.projects.put(project)
+        self.app.projects.patch(project)
         name = 'Test Project'
         projects = self.app.projects.list({'name': name})
         for project in projects:
@@ -76,7 +76,7 @@ class LocalBackends(unittest.TestCase):
                     dataset=dataset[0],
                     workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
 
-        self.app.experiments.put(experiment)
+        self.app.experiments.patch(experiment)
         name = 'Test Experiment SVM'
         experiments = self.app.experiments.list({'name': name})
         for experiment in experiments:
@@ -109,7 +109,7 @@ class LocalBackends(unittest.TestCase):
         execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
                               preparameters=None, single_run=True,
                               single_transformation=True)
-        self.app.executions.put(execution)
+        self.app.executions.patch(execution)
 
         executions = self.app.executions.list({'name': codehash})
         for execution_ in executions:

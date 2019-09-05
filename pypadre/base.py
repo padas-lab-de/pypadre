@@ -471,9 +471,19 @@ class MetadataEntity:
     Base object for entities that manage metadata. A MetadataEntity manages and id and a dict of metadata.
     The metadata should contain all necessary non-binary data to describe an entity.
     """
+    CREATED_AT = 'createdAt'
+    UPDATED_AT = 'updatedAt'
+    LAST_MODIFIED_BY = 'lastModifiedBy'
+    CREATED_BY = 'createdBy'
+    OVERWRITABLE = [CREATED_AT, CREATED_BY]
+
     def __init__(self, id_=None, **metadata):
+        import time
         self.validate(metadata)
         self._metadata = dict(metadata)
+        self._metadata[self.CREATED_AT] = time.time()
+        self._metadata[self.UPDATED_AT] = time.time()
+
 
         # TODO id setting. Why are we using openml here? we shouldn't do that
         if id_ is None:
@@ -519,29 +529,29 @@ class MetadataEntity:
 
     @property
     def createdAt(self):
-        if "createdAt" in self._metadata:
-            return self._metadata["createdAt"]
+        if self.CREATED_AT in self._metadata:
+            return self._metadata[self.CREATED_AT]
         else:
             return None
 
     @property
     def updatedAt(self):
-        if "updatedAt" in self._metadata:
-            return self._metadata["updatedAt"]
+        if self.UPDATED_AT in self._metadata:
+            return self._metadata[self.UPDATED_AT]
         else:
             return None
 
     @property
     def lastModifiedBy(self):
-        if "lastModifiedBy" in self._metadata:
-            return self._metadata["lastModifiedBy"]
+        if self.LAST_MODIFIED_BY in self._metadata:
+            return self._metadata[self.LAST_MODIFIED_BY]
         else:
             return None
 
     @property
     def createdBy(self):
-        if "createdBy" in self._metadata:
-            return self._metadata["createdBy"]
+        if self.CREATED_BY in self._metadata:
+            return self._metadata[self.CREATED_BY]
         else:
             return None
 
@@ -556,6 +566,16 @@ class MetadataEntity:
     @abstractmethod
     def validate(self, options):
         pass
+
+    def merge_metadata(self, metadata:dict):
+
+        for key, value in metadata.items():
+            # If the key is missing or key is to be overwritten
+            if self.metadata.get(key, None) is None or key in self.OVERWRITABLE:
+                self.metadata[key] = value
+            else:
+                pass
+
 
 
 class _timer_priorities(_Const):

@@ -26,7 +26,7 @@ class Run(MetadataEntity):
         self._results = []
         self._metrics = []
         self._hyperparameters = []
-        self._id = options.pop("run_id", None)
+        self._id = options.pop("run_id", uuid4())
         self._split_ids = []
         super().__init__(self._id, **options)
 

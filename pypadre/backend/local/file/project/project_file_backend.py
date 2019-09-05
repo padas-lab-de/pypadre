@@ -59,13 +59,35 @@ class PadreProjectFileBackend(IProjectBackend):
     def put(self, project, **kwargs):
 
         directory = self.to_directory(project)
+        if not os.path.exists(directory):
 
-        # Create the directory with flags, allow_overwrite False and append_data True
-        super().put(project, False, True)
+            # Create the directory with flags, allow_overwrite False and append_data True
+            super().put(project, False, True)
 
-        # Create a repo for the project
-        # Check if the folder exists, if the folder exists the repo will already be created, else create the repo
-        self._create_repo(path=directory, bare=False)
+            # Create a repo for the project
+            # Check if the folder exists, if the folder exists the repo will already be created, else create the repo
+            self._create_repo(path=directory, bare=False)
 
         # Write metadata of the project
         self.write_file(directory, self.META_FILE, project.metadata)
+
+    def patch(self, project, **kwargs):
+
+        directory = self.to_directory(project)
+        if not os.path.exists(directory):
+
+            # Create the directory with flags, allow_overwrite False and append_data True
+            super().put(project, False, True)
+
+            # Create a repo for the project
+            # Check if the folder exists, if the folder exists the repo will already be created, else create the repo
+            self._create_repo(path=directory, bare=False)
+
+        else:
+            metadata = self.get_file(directory, self.META_FILE)
+            # Patch the existing metadata with the metadata of the project
+            project.merge_metadata(metadata=metadata)
+
+        # Write metadata of the project
+        self.write_file(directory, self.META_FILE, project.metadata)
+
