@@ -98,6 +98,23 @@ class LoggerBase(ABC):
         """
         pass
 
+    def log_start_execution(self, execution, append_runs: bool = False):
+        """
+        This function logs the start of an execution
+        :param execution:
+        :param append_runs:
+        :return:
+        """
+        pass
+
+    def log_stop_execution(self, execution):
+        """
+        This function logs the end of an execution
+        :param execution:
+        :return:
+        """
+        pass
+
     def log_stop_experiment(self, experiment):
         """
         This function stops the logging of an experiment, handles the closing of the backends
@@ -260,6 +277,10 @@ class PadreLogger(LoggerBase):
     """
     _file = None
     _backend = None
+    _app = None
+
+    def __init__(self, app):
+        self._app = app
 
     def warn(self, condition, source, message):
         if not condition:
@@ -286,9 +307,9 @@ class PadreLogger(LoggerBase):
 
         :return:
         """
-        if self._backend is not None:
+        if self._app is not None:
             # Todo a bug happens here
-            self._backend.put_experiment(experiment, append_runs=append_runs)
+            self._app.experiments.put(experiment)
             self.log_event(experiment, exp_events.start, phase=phases.experiment)
 
     def log_stop_experiment(self, experiment):
@@ -302,6 +323,12 @@ class PadreLogger(LoggerBase):
         if self._backend is not None:
             self.log_event(experiment, exp_events.stop, phase=phases.experiment)
             self._backend.log_end_experiment()
+
+    def log_start_execution(self, execution, append_runs: bool =False):
+        pass
+
+    def log_stop_execution(self, execution):
+        pass
 
     def log_start_run(self, run):
         """

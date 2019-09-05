@@ -40,7 +40,7 @@ from pypadre.eventhandler import add_logger
 from pypadre.printing.tablefyable import Tablefyable
 from pypadre.printing.util.print_util import to_table
 
-logger = PadreLogger()
+logger = PadreLogger(app=None)
 add_logger(logger=logger)
 
 

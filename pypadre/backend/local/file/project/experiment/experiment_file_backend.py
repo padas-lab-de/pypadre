@@ -109,7 +109,38 @@ class PadreExperimentFileBackend(IExperimentBackend):
 
         # TODO: Add experiment as a submodule to the project repo
 
-    def add_and_commit(self, path):
-        repo = self.get_repo(path=path)
+    def patch(self, experiment):
+        # TODO: Experiment ID is returning None but it should return the experiment name
+        self._parent.put(experiment.project)
+
+        directory = self.to_directory(experiment)
+        # directory = self.replace_placeholder(experiment.project, directory)
+
+        if os.path.exists(directory):
+            metadata = self.get_file(directory, self.META_FILE)
+            experiment.merge_metadata(metadata=metadata)
+
+        elif not os.path.exists(directory):
+            os.makedirs(directory)
+
+        self.write_file(directory, self.META_FILE, experiment.metadata)
+        # TODO Workflow should belong to the execution and not to the experiment corresponding to the experiment config
+        # self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow, 'wb')
+
+        # TODO when to write experiment.json???
+        # TODO: Experiment.json should be written within the execution folder as any change
+        #  to the experiment configuration would spawn a new directory
+
+        #if experiment.requires_preprocessing:
+            #self.write_file(directory, self.PREPROCESS_WORKFLOW_FILE, experiment.preprocessing_workflow)
+
+        # Git operation of creating a repository
+        self._create_repo(path=directory, bare=False)
+
+        # TODO: Add experiment as a submodule to the project repo
+
+    def add_and_commit(self, experiment):
+        directory = self.to_directory(experiment)
+        repo = self.get_repo(path=directory)
         self._add_untracked_files(repo=repo)
         self._commit(repo, message=self._DEFAULT_GIT_MSG)

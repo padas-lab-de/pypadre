@@ -115,7 +115,8 @@ class LocalBackends(unittest.TestCase):
         for execution_ in executions:
             assert codehash in execution_.name
 
-
+        execution= self.app.executions.get(executions.__iter__().__next__().id)
+        assert execution == executions[0]
 
     def test_run(self):
         """
@@ -157,6 +158,8 @@ class LocalBackends(unittest.TestCase):
         run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
         self.app.runs.put(run)
 
+        runs = self.app.runs.list("")
+
     def test_split(self):
 
         from pypadre.core.model.project import Project
@@ -190,6 +193,34 @@ class LocalBackends(unittest.TestCase):
         run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
         split = Split(run=run, num=0, train_idx=list(range(1, 1000+1)), val_idx=None, test_idx=list(range(1000, 1100+1)), keep_splits=True)
         self.app.splits.put(split)
+
+    def test_full_stack(self):
+        from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.base import PadreLogger
+        from pypadre.eventhandler import add_logger
+
+        logger = PadreLogger(self.app)
+        add_logger(logger=logger)
+
+        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+
+        def create_test_pipeline():
+            from sklearn.pipeline import Pipeline
+            from sklearn.svm import SVC
+            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+            estimators = [('SVC', SVC(probability=True))]
+            return Pipeline(estimators)
+
+        id = 'Iris Plants Database'
+        dataset = self.app.datasets.list({'name': id})
+
+        experiment = Experiment(name="Test Experiment SVM",
+                                description="Testing Support Vector Machines via SKLearn Pipeline",
+                                dataset=dataset[0],
+                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+
+        experiment.execute()
 
 
 if __name__ == '__main__':

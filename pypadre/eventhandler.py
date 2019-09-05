@@ -43,6 +43,22 @@ def put_experiment_configuration(args):
         for logger in logger_list:
             logger.put_experiment_configuration(experiment=experiment)
 
+def log_start_execution(args):
+    execution = args.get('execution', None)
+    append_runs = args.get('append_runs', False)
+
+    if execution is not None:
+        for logger in logger_list:
+            logger.log_start_execution(execution=execution, append_runs=append_runs)
+
+
+def log_stop_execution(args):
+    execution = args.get('execution', None)
+
+    if execution is not None:
+        for logger in logger_list:
+            logger.log_stop_execution(execution=execution)
+
 
 def log_start_run(args):
     run = args.get('run', None)
@@ -171,6 +187,8 @@ This dictionary contains all the events that are to be handled and also their co
 EVENT_HANDLER_DICT = {
     'EVENT_START_EXPERIMENT': [log_start_experiment],
     'EVENT_STOP_EXPERIMENT': [log_stop_experiment],
+    'EVENT_START_EXECUTION': [log_start_execution],
+    'EVENT_STOP_EXECUTION': [log_stop_execution],
     'EVENT_START_RUN': [log_start_run],
     'EVENT_STOP_RUN': [log_stop_run],
     'EVENT_START_SPLIT': [log_start_split],
