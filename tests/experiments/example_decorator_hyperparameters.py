@@ -10,7 +10,7 @@ from pypadre import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from pypadre.app import p_app
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 @Workflow(exp_name="example hyperparameter eval with decorators",
           description="Test experiment with decorators",
@@ -31,7 +31,7 @@ def get_dataset():
 
 if __name__ == '__main__':
     # call run without pypadre app backend
-    from pypadre.decorators import _experiments
+    from pypadre.pod.decorators import _experiments
     pprint.pprint(_experiments)
     ex = run("example hyperparameter eval with decorators")
     print("Runs retained in memory ")

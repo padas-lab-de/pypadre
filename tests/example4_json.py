@@ -1,4 +1,4 @@
-from pypadre.experimentcreator import ExperimentCreator
+from pypadre.pod.experimentcreator import ExperimentCreator
 import os
 
 

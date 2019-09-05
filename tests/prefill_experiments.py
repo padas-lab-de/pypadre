@@ -3,9 +3,8 @@ This file aims to create multiple different experiments to prefill the server.
 The experiments work on the sklearn toy datasets and are a combination of classification and regression tasks
 Some experiments will also contain a grid search(testing multiple hyperparameters)
 """
-from pypadre.experimentexecutor import ExperimentExecutor
-from pypadre.experimentcreator import ExperimentCreator
-from pypadre.eventhandler import trigger_event
+from pypadre.pod.experimentexecutor import ExperimentExecutor
+from pypadre.pod.eventhandler import trigger_event
 from pypadre.app import p_app
 
 def main():

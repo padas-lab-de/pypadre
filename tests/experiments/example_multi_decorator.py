@@ -7,7 +7,7 @@ Note: it is a proof of concept now rather than a test.
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from pypadre import *
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 @Workflow(exp_name="Test",

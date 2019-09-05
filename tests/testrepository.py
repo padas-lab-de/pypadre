@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-import pypadre.backend.local.file as parep
-import pypadre.ds_import as dsimp
+import pypadre.pod.backend.local.file as parep
+import pypadre.pod.importing.dataset.ds_import as dsimp
 
 
 # todo renew file repository

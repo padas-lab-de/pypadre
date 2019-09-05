@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pandas_profiling as pd_pf
 
+from pypadre.core.model.dataset import dataset
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.dataset import dataset
 
 
 class GraphContainer(IBaseContainer):

@@ -5,7 +5,7 @@ import pprint
 import uuid
 
 from pypadre.core import Experiment
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 def create_test_pipeline():

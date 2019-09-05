@@ -6,7 +6,7 @@ The example is taken from <http://scikit-learn.org/stable/auto_examples/plot_dig
 """
 import pprint
 
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 from pypadre.core import Experiment
 
 

@@ -2,7 +2,6 @@
 Command Line Interface for PADRE.
 
 """
-from typing import cast
 
 import click
 
@@ -11,8 +10,7 @@ import click
 #################################
 from pypadre.app.dataset.dataset_app import DatasetApp
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.printing.tablefyable import registry
-from pypadre.printing.util.print_util import to_table
+from pypadre.pod.printing.tablefyable import to_table
 
 
 @click.group()

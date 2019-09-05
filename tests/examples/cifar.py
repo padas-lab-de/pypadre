@@ -1,4 +1,4 @@
-from pypadre.ds_import import load_numpy_array_multidimensional
+from pypadre.pod.importing.dataset.ds_import import load_numpy_array_multidimensional
 import numpy as np
 from sklearn.pipeline import Pipeline
 from pypa_pytorch import Wrapper

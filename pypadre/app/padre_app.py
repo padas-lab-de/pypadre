@@ -17,7 +17,6 @@ Architecture of the module
 
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
-import ast
 from typing import List
 
 from jsonschema import ValidationError
@@ -25,20 +24,18 @@ from jsonschema import ValidationError
 from pypadre.app.base_app import IBaseApp
 from pypadre.app.config.padre_config import PadreConfig
 from pypadre.app.dataset.dataset_app import DatasetApp
-from pypadre.app.metric_app import MetricApp
 from pypadre.app.project.experiment.execution.execution_app import ExecutionApp
 from pypadre.app.project.experiment.execution.run.run_app import RunApp
 from pypadre.app.project.experiment.execution.run.split.split_app import SplitApp
 from pypadre.app.project.experiment.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
-from pypadre.backend.interfaces.backend.i_backend import IBackend
-from pypadre.backend.interfaces.backend.i_padre_backend import IPadreBackend
-from pypadre.backend.local.file.file import PadreFileBackend
-from pypadre.backend.remote.http.http import PadreHttpBackend
-from pypadre.base import PadreLogger
-from pypadre.eventhandler import add_logger
-from pypadre.printing.tablefyable import Tablefyable
-from pypadre.printing.util.print_util import to_table
+from pypadre.pod.base import PadreLogger
+from pypadre.pod.backend.interfaces.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.backend.local.file.file import PadreFileBackend
+from pypadre.pod.backend.remote.http.http import PadreHttpBackend
+from pypadre.pod.eventhandler import add_logger
+from pypadre.pod.printing.tablefyable import Tablefyable
+from pypadre.pod.printing.util.print_util import to_table
 
 logger = PadreLogger(app=None)
 add_logger(logger=logger)

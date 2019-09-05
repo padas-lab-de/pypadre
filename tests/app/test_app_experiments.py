@@ -6,10 +6,9 @@ Note: it is a proof of concept now rather than a test.
 # Note that we want to include all decorator at once using package import
 import unittest
 
-from pypadre import *
 from pypadre.app import p_app
 from tests.app.experiments_decorated import *
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 class TestApp(unittest.TestCase):

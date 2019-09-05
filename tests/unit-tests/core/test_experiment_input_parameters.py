@@ -1,6 +1,4 @@
 from pypadre.core import Experiment
-from pypadre.eventhandler import assert_condition, add_logger
-from pypadre.app import p_app
 import numpy as np
 import unittest
 
@@ -8,19 +6,18 @@ import unittest
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
 
 def get_toy_dataset_classification():
-    from pypadre.ds_import import load_sklearn_toys
+    from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
     return [i for i in load_sklearn_toys()][1]
 
 
 def get_toy_dataset_regression():
-    from pypadre.ds_import import load_sklearn_toys
+    from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
     return [i for i in load_sklearn_toys()][0]
 
 
@@ -101,7 +98,7 @@ class TestExperiment(unittest.TestCase):
                           workflow=create_test_pipeline(), dataset=get_toy_dataset_regression())
 
     def test_experiment_one_row_dataset(self):
-        from pypadre.ds_import import load_pandas_df
+        from pypadre.pod.importing.dataset.ds_import import load_pandas_df
         import pandas as pd
         # Creating a random dataset
         data = np.random.random_sample((1, 11))

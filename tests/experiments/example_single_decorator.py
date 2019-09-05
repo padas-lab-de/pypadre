@@ -8,7 +8,7 @@ from pypadre import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from pypadre.app import p_app
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 @Workflow(exp_name="Test",
           description="Test experiment with decorators")

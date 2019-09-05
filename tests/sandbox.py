@@ -1,5 +1,5 @@
 """File for some testings"""
-from pypadre import ds_import
+from pypadre.pod.importing.dataset import ds_import
 
 if __name__ == '__main__':
     from pypadre.app.padre_app import p_app

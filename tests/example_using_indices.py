@@ -1,9 +1,7 @@
 """
 This file shows an example on how to use the pypadre app.
 """
-from pypadre.ds_import import load_sklearn_toys
-from pypadre.base import PadreLogger
-from pypadre.eventhandler import add_logger
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 import pprint
 from pypadre.core import Experiment
 
@@ -11,7 +9,6 @@ from pypadre.core import Experiment
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)

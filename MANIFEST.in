@@ -1,2 +1,2 @@
-recursive-include pypadre/res *.json
+recursive-include pypadre/ *.json
 include requirements.txt

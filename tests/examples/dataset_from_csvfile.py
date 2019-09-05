@@ -1,21 +1,14 @@
 """
 This file shows an example on how to use the pypadre app.
 """
-from pypadre.ds_import import load_sklearn_toys
-from pypadre.base import PadreLogger
-from pypadre.eventhandler import add_logger
 import pprint
 from pypadre.core import Experiment
-from pypadre.ds_import import load_csv
+from pypadre.pod.importing.dataset.ds_import import load_csv
 
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    from sklearn.tree import DecisionTreeClassifier
-    from sklearn.neighbors import KNeighborsClassifier
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.decomposition import PCA
     estimators = [('SVC', SVC())]
     #estimators = [('k-nn classifier', KNeighborsClassifier())]
     return Pipeline(estimators)

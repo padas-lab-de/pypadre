@@ -1,9 +1,10 @@
 import numpy as np
-from pypadre.eventhandler import trigger_event
+
 from pypadre.core.base import exp_events, phases
-from pypadre.core.visitors.scikit import SciKitVisitor
-from pypadre.eventhandler import assert_condition
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
+from pypadre.core.visitors.scikit import SciKitVisitor
+from pypadre.pod.eventhandler import assert_condition
+from pypadre.pod.eventhandler import trigger_event
 
 
 class SKLearnWorkflow:

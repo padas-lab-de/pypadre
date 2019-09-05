@@ -8,9 +8,9 @@ import unittest
 
 
 from pypadre.app import p_app
-from pypadre.backend.serialiser import JSonSerializer
+from pypadre.pod.backend.serialiser import JSonSerializer
 from pypadre.core import Experiment
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 def create_test_pipeline():

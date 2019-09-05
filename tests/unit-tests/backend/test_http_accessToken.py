@@ -13,14 +13,14 @@ from requests.exceptions import ConnectionError
 
 from mock import MagicMock, patch
 
-from pypadre.backend.http import PadreHTTPClient
+from pypadre.pod.backend.http import PadreHTTPClient
 
 
 class TestGetAccessToken01(unittest.TestCase):
     """Test http.PadreHTTPClient.get_access_token will all scenarios
     """
 
-    @patch('pypadre.backend.http.PadreHTTPClient.get_access_token')
+    @patch('pypadre.pod.backend.http.PadreHTTPClient.get_access_token')
     def setUp(self, mock_token):
         mock_token.return_value = None
         self.test_user = str(uuid.uuid4())[:15]
@@ -110,7 +110,7 @@ class TestGetAccessToken02(unittest.TestCase):
     """Test http.PadreHTTPClient.get_access_token with exception
     """
 
-    @patch('pypadre.backend.http.PadreHTTPClient.get_access_token')
+    @patch('pypadre.pod.backend.http.PadreHTTPClient.get_access_token')
     def setUp(self, mock_token):
         mock_token.return_value = None
         self.test_object = PadreHTTPClient(*('test url', 'user', 'pass'))
@@ -144,7 +144,7 @@ class TestHasToken(unittest.TestCase):
     def setUp(self):
         pass
 
-    @patch('pypadre.backend.http.PadreHTTPClient.get_access_token')
+    @patch('pypadre.pod.backend.http.PadreHTTPClient.get_access_token')
     def test_has_token_01(self, mock_token):
         """
         Test PadreHTTPClient.has_token
@@ -156,7 +156,7 @@ class TestHasToken(unittest.TestCase):
         result = self.test_object.has_token()
         self.assertTrue(result, "Not returning True")
 
-    @patch('pypadre.backend.http.PadreHTTPClient.get_access_token')
+    @patch('pypadre.pod.backend.http.PadreHTTPClient.get_access_token')
     def test_has_token_02(self, mock_token):
         """
         Test PadreHTTPClient.has_token

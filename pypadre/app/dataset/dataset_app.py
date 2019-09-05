@@ -1,12 +1,12 @@
 import inspect
-from typing import List, Set, cast
+from typing import List, cast
 
 from jsonschema import ValidationError
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
-from pypadre.core.model.dataset.dataset import DataSetValidator, Dataset
-from pypadre.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
+from pypadre.pod.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.pod.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
     NetworkXLoader, SklearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
 
 
@@ -57,7 +57,6 @@ class DatasetApp(BaseChildApp):
         :return: Data set
         """
         try:
-            DataSetValidator.validate(obj)
             for b in self.backends:
                 b.put(obj)
             #super().put(obj)

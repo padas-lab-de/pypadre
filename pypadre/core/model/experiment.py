@@ -1,15 +1,15 @@
 import platform
-import pypadre.core.visitors.parameter
-
 from collections import OrderedDict
-from pypadre.eventhandler import trigger_event, assert_condition
-from pypadre.base import MetadataEntity
+
+import pypadre.core.visitors.parameter
+from pypadre.pod.base import MetadataEntity
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
 from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
-from pypadre.core.model.run import Run
 from pypadre.core.model.split.custom_split import split_obj
-from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
+from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
+from pypadre.pod.eventhandler import trigger_event, assert_condition
+
+
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -364,14 +364,13 @@ class Experiment(MetadataEntity):
 
         self.metadata['versions'] = module_version_info
 
-    def validate(self, options):
+    def validate(self):
+        pass
         """
         This function validates all the parameters given to the experiment constructor
         :param options: Dictionary containing the parameters given to the constructor of the class
         :return: True if successful validation of parameters, False if not
         """
-        from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
-        import numpy as np
         """
         assert_condition(condition=options.get('workflow', None) is not None, source=self,
                          message="Workflow cannot be none")
@@ -379,24 +378,24 @@ class Experiment(MetadataEntity):
         assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
                          message='Workflow does not have a fit function')
         """
-        assert_condition(condition=options.get('description', None) is not None, source=self,
-                         message="Description cannot be none")
-        assert_condition(condition=isinstance(options.get("keep_runs", True), bool), source=self,
-                         message='keep_runs parameter has to be of type bool')
-        assert_condition(condition=isinstance(options.get("keep_splits", True), bool), source=self,
-                         message='keep_splits parameter has to be of type bool')
-        assert_condition(condition=isinstance(options.get('sk_learn_stepwise', False), bool), source=self,
-                         message='keep_splits parameter has to be of type bool')
-        assert_condition(condition=isinstance(options.get('name', 'noname'), str) or options.get('name') is None,
-                         source=self, message='Experiment name should be of type string')
-        assert_condition(condition=isinstance(options.get('description', 'noname'), str),
-                         source=self, message='Experiment description should be of type string')
-
-        assert_condition(condition=options.get('preprocessing', None) is None or hasattr(options.get('preprocessing',
-                                                                                                     dict()),
-                                                                                         'fit_transform') is True,
-                         source=self,
-                         message='Preprocessing workflow does not have a fit_transform function')
+        # assert_condition(condition=options.get('description', None) is not None, source=self,
+        #                  message="Description cannot be none")
+        # assert_condition(condition=isinstance(options.get("keep_runs", True), bool), source=self,
+        #                  message='keep_runs parameter has to be of type bool')
+        # assert_condition(condition=isinstance(options.get("keep_splits", True), bool), source=self,
+        #                  message='keep_splits parameter has to be of type bool')
+        # assert_condition(condition=isinstance(options.get('sk_learn_stepwise', False), bool), source=self,
+        #                  message='keep_splits parameter has to be of type bool')
+        # assert_condition(condition=isinstance(options.get('name', 'noname'), str) or options.get('name') is None,
+        #                  source=self, message='Experiment name should be of type string')
+        # assert_condition(condition=isinstance(options.get('description', 'noname'), str),
+        #                  source=self, message='Experiment description should be of type string')
+        #
+        # assert_condition(condition=options.get('preprocessing', None) is None or hasattr(options.get('preprocessing',
+        #                                                                                              dict()),
+        #                                                                                  'fit_transform') is True,
+        #                  source=self,
+        #                  message='Preprocessing workflow does not have a fit_transform function')
 
         # Check if all estimator names are present in the name mappings
         """

@@ -6,9 +6,9 @@ import unittest
 
 import numpy as np
 import pandas as pd
-from mock import MagicMock, patch
+from mock import patch
 
-from pypadre import ds_import
+from pypadre.pod.importing.dataset import ds_import
 
 
 class TestLoadCSV01(unittest.TestCase):
