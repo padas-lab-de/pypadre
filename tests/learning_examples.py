@@ -10,10 +10,10 @@ import numpy as np
 from sklearn import linear_model, decomposition, manifold
 from sklearn.svm import SVC, SVR
 
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 from pypadre.core import Experiment
-from pypadre.base import PadreLogger
-from pypadre.eventhandler import add_logger
+from pypadre.pod.base import PadreLogger
+from pypadre.pod.eventhandler import add_logger
 
 
 # TODO: Method to log errors from outside the experiment class too

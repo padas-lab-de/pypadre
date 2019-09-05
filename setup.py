@@ -25,12 +25,11 @@ install_requires = required
 setup(
     name=name,
     version=version,
-    packages=['pypadre']+find_packages(exclude=["tests", "tests.*"]),
+    #TODO switch to scm version
+    #use_scm_version=True,
+    #setup_requires=['setuptools_scm'],
+    packages=['pypadre']+find_packages(exclude=["tests", "tests.*", "*.tests.*", "*.tests"]),
     package_dir={'pypadre': 'pypadre'},
-    # TODO remove this is done via MANIFEST
-    package_data={'pypadre': ['pypadre/res/mapping/pytorch.json', 'pypadre/res/mapping/mapping.json',
-                               'pypadre/core/wrappers/wrapper_mappings/mappings_torch.json']},
-    #packages=find_packages(),
     include_package_data=True,
     url='https://padre-lab.eu',
     license='GPL',

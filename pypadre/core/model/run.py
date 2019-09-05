@@ -1,6 +1,6 @@
-from pypadre.base import MetadataEntity
+from pypadre.pod.base import MetadataEntity
 from pypadre.core.model.split.split import Splitter, Split
-from pypadre.eventhandler import trigger_event, assert_condition
+from pypadre.pod.eventhandler import trigger_event, assert_condition
 
 
 class Run(MetadataEntity):

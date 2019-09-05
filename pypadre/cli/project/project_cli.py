@@ -11,7 +11,7 @@ from click_shell import make_click_shell
 from pypadre.app.project.project_app import ProjectApp
 from pypadre.cli.experiment import experiment_cli
 from pypadre.core.model.project import Project
-from pypadre.validation import ValidationErrorHandler, ValidateableFactory
+from pypadre.pod.validation import ValidationErrorHandler, ValidateableFactory
 
 
 @click.group(name="project", invoke_without_command=True)
@@ -56,8 +56,8 @@ def create(ctx):
     Create a new project
     """
     # Create a new project
-    def handle_missing(e):
-        return click.prompt('Please enter a name for your project', type=str)
+    def handle_missing(obj, e):
+        return click.prompt(e.message + '. Please enter a value', type=str)
 
     p = ValidateableFactory.make(Project, handlers=[ValidationErrorHandler(validator="required", handle=handle_missing)])
     _get_app(ctx).put(p)

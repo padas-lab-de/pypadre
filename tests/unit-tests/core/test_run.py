@@ -1,21 +1,17 @@
 from pypadre.core import Experiment, Run
-from pypadre.eventhandler import assert_condition, add_logger
-from pypadre.app import p_app
-import numpy as np
 import unittest
 
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
 
 def get_toy_dataset():
-    from pypadre.ds_import import load_sklearn_toys
+    from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
     return [i for i in load_sklearn_toys()][2]
 
 

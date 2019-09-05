@@ -1,7 +1,7 @@
 """
 This file will be used to test the functionalities of the ExperimentCreator class and the metrics class
 """
-from pypadre.experimentcreator import ExperimentCreator
+from pypadre.pod.experimentcreator import ExperimentCreator
 
 
 def main():

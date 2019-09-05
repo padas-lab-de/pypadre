@@ -2,7 +2,7 @@ import ast
 import configparser
 import os
 
-from pypadre.util.dict_util import dict_merge
+from pypadre.pod.util.dict_util import dict_merge
 
 if "PADRE_BASE_URL" in os.environ:
     _BASE_URL = os.environ["PADRE_BASE_URL"]

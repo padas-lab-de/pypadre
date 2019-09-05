@@ -1,7 +1,7 @@
 
 from tkinter import filedialog
-from pypadre.metrics import CompareMetrics
-from pypadre.metrics import ReevaluationMetrics
+from pypadre.pod.metrics import CompareMetrics
+from pypadre.pod.metrics import ReevaluationMetrics
 
 
 def main():

@@ -10,7 +10,7 @@ import click
 #################################
 from pypadre.app.dataset.dataset_app import DatasetApp
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.printing.util.print_util import to_table
+from pypadre.pod.printing.tablefyable import to_table
 
 
 @click.group()

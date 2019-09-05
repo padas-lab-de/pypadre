@@ -2,8 +2,8 @@ from importlib import resources
 
 from jsonpickle import json
 
-from pypadre.base import MetadataEntity
-from pypadre.validation import Validateable
+from pypadre.pod.base import MetadataEntity
+from pypadre.pod.validation import Validateable
 
 
 class Project(Validateable, MetadataEntity):
@@ -18,7 +18,7 @@ class Project(Validateable, MetadataEntity):
     def __init__(self, **options):
         # Validate input types
 
-        with resources.open_text('pypadre.res.schema', 'project.json') as f:
+        with resources.open_text('pypadre.pod.resources.schema', 'project.json') as f:
             schema = json.loads(f.read())
 
         super(Project, self).__init__(id_=options.pop("id", None), schema=schema, **options)

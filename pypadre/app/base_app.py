@@ -1,10 +1,10 @@
 from abc import ABCMeta, abstractmethod
 from typing import List
 
-from pypadre.base import ChildEntity
-from pypadre.core.backend.interfaces.backend.generic.i_searchable import ISearchable
-from pypadre.core.backend.interfaces.backend.generic.i_storeable import IStoreable
-from pypadre.core.backend.interfaces.backend.i_backend import IBackend
+from pypadre.pod.base import ChildEntity
+from pypadre.pod.backend.interfaces.backend.generic.i_searchable import ISearchable
+from pypadre.pod.backend.interfaces.backend.generic.i_storeable import IStoreable
+from pypadre.pod.backend.interfaces.backend.i_backend import IBackend
 
 
 class IBaseApp:

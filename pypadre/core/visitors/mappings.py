@@ -15,12 +15,12 @@ version_mappings = {}
 # TODO: Currently hard coded, but later should be read from the library tag in the mapping file
 #supported_frameworks = ['scikit-learn', 'pytorch']
 
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../res/mapping"))
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../resources/mapping"))
 mapping_files = os.listdir(path)
 
 # For every file verify whether it is a json file and then add to the current type_mappings and name_mappings
 for file in mapping_files:
-    if os.path.isfile(os.path.join(path,file)):
+    if os.path.isfile(os.path.join(path,file)) and file.endswith(".json"):
         try:
             with open(os.path.join(path,file), encoding='utf-8-sig') as f:
                 data = json.loads(f.read())

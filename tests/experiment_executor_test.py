@@ -1,6 +1,6 @@
-from pypadre.experimentexecutor import ExperimentExecutor
-from pypadre.experimentcreator import ExperimentCreator
-from pypadre.eventhandler import trigger_event
+from pypadre.pod.experimentexecutor import ExperimentExecutor
+from pypadre.pod.experimentcreator import ExperimentCreator
+from pypadre.pod.eventhandler import trigger_event
 
 
 def split(idx):
@@ -66,7 +66,7 @@ def main():
     c2 = time.time()
     print('Execution time:{time_diff}'.format(time_diff=c2-c1))
 
-    from pypadre.metrics import CompareMetrics
+    from pypadre.pod.metrics import CompareMetrics
     metrics = CompareMetrics(experiments_list=experiments_executor.experiments)
     print(metrics.show_metrics())
 

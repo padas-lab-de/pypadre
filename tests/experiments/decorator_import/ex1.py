@@ -1,4 +1,4 @@
-from pypadre.ds_import import load_sklearn_toys
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 from pypadre import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC

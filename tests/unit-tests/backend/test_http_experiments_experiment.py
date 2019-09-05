@@ -7,8 +7,8 @@ import unittest
 
 from mock import MagicMock, patch
 
-from pypadre.core.backend.http.http_experiments import HttpBackendExperiments
-from pypadre.core.backend.http import PadreHTTPClient
+from pypadre.pod.backend.http.http_experiments import HttpBackendExperiments
+from pypadre.pod.backend.http import PadreHTTPClient
 
 
 class TestGetOrCreateDataSet(unittest.TestCase):
@@ -99,7 +99,7 @@ class TestPutExperiment(unittest.TestCase):
             mocked_post_project,
             mocked_post_experiment]
 
-    @patch('pypadre.core.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
+    @patch('pypadre.pod.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
     def test_put_experiment(self, mock_get_id):
         """Test HttpBackendExperiments.put_experiment function.
 
@@ -133,7 +133,7 @@ class TestDeleteExperiment(unittest.TestCase):
     All unnecessary function calls and http calls are mocked
     """
 
-    @patch('pypadre.core.backend.http.PadreHTTPClient.get_access_token')
+    @patch('pypadre.pod.backend.http.PadreHTTPClient.get_access_token')
     def setUp(self, mock_token):
         """Initializing for delete_experiment test.
 
@@ -144,8 +144,8 @@ class TestDeleteExperiment(unittest.TestCase):
         self.http_client = PadreHTTPClient(user='test', online=True)
         self.http_client.do_delete = MagicMock()
 
-    @patch('pypadre.core.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
-    @patch('pypadre.core.backend.http_experiments.HttpBackendExperiments.create_project')
+    @patch('pypadre.pod.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
+    @patch('pypadre.pod.backend.http_experiments.HttpBackendExperiments.create_project')
     def test_delete_experiment(self, mock_project, mock_get_id):
         """Test HttpBackendExperiments.delete_experiment function.
 
@@ -170,9 +170,9 @@ class TestGetIdByName(unittest.TestCase):
     All unnecessary function calls and http calls are mocked
     """
 
-    @patch('pypadre.core.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
-    @patch('pypadre.core.backend.http_experiments.HttpBackendExperiments.create_project')
-    @patch('pypadre.core.backend.http.PadreHTTPClient.get_access_token')
+    @patch('pypadre.pod.backend.http_experiments.HttpBackendExperiments.get_id_by_name')
+    @patch('pypadre.pod.backend.http_experiments.HttpBackendExperiments.create_project')
+    @patch('pypadre.pod.backend.http.PadreHTTPClient.get_access_token')
     def setUp(self, mock_token, mock_create_project, mock_get_id):
         """Initializing http client and other attributes for test.
 

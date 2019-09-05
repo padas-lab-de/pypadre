@@ -4,9 +4,9 @@ import unittest
 
 import numpy as np
 
-import pypadre.core.backend.local.file as parep
-import pypadre.ds_import as dsimp
-from pypadre.core.backend.http import PadreHTTPClient
+import pypadre.pod.backend.local.file as parep
+import pypadre.pod.importing.dataset.ds_import as dsimp
+from pypadre.pod.backend.http import PadreHTTPClient
 
 _test_data = {
       "name": "testdata",
