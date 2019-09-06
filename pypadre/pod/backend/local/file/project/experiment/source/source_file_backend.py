@@ -48,13 +48,6 @@ class PadreExecutionFileBackend(ISourceBackend):
         if not os.path.isdir(directory):
             raise ValueError('Source code path has to be a directory')
 
-        if directory is not None:
-
-            path = os.path.join(directory, source.experiment.name)
-            # Add a symbolic link to the experiment folder in the source directory if it doesn't exist
-            if not os.path.exists(path):
-                os.symlink(directory, path)
-
         if not self.repo_exists(directory):
             # Check how many files are existing in the directory if git is not present
             import os
@@ -78,6 +71,17 @@ class PadreExecutionFileBackend(ISourceBackend):
             self._add_untracked_files(repo=repo)
             if self._has_uncommitted_files(repo=repo):
                 self._commit(repo=repo, message='Files committed by PyPaDRe')
+
+        if directory is not None:
+
+            path = os.path.join(directory, source.experiment.name)
+            # Add a symbolic link to the experiment folder in the source directory if it doesn't exist
+            if not os.path.exists(path):
+                os.symlink(directory, path)
+
+            # Add symlink to the .gitignore
+            with open(os.path.join(directory, '.git', '.gitignore'), "a") as f:
+                f.write(''.join('\n*',source.experiment.name,'*'))
 
 
 
