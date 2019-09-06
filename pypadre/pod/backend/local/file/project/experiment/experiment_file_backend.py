@@ -55,7 +55,6 @@ class PadreExperimentFileBackend(IExperimentBackend):
 
         path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
 
-
         metadata = self.get_file(path, self.META_FILE)
         config = self.get_file(path, self.CONFIG_FILE)
         workflow = self.get_file(path, self.WORKFLOW_FILE)

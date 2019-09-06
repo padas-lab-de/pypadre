@@ -74,7 +74,8 @@ class LocalBackends(unittest.TestCase):
         experiment = Experiment(name="Test Experiment SVM",
                     description="Testing Support Vector Machines via SKLearn Pipeline",
                     dataset=dataset[0],
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+                    workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project,
+                                path=os.path.abspath('.'))
 
         self.app.experiments.patch(experiment)
         name = 'Test Experiment SVM'
