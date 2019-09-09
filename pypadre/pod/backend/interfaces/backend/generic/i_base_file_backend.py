@@ -61,6 +61,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         if search is not None and 'folder' in search:
             folder = search.get('folder')
         dirs = self.find_dirs(folder)
+        # TODO add offset und size
         return self.filter([self.get_by_dir(d) for d in dirs], search)
 
     def delete_by_id(self, uid):

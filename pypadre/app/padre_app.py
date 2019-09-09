@@ -24,10 +24,10 @@ from jsonschema import ValidationError
 from pypadre.app.base_app import IBaseApp
 from pypadre.app.config.padre_config import PadreConfig
 from pypadre.app.dataset.dataset_app import DatasetApp
-from pypadre.app.project.experiment.execution.execution_app import ExecutionApp
-from pypadre.app.project.experiment.execution.run.run_app import RunApp
-from pypadre.app.project.experiment.execution.run.split.split_app import SplitApp
-from pypadre.app.project.experiment.experiment_app import ExperimentApp
+from pypadre.app.project.execution_app import ExecutionApp
+from pypadre.app.project.run_app import RunApp
+from pypadre.app.project.split_app import SplitApp
+from pypadre.app.project.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
 from pypadre.pod.base import PadreLogger
 from pypadre.pod.backend.interfaces.backend.i_padre_backend import IPadreBackend
@@ -70,12 +70,14 @@ class PadreApp(IBaseApp):
 
     # TODO metric algorithms should be passed for metric calculation. This should work a bit like on the server. Metrics themselves are plugins which are invoked by the reevaluater
     def __init__(self, printer=None, backends: List[IPadreBackend] = None):
-        super().__init__(backends=backends)
+        super().__init__()
         self._print = printer
 
         if backends is None:
             pass
             # TODO inform the user
+
+        self._backends = backends
 
         # TODO Should each subApp really hold each backend? This may be convenient to code like this.
         self._dataset_app = DatasetApp(self, [backend.dataset for backend in backends] if backends is not None else None)

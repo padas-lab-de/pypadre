@@ -82,6 +82,9 @@ class ICollectionDataSetLoader(IDataSetLoader):
 
 class CSVLoader(IDataSetLoader):
 
+    def __hash__(self):
+        return hash(self.__class__)
+
     @staticmethod
     def mapping(source):
         return str.startswith("/") or str.startswith(".") and str.endswith(".csv")

@@ -256,8 +256,8 @@ class GitBackend(FileBackend):
         else:
             path = os.path.join(directory, self.GIT_ATTRIBUTES)
 
-        f = open(path, "w")
-        f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
+        with open(path, "w") as f:
+            f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
         repo = self._create_repo(path=directory, bare=False)
         self._add_files(repo, file_path=path)
         self._commit(repo=repo, message='Added .gitattributes file for Git LFS')

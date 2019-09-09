@@ -197,8 +197,8 @@ class LocalBackends(unittest.TestCase):
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
-        from pypadre.base import PadreLogger
-        from pypadre.eventhandler import add_logger
+        from pypadre.pod.base import PadreLogger
+        from pypadre.pod.eventhandler import add_logger
 
         logger = PadreLogger(self.app)
         add_logger(logger=logger)
@@ -212,7 +212,7 @@ class LocalBackends(unittest.TestCase):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
-        id = 'Iris Plants Database'
+        id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
         experiment = Experiment(name="Test Experiment SVM",

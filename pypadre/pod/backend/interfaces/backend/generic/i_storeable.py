@@ -14,6 +14,10 @@ class IStoreable:
         pass
 
     @abstractmethod
+    def patch(self, obj):
+        pass
+
+    @abstractmethod
     def delete_by_id(self, uid):
         pass
 

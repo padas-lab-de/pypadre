@@ -3,10 +3,10 @@ import unittest
 
 from pypadre.app import PadreApp
 from pypadre.app.dataset.dataset_app import DatasetApp
-from pypadre.app.project.experiment.execution.execution_app import ExecutionApp
-from pypadre.app.project.experiment.execution.run.run_app import RunApp
-from pypadre.app.project.experiment.execution.run.split.split_app import SplitApp
-from pypadre.app.project.experiment.experiment_app import ExperimentApp
+from pypadre.app.project.execution_app import ExecutionApp
+from pypadre.app.project.run_app import RunApp
+from pypadre.app.project.split_app import SplitApp
+from pypadre.app.project.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
 
 
