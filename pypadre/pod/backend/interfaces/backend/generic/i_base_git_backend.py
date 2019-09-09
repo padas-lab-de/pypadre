@@ -114,6 +114,13 @@ class GitBackend(FileBackend):
             else:
                 repo.index.add(file_path)
 
+    def repo_exists(self, dir_path):
+        if os.path.exists(os.path.join(dir_path, '.git')):
+            return True
+
+        else:
+            return False
+
 
     def _get_untracked_files(self, repo):
         return repo.untracked_files if self.is_backend_valid() else None
