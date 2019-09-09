@@ -44,7 +44,7 @@ class PadreRunFileBackend(IRunBackend):
 
         # TODO create Run
         # TODO Navigate to the parent directory
-        execution = self.parent.get_by_dir(directory)
+        execution = self.parent.get_by_dir(self.get_parent_dir(directory))
         run = Run(execution, workflow, **metadata)
         # TODO what to do with hyperparameters?
         return run
@@ -72,9 +72,6 @@ class PadreRunFileBackend(IRunBackend):
         :param run: run to put
         :return:
         """
-        if run.id is None:  # this is a new experiment
-            run.id = uuid.uuid4()
-
         directory = self.to_directory(run)
 
         if os.path.exists(directory) and not allow_overwrite:

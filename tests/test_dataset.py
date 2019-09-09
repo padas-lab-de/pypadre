@@ -48,7 +48,7 @@ class TestDataset(unittest.TestCase):
     def test_create_dataset(self):
         ds = Dataset("test", **test_metadata)
         ds.set_data(test_numpy_array)
-        assert ds.id == "test"
+        assert ds.uid == "test"
         assert ds.metadata is not None and len(ds.metadata) == len(test_metadata)+5  # some metadata get added.
         # todo check in more detail, that the correct metadata has been added
         for k, v in test_metadata.items():

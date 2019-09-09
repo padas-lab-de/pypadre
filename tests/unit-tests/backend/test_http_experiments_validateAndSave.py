@@ -41,7 +41,7 @@ class ValidateAndSave(unittest.TestCase):
         experiment = MagicMock()
         experiment.metadata = {"server_url": ""}
         experiment_id = "3"
-        experiment.id = experiment_id
+        experiment.uid = experiment_id
         response = self._remote_experiments.validate_and_save(experiment, local_experiments=self._local_experiments)
         self.assertTrue(response, "Experiment which not exists on server is not upload")
         expected = [call({"server_url": self.returned_url}, experiment_id)]
@@ -70,11 +70,11 @@ class ValidateAndSave(unittest.TestCase):
         experiment = MagicMock()
         experiment.metadata = {"server_url": "test.com"}
         experiment_id = "3"
-        experiment.id = experiment_id
+        experiment.uid = experiment_id
         run = MagicMock()
         run.metadata = {"server_url": ""}
         run_id = "4"
-        run.id = run_id
+        run.uid = run_id
         response = self._remote_experiments.validate_and_save(
             experiment, run, local_experiments=self._local_experiments)
         self.assertTrue(response, "Run which not exists on server is not upload")
@@ -105,15 +105,15 @@ class ValidateAndSave(unittest.TestCase):
         experiment = MagicMock()
         experiment.metadata = {"server_url": "test.com"}
         experiment_id = "3"
-        experiment.id = experiment_id
+        experiment.uid = experiment_id
         run = MagicMock()
         run.metadata = {"server_url": "testrun.com"}
         run_id = "4"
-        run.id = run_id
+        run.uid = run_id
         split = MagicMock()
         split.metadata = {"server_url": ""}
         split_id = "5"
-        split.id = split_id
+        split.uid = split_id
         response = self._remote_experiments.validate_and_save(
             experiment, run, split, local_experiments=self._local_experiments)
         self.assertTrue(response, "Split which not exists on server is not upload")

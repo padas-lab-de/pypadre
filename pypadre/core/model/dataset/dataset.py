@@ -4,23 +4,24 @@ Module containing python classes for managing data sets
 - TODO allow group based management of binary files similar to hdF5
 
 """
+import uuid
 from typing import List
 
 import networkx as nx
 import numpy as np
 import pandas as pd
-# from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
-from pypadre.pod.base import MetadataEntity
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
+from pypadre.pod.base import MetadataEntity
 from pypadre.pod.printing.tablefyable import Tablefyable
 from pypadre.pod.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.pod.util.utils import _Const
+from pypadre.pod.validation import Validateable
 
 
 class _Formats(_Const):
@@ -33,20 +34,22 @@ class _Formats(_Const):
 formats = _Formats()
 
 
-class Dataset(MetadataEntity, Tablefyable):
+class Dataset(MetadataEntity, Validateable, Tablefyable):
 
     @classmethod
     def tablefy_register_columns(cls):
         cls._tablefy_register_columns({'id': 'id', 'name': 'name', 'type': 'type'})
 
-    def __init__(self, id_=None, attributes: List[Attribute]=None, **metadata):
+    def __init__(self, attributes: List[Attribute] = None, **metadata):
         """
-        :param id_:
+        :param id :
         :param attributes: Attributes of the data
         :param metadata:
         """
-        MetadataEntity.__init__(self, id_, **{**{"name": "", "version": "1.0", "description": "", "originalSource": "",
-                                                 "type": "", "published": False}, **metadata})
+        metadata = {**{"id": uuid.uuid4().__str__(), "name": "", "version": "1.0", "description": "", "originalSource": "",
+                       "type": "", "published": False, "attributes": []}, **metadata}
+        Validateable.__init__(self, schema_resource_name='dataset.json', **metadata)
+        MetadataEntity.__init__(self, **metadata)
         Tablefyable.__init__(self)
         self._binaries = dict()
         self._attributes = attributes
@@ -95,7 +98,7 @@ class Dataset(MetadataEntity, Tablefyable):
             if len(self._binaries) > 1:
                 raise ValueError("More than one binary exists. Pass a format.")
             else:
-                #return next(iter(self._binaries))
+                # return next(iter(self._binaries))
                 return self._binaries.get(next(iter(self._binaries)))
 
         if bin_format in self._binaries:
@@ -188,6 +191,7 @@ class Dataset(MetadataEntity, Tablefyable):
                                  correlation_threshold=correlation_threshold,
                                  correlation_overrides=correlation_overrides,
                                  check_recoded=check_recoded)
+
     '''
     def get(self, key):
         if key == 'id':
@@ -266,7 +270,7 @@ class Dataset(MetadataEntity, Tablefyable):
 
 class Transformation(Dataset):
 
-    def __init__(self, dataset, id_=None, **metadata):
+    def __init__(self, dataset, **metadata):
         super().__init__(id_, **metadata)
         self._dataset = dataset
         # todo rework preprocessing

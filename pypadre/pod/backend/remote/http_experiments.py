@@ -34,10 +34,10 @@ class HttpBackendExperiments:
         self.project_name = project_name
 
     def get_or_create_project(self, name):
-        id_ = self.get_id_by_name(name, self._http_client.paths["projects"][1:])
-        if id_ is None:
-            id_ = self.create_project(name)
-        return id_
+        id = self.get_id_by_name(name, self._http_client.paths["projects"][1:])
+        if id is None:
+            id = self.create_project(name)
+        return id
 
     def get_or_create_dataset(self, ds):
         """Get or create new dataset
@@ -70,7 +70,7 @@ class HttpBackendExperiments:
         :param entity: Name of entity e-g /projects, /datasets
         :returns: id of instance or None
         """
-        id_ = None
+        id = None
         url = self.get_base_url() + self._http_client.paths["search"](entity) +"name:" + name
         if self._http_client.online:
             response = json.loads(self._http_client.do_get(url, **{}).content)
@@ -78,8 +78,8 @@ class HttpBackendExperiments:
                 first_entity = response["_embedded"][entity][0]
                 if first_entity["name"] != name:  # Todo: After fixing url encoding for special chars remove this
                     return None
-                id_ = first_entity["uid"]
-        return id_
+                id = first_entity["uid"]
+        return id
 
     def create_project(self, name):
         """Create project on server

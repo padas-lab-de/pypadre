@@ -12,16 +12,13 @@ class Project(Validateable, MetadataEntity):
     def handle_failure(self, e):
         pass
 
-    _id = None
     _metadata = None
 
     def __init__(self, **options):
         # Validate input types
-
-        with resources.open_text('pypadre.pod.resources.schema', 'project.json') as f:
-            schema = json.loads(f.read())
-
-        super(Project, self).__init__(id_=options.pop("id", None), schema=schema, **options)
+        # TODO alternative See https://rhettinger.wordpress.com/2011/05/26/super-considered-super/
+        Validateable.__init__(self, schema_resource_name='project.json', **options)
+        MetadataEntity.__init__(self, **options)
 
         self._experiments = []
         self._sub_projects = []

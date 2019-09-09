@@ -61,7 +61,9 @@ class PadreExperimentFileBackend(IExperimentBackend):
         preprocess_workflow = self.get_file(path, self.PREPROCESS_WORKFLOW_FILE)
 
         if metadata.get('id', None) is None:
-            id_ = uuid.uuid4()
+            id = uuid.uuid4()
+
+        project = self.parent.get_by_dir(self.get_parent_dir(directory))
 
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
         #experiment_params = config
@@ -73,7 +75,8 @@ class PadreExperimentFileBackend(IExperimentBackend):
         experiment_params["workflow"] = workflow.pipeline
         experiment_params["preprocessing"] = preprocess_workflow
         experiment_params["dataset"] = self.parent.parent.dataset.get(metadata['dataset_id'])
-        ex = Experiment(ex_id=id_, **experiment_params)
+        experiment_params["project"] = project
+        ex = Experiment(**experiment_params)
         return ex
 
     def put_progress(self, experiment, **kwargs):
@@ -109,7 +112,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
 
         # TODO: Add experiment as a submodule to the project repo
 
-    def patch(self, experiment):
+    def patch(self, experiment, **kwargs):
         # TODO: Experiment ID is returning None but it should return the experiment name
         self._parent.put(experiment.project)
 
@@ -125,7 +128,7 @@ class PadreExperimentFileBackend(IExperimentBackend):
 
         self.write_file(directory, self.META_FILE, experiment.metadata)
         # TODO Workflow should belong to the execution and not to the experiment corresponding to the experiment config
-        # self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow, 'wb')
+        self.write_file(directory, self.WORKFLOW_FILE, experiment.workflow, 'wb')
 
         # TODO when to write experiment.json???
         # TODO: Experiment.json should be written within the execution folder as any change

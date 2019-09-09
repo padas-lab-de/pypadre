@@ -132,11 +132,11 @@
 #         :return:
 #         """
 #
-#         if experiment.id is None:  #  this is a new experiment
+#         if experiment.uid is None:  #  this is a new experiment
 #             if experiment.name is None or experiment.name == "":
-#                 experiment.id = uuid.uuid4()
+#                 experiment.uid = uuid.uuid4()
 #             else:
-#                 experiment.id = experiment.name
+#                 experiment.uid = experiment.name
 #         dir = os.path.join(self.root_dir, *self._dir(experiment.id))
 #         if os.path.exists(dir) and not allow_overwrite:
 #             raise ValueError("Experiment %s already exists." +
@@ -169,7 +169,7 @@
 #                 f.write(self._binary_serializer.serialise(experiment.preprocessing_workflow))
 #
 #     @deprecated("Use get_experiment instead")
-#     def get_local_experiment(self, id_, load_workflow=True):
+#     def get_local_experiment(self, id , load_workflow=True):
 #         dir = os.path.join(self.root_dir, *self._dir(id_))
 #
 #         with open(os.path.join(dir, "metadata.json"), 'r') as f:
@@ -188,10 +188,10 @@
 #         ex.set_hyperparameters(hyperparameters)
 #         return ex
 #
-#     def get_experiment(self, id_):
+#     def get_experiment(self, id ):
 #         """Load experiment from local file system
 #
-#         :param id_: Id or name of the experiment
+#         :param id : Id or name of the experiment
 #         :return: Experiment instance
 #         """
 #         dir_ = os.path.join(self.root_dir, *self._dir(id_))
@@ -243,8 +243,8 @@
 #         :param run: run to put
 #         :return:
 #         """
-#         if run.id is None:  # this is a new experiment
-#             run.id = uuid.uuid4()
+#         if run.uid is None:  # this is a new experiment
+#             run.uid = uuid.uuid4()
 #
 #         dir = os.path.join(self.root_dir, *self._dir(experiment.id, run.id))
 #         if os.path.exists(dir):
@@ -301,8 +301,8 @@
 #         :param run: run to put
 #         :return:
 #         """
-#         if split.id is None:  # this is a new experiment
-#             split.id = uuid.uuid4()
+#         if split.uid is None:  # this is a new experiment
+#             split.uid = uuid.uuid4()
 #
 #         split_id = str(split.id)
 #
@@ -576,8 +576,8 @@
 #         :return: String containing dataset name or empty string if its not found
 #         """
 #         dataset_name = ""
-#         for name, id_ in self.get_dataset_name_id():
-#             if id_ == dataset_id:
+#         for name, id in self.get_dataset_name_id():
+#             if id == dataset_id:
 #                 dataset_name = name
 #                 break
 #         return dataset_name

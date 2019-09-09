@@ -2,6 +2,7 @@
 Modul containing basic padre datastructures
 """
 import sys
+import uuid
 from abc import ABC, ABCMeta, abstractmethod
 from datetime import datetime
 from time import time
@@ -316,7 +317,7 @@ class PadreLogger(LoggerBase):
             self.log_event(experiment, exp_events.stop, phase=phases.experiment)
             self._backend.log_end_experiment()
 
-    def log_start_execution(self, execution, append_runs: bool =False):
+    def log_start_execution(self, execution, append_runs: bool = False):
         pass
 
     def log_stop_execution(self, execution):
@@ -502,25 +503,15 @@ class MetadataEntity:
     CREATED_BY = 'createdBy'
     OVERWRITABLE = [CREATED_AT, CREATED_BY]
 
-    def __init__(self, id_=None, **metadata):
+    def __init__(self, **metadata):
         import time
-        # See https://rhettinger.wordpress.com/2011/05/26/super-considered-super/
-        super().__init__()
+
+        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
+                    **metadata}
+
         self._metadata = dict(metadata)
-        self._metadata[self.CREATED_AT] = time.time()
-        self._metadata[self.UPDATED_AT] = time.time()
 
-
-        # TODO id setting. Why are we using openml here? we shouldn't do that
-        if id_ is None:
-            if metadata.__contains__("openml_id"):
-                self._id = metadata["openml_id"]
-            else:
-                self._id = None
-        else:
-            self._id = id_
-
-        # Validate if the object is fine
+        # Validate if the object is fine post construction
         self.validate()
 
     @property
@@ -529,7 +520,7 @@ class MetadataEntity:
         returns the unique id of the data set. Data sets will be managed on the basis of this id
         :return: string
         """
-        return self._id
+        return self.metadata["id"]
 
     @id.setter
     def id(self, _id):
@@ -538,7 +529,7 @@ class MetadataEntity:
         :param _id: id, ideally an url
         :return:
         """
-        self._id = _id
+        self.metadata["id"] = _id
 
     @property
     def name(self):
@@ -550,7 +541,7 @@ class MetadataEntity:
         if self._metadata and "name" in self._metadata:
             return self._metadata["name"]
         else:
-            return str(self._id)
+            return str(self.id)
 
     @name.setter
     def name(self, name):
@@ -596,7 +587,7 @@ class MetadataEntity:
     def validate(self):
         pass
 
-    def merge_metadata(self, metadata:dict):
+    def merge_metadata(self, metadata: dict):
 
         for key, value in metadata.items():
             # If the key is missing or key is to be overwritten
@@ -604,7 +595,6 @@ class MetadataEntity:
                 self.metadata[key] = value
             else:
                 pass
-
 
 
 class _timer_priorities(_Const):

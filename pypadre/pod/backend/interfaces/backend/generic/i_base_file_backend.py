@@ -113,6 +113,9 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         """
         self.put(obj, args)
 
+    def get_parent_dir(self, directory):
+        return os.path.abspath(os.path.join(directory, '../..'))
+
     @abstractmethod
     def to_folder_name(self, obj):
         """
@@ -250,7 +253,7 @@ class FileBackend(ChildEntity, IBackend, ISearchable, IStoreable):
         The backend also implements logic to retrieve a parent of the object which should be used in the backend.
         Given for example a run the backend should be able to get an experiment. :param obj: :return:
         """
-        pass
+        return obj.parent
 
     def replace_placeholder(self, obj, path):
         # If a placeholder is present it should be replaced

@@ -7,7 +7,6 @@ from abc import abstractmethod, ABCMeta
 import networkx as nx
 import numpy as np
 import pandas as pd
-# from padre.PaDREOntology import PaDREOntology
 import sklearn.datasets as ds
 
 from pypadre.core.model.dataset.attribute import Attribute
@@ -52,8 +51,8 @@ class IDataSetLoader:
 
     @staticmethod
     def _create_dataset(**kwargs):
-        meta = {**{"id": str(uuid.uuid4()), "name": "",
-                   "description": "", "version": 1.0,
+        meta = {**{"id": str(uuid.uuid4()), "name": "something",
+                   "description": "", "version": "1.0",
                    "type": "multivariate", "targets": [], "published": False}, **kwargs}
 
         trigger_event('EVENT_WARN', condition=len(meta["targets"]) > 0,
@@ -61,7 +60,7 @@ class IDataSetLoader:
                       message='No targets defined. Program will crash when used for supervised learning')
 
         # TODO extract attributes
-        return Dataset(meta["id"], **meta)
+        return Dataset(**meta)
 
 
 class ICollectionDataSetLoader(IDataSetLoader):
@@ -271,6 +270,7 @@ class SklearnLoader(ICollectionDataSetLoader):
 
     @staticmethod
     def _split_description(s):
+        # TODO get name of the dataset from somewhere else?
         match = re.compile("\.\. (.*):").match(s)
         if match:
             return match.group(1), s

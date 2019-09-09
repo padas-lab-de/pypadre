@@ -38,7 +38,7 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
         split.test_idx = np.array([6, 4, 7])   # test: f4t1f1t2
         split.val_idx = np.array([8, 10, 9])   # val: f8t3
-        split.id = str(uuid.uuid4())
+        split.uid = str(uuid.uuid4())
 
         result = obj.encode_split(split)
         self.assertIn("train:f1t2f2t1,test:f4t1f1t2,val:f8t3",
@@ -59,7 +59,7 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
         split.test_idx = np.array([])   # test:
         split.val_idx = np.array([])    # val:
-        split.id = str(uuid.uuid4())
+        split.uid = str(uuid.uuid4())
 
         result = obj.encode_split(split)
         self.assertIn("train:f1t2f2t1,test:,val:",
@@ -80,7 +80,7 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = np.array([])
         split.test_idx = np.array([])
         split.val_idx = np.array([])
-        split.id = str(uuid.uuid4())
+        split.uid = str(uuid.uuid4())
         result = obj.encode_split(split)
         self.assertIn("train:,test:,val:",
                       result,
@@ -100,7 +100,7 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = np.array([1])  # train:f1t1
         split.test_idx = np.array([2])   # test:f2t1
         split.val_idx = np.array([3])   # val:f3t1
-        split.id = str(uuid.uuid4())
+        split.uid = str(uuid.uuid4())
 
         result = obj.encode_split(split)
         self.assertIn("train:f1t1,test:f2t1,val:f3t1",
@@ -121,7 +121,7 @@ class TestEncodeSplit(unittest.TestCase):
         split.train_idx = None
         split.test_idx = None
         split.val_idx = None
-        split.id = str(uuid.uuid4())
+        split.uid = str(uuid.uuid4())
 
         result = obj.encode_split(split)
         self.assertIn("train:,test:,val:",

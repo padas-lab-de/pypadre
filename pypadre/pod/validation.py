@@ -3,11 +3,27 @@ import re
 import urllib.request
 from abc import ABCMeta
 from collections.__init__ import deque
+from importlib import resources
 from typing import List, Sequence
 
-from jsonschema import validate, ValidationError
+from jsonschema import validate, ValidationError, validators
+from padre.PaDREOntology import PaDREOntology
 
 from pypadre.pod.eventhandler import trigger_event
+
+
+# noinspection PyUnusedLocal,PyShadowingNames,PyProtectedMember
+def padre_enum(validator, padre_enum, instance, schema):
+    if validator.is_type(instance, "string"):
+        if padre_enum is not None:
+            if not hasattr(PaDREOntology, padre_enum):
+                yield ValidationError("%r is not a valid padre enum" % (padre_enum))
+            # TODO cleanup access to enum
+            elif instance in getattr(PaDREOntology, padre_enum)._value2member_map_:
+                yield ValidationError("%r is not a valid entity of padre enum %r" % (instance, padre_enum))
+
+
+validator = validators.extend(validators.Draft7Validator, validators={"padre_enum": padre_enum}, version="1.0")
 
 
 class ValidationErrorHandler:
@@ -46,8 +62,8 @@ class Validateable(object):
     """ This class implements basic logic for validating the state of it's input parameters """
 
     # noinspection PyBroadException
-    def __init__(self, schema=None, schema_path=None, schema_url=None, **options):
-        super(Validateable, self).__init__(**options)
+    def __init__(self, schema=None, schema_path=None, schema_url=None,
+                 schema_resource_package='pypadre.pod.resources.schema', schema_resource_name=None, **options):
         # Load schema externally
         if schema is None:
             try:
@@ -66,12 +82,24 @@ class Validateable(object):
                         schema_data = f.read()
                     schema = json.loads(schema_data)
             except:
-                trigger_event('EVENT_WARN', source=self, message='Failed on loading schema file from disk ' + schema_path)
+                trigger_event('EVENT_WARN', source=self,
+                              message='Failed on loading schema file from disk ' + schema_path)
+
+        if schema is None:
+            try:
+                if schema_resource_name is not None and schema_resource_package is not None:
+                    with resources.open_text(schema_resource_package, schema_resource_name) as f:
+                        schema_data = f.read()
+                    schema = json.loads(schema_data)
+            except:
+                trigger_event('EVENT_WARN', source=self,
+                              message='Failed on loading schema file from resources ' + schema_resource_package + '.'
+                                      + schema_resource_name)
 
         # Fail if no schema is provided
         if schema is None:
             raise ValueError("A validateable object needs a schema to validate to.")
-        validate(options, schema)
+        validate(options, schema, cls=validator)
 
 
 class ValidateableFactory:

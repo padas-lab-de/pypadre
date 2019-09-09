@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pandas as pd
 import pandas_profiling as pd_pf
@@ -11,11 +13,11 @@ from pypadre.core.model.dataset.container.pandas_container import PandasContaine
 
 class NumpyContainer(IBaseContainer):
 
-    def __init__(self, data, attributes=None):
+    def __init__(self, data, attributes: List[Attribute]=None):
         # todo rework binary data into delegate pattern.
         super().__init__(dataset.formats.numpy, data, attributes)
         self._shape = data.shape
-        if attributes is None:
+        if attributes is None or len(attributes) == 0:
             self._attributes = [Attribute(i, "RATIO") for i in range(data.shape[1])]
             self._data = data
             self._targets_idx = self._shape[1] - 1

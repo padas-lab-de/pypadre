@@ -330,7 +330,7 @@ class HttpBackendDatasets:
 
     @deprecated("Use put instead for protobuf support.")
     def put_dataset(self, dataset: Dataset, create :bool = True):
-        assert create or dataset.id is not None  # dataset id must be provided when the dataset should be updated
+        assert create or dataset.uid is not None  # dataset id must be provided when the dataset should be updated
         payload = dict()
         payload.update(dataset.metadata)
         payload["attributes"] = []
@@ -413,12 +413,12 @@ class HttpBackendDatasets:
         trigger_event('EVENT_LOG', source=self, message="Loaded dataset " + _id + " from server:")
         return dataset
 
-    def put_visualisation(self, id_, visualisation, description=None, supported_types=None):
+    def put_visualisation(self, id , visualisation, description=None, supported_types=None):
         """
         Upload visualisation for given data set id.
 
-        :param id_: Data set id for which visualisation should be uploaded
-        :type id_: str
+        :param id : Data set id for which visualisation should be uploaded
+        :type id : str
         :param visualisation: vega-lite specification
         :type visualisation: json
         :param description: Description of the visualisation
@@ -493,7 +493,7 @@ class HttpBackendDatasets:
 
         df_data = self.proto_to_dataframe(binary)
         del meta["attributes"]
-        dataset = Dataset(meta["uid"], **meta)
+        dataset = Dataset(**meta)
         if df_data.empty:
             return dataset
         df_data.columns = attribute_name_list
@@ -541,7 +541,7 @@ class HttpBackendDatasets:
             meta["originalSource"] = load.url
             meta["type"] = "Multivariat"
             meta["published"] = True
-            dataset = Dataset(meta["id"], **meta)
+            dataset = Dataset(**meta)
             raw_data = arff.load(open(load.data_file, encoding='utf-8'))
             attribute_list = [att[0] for att in raw_data["attributes"]]
             df_data = pd.DataFrame(data=raw_data['data'])

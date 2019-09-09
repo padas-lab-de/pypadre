@@ -12,7 +12,6 @@ class Run(MetadataEntity):
     _results = []
     _hyperparameters = []
     _split_ids = None
-    _id = None
     _metadata = None
 
     def __init__(self, execution, workflow, **options):
@@ -27,7 +26,7 @@ class Run(MetadataEntity):
         self._hyperparameters = []
         self._id = options.pop("run_id", uuid4())
         self._split_ids = []
-        super().__init__(self._id, **options)
+        super().__init__(**options)
 
         if self._id is None:
             self._id = uuid4()
@@ -97,7 +96,7 @@ class Run(MetadataEntity):
 
     def __str__(self):
         s = []
-        if self.id is not None:
+        if self.uid is not None:
             s.append("id:" + str(self.id))
         if self.name is not None and self.name != self.id:
             s.append("name:" + str(self.name))

@@ -180,7 +180,7 @@ class Split(MetadataEntity):
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._id = options.pop("split_id", None)
-        super().__init__(self._id, **options)
+        super().__init__(**options)
 
         if self._id is None:
             self._id = uuid.uuid4()
@@ -300,7 +300,7 @@ class Split(MetadataEntity):
 
     def __str__(self):
         s = []
-        if self.id is not None:
+        if self.uid is not None:
             s.append("id:" + str(self.id))
         if self.name is not None and self.name != self.id:
             s.append("name:" + str(self.name))

@@ -44,8 +44,9 @@ class PadreExecutionFileBackend(IExecutionBackend):
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, self.META_FILE)
+        experiment = self.parent.get_by_dir(self.get_parent_dir(directory))
         #TODO parse to execution object
-        pass
+        return Execution(experiment, **metadata)
 
     def put(self, execution, allow_overwrite=True):
         directory = self.to_directory(execution)

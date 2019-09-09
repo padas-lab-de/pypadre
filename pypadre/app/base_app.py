@@ -23,7 +23,7 @@ class BaseEntityApp(IBaseApp):
     def __init__(self, service: BaseService, **kwargs):
         self.service = service
 
-    def list(self, search, offset=0, size=100) -> list:
+    def list(self, search=None, offset=0, size=100) -> list:
         """
         Lists all entities matching search.
         :param offset: Offset of the search

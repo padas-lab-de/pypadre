@@ -84,7 +84,6 @@ class Experiment(MetadataEntity):
 
     """
 
-    _id = None
     _metadata = None
 
     def __init__(self,
@@ -125,7 +124,7 @@ class Experiment(MetadataEntity):
 
         split_obj.function_pointer = options.pop('function', None)
 
-        super().__init__(options.pop("ex_id", None), **options)
+        super().__init__(**options)
 
         if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):
             self._validation_obj = ValidateTrainTestSplits()
@@ -288,7 +287,7 @@ class Experiment(MetadataEntity):
 
     def __str__(self):
         s = []
-        if self.id is not None:
+        if self.uid is not None:
             s.append("id:" + str(self.id))
         if self.name is not None and self.name != self.id:
             s.append("name:" + str(self.name))

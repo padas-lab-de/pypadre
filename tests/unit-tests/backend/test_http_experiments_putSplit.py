@@ -54,7 +54,7 @@ class TestPutSplit(unittest.TestCase):
         split.val_idx = None
         split.train_idx = np.array([2, 1, 5])  # train:f1t2f2t1
         split.test_idx = np.array([6, 4, 7])   # test: f4t1f1t2
-        split.id = str(uuid.uuid4())
+        split.uid = str(uuid.uuid4())
 
         result = obj.put_split(MagicMock(), run, split)
         self.assertEqual(self.test_split_url,

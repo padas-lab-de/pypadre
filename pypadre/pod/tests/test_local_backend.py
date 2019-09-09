@@ -1,4 +1,5 @@
 import os
+import shutil
 import unittest
 
 from pypadre.app import PadreConfig
@@ -9,26 +10,35 @@ from pypadre.pod.backend.local.file.project.experiment.execution.run.split.split
 from pypadre.pod.backend.local.file.project.experiment.experiment_file_backend import PadreExperimentFileBackend
 from pypadre.pod.backend.local.file.project.project_file_backend import PadreProjectFileBackend
 
+config_path = os.path.join(os.path.expanduser("~"), ".padre-test.cfg")
+workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
+
 
 class LocalBackends(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(LocalBackends, self).__init__(*args, **kwargs)
-        config = PadreConfig(config_file=os.path.join(os.path.expanduser("~"), ".padre-test.cfg"))
+        config = PadreConfig(config_file=config_path)
         config.set("backends", str([
                     {
-                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre-test")
+                        "root_dir": workspace_path
                     }
                 ]))
         self.app = PadreFactory.get(config)
 
     def tearDown(self):
-        pass
         # delete data content
+        try:
+            shutil.rmtree(workspace_path+"/datasets")
+            shutil.rmtree(workspace_path+"/projects")
+        except FileNotFoundError:
+            pass
 
-    def __del__(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
         # delete configuration
+        shutil.rmtree(workspace_path)
+        os.remove(config_path)
 
     def test_dataset(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
@@ -45,6 +55,7 @@ class LocalBackends(unittest.TestCase):
     def test_project(self):
         from pypadre.core.model.project import Project
 
+        self.app.datasets.load_defaults()
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
 
         self.app.projects.patch(project)
@@ -60,6 +71,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.project import Project
 
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        self.app.projects.put(project)
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -68,6 +80,7 @@ class LocalBackends(unittest.TestCase):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
+        self.app.datasets.load_defaults()
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
@@ -89,7 +102,12 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.experiment import Experiment
         from pypadre.core.model.execution import Execution
 
+        self.app.datasets.load_defaults()
+        id = '_boston_dataset'
+        dataset = self.app.datasets.list({'name': id})
+
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        self.app.projects.put(project)
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -98,13 +116,11 @@ class LocalBackends(unittest.TestCase):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
-        id = '_boston_dataset'
-        dataset = self.app.datasets.list({'name': id})
-
         experiment = Experiment(name="Test Experiment SVM",
                                 description="Testing Support Vector Machines via SKLearn Pipeline",
                                 dataset=dataset[0],
                                 workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+        self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
         execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
@@ -116,8 +132,8 @@ class LocalBackends(unittest.TestCase):
         for execution_ in executions:
             assert codehash in execution_.name
 
-        execution= self.app.executions.get(executions.__iter__().__next__().id)
-        assert execution == executions[0]
+        execution = self.app.executions.get(executions.__iter__().__next__().id)
+        assert execution[0].name == executions[0].name
 
     def test_run(self):
         """
@@ -132,7 +148,13 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.execution import Execution
         from pypadre.core.model.run import Run
 
+        # TODO clean up testing (tests should be independent and only test the respective functionality)
+        self.app.datasets.load_defaults()
+        id = '_boston_dataset'
+        dataset = self.app.datasets.list({'name': id})
+
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        self.app.projects.put(project)
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -141,25 +163,24 @@ class LocalBackends(unittest.TestCase):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
-        id = '_boston_dataset'
-        dataset = self.app.datasets.list({'name': id})
-
         experiment = Experiment(name="Test Experiment SVM",
                                 description="Testing Support Vector Machines via SKLearn Pipeline",
                                 dataset=dataset[0],
                                 workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+        self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
         execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
                               preparameters=None, single_run=True,
                               single_transformation=True)
+        self.app.executions.put(execution)
 
         executions = self.app.executions.list({'name': codehash})
 
-        run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
+        run = Run(execution=executions[0], workflow=execution.experiment.workflow, keep_splits=True)
         self.app.runs.put(run)
 
-        runs = self.app.runs.list("")
+        runs = self.app.runs.list(None)
 
     def test_split(self):
 
@@ -169,6 +190,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.run import Run
         from pypadre.core.model.split.split import Split
 
+        self.app.datasets.load_defaults()
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
 
         def create_test_pipeline():
@@ -201,6 +223,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.pod.base import PadreLogger
         from pypadre.pod.eventhandler import add_logger
 
+        self.app.datasets.load_defaults()
         logger = PadreLogger(self.app)
         add_logger(logger=logger)
 

@@ -160,8 +160,8 @@ class GitLabBackend(GitBackend):
         :param run: run to put
         :return:
         """
-        if run.id is None:  # this is a new experiment
-            run.id = uuid.uuid4()
+        if run.uid is None:  # this is a new experiment
+            run.uid = uuid.uuid4()
 
         filename = '/'.join([run.id, "metadata.json"])
         comment = "Creating run directory"
@@ -182,8 +182,8 @@ class GitLabBackend(GitBackend):
         :param run: run to put
         :return:
         """
-        if split.id is None:  # this is a new experiment
-            split.id = uuid.uuid4()
+        if split.uid is None:  # this is a new experiment
+            split.uid = uuid.uuid4()
 
         filename = '/'.join([run.id, str(split.id), 'metadata.json'])
         comment = "Creating split directory"

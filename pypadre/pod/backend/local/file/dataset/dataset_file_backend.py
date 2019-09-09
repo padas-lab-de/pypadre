@@ -75,7 +75,7 @@ class PadreDatasetFileBackend(IDatasetBackend):
                                 a[self.CONTEXT], a[self.INDEX])
                       for a in attributes] if attributes is not None else None
 
-        ds = Dataset(metadata.get('id'), attributes, **metadata)
+        ds = Dataset(attributes=attributes, **metadata)
         if self.has_file(os.path.join(self.root_dir, directory), self.DATA_FILE):
             # TODO: Implement lazy loading of the dataset
             ds.set_data(self.get_file(os.path.join(self.root_dir, directory), self.DATA_FILE))

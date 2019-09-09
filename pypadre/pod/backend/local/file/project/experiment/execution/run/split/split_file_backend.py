@@ -65,9 +65,6 @@ class PadreSplitFileBackend(ISplitBackend):
         :return:
         """
 
-        if split.id is None:  # this is a new experiment
-            split.id = uuid.uuid4()
-
         directory = self.to_directory(split)
 
         if os.path.exists(directory) and not allow_overwrite:

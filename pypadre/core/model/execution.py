@@ -9,7 +9,6 @@ from pypadre.pod.printing.tablefyable import Tablefyable
 class Execution(MetadataEntity, Tablefyable):
     """ A execution should save data about the running env and the version of the code on which it was run """
 
-    _id = None
     _metadata = None
 
     @classmethod
@@ -17,9 +16,8 @@ class Execution(MetadataEntity, Tablefyable):
         # Add entries for tablefyable
         cls._tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
-    def __init__(self, experiment, codehash, command, **options):
+    def __init__(self, experiment, codehash=None, command=None, **options):
         # Validate input types
-        from uuid import uuid4
         parameters = options.pop('parameters', None)
         preparameters = options.pop('preparameters', None)
         single_run = options.pop('single_run', True)
@@ -27,15 +25,13 @@ class Execution(MetadataEntity, Tablefyable):
         self._keep_runs = options.get('keep_runs', True)
 
         self.validate_input_parameters(experiment=experiment, options=options)
-        super().__init__(id_=options.get("id", codehash), **options)
+        super().__init__(**{**{"id": codehash}, **options, **{"command": command, "codehash": codehash}})
         Tablefyable.__init__(self)
 
         self._experiment = experiment
         self._runs = []
         self._hash = codehash
         self._cmd = command
-        if self._id is None:
-            self._id = uuid4()
 
         if self.name is None:
             self.name = self._hash
