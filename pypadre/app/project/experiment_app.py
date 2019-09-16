@@ -1,7 +1,7 @@
 from typing import List
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.core.service.experiment_service import ExperimentService
+from pypadre.pod.service.experiment_service import ExperimentService
 from pypadre.pod.backend.interfaces.backend.i_experiment_backend import IExperimentBackend
 
 

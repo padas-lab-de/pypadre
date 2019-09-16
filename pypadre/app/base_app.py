@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from pypadre.core.service.base_service import BaseService
+from pypadre.pod.service.base_service import BaseService
 from pypadre.pod.base import ChildEntity
 
 

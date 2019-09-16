@@ -4,11 +4,11 @@ from typing import List, cast
 from jsonschema import ValidationError
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.core.service.dataset_service import DatasetService
 from pypadre.pod.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
     NetworkXLoader, SklearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
+from pypadre.pod.service.dataset_service import DatasetService
 
 
 class DatasetApp(BaseChildApp):

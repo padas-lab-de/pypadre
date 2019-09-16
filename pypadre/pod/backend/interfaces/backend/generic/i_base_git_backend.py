@@ -67,7 +67,7 @@ class GitBackend(FileBackend):
         :return:
         """
         tag = repo.create_tag(tag_name, ref=ref_branch, message=message)
-        tag.commit
+        tag.commit()
 
     def _create_sub_module(self, repo, sub_repo_name, path_to_sub_repo, url, branch='master'):
         """
@@ -120,7 +120,6 @@ class GitBackend(FileBackend):
 
         else:
             return False
-
 
     def _get_untracked_files(self, repo):
         return repo.untracked_files if self.is_backend_valid() else None

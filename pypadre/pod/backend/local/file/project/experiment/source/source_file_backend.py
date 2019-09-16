@@ -7,7 +7,7 @@ from pypadre.pod.backend.serialiser import JSonSerializer
 from pypadre.core.model.execution import Execution
 
 
-class PadreExecutionFileBackend(ISourceBackend):
+class PadreSourceFileBackend(ISourceBackend):
 
     @staticmethod
     def _placeholder():

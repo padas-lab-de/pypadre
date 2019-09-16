@@ -13,6 +13,8 @@ from pypadre.pod.eventhandler import trigger_event, assert_condition
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
+from pypadre.pod.printing.tablefyable import Tablefyable
+from pypadre.pod.validation import Validateable
 
 
 def _sklearn_runner():
@@ -29,7 +31,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class Experiment(MetadataEntity):
+class Experiment(Validateable, MetadataEntity, Tablefyable):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -84,10 +86,18 @@ class Experiment(MetadataEntity):
 
     """
 
+    @classmethod
+    def tablefy_register_columns(cls):
+        # TODO fill with properties to extract for table
+        cls._tablefy_register_columns({})
+
     _metadata = None
 
-    def __init__(self,
-                 **options):
+    def __init__(self, **options):
+        metadata = {**options}
+        Validateable.__init__(self, **metadata)
+        MetadataEntity.__init__(self, schema_resource_name="experiment.json", **metadata)
+        Tablefyable.__init__(self)
 
         self._dataset = options.pop("dataset", None)
         self.project = options.pop('project', None)

@@ -1,7 +1,6 @@
 from typing import List
 
-from pypadre.core.service.base_service import BaseService
-from pypadre.pod.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
+from pypadre.pod.service.base_service import BaseService
 from pypadre.pod.backend.interfaces.backend.i_experiment_backend import IExperimentBackend
 
 

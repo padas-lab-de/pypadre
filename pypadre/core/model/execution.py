@@ -1,12 +1,14 @@
 from collections import OrderedDict
 
+from pypadre import Experiment
 from pypadre.pod.base import MetadataEntity
 from pypadre.core.model.run import Run
 from pypadre.pod.eventhandler import assert_condition, trigger_event
 from pypadre.pod.printing.tablefyable import Tablefyable
+from pypadre.pod.validation import Validateable
 
 
-class Execution(MetadataEntity, Tablefyable):
+class Execution(Validateable, MetadataEntity, Tablefyable):
     """ A execution should save data about the running env and the version of the code on which it was run """
 
     _metadata = None
@@ -16,7 +18,12 @@ class Execution(MetadataEntity, Tablefyable):
         # Add entries for tablefyable
         cls._tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
-    def __init__(self, experiment, codehash=None, command=None, **options):
+    def __init__(self, experiment: Experiment, codehash=None, command=None, **options):
+        metadata = {"id": codehash, **options, "command": command, "codehash": codehash}
+        Validateable.__init__(self, schema_resource_name="execution.json", **metadata)
+        MetadataEntity.__init__(self, **metadata)
+        Tablefyable.__init__(self)
+
         # Validate input types
         parameters = options.pop('parameters', None)
         preparameters = options.pop('preparameters', None)
@@ -25,8 +32,6 @@ class Execution(MetadataEntity, Tablefyable):
         self._keep_runs = options.get('keep_runs', True)
 
         self.validate_input_parameters(experiment=experiment, options=options)
-        super().__init__(**{**{"id": codehash}, **options, **{"command": command, "codehash": codehash}})
-        Tablefyable.__init__(self)
 
         self._experiment = experiment
         self._runs = []
