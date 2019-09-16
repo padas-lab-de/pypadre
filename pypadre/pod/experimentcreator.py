@@ -40,6 +40,7 @@ class ExperimentCreator:
     _parameters = dict()
 
     _param_value_dict = dict()
+    _pre_param_value_dict = dict()
 
     _param_types_dict = dict()
 
@@ -426,7 +427,7 @@ class ExperimentCreator:
         return deepcopy(obj)
 
     def create(self, name, description, dataset_list=None, workflow=None, params=None, strategy='random',
-               keep_splits=False, function=None, preprocessing=None):
+               keep_splits=False, function=None, preprocessing=None, keep_attributes=True, preprocessing_params=None):
         """
         This function adds an experiment to the dictionary.
 
@@ -440,6 +441,8 @@ class ExperimentCreator:
         :param function: Custom splitting function if necessary
         :param preprocessing: Preprocessing workflow so that the user can add a preprocessing function
                               that works on the entire dataset once
+        :param keep_attributes: Whether the attributes are preserved or not after preprocessing.
+        :param preprocessing_params: Parameters for the transformers in the preprocessing workflow, optional
 
         :return: None
         """
@@ -471,6 +474,7 @@ class ExperimentCreator:
                 data_dict['keep_splits'] = keep_splits
                 if preprocessing is not None:
                     data_dict['preprocessing'] = preprocessing
+                    data_dict['keep_attributes'] = keep_attributes
 
                 # If a custom function is the splitting strategy then pass the function pointer also
                 if strategy == 'function':
@@ -490,6 +494,20 @@ class ExperimentCreator:
                                 estimator_params[param] = [param_value]
                     self._param_value_dict[name] = self.validate_parameters(params)
                     data_dict['params'] = self._param_value_dict[name]
+                if preprocessing_params is not None:
+                    """
+                    Convert the names of the alternate names of the parameters to actual names of the parameters
+                    """
+                    preprocessing_params = self.convert_alternate_estimator_names(params_dict=preprocessing_params)
+                    # Iterate through the parameters and convert the parameters to a list if they are not a list
+                    for transformer in preprocessing_params:
+                        transformer_params = preprocessing_params.get(transformer)
+                        for param in transformer_params:
+                            if type(transformer_params.get(param)) is not list:
+                                param_value = transformer_params.get(param)
+                                transformer_params[param] = [param_value]
+                    self._pre_param_value_dict[name] = self.validate_parameters(preprocessing_params)
+                    data_dict['preprocessing_params'] = self._pre_param_value_dict[name]
                 self._experiments[name] = data_dict
                 trigger_event('EVENT_LOG', condition=False, source=self,
                               message=''.join([name, ' created successfully!']))
@@ -559,8 +577,11 @@ class ExperimentCreator:
         :return: A dictionary containing all the available estimators
         """
         components = dict()
-        for estimator in name_mappings:
-            components[estimator] = name_mappings.get(estimator).get('implementation').get('scikit-learn')
+        for framework in supported_frameworks:
+            for estimator in name_mappings:
+                if name_mappings.get(estimator).get('implementation').get(framework) is not None:
+                    components[estimator] = name_mappings.get(estimator).get('implementation').get(framework)
+
 
         return components
 
@@ -661,15 +682,15 @@ class ExperimentCreator:
                     continue
 
                 # If there is only one dataset defined for the experiment execute the experiment with the dataset
+                _options = deepcopy(self._experiments.get(experiment))
+                _options.pop('dataset',None)
                 ex = Experiment(name=experiment,
-                                description=self._experiments.get(experiment).get('description'),
                                 dataset=data,
-                                workflow=self._experiments.get(experiment).get('workflow', None),
-                                strategy=self._experiments.get(experiment).get('strategy', 'random'))
+                                **_options)
 
                 conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
                 pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                ex.execute(parameters=self._param_value_dict.get(experiment))
+                ex.execute(parameters=self._param_value_dict.get(experiment),pre_parameters=self._pre_param_value_dict.get(experiment))
 
             else:
                 # If there are multiple datasets defined for the experiment execute the experiment for each dataset
@@ -697,7 +718,9 @@ class ExperimentCreator:
                     flag = True
                     desc = ''.join([self._experiments.get(experiment).get('description'), 'with dataset ', dataset])
                     data = self.get_local_dataset(dataset)
-
+                    _options = deepcopy(self._experiments.get(experiment))
+                    _options.pop('description',None)
+                    _options.pop('dataset',None)
                     if data is None:
                         continue
 
@@ -719,14 +742,13 @@ class ExperimentCreator:
                     trigger_event('EVENT_LOG', source=self, message=message)
 
                     ex = Experiment(name=''.join([experiment, '(', dataset, ')']),
-                                    description=desc,
                                     dataset=data,
-                                    workflow=self._experiments.get(experiment).get('workflow', None),
-                                    strategy=self._experiments.get(experiment).get('strategy', 'random'))
+                                    **_options)
                     conf = ex.configuration()  # configuration, which has been automatically extracted from the pipeline
 
                     pprint.pprint(ex.hyperparameters())  # get and print hyperparameters
-                    ex.execute(parameters=self._param_value_dict.get(experiment))
+                    ex.execute(parameters=self._param_value_dict.get(experiment),
+                               pre_parameters=self._pre_param_value_dict.get(experiment))
 
     def do_experiments(self, experiment_datasets=None):
         """
@@ -858,7 +880,7 @@ class ExperimentCreator:
             exp_params = experiments.get(experiment)
             if exp_params is None:
                 continue
-
+            #keep_attributes=True, preprocessing_params=None
             name = exp_params.get('name', None)
             description = exp_params.get('description', None)
             pipeline = exp_params.get('workflow', None)
@@ -867,6 +889,8 @@ class ExperimentCreator:
             keep_splits = exp_params.get('keep_splits', False)
             function = exp_params.get('function', None)
             preprocessing = exp_params.get('preprocessing', None)
+            preprocessing_params = exp_params.get('preprocessing_params',None)
+            keep_attributes = exp_params.get('keep_attributes',None)
             params = exp_params.get('params', None)
 
             # Create the pipeline and if it is not possible move to next experiment
@@ -889,7 +913,8 @@ class ExperimentCreator:
 
             self.create(name=name, description=description, workflow=workflow, dataset_list=dataset,
                         params=params, strategy=strategy, keep_splits=keep_splits, function=function,
-                        preprocessing=preprocessing)
+                        preprocessing=preprocessing, preprocessing_params=preprocessing_params,
+                        keep_attributes=keep_attributes)
 
         return True
 

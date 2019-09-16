@@ -35,7 +35,8 @@ for file in mapping_files:
                     type_mappings[alg['implementation'][k]] = (alg, k)
 
                 for alt_name in alg['other_names']:
-                    alternate_name_mappings[alt_name] = alg['name']
+                    # Convert the alternate names to lower case for better usability
+                    alternate_name_mappings[str(alt_name).lower()] = str(alg['name']).lower()
 
         except ValueError:
             raise ValueError('Error when parsing JSON file {name}'.format(name=file))

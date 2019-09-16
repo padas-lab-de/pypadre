@@ -16,6 +16,7 @@ Enum for the different phases of an experiment
 
 class _Phases(_Const):
     experiment = "experiment"
+    preprocessing = "preprocessing"
     run = "run"
     split = "split"
     fitting = "fitting/training"
@@ -119,6 +120,27 @@ class LoggerBase(ABC):
         if self._backend is not None:
             self.log_event(experiment, exp_events.stop, phase=phases.experiment)
 
+    def log_start_preprocessing(self, experiment):
+        """
+        This function handles the start of a dataset preprocessing
+
+        :param experiment: The experiment object
+
+        :return:
+        """
+        pass
+
+    def log_stop_preprocessing(self, experiment, append_transformations):
+        """
+        This function handles the end of a dataset preprocessing
+
+        :param experiment: The experiment object
+        :param append_transformations: Whether the new representation of the dataset are to be saved
+
+        :return:
+        """
+        pass
+
     def log_start_run(self, run):
         """
         This function handles the start of a run
@@ -202,6 +224,16 @@ class LoggerBase(ABC):
         :param curr_value: Curr experiment
         :param limit: Total number of experiments
         :param phase: Whether the experiment is starting execution or has completed its execution
+        :return:
+        """
+        pass
+
+    def log_preprocessing_progress(self, curr_value, limit, phase):
+        """
+        Logs the progession of the preprocessing phase
+        :param curr_value: Curr preprocessing run
+        :param limit: Total number of transformations
+        :param phase: Whether the preprocessing is starting  or has completed
         :return:
         """
         pass
@@ -486,9 +518,6 @@ class PadreLogger(LoggerBase):
 
     def has_backend(self):
         return self._backend is not None
-
-
-""
 
 
 class MetadataEntity:

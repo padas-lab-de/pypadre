@@ -7,9 +7,10 @@ from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
 from pypadre.core.model.split.custom_split import split_obj
 from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
-from pypadre.pod.eventhandler import trigger_event, assert_condition
-
-
+from pypadre.core.sklearnworkflow import SKLearnWorkflow
+from pypadre.core.run import Run
+from pypadre.core.custom_split import split_obj
+from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
@@ -75,9 +76,11 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
     Options supported:
     ==================
     - stdout={True|False} logs event messages to default_logger. Default = True
-    - keep_splits={True|False} if true, all split data for every run is kept (including the model, split inidices and training data)
-                               are kept in memory. If false, no split data is kept
-    - keep_runs={True|False} if true, all rund data (i.e. scores) will be kept in memory. If false, no split run data is not kept
+    - keep_splits={True|False} if true, all split data for every run is kept (including the model,
+                                   split inidices and training data) are kept in memory.
+                               If false, no split data is kept
+    - keep_runs={True|False} if true, all rund data (i.e. scores) will be kept in memory.
+                             If false, no split run data is not kept
     - n_runs = int  number of runs to conduct. todo: needs to be extended with hyperparameter search
 
     TODO:
@@ -207,6 +210,12 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
     def configuration(self):
         return self._workflow.configuration()
 
+    def preprocessing_configuration(self):
+        if self.preprocessing_workflow is not None:
+            return SciKitVisitor(self.preprocessing_workflow)
+        else:
+            return None
+
     def hyperparameters(self):
         """
         returns the hyperparameters per pipeline element as dict from the extracted configruation
@@ -217,6 +226,9 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
         # make it as close to the http implementation as possible
         params = dict()
         steps = self.configuration()[0]["steps"]
+        # if a preprocessing pipeline is present, add it to the configurations.
+        if self.preprocessing_configuration():
+            steps = self.preprocessing_configuration()[0]["steps"] + steps
         # Params is a dictionary of hyper parameters where the key is the zero-indexed step number
         # The traverse_dict function traverses the dictionary in a recursive fashion and replaces
         # any instance of <class 'pypadre.core.visitors.parameter.Parameter'> type to a sub-dictionary of
@@ -250,22 +262,127 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
         execution.execute(parameters=parameters, preprocessed_workflow=self._preprocessed_workflow)
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
-    def preprocess(self):
+
+    def preprocess(self,preprocessing_workflow=None):
         """
         Runs the preprocessing pipeline and populates the preprocessed dataset
+        :param preprocessing_workflow: A pipeline to override the existent preprocessing workflow if needed.
         :return: None
         """
         from copy import deepcopy
 
+        # reset flag
+        self._preprocessed = False
+
+        if preprocessing_workflow is not None:
+            self._set_preprocessing_workflow(preprocessing_workflow)
         # Preprocess the data
-        preprocessed_data = self._preprocessed_workflow.fit_transform(self.dataset.features(), self.dataset.targets())
+        preprocessed_data = self.preprocessing_workflow.fit_transform(self.dataset.features(), self.dataset.targets())
         # Copy the dataset so that metadata and attributes remain consistent
         self._preprocessed_dataset = deepcopy(self.dataset)
 
         # Replace the data by concatenating with the targets
         self._preprocessed_dataset.replace_data(preprocessed_data, self._keep_attributes)
-        # Set flag
+
+        # set flag for dataset fetching
         self._preprocessed = True
+
+    def create_experiment_configuration_dict(self, params=None, preprocessing_params=None, single_run=False, single_transformation=False):
+        """
+        This function creates a dictionary that can be written as a JSON file for replicating the experiments.
+
+        :param params: The parameters for the estimators that make up the grid for the main workflow
+        :param preprocessing_params: The parameters for the transformers that make up the grid for the preprocessing workflow
+        :param single_run: If the execution is done for a single run
+        :param single_transformation: If the dataset has a single transformation
+
+        :return: Experiment dictionary containing the pipeline, backend, parameters etc
+        """
+        from copy import deepcopy
+
+        name = self.name
+        description = self.metadata.get('description', None)
+        strategy = self.metadata.get('strategy', None)
+        dataset = self.dataset.name
+        workflow = list(self.workflow.pipeline.named_steps.keys())
+
+        complete_experiment_dict = dict()
+
+        experiment_dict = dict()
+        experiment_dict['name'] = name
+        experiment_dict['description'] = description
+        experiment_dict['strategy'] = strategy
+        experiment_dict['dataset'] = dataset
+        experiment_dict['workflow'] = workflow
+
+        # If there is a preprocessing pipeline, add it to the configuration
+        if self.requires_preprocessing :
+            preprocessing_workflow = list(self._preprocessed_workflow.named_steps.keys())
+            experiment_dict['preprocessing'] = preprocessing_workflow
+
+        if single_run is True:
+            estimator_dict = dict()
+            # All the parameters of the estimators need to be filled into the params dictionary
+            estimators = self.workflow.pipeline.named_steps
+            for estimator in estimators:
+
+                obj_params = estimators.get(estimator).get_params()
+                estimator_name = estimator
+                if name_mappings.get(estimator, None) is None:
+                    estimator_name = alternate_name_mappings.get(str(estimator).lower())
+
+                params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
+                param_dict = dict()
+                framework = dict()
+                for param in params_list:
+                    for framework in supported_frameworks:
+                        if param.get(framework, None) is not None:
+                            break
+                    param_name = param.get(framework).get('path')
+                    param_dict[param_name] = obj_params.get(param_name)
+
+                estimator_dict[estimator] = deepcopy(param_dict)
+
+            experiment_dict['params'] = estimator_dict
+
+        else:
+            # Only those parameters that are passed to the grid search need to be filled
+            experiment_dict['params'] = params
+
+        if self.requires_preprocessing:
+
+            if single_transformation is True:
+                transformer_dict = dict()
+                # All the parameters of the transformers need to be filled into the params dictionary
+                transformers = self.preprocessing_workflow.named_steps
+                for transformer in transformers:
+
+                    obj_params = transformers.get(transformer).get_params()
+                    transformer_name = transformer
+                    if name_mappings.get(transformer, None) is None:
+                        transformer_name = alternate_name_mappings.get(str(transformer).lower())
+
+                    params_list = name_mappings.get(transformer_name).get('hyper_parameters').get('model_parameters')
+                    param_dict = dict()
+                    framework = dict()
+                    for param in params_list:
+                        for framework in supported_frameworks:
+                            if param.get(framework, None) is not None:
+                                break
+                        param_name = param.get(framework).get('path')
+                        param_dict[param_name] = obj_params.get(param_name)
+
+                    transformer_dict[transformer] = deepcopy(param_dict)
+
+                experiment_dict['preprocessing_params'] = transformer_dict
+
+            else:
+                # Only those parameters that are passed to the grid search need to be filled
+                experiment_dict['preprocessing_params'] = preprocessing_params
+
+        complete_experiment_dict[name] = deepcopy(experiment_dict)
+
+        return complete_experiment_dict
 
     @property
     def runs(self):
@@ -293,11 +410,14 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
 
     @property
     def requires_preprocessing(self):
-        return self._preprocessed
+        return self.preprocessing_workflow is not None
 
     @property
     def preprocessing_workflow(self):
         return self._preprocessed_workflow
+
+    def _set_preprocessing_workflow(self, preprocessing_workflow):
+        self._preprocessed_workflow = preprocessing_workflow
 
     def __str__(self):
         s = []
@@ -350,7 +470,9 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
         modules.append('pypadre')
         module_version_info = dict()
 
-        estimators = self._workflow._pipeline.named_steps
+        estimators = self.workflow.pipeline.named_steps
+        if self.preprocessing_workflow is not None:
+            estimators.update(self.preprocessing_workflow.named_steps)
         # Iterate through the entire pipeline and find the unique modules
         for estimator in estimators:
             obj = estimators.get(estimator, None)
@@ -387,7 +509,16 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
         """
         assert_condition(condition=options.get('workflow', None) is not None, source=self,
                          message="Workflow cannot be none")
-                         
+        assert_condition(condition=options.get('description', None) is not None, source=self,
+                         message="Description cannot be none")
+        assert_condition(condition=isinstance(options.get("keep_runs", True), bool), source=self,
+                         message='keep_runs parameter has to be of type bool')
+        assert_condition(condition=isinstance(options.get("keep_splits", True), bool), source=self,
+                         message='keep_splits parameter has to be of type bool')
+        assert_condition(condition=isinstance(options.get("keep_attributes", True), bool), source=self,
+                         message='keep_attributes parameter has to be of type bool')
+        assert_condition(condition=isinstance(options.get('sk_learn_stepwise', False), bool), source=self,
+                         message='keep_splits parameter has to be of type bool')
         assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
                          message='Workflow does not have a fit function')
         """
@@ -421,10 +552,20 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
         workflow = options.get('workflow')
         for estimator in workflow.named_steps:
             assert_condition(condition=name_mappings.get(estimator, None) is not None or
-                             alternate_name_mappings.get(estimator, None) is not None,
+                             alternate_name_mappings.get(str(estimator).lower(), None) is not None,
                              source=self,
                              message='Estimator {estimator} not present in name mappings or '
                                      'alternate name mappings'.format(estimator=estimator))
+
+        # Check if all transformers names are present in the name mappings
+        pre_workflow = options.get('preprocessing')
+        if pre_workflow is not None:
+            for estimator in pre_workflow.named_steps:
+                assert_condition(condition=name_mappings.get(estimator, None) is not None or
+                                           alternate_name_mappings.get(str(estimator).lower(), None) is not None,
+                                 source=self,
+                                 message='Transformer or estimator {estimator} not present in name mappings or '
+                                         'alternate name mappings'.format(estimator=estimator))
 
         # Check if dataset has targets, and if supervised learning is used, then throw an error
         if options.get('dataset').targets() is None:
@@ -432,10 +573,10 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
             for estimator in workflow.named_steps:
                 actual_estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    actual_estimator_name = alternate_name_mappings.get(estimator)
+                    actual_estimator_name = alternate_name_mappings.get(str(estimator).lower())
                 assert_condition(
-                    condition=name_mappings.get(actual_estimator_name).get('type', None) not in
-                              ['Classification', 'Regression'],
+                    condition=
+                    name_mappings.get(actual_estimator_name).get('type', None) not in ['Classification', 'Regression'],
                     source=self, message='Dataset without targets cannot be used for supervised learning')
 
         # Check if regression data is assigned to a classification estimator
@@ -444,8 +585,9 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
             for estimator in workflow.named_steps:
                 actual_estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    actual_estimator_name = alternate_name_mappings.get(estimator)
-                assert_condition(condition=name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
+                    actual_estimator_name = alternate_name_mappings.get(str(estimator).lower())
+                assert_condition(condition=
+                                 name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
                                  source=self, message='Classifier cannot be trained on regression data')
 
         """

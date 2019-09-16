@@ -35,6 +35,20 @@ def log_stop_experiment(args):
         for logger in logger_list:
             logger.log_stop_experiment(experiment=experiment)
 
+def log_start_preprocessing(args):
+    experiment = args.get('experiment', None)
+
+    if experiment is not None:
+        for logger in logger_list:
+            logger.log_start_preprocessing(experiment=experiment)
+
+
+def log_stop_preprocessing(args):
+    experiment = args.get('experiment', None)
+    append_transformations = args.get('append_transformations', False)
+    if experiment is not None:
+        for logger in logger_list:
+            logger.log_stop_preprocessing(experiment=experiment, append_transformations=append_transformations)
 
 def put_experiment_configuration(args):
     experiment = args.get('experiment', None)
@@ -140,6 +154,13 @@ def log_experiment_progress(args):
         logger.log_experiment_progress(curr_value=curr_value, limit=limit, phase=phase)
 
 
+def log_preprocessing_progress(args):
+    curr_value = args.get('curr_value', 0)
+    limit = args.get('limit', 0)
+    phase = args.get('phase', 'start')
+    for logger in logger_list:
+        logger.log_preprocessing_progress(curr_value=curr_value, limit=limit, phase=phase)
+
 def log_run_progress(args):
     curr_value = args.get('curr_value', 0)
     limit = args.get('limit', 0)
@@ -187,6 +208,8 @@ This dictionary contains all the events that are to be handled and also their co
 EVENT_HANDLER_DICT = {
     'EVENT_START_EXPERIMENT': [log_start_experiment],
     'EVENT_STOP_EXPERIMENT': [log_stop_experiment],
+    'EVENT_START_PREPROCESSING': [log_start_preprocessing],
+    'EVENT_STOP_PREPROCESSING': [log_stop_preprocessing],
     'EVENT_START_EXECUTION': [log_start_execution],
     'EVENT_STOP_EXECUTION': [log_stop_execution],
     'EVENT_START_RUN': [log_start_run],
@@ -202,6 +225,7 @@ EVENT_HANDLER_DICT = {
     'EVENT_ERROR': [error],
     'EVENT_LOG_EXPERIMENT_PROGRESS': [log_experiment_progress],
     'EVENT_LOG_RUN_PROGRESS': [log_run_progress],
+    'EVENT_LOG_PREPROCESSING_PROGRESS': [log_preprocessing_progress],
     'EVENT_LOG_SPLIT_PROGRESS': [log_split_progress],
     'EVENT_PROGRESS': [log_progress],
     'EVENT_LOG_MODEL': [log_model]
@@ -272,6 +296,7 @@ class event_queue:
         self._event_queue.append(event)
         if not self._emptying_queue:
             # Create thread and empty queue
+            # TODO Check for deadlock conditions
             self.process_events()
 
 
