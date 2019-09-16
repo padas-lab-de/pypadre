@@ -6,9 +6,6 @@ from click.testing import CliRunner
 
 from pypadre.app import PadreConfig
 from pypadre.cli.pypadre import pypadre
-from pypadre.core.model.project import Project
-from pypadre.pod.validation.json_schema import JsonSchemaRequiredHandler
-from pypadre.pod.validation.validation import ValidationErrorHandler, ValidateableFactory
 
 
 # noinspection PyMethodMayBeStatic
