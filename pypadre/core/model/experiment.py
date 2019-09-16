@@ -2,7 +2,7 @@ import platform
 from collections import OrderedDict
 
 import pypadre.core.visitors.parameter
-from pypadre.pod.base import MetadataEntity
+from pypadre.pod.base import MetadataEntity, ChildEntity
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
 from pypadre.core.model.split.custom_split import split_obj
@@ -14,7 +14,7 @@ from pypadre.pod.eventhandler import trigger_event, assert_condition
 #  Module Private Functions and Classes
 ####################################################################################################################
 from pypadre.pod.printing.tablefyable import Tablefyable
-from pypadre.pod.validation import Validateable
+from pypadre.pod.validation.validation import Validateable
 
 
 def _sklearn_runner():
@@ -31,7 +31,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class Experiment(Validateable, MetadataEntity, Tablefyable):
+class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -98,48 +98,52 @@ class Experiment(Validateable, MetadataEntity, Tablefyable):
         Validateable.__init__(self, **metadata)
         MetadataEntity.__init__(self, schema_resource_name="experiment.json", **metadata)
         Tablefyable.__init__(self)
+        ChildEntity.__init__(self, options.get("project", None))
 
-        self._dataset = options.pop("dataset", None)
-        self.project = options.pop('project', None)
+        self._dataset = options.get("dataset", None)
 
-        assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
-        assert_condition(condition=isinstance(self._dataset, Dataset),
-                         source=self, message='Experiment dataset is not of type Dataset')
+        self.workflow()
+
+        # assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
+        # assert_condition(condition=isinstance(self._dataset, Dataset),
+        #                  source=self, message='Experiment dataseet is not of type Dataset')
         # we need to store the dataset_id in the metadata. otherwise, this information might be lost during storage
-        options["dataset_id"] = self._dataset.id
+        # options["dataset_id"] = self._dataset.id
+
         # todo workflow semantic not clear. Fit and infer is fine, but we need someting for transform
-        workflow = options.pop("workflow", None)
-        self._stdout = options.get("stdout", True)
-        self._keep_runs = options.get("keep_runs", False) or options.get("keep_splits", False)
-        self._runs = []
-        self._run_split_dict = OrderedDict()
-        self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
-        self._set_workflow(workflow)
-        self._last_run = None
-        self._validation_obj = options.get('validation', None)
-        self._results = []
-        self._metrics = []
-        self._hyperparameters = []
-        self._experiment_configuration = None
+        # workflow = options.pop("workflow", None)
+        # self._stdout = options.get("stdout", True)
+        # self._keep_runs = options.get("keep_runs", False) or options.get("keep_splits", False)
+        # self._runs = []
+        # self._run_split_dict = OrderedDict()
+        # self._sk_learn_stepwise = options.get("sk_learn_stepwise", False)
+        # self._set_workflow(workflow)
+        # self._last_run = None
+        # self._validation_obj = options.get('validation', None)
+        # self._results = []
+        # self._metrics = []
+        # self._hyperparameters = []
+        # self._experiment_configuration = None
+        #
+        # # If a preprocessing step is required to be executed on the whole dataset, add the workflow
+        # self._preprocessed_workflow = options.pop('preprocessing', None)
+        # self._keep_attributes = options.pop('keep_attributes', True)
+        #
+        # # Deep copy the modified dataset to the variable after preprocessing
+        # self._preprocessed_dataset = None
+        #
+        # # Set the flag after preprocessing is complete
+        # self._preprocessed = False
+        #
+        # split_obj.function_pointer = options.pop('function', None)
+        #
+        # if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):
+        #     self._validation_obj = ValidateTrainTestSplits()
+        #
+        # self._fill_sys_info()
 
-        # If a preprocessing step is required to be executed on the whole dataset, add the workflow
-        self._preprocessed_workflow = options.pop('preprocessing', None)
-        self._keep_attributes = options.pop('keep_attributes', True)
-
-        # Deep copy the modified dataset to the variable after preprocessing
-        self._preprocessed_dataset = None
-
-        # Set the flag after preprocessing is complete
-        self._preprocessed = False
-
-        split_obj.function_pointer = options.pop('function', None)
-
-        super().__init__(**options)
-
-        if self._validation_obj is None or not hasattr(self._validation_obj, 'validate'):
-            self._validation_obj = ValidateTrainTestSplits()
-
-        self._fill_sys_info()
+    def project(self):
+        return self.parent
 
     def _fill_sys_info(self):
         # TODO: Implement the gathering of system information as dynamic code

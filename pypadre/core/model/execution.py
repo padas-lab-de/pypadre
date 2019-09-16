@@ -5,7 +5,7 @@ from pypadre.pod.base import MetadataEntity
 from pypadre.core.model.run import Run
 from pypadre.pod.eventhandler import assert_condition, trigger_event
 from pypadre.pod.printing.tablefyable import Tablefyable
-from pypadre.pod.validation import Validateable
+from pypadre.pod.validation.validation import Validateable
 
 
 class Execution(Validateable, MetadataEntity, Tablefyable):

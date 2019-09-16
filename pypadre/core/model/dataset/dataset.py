@@ -21,7 +21,7 @@ from pypadre.pod.base import MetadataEntity
 from pypadre.pod.printing.tablefyable import Tablefyable
 from pypadre.pod.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.pod.util.utils import _Const
-from pypadre.pod.validation import Validateable
+from pypadre.pod.validation.validation import Validateable
 
 
 class _Formats(_Const):

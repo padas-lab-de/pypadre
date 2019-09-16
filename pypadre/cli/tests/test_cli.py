@@ -7,9 +7,11 @@ from click.testing import CliRunner
 from pypadre.app import PadreConfig
 from pypadre.cli.pypadre import pypadre
 from pypadre.core.model.project import Project
-from pypadre.pod.validation import ValidateableFactory, ValidationErrorHandler
+from pypadre.pod.validation.json_schema import JsonSchemaRequiredHandler
+from pypadre.pod.validation.validation import ValidationErrorHandler, ValidateableFactory
 
 
+# noinspection PyMethodMayBeStatic
 class PadreCli(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -47,11 +49,11 @@ class PadreCli(unittest.TestCase):
         assert '_diabetes' in result.output
 
     def test_project(self):
-        def handle_missing(obj, e):
-            return "a"
-
-        p = ValidateableFactory.make(Project, handlers=[
-            ValidationErrorHandler(validator="required", handle=handle_missing)])
+        # def handle_missing(obj, e, options):
+        #     return "a"
+        #
+        # p = ValidateableFactory.make(Project, handlers=[
+        #     JsonSchemaRequiredHandler(validator="required", get_value=handle_missing)])
 
         runner = CliRunner()
 
@@ -60,6 +62,7 @@ class PadreCli(unittest.TestCase):
                                          'project', 'create'])
 
         assert '_diabetes' in result.output
+
 
 if __name__ == '__main__':
     unittest.main()

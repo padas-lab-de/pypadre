@@ -1,13 +1,14 @@
 import numpy as np
 
 from pypadre.core.base import exp_events, phases
+from pypadre.core.model.pipeline import Pipeline
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 from pypadre.core.visitors.scikit import SciKitVisitor
 from pypadre.pod.eventhandler import assert_condition
 from pypadre.pod.eventhandler import trigger_event
 
 
-class SKLearnWorkflow:
+class SKLearnWorkflow(Pipeline):
     """
     This class encapsulates an sklearn workflow which allows to run sklearn pipelines or a list of sklearn components,
     report the results according to the outcome via the experiment logger.
@@ -21,10 +22,12 @@ class SKLearnWorkflow:
     _metrics = dict()
     _hyperparameters = None
 
-    def __init__(self, pipeline, step_wise=False):
+    def __init__(self, pipeline, steps, step_wise=False):
         # check for final component to determine final results
         # if step wise is true, log intermediate results. Otherwise, log only final results.
         # distingusish between training and fitting in classification.
+        super().__init__(steps)
+
         self._pipeline = pipeline
         self._step_wise = step_wise
         self._results = dict()
