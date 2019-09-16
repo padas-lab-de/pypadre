@@ -38,6 +38,7 @@ class JSonSerializer:
     def deserialize(buffer):
         return json.loads(buffer)
 
+
 class MsgPack:
 
     @staticmethod

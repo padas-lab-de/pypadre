@@ -3,6 +3,7 @@ from pypadre.base import MetadataEntity
 from pypadre.core.split import Splitter, Split
 import uuid
 
+
 class Run(MetadataEntity):
     """
     A run is a single instantiation of an experiment with a definitive set of parameters.
@@ -54,7 +55,6 @@ class Run(MetadataEntity):
             self._metrics.append(deepcopy(self._experiment.workflow.metrics))
             self._hyperparameters.append(deepcopy(self._experiment.workflow.hyperparameters))
 
-        args = {'run': self}
         # Fire stop run  event
         trigger_event('EVENT_STOP_RUN', run=self)
 

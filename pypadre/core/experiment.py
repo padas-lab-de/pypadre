@@ -8,6 +8,7 @@ from pypadre.base import MetadataEntity
 from pypadre.core.datasets import Dataset
 from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
 from pypadre.core.sklearnworkflow import SKLearnWorkflow
+from pypadre.core.visitors.scikit import SciKitVisitor
 from pypadre.core.run import Run
 from pypadre.core.custom_split import split_obj
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
@@ -74,9 +75,11 @@ class Experiment(MetadataEntity):
     Options supported:
     ==================
     - stdout={True|False} logs event messages to default_logger. Default = True
-    - keep_splits={True|False} if true, all split data for every run is kept (including the model, split inidices and training data)
-                               are kept in memory. If false, no split data is kept
-    - keep_runs={True|False} if true, all rund data (i.e. scores) will be kept in memory. If false, no split run data is not kept
+    - keep_splits={True|False} if true, all split data for every run is kept (including the model,
+                                   split inidices and training data) are kept in memory.
+                               If false, no split data is kept
+    - keep_runs={True|False} if true, all rund data (i.e. scores) will be kept in memory.
+                             If false, no split run data is not kept
     - n_runs = int  number of runs to conduct. todo: needs to be extended with hyperparameter search
 
     TODO:
@@ -92,7 +95,6 @@ class Experiment(MetadataEntity):
                  **options):
         # Validate input types
         self.validate_input_parameters(options=options)
-
 
         self._dataset = options.pop("dataset", None)
         assert_condition(condition=self._dataset is not None, source=self, message="Dataset cannot be none")
@@ -195,6 +197,12 @@ class Experiment(MetadataEntity):
     def configuration(self):
         return self._workflow.configuration()
 
+    def preprocessing_configuration(self):
+        if self.preprocessing_workflow is not None:
+            return SciKitVisitor(self.preprocessing_workflow)
+        else:
+            return None
+
     def hyperparameters(self):
         """
         returns the hyperparameters per pipeline element as dict from the extracted configruation
@@ -205,6 +213,9 @@ class Experiment(MetadataEntity):
         # make it as close to the http implementation as possible
         params = dict()
         steps = self.configuration()[0]["steps"]
+        # if a preprocessing pipeline is present, add it to the configurations.
+        if self.preprocessing_configuration():
+            steps = self.preprocessing_configuration()[0]["steps"] + steps
         # Params is a dictionary of hyper parameters where the key is the zero-indexed step number
         # The traverse_dict function traverses the dictionary in a recursive fashion and replaces
         # any instance of <class 'pypadre.core.visitors.parameter.Parameter'> type to a sub-dictionary of
@@ -218,10 +229,6 @@ class Experiment(MetadataEntity):
         # However, in sklearn, the hyperparameters are defined via the pipeline. As long as
         # we do not integrate a second framework, we do not need the mechanism
         pass
-
-    @property
-    def workflow(self):
-        return self._workflow
 
     def run(self, append_runs: bool = False):
         """
@@ -244,7 +251,7 @@ class Experiment(MetadataEntity):
 
         r = Run(self, self._workflow, **dict(self._metadata))
         r.do_splits()
-        if self._keep_runs:
+        if self._keep_runs or append_runs:
             self._runs.append(r)
         self._results.append(deepcopy(r.results))
         self._metrics.append(deepcopy(r.metrics))
@@ -253,7 +260,7 @@ class Experiment(MetadataEntity):
         self._run_split_dict[str(r.id) + '.run'] = r.split_ids
         trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
-    def execute(self, parameters=None):
+    def execute(self, parameters=None, pre_parameters=None):
         """
         This function searches a grid of the parameter combinations given into the function
         :param parameters: A nested dictionary, where the outermost key is the estimator name and
@@ -263,31 +270,139 @@ class Experiment(MetadataEntity):
 
         from copy import deepcopy
 
+        assert_condition(condition=parameters is None or isinstance(parameters, dict) or
+                         pre_parameters is None or isinstance(pre_parameters, dict),
+                         source=self,
+                         message='Incorrect parameter type to the execute function')
+
+        if pre_parameters is None:
+            if parameters is None:
+                # Fire event
+                trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+                if self.requires_preprocessing:
+                    trigger_event('EVENT_START_PREPROCESSING', experiment=self)
+                    self.preprocess()
+                    trigger_event('EVENT_STOP_PREPROCESSING', experiment=self, append_transformations=True)
+                self._experiment_configuration = self.create_experiment_configuration_dict(single_run=True,
+                                                                                           single_transformation=True)
+                self.run()
+
+                # Fire event
+                trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
+
+                # Fire event
+                trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
+                return
+            else:
+                # Fire event
+                trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+
+                self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters,
+                                                                                           single_run=False,
+                                                                                           single_transformation=True)
+                # Fire event
+                trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
+                self._execute(parameters=parameters)
+
+                # Fire event
+                trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
+                return
+
+        # Update metadata with version details of packages used in the (preprocessing)/workflow
+        self.update_experiment_metadata_with_workflow()
+
+        # Generate every possible combination of the provided hyper parameters.
+        pre_workflow = self.preprocessing_workflow
+        master_list = []
+        params_list = []
+
+        # Fire event
+        trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+
+        for transformer in pre_parameters:
+            param_dict = pre_parameters.get(transformer)
+            assert_condition(condition=isinstance(param_dict, dict),
+                             source=self,
+                             message='Parameter dictionary is not of type dictionary for transformer:' + transformer)
+            for params in param_dict:
+                # Append only the parameters to create a master list
+                master_list.append(param_dict.get(params))
+
+                # Append the transformer name followed by the parameter to create a ordered list.
+                # Ordering of transformer.parameter corresponds to the value in the resultant grid tuple
+                params_list.append(''.join([transformer, '.', params]))
+        grid = itertools.product(*master_list)
+
+        self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters,
+                                                                                   preprocessing_params=pre_parameters,
+                                                                                   single_transformation=False,
+                                                                                   single_run=False)
+        # Fire event
+        trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
+
+        # Get the total number of iterations
+        grid_size = 1
+        for idx in range(0, len(master_list)):
+            grid_size *= len(master_list[idx])
+
+        # Starting index
+        curr_executing_index = 1
+
+        # For each tuple in the combination execute the main pipeline
+        for element in grid:
+            trigger_event('EVENT_LOG_EVENT', source=self,
+                          message="Executing preprocessing grid search" + str(curr_executing_index) + '/' + str(grid_size))
+            trigger_event('EVENT_LOG_PREPROCESSING_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
+                          phase='start')
+            # Get all the parameters to be used on set_param
+            for param, idx in zip(params_list, range(0, len(params_list))):
+                split_params = param.split(sep='.')
+                transformer = pre_workflow.named_steps.get(split_params[0])
+
+                if transformer is None:
+                    assert_condition(condition=transformer is not None, source=self,
+                                     message=f"Estimator {split_params[0]} is not present in the pipeline")
+                    break
+
+                transformer.set_params(**{split_params[1]: element[idx]})
+
+            self._execute(parameters=parameters)
+
+            trigger_event('EVENT_LOG_PREPROCESSING_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
+                          phase='stop')
+            curr_executing_index += 1
+
+        # Fire event
+        trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
+
+    def _execute(self, parameters=None, preprocessing_workflow=None):
+        """
+        This function searches a grid of the parameter combinations given into the function
+        :param parameters: A nested dictionary, where the outermost key is the estimator name and
+        the second level key is the parameter name, and the value is a list of possible parameters
+        :param preprocessing_workflow: The workflow used for the dataset preprocessing
+        :return: None
+        """
+
+        from copy import deepcopy
+
         assert_condition(condition=parameters is None or isinstance(parameters, dict),
                          source=self,
                          message='Incorrect parameter type to the execute function')
 
-        if self._preprocessed_workflow is not None:
-            self.preprocess()
-
-        if parameters is None:
-            self._experiment_configuration = self.create_experiment_configuration_dict(params=None, single_run=True)
-            self.run()
-
+        if preprocessing_workflow is not None or self.requires_preprocessing:
             # Fire event
-            trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
-            return
-
-        # Update metadata with version details of packages used in the workflow
-        self.update_experiment_metadata_with_workflow()
+            trigger_event('EVENT_START_PREPROCESSING', experiment=self)
+            self.preprocess(preprocessing_workflow=preprocessing_workflow)
+            trigger_event('EVENT_STOP_PREPROCESSING', experiment=self, append_transformations= True)
 
         # Generate every possible combination of the provided hyper parameters.
         workflow = self._workflow
         master_list = []
         params_list = []
 
-        # Fire event
-        trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
+        # # Fire event
+        # trigger_event('EVENT_START_EXPERIMENT', experiment=self, append_runs=self._keep_runs)
 
         for estimator in parameters:
             param_dict = parameters.get(estimator)
@@ -303,10 +418,7 @@ class Experiment(MetadataEntity):
                 params_list.append(''.join([estimator, '.', params]))
         grid = itertools.product(*master_list)
 
-        self._experiment_configuration = self.create_experiment_configuration_dict(params=parameters, single_run=False)
 
-        # Fire event
-        trigger_event('EVENT_PUT_EXPERIMENT_CONFIGURATION', experiment=self)
 
         # Get the total number of iterations
         grid_size = 1
@@ -320,15 +432,16 @@ class Experiment(MetadataEntity):
         for element in grid:
             trigger_event('EVENT_LOG_EVENT', source=self,
                           message="Executing grid " + str(curr_executing_index) + '/' + str(grid_size))
-            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size), phase='start')
+            trigger_event('EVENT_LOG_RUN_PROGRESS', curr_value=curr_executing_index, limit=str(grid_size),
+                          phase='start')
             # Get all the parameters to be used on set_param
             for param, idx in zip(params_list, range(0, len(params_list))):
                 split_params = param.split(sep='.')
-                estimator = workflow._pipeline.named_steps.get(split_params[0])
+                estimator = workflow.pipeline.named_steps.get(split_params[0])
 
                 if estimator is None:
                     assert_condition(condition=estimator is not None, source=self,
-                                  message=f"Estimator {split_params[0]} is not present in the pipeline")
+                                     message=f"Estimator {split_params[0]} is not present in the pipeline")
                     break
 
                 estimator.set_params(**{split_params[1]: element[idx]})
@@ -348,32 +461,41 @@ class Experiment(MetadataEntity):
                           phase='stop')
             curr_executing_index += 1
 
-        # Fire event
-        trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
+        # # Fire event
+        # trigger_event('EVENT_STOP_EXPERIMENT', experiment=self)
 
-    def preprocess(self):
+    def preprocess(self,preprocessing_workflow=None):
         """
         Runs the preprocessing pipeline and populates the preprocessed dataset
+        :param preprocessing_workflow: A pipeline to override the existent preprocessing workflow if needed.
         :return: None
         """
         from copy import deepcopy
 
+        # reset flag
+        self._preprocessed = False
+
+        if preprocessing_workflow is not None:
+            self._set_preprocessing_workflow(preprocessing_workflow)
         # Preprocess the data
-        preprocessed_data = self._preprocessed_workflow.fit_transform(self.dataset.features(), self.dataset.targets())
+        preprocessed_data = self.preprocessing_workflow.fit_transform(self.dataset.features(), self.dataset.targets())
         # Copy the dataset so that metadata and attributes remain consistent
         self._preprocessed_dataset = deepcopy(self.dataset)
 
         # Replace the data by concatenating with the targets
         self._preprocessed_dataset.replace_data(preprocessed_data, self._keep_attributes)
-        # Set flag
+
+        # set flag for dataset fetching
         self._preprocessed = True
 
-    def create_experiment_configuration_dict(self, params=None, single_run=False):
+    def create_experiment_configuration_dict(self, params=None, preprocessing_params=None, single_run=False, single_transformation=False):
         """
         This function creates a dictionary that can be written as a JSON file for replicating the experiments.
 
-        :param params: The parameters for the estimators that make up the grid
+        :param params: The parameters for the estimators that make up the grid for the main workflow
+        :param preprocessing_params: The parameters for the transformers that make up the grid for the preprocessing workflow
         :param single_run: If the execution is done for a single run
+        :param single_transformation: If the dataset has a single transformation
 
         :return: Experiment dictionary containing the pipeline, backend, parameters etc
         """
@@ -395,7 +517,7 @@ class Experiment(MetadataEntity):
         experiment_dict['workflow'] = workflow
 
         # If there is a preprocessing pipeline, add it to the configuration
-        if self._preprocessed is True:
+        if self.requires_preprocessing :
             preprocessing_workflow = list(self._preprocessed_workflow.named_steps.keys())
             experiment_dict['preprocessing'] = preprocessing_workflow
 
@@ -408,11 +530,11 @@ class Experiment(MetadataEntity):
                 obj_params = estimators.get(estimator).get_params()
                 estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    estimator_name = alternate_name_mappings.get(estimator)
+                    estimator_name = alternate_name_mappings.get(str(estimator).lower())
 
                 params_list = name_mappings.get(estimator_name).get('hyper_parameters').get('model_parameters')
-                params = estimators.get(estimator).get_params()
                 param_dict = dict()
+                framework = dict()
                 for param in params_list:
                     for framework in supported_frameworks:
                         if param.get(framework, None) is not None:
@@ -427,6 +549,37 @@ class Experiment(MetadataEntity):
         else:
             # Only those parameters that are passed to the grid search need to be filled
             experiment_dict['params'] = params
+
+        if self.requires_preprocessing:
+
+            if single_transformation is True:
+                transformer_dict = dict()
+                # All the parameters of the transformers need to be filled into the params dictionary
+                transformers = self.preprocessing_workflow.named_steps
+                for transformer in transformers:
+
+                    obj_params = transformers.get(transformer).get_params()
+                    transformer_name = transformer
+                    if name_mappings.get(transformer, None) is None:
+                        transformer_name = alternate_name_mappings.get(str(transformer).lower())
+
+                    params_list = name_mappings.get(transformer_name).get('hyper_parameters').get('model_parameters')
+                    param_dict = dict()
+                    framework = dict()
+                    for param in params_list:
+                        for framework in supported_frameworks:
+                            if param.get(framework, None) is not None:
+                                break
+                        param_name = param.get(framework).get('path')
+                        param_dict[param_name] = obj_params.get(param_name)
+
+                    transformer_dict[transformer] = deepcopy(param_dict)
+
+                experiment_dict['preprocessing_params'] = transformer_dict
+
+            else:
+                # Only those parameters that are passed to the grid search need to be filled
+                experiment_dict['preprocessing_params'] = preprocessing_params
 
         complete_experiment_dict[name] = deepcopy(experiment_dict)
 
@@ -458,11 +611,14 @@ class Experiment(MetadataEntity):
 
     @property
     def requires_preprocessing(self):
-        return self._preprocessed
+        return self.preprocessing_workflow is not None
 
     @property
     def preprocessing_workflow(self):
         return self._preprocessed_workflow
+
+    def _set_preprocessing_workflow(self, preprocessing_workflow):
+        self._preprocessed_workflow = preprocessing_workflow
 
     def __str__(self):
         s = []
@@ -515,7 +671,9 @@ class Experiment(MetadataEntity):
         modules.append('pypadre')
         module_version_info = dict()
 
-        estimators = self._workflow._pipeline.named_steps
+        estimators = self.workflow.pipeline.named_steps
+        if self.preprocessing_workflow is not None:
+            estimators.update(self.preprocessing_workflow.named_steps)
         # Iterate through the entire pipeline and find the unique modules
         for estimator in estimators:
             obj = estimators.get(estimator, None)
@@ -559,6 +717,8 @@ class Experiment(MetadataEntity):
                          message='keep_runs parameter has to be of type bool')
         assert_condition(condition=isinstance(options.get("keep_splits", True), bool), source=self,
                          message='keep_splits parameter has to be of type bool')
+        assert_condition(condition=isinstance(options.get("keep_attributes", True), bool), source=self,
+                         message='keep_attributes parameter has to be of type bool')
         assert_condition(condition=isinstance(options.get('sk_learn_stepwise', False), bool), source=self,
                          message='keep_splits parameter has to be of type bool')
         assert_condition(condition=hasattr(options.get('workflow', dict()), 'fit') is True, source=self,
@@ -581,10 +741,20 @@ class Experiment(MetadataEntity):
         workflow = options.get('workflow')
         for estimator in workflow.named_steps:
             assert_condition(condition=name_mappings.get(estimator, None) is not None or
-                             alternate_name_mappings.get(estimator, None) is not None,
+                             alternate_name_mappings.get(str(estimator).lower(), None) is not None,
                              source=self,
                              message='Estimator {estimator} not present in name mappings or '
                                      'alternate name mappings'.format(estimator=estimator))
+
+        # Check if all transformers names are present in the name mappings
+        pre_workflow = options.get('preprocessing')
+        if pre_workflow is not None:
+            for estimator in pre_workflow.named_steps:
+                assert_condition(condition=name_mappings.get(estimator, None) is not None or
+                                           alternate_name_mappings.get(str(estimator).lower(), None) is not None,
+                                 source=self,
+                                 message='Transformer or estimator {estimator} not present in name mappings or '
+                                         'alternate name mappings'.format(estimator=estimator))
 
         # Check if dataset has targets, and if supervised learning is used, then throw an error
         if options.get('dataset').targets() is None:
@@ -592,10 +762,10 @@ class Experiment(MetadataEntity):
             for estimator in workflow.named_steps:
                 actual_estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    actual_estimator_name = alternate_name_mappings.get(estimator)
+                    actual_estimator_name = alternate_name_mappings.get(str(estimator).lower())
                 assert_condition(
-                    condition=name_mappings.get(actual_estimator_name).get('type', None) not in
-                              ['Classification', 'Regression'],
+                    condition=
+                    name_mappings.get(actual_estimator_name).get('type', None) not in ['Classification', 'Regression'],
                     source=self, message='Dataset without targets cannot be used for supervised learning')
 
         # Check if regression data is assigned to a classification estimator
@@ -604,7 +774,8 @@ class Experiment(MetadataEntity):
             for estimator in workflow.named_steps:
                 actual_estimator_name = estimator
                 if name_mappings.get(estimator, None) is None:
-                    actual_estimator_name = alternate_name_mappings.get(estimator)
-                assert_condition(condition=name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
+                    actual_estimator_name = alternate_name_mappings.get(str(estimator).lower())
+                assert_condition(condition=
+                                 name_mappings.get(actual_estimator_name).get('type', None) != 'Classification',
                                  source=self, message='Classifier cannot be trained on regression data')
 

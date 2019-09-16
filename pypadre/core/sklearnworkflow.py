@@ -1,6 +1,6 @@
 import numpy as np
 from pypadre.eventhandler import trigger_event
-from pypadre.core.base import exp_events, phases
+from pypadre.base import exp_events, phases
 from pypadre.core.visitors.scikit import SciKitVisitor
 from pypadre.eventhandler import assert_condition
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
@@ -97,7 +97,7 @@ class SKLearnWorkflow:
                 final_estimator_name = self._pipeline.steps[-1][0]
                 if name_mappings.get(final_estimator_name) is None:
                     # If estimator name is not present in name mappings check whether it is present in alternate names
-                    estimator = alternate_name_mappings.get(final_estimator_name)
+                    estimator = alternate_name_mappings.get(str(final_estimator_name).lower())
                     final_estimator_type = name_mappings.get(estimator).get('type')
                 else:
                     final_estimator_type = name_mappings.get(self._pipeline.steps[-1][0]).get('type')

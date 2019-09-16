@@ -12,7 +12,7 @@ from sklearn.svm import SVC, SVR
 
 from pypadre.ds_import import load_sklearn_toys
 from pypadre.core import Experiment
-from pypadre.base import PadreLogger
+from pypadre.logger import PadreLogger
 from pypadre.eventhandler import add_logger
 
 
