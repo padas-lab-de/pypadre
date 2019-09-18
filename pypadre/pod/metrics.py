@@ -11,7 +11,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from pypadre.pod.eventhandler import trigger_event, assert_condition
+from pypadre.core.events import trigger_event, assert_condition
 
 REGRESSION = 'regression'
 CLASSIFICATION = 'classification'

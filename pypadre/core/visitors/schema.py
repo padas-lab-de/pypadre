@@ -12,6 +12,7 @@ class SchemaMismatch(Exception):
     def __init__(self, message):
         self.message = message
 
+
 class Attribute(object):
     """
     Contains the following information about one attribute in a schema:
@@ -33,6 +34,7 @@ class Attribute(object):
         self.type = type
         self.optional = optional
         self.desc = desc
+
 
 class ListAttribute(Attribute):
     """
@@ -63,6 +65,7 @@ class ListAttribute(Attribute):
             if not tmp[0]:
                 return tmp
         return (True, "")
+
 
 class DictAttribute(Attribute):
     """
@@ -103,6 +106,7 @@ class DictAttribute(Attribute):
 
         return (True, "")
 
+
 class SelectSchema(object):
     """
     A schema object, that has a decision function to get the correct schema for the dict and verifies it.
@@ -124,6 +128,7 @@ class SelectSchema(object):
         :return: (bool, str) (True, ""), if the data fits. (False, <reason>), otherwise.
         """
         return Schema.verify_static(data, self.decision(data), path, keyset)
+
 
 class CombineSchemata(object):
     """
@@ -150,6 +155,7 @@ class CombineSchemata(object):
             if not tmp[0]:
                 return tmp
         return (True, "")
+
 
 class Schema(object):
     """
@@ -227,6 +233,7 @@ class Schema(object):
                 print("Warning: Attribute '" + path + "." + l + "' is not part of the schema.")
 
         return (True, "")
+
 
 class AlgorithmSchema(object):
     """

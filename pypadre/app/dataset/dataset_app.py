@@ -4,7 +4,7 @@ from typing import List, cast
 from jsonschema import ValidationError
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.pod.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
+from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
     NetworkXLoader, SklearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
@@ -16,7 +16,7 @@ class DatasetApp(BaseChildApp):
     """
     Class providing commands for managing datasets.
     """
-    def __init__(self, parent, backends: List[IDatasetBackend], dataset_loaders=None, **kwargs):
+    def __init__(self, parent, backends: List[IDatasetRepository], dataset_loaders=None, **kwargs):
         super().__init__(parent=parent, service=DatasetService(backends=backends), **kwargs)
 
         if dataset_loaders is None:

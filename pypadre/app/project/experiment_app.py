@@ -2,14 +2,14 @@ from typing import List
 
 from pypadre.app.base_app import BaseChildApp
 from pypadre.pod.service.experiment_service import ExperimentService
-from pypadre.pod.backend.interfaces.backend.i_experiment_backend import IExperimentBackend
+from pypadre.pod.repository.i_repository import IExperimentRepository
 
 
 class ExperimentApp(BaseChildApp):
     """
     Class providing commands for managing datasets.
     """
-    def __init__(self, parent, backends: List[IExperimentBackend], **kwargs):
+    def __init__(self, parent, backends: List[IExperimentRepository], **kwargs):
         super().__init__(parent, service=ExperimentService(backends=backends), **kwargs)
 
     # def delete_experiments(self, search):

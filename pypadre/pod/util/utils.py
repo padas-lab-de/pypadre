@@ -36,13 +36,3 @@ def write_hidden(file_name, data):
                                                         FILE_ATTRIBUTE_HIDDEN)
         if not ret: # There was an error.
             raise ctypes.WinError()
-
-
-class _Const:
-
-    class ConstError(TypeError): pass
-
-    def __setattr__(self,name,value):
-        if self.__dict__.has_key(name):
-            raise self.ConstError("Can't rebind const(%s)" % name)
-        self.__dict__[name]=value

@@ -4,8 +4,8 @@ from pypadre.core.base import exp_events, phases
 from pypadre.core.model.pipeline import Pipeline
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 from pypadre.core.visitors.scikit import SciKitVisitor
-from pypadre.pod.eventhandler import assert_condition
-from pypadre.pod.eventhandler import trigger_event
+from pypadre.core.events import assert_condition
+from pypadre.core.events import trigger_event
 
 
 class SKLearnWorkflow(Pipeline):
@@ -205,110 +205,3 @@ class SKLearnWorkflow(Pipeline):
     @property
     def pipeline(self):
         return self._pipeline
-
-    def compute_confusion_matrix(self, Predicted=None,
-                                 Truth=None):
-        """
-        This function computes the confusion matrix of a classification result.
-        This was done as a general purpose implementation of the confusion_matrix
-        :param Predicted: The predicted values of the confusion matrix
-        :param Truth: The truth values of the confusion matrix
-        :return: The confusion matrix
-        """
-        import copy
-        if Predicted is None or Truth is None or \
-                len(Predicted) != len(Truth):
-            return None
-
-        # Get the number of labels from the predicted and truth set
-        label_count = len(set(Predicted).union(set(Truth)))
-        confusion_matrix = np.zeros(shape=(label_count, label_count), dtype=int)
-        # If the labels given do not start from 0 and go up to the label_count - 1,
-        # a mapping function has to be created to map the label to the corresponding indices
-        if (min(Predicted) != 0 and min(Truth) != 0) or \
-                (max(Truth) != label_count - 1 and max(Predicted) != label_count - 1):
-            labels = list(set(Predicted).union(set(Truth)))
-            for idx in range(0, len(Truth)):
-                row_idx = int(labels.index(Truth[idx]))
-                col_idx = int(labels.index(Predicted[idx]))
-                confusion_matrix[row_idx][col_idx] += 1
-
-        else:
-
-            # Iterate through the array and update the confusion matrix
-            for idx in range(0, len(Truth)):
-                confusion_matrix[int(Truth[idx])][int(Predicted[idx])] += 1
-
-        return copy.deepcopy(confusion_matrix.tolist())
-
-    def compute_classification_metrics(self, confusion_matrix=None, option='macro'):
-        """
-        This function calculates the classification metrics like precision,
-        recall, f-measure, accuracy etc
-        TODO: Implement weighted sum of averaging metrics
-
-        :param confusion_matrix: The confusion matrix of the classification
-        :param option: Micro averaged or macro averaged
-
-        :return: Classification metrics as a dictionary
-        """
-        import copy
-        if confusion_matrix is None:
-            return None
-
-        classification_metrics = dict()
-        precision = np.zeros(shape=(len(confusion_matrix)))
-        recall = np.zeros(shape=(len(confusion_matrix)))
-        f1_measure = np.zeros(shape=(len(confusion_matrix)))
-        tp = 0
-        column_sum = np.sum(confusion_matrix, axis=0)
-        row_sum = np.sum(confusion_matrix, axis=1)
-        for idx in range(0, len(confusion_matrix)):
-            tp = tp + confusion_matrix[idx][idx]
-            # Removes the 0/0 error
-            precision[idx] = np.divide(confusion_matrix[idx][idx], column_sum[idx] + int(column_sum[idx] == 0))
-            recall[idx] = np.divide(confusion_matrix[idx][idx], row_sum[idx] + int(row_sum[idx] == 0))
-            if recall[idx] == 0 or precision[idx] == 0:
-                f1_measure[idx] = 0
-            else:
-                f1_measure[idx] = 2 / (1.0 / recall[idx] + 1.0 / precision[idx])
-
-        accuracy = tp / np.sum(confusion_matrix)
-        if option == 'macro':
-            classification_metrics['recall'] = float(np.mean(recall))
-            classification_metrics['precision'] = float(np.mean(precision))
-            classification_metrics['accuracy'] = accuracy
-            classification_metrics['f1_score'] = float(np.mean(f1_measure))
-
-        elif option == 'micro':
-            classification_metrics['recall'] = accuracy
-            classification_metrics['precision'] = accuracy
-            classification_metrics['accuracy'] = accuracy
-            classification_metrics['f1_score'] = accuracy
-
-        else:
-            classification_metrics['recall'] = recall.tolist()
-            classification_metrics['precision'] = precision.tolist()
-            classification_metrics['accuracy'] = accuracy
-            classification_metrics['f1_score'] = f1_measure.tolist()
-
-        return copy.deepcopy(classification_metrics)
-
-    def compute_regression_metrics(self, predicted=None, truth=None):
-        """
-        The function computes the regression metrics of results
-
-        :param predicted: The predicted values
-
-        :param truth: The truth values
-
-        :return: Dictionary containing the computed metrics
-        """
-        metrics_dict = dict()
-        error = truth - predicted
-        metrics_dict['mean_error'] = np.mean(error)
-        metrics_dict['mean_absolute_error'] = np.mean(abs(error))
-        metrics_dict['standard_deviation'] = np.std(error)
-        metrics_dict['max_absolute_error'] = np.max(abs(error))
-        metrics_dict['min_absolute_error'] = np.min(abs(error))
-        return metrics_dict

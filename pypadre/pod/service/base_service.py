@@ -1,8 +1,7 @@
 from _py_abc import ABCMeta
 from typing import List
 
-from pypadre.pod.backend.interfaces.backend.generic.i_searchable import ISearchable
-from pypadre.pod.backend.interfaces.backend.generic.i_storeable import IStoreable
+from pypadre.pod.repository.generic.i_repository_mixins import IStoreable, ISearchable
 
 
 class BaseService:
@@ -50,7 +49,7 @@ class BaseService:
         """
         for b in self.backends:
             backend: IStoreable = b
-            backend.patch(obj)
+            backend.put(obj, merge=True)
 
     def get(self, id):
         """

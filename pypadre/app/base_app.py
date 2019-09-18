@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 from pypadre.pod.service.base_service import BaseService
-from pypadre.pod.base import ChildEntity
+from pypadre.core.base import ChildEntity
 
 
 class IBaseApp:
@@ -22,6 +22,7 @@ class BaseEntityApp(IBaseApp):
 
     def __init__(self, service: BaseService, **kwargs):
         self.service = service
+        super().__init__(**kwargs)
 
     def list(self, search=None, offset=0, size=100) -> list:
         """
@@ -87,8 +88,7 @@ class BaseChildApp(ChildEntity, BaseEntityApp):
     __metaclass__ = ABCMeta
 
     def __init__(self, parent: IBaseApp, service: BaseService, **kwargs):
-        ChildEntity.__init__(self, parent=parent, **kwargs)
-        BaseEntityApp.__init__(self, service=service)
+        super().__init__(parent=parent, service=service, **kwargs)
 
     def has_print(self) -> bool:
         parent: IBaseApp = self.parent

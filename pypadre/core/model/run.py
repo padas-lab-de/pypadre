@@ -1,6 +1,6 @@
-from pypadre.pod.base import MetadataEntity
+from pypadre.core.base import MetadataEntity
 from pypadre.core.model.split.split import Splitter, Split
-from pypadre.pod.eventhandler import trigger_event, assert_condition
+from pypadre.core.events import trigger_event, assert_condition
 
 
 
@@ -15,7 +15,7 @@ class Run(MetadataEntity):
     _split_ids = None
     _metadata = None
 
-    def __init__(self, execution, workflow, **options):
+    def __init__(self, *, execution, workflow, **options):
         from uuid  import uuid4
         self.validate_parameters(execution=execution, workflow=workflow, options=options)
         self._execution = execution

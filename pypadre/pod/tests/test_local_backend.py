@@ -4,11 +4,6 @@ import unittest
 
 from pypadre.app import PadreConfig
 from pypadre.app.padre_app import PadreFactory
-from pypadre.pod.backend.local.file.project.experiment.execution.execution_file_backend import PadreExecutionFileBackend
-from pypadre.pod.backend.local.file.project.experiment.execution.run.run_file_backend import PadreRunFileBackend
-from pypadre.pod.backend.local.file.project.experiment.execution.run.split.split_file_backend import PadreSplitFileBackend
-from pypadre.pod.backend.local.file.project.experiment.experiment_file_backend import PadreExperimentFileBackend
-from pypadre.pod.backend.local.file.project.project_file_backend import PadreProjectFileBackend
 
 config_path = os.path.join(os.path.expanduser("~"), ".padre-test.cfg")
 workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
@@ -37,7 +32,8 @@ class LocalBackends(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         # delete configuration
-        shutil.rmtree(workspace_path)
+        if os.path.isdir(workspace_path):
+            shutil.rmtree(workspace_path)
         os.remove(config_path)
 
     def test_dataset(self):
@@ -137,10 +133,10 @@ class LocalBackends(unittest.TestCase):
 
     def test_run(self):
         """
-        project_backend: PadreProjectFileBackend = self.backend.project
-        experiment_backend: PadreExperimentFileBackend = project_backend.experiment
-        execution_backend: PadreExecutionFileBackend = experiment_backend.execution
-        run_backend: PadreRunFileBackend = execution_backend.run
+        project_backend: ProjectFileRepository = self.backend.project
+        experiment_backend: ExperimentFileRepository = project_backend.experiment
+        execution_backend: ExecutionFileRepository = experiment_backend.execution
+        run_backend: RunFileRepository = execution_backend.run
         """
 
         from pypadre.core.model.project import Project
@@ -221,7 +217,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.pod.base import PadreLogger
-        from pypadre.pod.eventhandler import add_logger
+        from pypadre.core.events import add_logger
 
         self.app.datasets.load_defaults()
         logger = PadreLogger(self.app)

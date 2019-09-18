@@ -1,7 +1,7 @@
 from typing import List
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.pod.backend.interfaces.backend.i_backend import IBackend
+from pypadre.pod.repository.generic.i_repository_mixins import IBackend
 
 
 class MetricApp(BaseChildApp):

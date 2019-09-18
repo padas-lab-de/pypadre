@@ -15,7 +15,7 @@ from pypadre.core import Experiment
 from pypadre.core.visitors.mappings import name_mappings
 from pypadre.core.visitors.mappings import supported_frameworks
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
-from pypadre.pod.eventhandler import trigger_event, assert_condition
+from pypadre.core.events import trigger_event, assert_condition
 
 
 class ExperimentCreator:

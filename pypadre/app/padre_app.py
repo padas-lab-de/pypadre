@@ -30,12 +30,12 @@ from pypadre.app.project.split_app import SplitApp
 from pypadre.app.project.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
 from pypadre.pod.base import PadreLogger
-from pypadre.pod.backend.interfaces.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.backend.local.file.file import PadreFileBackend
-from pypadre.pod.backend.remote.http.http import PadreHttpBackend
-from pypadre.pod.eventhandler import add_logger
-from pypadre.pod.printing.tablefyable import Tablefyable
-from pypadre.pod.printing.util.print_util import to_table
+from pypadre.pod.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.backend.file import PadreFileBackend
+# from pypadre.pod.backend.http import PadreHttpBackend
+from pypadre.core.events import add_logger
+from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.printing.util.print_util import to_table
 
 logger = PadreLogger(app=None)
 add_logger(logger=logger)
@@ -82,11 +82,11 @@ class PadreApp(IBaseApp):
         # TODO Should each subApp really hold each backend? This may be convenient to code like this.
         self._dataset_app = DatasetApp(self, [backend.dataset for backend in backends] if backends is not None else None)
         self._project_app = ProjectApp(self, [backend.project for backend in backends] if backends is not None else None)
-        self._experiment_app = ExperimentApp(self, [backend.project.experiment for backend in backends] if backends is not None else None)
-        self._execution_app = ExecutionApp(self, [backend.project.experiment.execution for backend in backends] if backends is not None else None)
-        self._run_app = RunApp(self, [backend.project.experiment.execution.run for backend in backends] if backends is not None else None)
-        self._split_app = SplitApp(self, [backend.project.experiment.execution.run.split for backend in backends] if backends is not None else None)
-        #self._metric_app = MetricApp(self, [backend.project.experiment.execution.split.metric for backend in backends] if backends is not None else None)
+        self._experiment_app = ExperimentApp(self, [backend.experiment for backend in backends] if backends is not None else None)
+        self._execution_app = ExecutionApp(self, [backend.execution for backend in backends] if backends is not None else None)
+        self._run_app = RunApp(self, [backend.run for backend in backends] if backends is not None else None)
+        self._split_app = SplitApp(self, [backend.split for backend in backends] if backends is not None else None)
+        #self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
 
     @property
     def backends(self):

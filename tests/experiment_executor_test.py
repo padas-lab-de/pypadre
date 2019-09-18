@@ -1,6 +1,6 @@
 from pypadre.pod.experimentexecutor import ExperimentExecutor
 from pypadre.pod.experimentcreator import ExperimentCreator
-from pypadre.pod.eventhandler import trigger_event
+from pypadre.core.events import trigger_event
 
 
 def split(idx):

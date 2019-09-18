@@ -16,7 +16,7 @@ from sklearn.externals.joblib import Parallel, delayed
 from pypadre.core import Experiment
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
-from pypadre.pod.eventhandler import trigger_event, assert_condition
+from pypadre.core.events import trigger_event, assert_condition
 
 EXPERIMENT_EXECUTION_QUEUE = []
 

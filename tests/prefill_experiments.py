@@ -4,7 +4,7 @@ The experiments work on the sklearn toy datasets and are a combination of classi
 Some experiments will also contain a grid search(testing multiple hyperparameters)
 """
 from pypadre.pod.experimentexecutor import ExperimentExecutor
-from pypadre.pod.eventhandler import trigger_event
+from pypadre.core.events import trigger_event
 from pypadre.app import p_app
 
 def main():

@@ -1,21 +1,21 @@
 import platform
-from collections import OrderedDict
+
+# from pypadre.core.sklearnworkflow import SKLearnWorkflow
 
 import pypadre.core.visitors.parameter
-from pypadre.pod.base import MetadataEntity, ChildEntity
+from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.project import Project
 from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
-from pypadre.core.model.split.custom_split import split_obj
-from pypadre.core.validatetraintestsplits import ValidateTrainTestSplits
-from pypadre.core.sklearnworkflow import SKLearnWorkflow
-from pypadre.core.run import Run
-from pypadre.core.custom_split import split_obj
+from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings, supported_frameworks
+
+
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
-from pypadre.pod.printing.tablefyable import Tablefyable
-from pypadre.pod.validation.validation import Validateable
+from pypadre.core.visitors.scikit import SciKitVisitor
+from pypadre.core.events import trigger_event
 
 
 def _sklearn_runner():
@@ -32,7 +32,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
+class Experiment(MetadataEntity, ChildEntity):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -89,21 +89,16 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
 
     """
 
-    @classmethod
-    def tablefy_register_columns(cls):
-        # TODO fill with properties to extract for table
-        cls._tablefy_register_columns({})
-
     _metadata = None
 
-    def __init__(self, **options):
-        metadata = {**options}
-        Validateable.__init__(self, **metadata)
-        MetadataEntity.__init__(self, schema_resource_name="experiment.json", **metadata)
-        Tablefyable.__init__(self)
-        ChildEntity.__init__(self, options.get("project", None))
+    PROJECT_ID = "project_id"
+    DATASET_ID = "dataset_id"
 
-        self._dataset = options.get("dataset", None)
+    def __init__(self, project: Project=None, dataset: Dataset=None, **kwargs):
+        super().__init__(parent=project, schema_resource_name="experiment.json",
+                                metadata={**kwargs, **{self.PROJECT_ID: project.id, self.DATASET_ID: dataset.id}})
+
+        self._dataset = dataset
 
         self.workflow()
 
@@ -499,8 +494,8 @@ class Experiment(Validateable, ChildEntity, MetadataEntity, Tablefyable):
 
         self.metadata['versions'] = module_version_info
 
-    def validate(self):
-        pass
+    def validate(self, **kwargs):
+        super().validate(**kwargs)
         """
         This function validates all the parameters given to the experiment constructor
         :param options: Dictionary containing the parameters given to the constructor of the class

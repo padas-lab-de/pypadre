@@ -1,55 +1,53 @@
 from collections import OrderedDict
 
 from pypadre import Experiment
-from pypadre.pod.base import MetadataEntity
+from pypadre.core.base import MetadataEntity
 from pypadre.core.model.run import Run
-from pypadre.pod.eventhandler import assert_condition, trigger_event
-from pypadre.pod.printing.tablefyable import Tablefyable
-from pypadre.pod.validation.validation import Validateable
+from pypadre.core.events import assert_condition, trigger_event
+from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.validation.validation import Validateable
 
 
-class Execution(Validateable, MetadataEntity, Tablefyable):
+class Execution(MetadataEntity, Tablefyable):
     """ A execution should save data about the running env and the version of the code on which it was run """
 
     _metadata = None
 
     @classmethod
-    def tablefy_register_columns(cls):
+    def _tablefy_register_columns(cls):
         # Add entries for tablefyable
-        cls._tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
+        cls.tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
-    def __init__(self, experiment: Experiment, codehash=None, command=None, **options):
-        metadata = {"id": codehash, **options, "command": command, "codehash": codehash}
-        Validateable.__init__(self, schema_resource_name="execution.json", **metadata)
-        MetadataEntity.__init__(self, **metadata)
-        Tablefyable.__init__(self)
+    def __init__(self, experiment: Experiment, codehash=None, command=None, **kwargs):
+        metadata = {"id": codehash, **kwargs, "command": command, "codehash": codehash}
+        super().__init__(schema_resource_name="execution.json", metadata=metadata, **kwargs)
 
         # Validate input types
-        parameters = options.pop('parameters', None)
-        preparameters = options.pop('preparameters', None)
-        single_run = options.pop('single_run', True)
-        single_transformation = options.pop('single_transformation', True)
-        self._keep_runs = options.get('keep_runs', True)
+        # parameters = options.pop('parameters', None)
+        # preparameters = options.pop('preparameters', None)
+        # single_run = options.pop('single_run', True)
+        # single_transformation = options.pop('single_transformation', True)
+        # self._keep_runs = options.get('keep_runs', True)
 
-        self.validate_input_parameters(experiment=experiment, options=options)
-
-        self._experiment = experiment
-        self._runs = []
-        self._hash = codehash
-        self._cmd = command
-
-        if self.name is None:
-            self.name = self._hash
-
-        self._experiment_configuration = self.\
-            create_experiment_configuration_dict(params=parameters,
-                                                 preprocessing_params=preparameters,
-                                                 single_transformation=single_run,
-                                                 single_run=single_transformation)
-
-        self._results = []
-        self._metrics = []
-        self._run_split_dict = OrderedDict()
+        # self.validate_input_parameters(experiment=experiment, options=options)
+        #
+        # self._experiment = experiment
+        # self._runs = []
+        # self._hash = codehash
+        # self._cmd = command
+        #
+        # if self.name is None:
+        #     self.name = self._hash
+        #
+        # self._experiment_configuration = self.\
+        #     create_experiment_configuration_dict(params=parameters,
+        #                                          preprocessing_params=preparameters,
+        #                                          single_transformation=single_run,
+        #                                          single_run=single_transformation)
+        #
+        # self._results = []
+        # self._metrics = []
+        # self._run_split_dict = OrderedDict()
 
     @property
     def hash(self):

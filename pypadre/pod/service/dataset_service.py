@@ -1,7 +1,7 @@
 from typing import List
 
 from pypadre.pod.service.base_service import BaseService
-from pypadre.pod.backend.interfaces.backend.i_dataset_backend import IDatasetBackend
+from pypadre.pod.repository.i_repository import IDatasetRepository
 
 
 class DatasetService(BaseService):
@@ -9,5 +9,5 @@ class DatasetService(BaseService):
     Class providing commands for managing datasets.
     """
 
-    def __init__(self, backends: List[IDatasetBackend], **kwargs):
+    def __init__(self, backends: List[IDatasetRepository], **kwargs):
         super().__init__(backends=backends, **kwargs)

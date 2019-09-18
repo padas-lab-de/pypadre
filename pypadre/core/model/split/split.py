@@ -2,9 +2,10 @@ import uuid
 
 import numpy as np
 
-from pypadre.pod.base import MetadataEntity, exp_events, phases
+from pypadre.pod.base import exp_events, phases
+from pypadre.core.base import MetadataEntity
 from pypadre.core.model.split.custom_split import split_obj
-from pypadre.pod.eventhandler import trigger_event, assert_condition
+from pypadre.core.events import trigger_event, assert_condition
 
 
 

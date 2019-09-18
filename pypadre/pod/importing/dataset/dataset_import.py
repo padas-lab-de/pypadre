@@ -8,11 +8,12 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import sklearn.datasets as ds
+from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.pod.eventhandler import assert_condition, trigger_event
-from pypadre.pod.util.utils import _Const
+from pypadre.core.events import assert_condition, trigger_event
+from pypadre.core.util.utils import _Const
 
 
 class _Sources(_Const):
@@ -212,20 +213,20 @@ class SklearnLoader(ICollectionDataSetLoader):
         return ds.__all__
 
     def load_default(self):
-        loaders = [("load_boston", ("regression", "Multivariat"),
+        loaders = [("load_boston", ("regression", PaDREOntology.SubClassesDataset.Multivariat.value),
                     "https://scikit-learn.org/stable/modules/generated/"
                     "sklearn.datasets.load_boston.html#sklearn.datasets.load_boston"),
-                   ("load_breast_cancer", ("classification", "Multivariat"),
+                   ("load_breast_cancer", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
                     "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)"),
-                   ("load_diabetes", ("regression", "Multivariat"),
+                   ("load_diabetes", ("regression", PaDREOntology.SubClassesDataset.Multivariat.value),
                     "https://scikit-learn.org/stable/modules/generated/"
                     "sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes"),
-                   ("load_digits", ("classification", "Multivariat"),
+                   ("load_digits", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
                     "http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits"),
-                   ("load_iris", ("classification", "Multivariat"),
+                   ("load_iris", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
                     "https://scikit-learn.org/stable/modules/generated/"
                     "sklearn.datasets.load_iris.html#sklearn.datasets.load_iris"),
-                   ("load_linnerud", ("mregression", "Multivariat"),
+                   ("load_linnerud", ("mregression", PaDREOntology.SubClassesDataset.Multivariat.value),
                     "https://scikit-learn.org/stable/modules/generated/"
                     "sklearn.datasets.load_linnerud.html#sklearn.datasets.load_linnerud")]
 
@@ -257,11 +258,12 @@ class SklearnLoader(ICollectionDataSetLoader):
             data = np.concatenate([bunch.data[:, :], bunch.target[:, :]], axis=1)
         fn = bunch.get("feature_names")
         atts = []
+        # TODO index was NONE, unit, datatype? FIXME
         for ix in range(data.shape[1]):
             if fn is not None and len(fn) > ix:
-                atts.append(Attribute(fn[ix], "Ratio", None, None, n_feat <= ix))
+                atts.append(Attribute(fn[ix], PaDREOntology.SubClassesMeasurement.Ratio.value, unit=PaDREOntology.SubClassesUnit.Count.value, description="TODO", defaultTargetAttribute=n_feat <= ix, index=ix, type=PaDREOntology.SubClassesDatum.Character.value))
             else:
-                atts.append(Attribute(str(ix), "Ratio", None, None, n_feat <= ix))
+                atts.append(Attribute(str(ix), PaDREOntology.SubClassesMeasurement.Ratio.value, unit=PaDREOntology.SubClassesUnit.Count.value, description="TODO", defaultTargetAttribute=n_feat <= ix, index=ix, type=PaDREOntology.SubClassesDatum.Character.value))
 
         meta["attributes"] = atts
         data_set = self._create_dataset(**meta)

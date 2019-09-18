@@ -11,8 +11,8 @@ from click_shell import make_click_shell
 from pypadre.app.project.project_app import ProjectApp
 from pypadre.cli.experiment import experiment_cli
 from pypadre.core.model.project import Project
-from pypadre.pod.validation.json_schema import JsonSchemaRequiredHandler
-from pypadre.pod.validation.validation import ValidateableFactory
+from pypadre.core.validation import JsonSchemaRequiredHandler
+from pypadre.core.validation.validation import ValidateableFactory
 
 
 @click.group(name="project", invoke_without_command=True)
