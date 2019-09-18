@@ -5,7 +5,7 @@ from abc import abstractmethod, ABCMeta
 from git import Repo
 
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.generic.i_file_repository import IFileRepository
+from pypadre.pod.repository.local.file.generic.i_file_repository import IFileRepository
 
 """
 For datasets, experiments and projects there would be separate repositories.

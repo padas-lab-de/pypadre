@@ -3,8 +3,8 @@ import re
 
 from pypadre.core import Experiment
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.generic.i_file_repository import File, IChildFileRepository
-from pypadre.pod.repository.generic.i_git_repository import IGitRepository
+from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
+from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
 

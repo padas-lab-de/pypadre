@@ -1,9 +1,6 @@
-import os
-import shutil
-
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.generic.i_file_repository import File, IChildFileRepository
-from pypadre.pod.repository.generic.i_log_file_repository import ILogFileRepository
+from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
+from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
 from pypadre.pod.repository.i_repository import ISplitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer
 
