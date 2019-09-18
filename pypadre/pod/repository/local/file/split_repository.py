@@ -3,6 +3,7 @@ import shutil
 
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.generic.i_file_repository import File, IChildFileRepository
+from pypadre.pod.repository.generic.i_log_file_repository import ILogFileRepository
 from pypadre.pod.repository.i_repository import ISplitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer
 
@@ -13,7 +14,7 @@ METRICS_FILE = File("metrics.json", JSonSerializer)
 METADATA_FILE = File("metadata.json", JSonSerializer)
 
 
-class SplitFileRepository(IChildFileRepository, ISplitRepository):
+class SplitFileRepository(IChildFileRepository, ILogFileRepository, ISplitRepository):
 
     @staticmethod
     def placeholder():
@@ -39,3 +40,6 @@ class SplitFileRepository(IChildFileRepository, ISplitRepository):
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         split = obj
         self.write_file(directory, METADATA_FILE, split.metadata)
+
+    def get_by_dir(self, directory):
+        pass

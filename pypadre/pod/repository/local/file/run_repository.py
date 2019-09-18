@@ -1,6 +1,7 @@
 from pypadre.core import Run
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.generic.i_file_repository import File, IChildFileRepository
+from pypadre.pod.repository.generic.i_log_file_repository import ILogFileRepository
 from pypadre.pod.repository.i_repository import IRunRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
 
@@ -11,7 +12,7 @@ HYPERPARAMETER_FILE = File("hyperparameter.json", JSonSerializer)
 WORKFLOW_FILE = File("workflow.json", PickleSerializer)
 
 
-class RunFileRepository(IChildFileRepository, IRunRepository):
+class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository):
 
     @staticmethod
     def placeholder():
@@ -29,9 +30,6 @@ class RunFileRepository(IChildFileRepository, IRunRepository):
         execution = self.parent.get_by_dir(self.get_parent_dir(directory))
         run = Run(execution=execution, workflow=workflow, **metadata)
         return run
-
-    def log(self, msg):
-        pass
 
     def put_progress(self, run, **kwargs):
         self.log(

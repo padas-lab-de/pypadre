@@ -13,9 +13,8 @@ class SourceFileRepository(ISourceRepository):
     FILE_LIMIT = 30
     FOLDER_LIMIT = 10
 
-    def __init__(self, *):
-        super().__init__(parent=, name=NAME, backend=)
-        self.root_dir = os.path.join(self._parent.root_dir, self._parent.placeholder(), NAME)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def to_folder_name(self, source):
         return source.name
