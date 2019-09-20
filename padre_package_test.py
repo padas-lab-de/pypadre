@@ -1,6 +1,6 @@
 from pypadre.app import p_app
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 from pypadre.pod.base import PadreLogger
 from pypadre.core.events import add_logger
 

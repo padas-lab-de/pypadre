@@ -2,70 +2,89 @@
   "title": "Dataset",
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string",
-      "format": "uuid",
-      "description": "The dataset's id."
-    },
-    "name": {
-      "type": "string",
-      "description": "The dataset's name."
-    },
-    "description": {
-      "type": "string",
-      "description": "The dataset's description."
-    },
-    "type": {
-      "type": "string",
-      "description": "The dataset's type. The values should be based on the ontology.",
-      "padre_enum": "SubClassesDataset"
-    },
-    "version": {
-      "type": "string",
-      "description": "The version number of the dataset."
-    },
-    "attributes": {
-      "type": "array",
-      "description": "The attributes of the data columns.",
-      "items": {
-        "type": "object",
-        "description": "A attribute for a data set column.",
-        "properties": {
-          "index": {
-            "type": "integer",
-            "description": "This denotes the index of the column in the data."
-          },
-          "name": {
-            "type": "string",
-            "description": "The attribute's name."
-          },
-          "defaultTargetAttribute": {
-            "type": "boolean",
-            "description": "Signifies if this attribute is to be considered the default target attribute. This can for example be used in classification tasks."
-          },
-          "nullable": {
-            "type": "boolean",
-            "description": "Signifies if this attribute can include null values."
-          },
-          "measurementLevel": {
-            "type": "string",
-            "description": "This is the measurement level of the given attribute.",
-            "padre_enum": "SubClassesMeasurement"
-          },
-          "type": {
-            "type": "string",
-            "description": "This is the type of the given attribute.",
-            "padre_enum": "SubClassesDatum"
-          },
-          "unit": {
-            "type": "string",
-            "description": "This is the unit use for the given attribute.",
-            "padre_enum": "SubClassesUnit"
-          }
+    "metadata": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The dataset's id."
         },
-        "required": ["index", "name", "defaultTargetAttribute", "nullable", "measurementLevel", "type", "unit"]
-      }
+        "name": {
+          "type": "string",
+          "description": "The dataset's name."
+        },
+        "description": {
+          "type": "string",
+          "description": "The dataset's description."
+        },
+        "type": {
+          "type": "string",
+          "description": "The dataset's type. The values should be based on the ontology.",
+          "padre_enum": "SubClassesDataset"
+        },
+        "version": {
+          "type": "string",
+          "description": "The version number of the dataset."
+        },
+        "attributes": {
+          "type": "array",
+          "description": "The attributes of the data columns.",
+          "items": {
+            "type": "object",
+            "description": "A attribute for a data set column.",
+            "properties": {
+              "index": {
+                "type": "integer",
+                "description": "This denotes the index of the column in the data."
+              },
+              "name": {
+                "type": "string",
+                "description": "The attribute's name."
+              },
+              "defaultTargetAttribute": {
+                "type": "boolean",
+                "description": "Signifies if this attribute is to be considered the default target attribute. This can for example be used in classification tasks."
+              },
+              "nullable": {
+                "type": "boolean",
+                "description": "Signifies if this attribute can include null values."
+              },
+              "measurementLevel": {
+                "type": "string",
+                "description": "This is the measurement level of the given attribute.",
+                "padre_enum": "SubClassesMeasurement"
+              },
+              "type": {
+                "type": "string",
+                "description": "This is the type of the given attribute.",
+                "padre_enum": "SubClassesDatum"
+              },
+              "unit": {
+                "type": "string",
+                "description": "This is the unit use for the given attribute.",
+                "padre_enum": "SubClassesUnit"
+              }
+            },
+            "required": [
+              "index",
+              "name",
+              "defaultTargetAttribute",
+              "nullable",
+              "measurementLevel",
+              "type",
+              "unit"
+            ]
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "type",
+        "version",
+        "attributes"
+      ]
     }
-  },
-  "required": ["id", "name", "description", "type", "version", "attributes"]
+  }
 }

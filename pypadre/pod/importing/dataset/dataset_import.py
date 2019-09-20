@@ -48,7 +48,7 @@ class IDataSetLoader:
         :param kwargs: parameters needed for a download
         :return: Dataset
         """
-        pass
+        raise NotImplementedError()
 
     @staticmethod
     def _create_dataset(**kwargs):
@@ -207,7 +207,7 @@ class NetworkXLoader(IDataSetLoader):
         pass
 
 
-class SklearnLoader(ICollectionDataSetLoader):
+class SKLearnLoader(ICollectionDataSetLoader):
 
     def list(self, **kwargs):
         return ds.__all__

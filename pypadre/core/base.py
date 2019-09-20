@@ -44,6 +44,7 @@ class MetadataEntity(Validateable, Tablefyable):
     The metadata should contain all necessary non-binary data to describe an entity.
     """
 
+    METADATA = "metadata"
     CREATED_AT = 'createdAt'
     UPDATED_AT = 'updatedAt'
     LAST_MODIFIED_BY = 'lastModifiedBy'
@@ -67,7 +68,7 @@ class MetadataEntity(Validateable, Tablefyable):
         # argspec = inspect.getargvalues(inspect.currentframe())
         # options = {**{key: argspec.locals[key] for key in argspec.args if key is not "self"}, **kwargs}
 
-        super().__init__(**kwargs)
+        super().__init__(**{self.METADATA: self._metadata, **kwargs})
 
     @property
     def id(self):

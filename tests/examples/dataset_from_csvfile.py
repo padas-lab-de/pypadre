@@ -2,7 +2,7 @@
 This file shows an example on how to use the pypadre app.
 """
 import pprint
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 from pypadre.pod.importing.dataset.ds_import import load_csv
 
 

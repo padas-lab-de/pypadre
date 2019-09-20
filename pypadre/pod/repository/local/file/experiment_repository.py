@@ -1,7 +1,7 @@
 import os
 import re
 
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository

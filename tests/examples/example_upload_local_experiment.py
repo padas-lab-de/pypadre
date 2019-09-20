@@ -4,7 +4,7 @@ This file shows an example on how to upload local experiment to server.
 import pprint
 import uuid
 
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 

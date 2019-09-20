@@ -8,7 +8,6 @@ from pypadre.core.model.split.custom_split import split_obj
 from pypadre.core.events import trigger_event, assert_condition
 
 
-
 class Splitter:
     """
     The splitter creates index arrays into the dataset for different splitting startegies. It provides an iterator
@@ -39,12 +38,13 @@ class Splitter:
                                (train, validation, test) tuples (the form is similar to the indices parameter) as split
     """
 
-    def __init__(self, ds, **options):
+    def __init__(self, **options):
 
-        self.validate_input_parameters(ds, options)
+        # TODO validation
+        #self.validate_input_parameters(options)
 
-        self._dataset = ds
-        self._num_examples = ds.size[0]
+        #self._dataset = ds
+        #self._num_examples = ds.size[0]
         self._strategy = options.pop("strategy", "random")
         self._test_ratio = options.pop("test_ratio", 0.25)
         self._random_seed = options.pop("random_seed", None)
@@ -53,17 +53,11 @@ class Splitter:
         self._no_shuffle = options.pop("no_shuffle", False)
         self._stratified = options.pop("stratified", None)
         self._indices = options.pop("indices", None)
-
-        if self._stratified is None:
-            self._stratified = ds.targets() is not None
-        else:
-            if self._stratified and ds.targets() is None:
-                self._stratified = False
         self._splitting_fn = options.pop("fn", None)
 
         self._index_list = options.pop('index', None)
 
-    def splits(self):
+    def splits(self, *, data, **kwargs):
         """
         returns an generator function over all available splits. Every iterator returns
         a triple (train_idx, test_idx, eval_idx)
@@ -72,8 +66,19 @@ class Splitter:
         provides the training slice part)
         :return: generator function
         """
+        # TODO FIXME
         # first create index array and random state vector
-        n = self._dataset.size[0]
+        # n = data.size[0]
+        n = data.size
+
+        # TODO FIXME usage?
+        # stratified = self._stratified
+        # if stratified is None:
+        #     stratified = dataset.targets() is not None
+        # else:
+        #     if stratified and dataset.targets() is None:
+        #         stratified = False
+
         r = np.random.RandomState(self._random_seed)
         idx = np.arange(n)
 
@@ -140,69 +145,69 @@ class Splitter:
 
         return splitting_iterator()
 
-    def validate_input_parameters(self, ds, options):
-        """
-        This function validates all the input parameters given to the init function
-        :param ds: dataset
-        :param options: Parameters to the split
-        :return: None, throws an exception if validation fails
-        """
-
-        # Checking for valid splitting strategies
-        strategy = options.get("strategy", "random")
-        assert_condition(condition=strategy in ['random', 'cv', 'function', 'index', None],
-                         source=self,
-                         message=f"Unknown splitting strategy {strategy}. "
-                         f"Only 'cv', 'random', 'function' or 'None'  allowed")
-
-        # Check whether test ratio is valid
-        test_ratio = options.get("test_ratio", 0.25)
-        trigger_event('EVENT_WARN', condition=test_ratio is None or (0.0 <= test_ratio <= 1.0),
-                      source=self,
-                      message=f"Wrong ratio of test set provided {test_ratio}. Continuing with default=0")
-        val_ratio = options.get("val_ratio", 0)
-        trigger_event('EVENT_WARN', condition=val_ratio is None or (0.0 <= val_ratio <= 1.0),
-                      source=self,
-                      message=f"Wrong ratio of evaluation set provided {val_ratio}. Continuing with default=0")
-
-        # Check whether the number of folds is positive
-        n_folds = options.get("n_folds", 3)
-        assert_condition(condition=1 <= n_folds,
-                         source=self, message=f"Number of folds not positive {n_folds}")
-        no_shuffle = options.get("no_shuffle", False)
-        trigger_event('EVENT_WARN',
-                      condition=not (n_folds == 1 and strategy == "random" and no_shuffle),
-                      source=self,
-                      message=f"Random test split will be always the same since shuffling is not permitted")
-        assert_condition(condition=n_folds < ds.size[0] or strategy != "cv",
-                         source=self,
-                         message=f"There are more folds than examples: {n_folds}<{ds.size[0]}")
-
-        # Check if the indices are present if the splitting strategy is indices
-        if strategy == "indices":
-            indices = options.get("indices", None)
-            assert_condition(condition=indices is not None, source=self,
-                             message=f"Splitting strategy {strategy} requires an explicit split given by "
-                             f"parameter 'indices'")
-
-        stratified = options.get("stratified", None)
-        if stratified and ds.targets() is None:
-            trigger_event('EVENT_WARN',
-                          condition=False,
-                          source=self,
-                          message=f"Targets not provided in dataset {ds}. Can not do stratified splitting")
-
-        # Check whether the splitting function is given if the splitting strategy is function
-        splitting_fn = options.get("fn", None)
-        if strategy == "function":
-            assert_condition(condition=split_obj.function_pointer is not None, source=self,
-                             message=f"Splitting strategy {strategy} requires a function "
-                             f"provided via parameter 'fn'")
-
-        # Check if random seed is an integer
-        random_seed = options.get('random_seed', 0)
-        assert_condition(condition=isinstance(random_seed, int), source=self,
-                         message='Random seed should be an integer type')
+    # def validate_input_parameters(self, ds, options):
+    #     """
+    #     This function validates all the input parameters given to the init function
+    #     :param ds: dataset
+    #     :param options: Parameters to the split
+    #     :return: None, throws an exception if validation fails
+    #     """
+    #
+    #     # Checking for valid splitting strategies
+    #     strategy = options.get("strategy", "random")
+    #     assert_condition(condition=strategy in ['random', 'cv', 'function', 'index', None],
+    #                      source=self,
+    #                      message=f"Unknown splitting strategy {strategy}. "
+    #                      f"Only 'cv', 'random', 'function' or 'None'  allowed")
+    #
+    #     # Check whether test ratio is valid
+    #     test_ratio = options.get("test_ratio", 0.25)
+    #     trigger_event('EVENT_WARN', condition=test_ratio is None or (0.0 <= test_ratio <= 1.0),
+    #                   source=self,
+    #                   message=f"Wrong ratio of test set provided {test_ratio}. Continuing with default=0")
+    #     val_ratio = options.get("val_ratio", 0)
+    #     trigger_event('EVENT_WARN', condition=val_ratio is None or (0.0 <= val_ratio <= 1.0),
+    #                   source=self,
+    #                   message=f"Wrong ratio of evaluation set provided {val_ratio}. Continuing with default=0")
+    #
+    #     # Check whether the number of folds is positive
+    #     n_folds = options.get("n_folds", 3)
+    #     assert_condition(condition=1 <= n_folds,
+    #                      source=self, message=f"Number of folds not positive {n_folds}")
+    #     no_shuffle = options.get("no_shuffle", False)
+    #     trigger_event('EVENT_WARN',
+    #                   condition=not (n_folds == 1 and strategy == "random" and no_shuffle),
+    #                   source=self,
+    #                   message=f"Random test split will be always the same since shuffling is not permitted")
+    #     assert_condition(condition=n_folds < ds.size[0] or strategy != "cv",
+    #                      source=self,
+    #                      message=f"There are more folds than examples: {n_folds}<{ds.size[0]}")
+    #
+    #     # Check if the indices are present if the splitting strategy is indices
+    #     if strategy == "indices":
+    #         indices = options.get("indices", None)
+    #         assert_condition(condition=indices is not None, source=self,
+    #                          message=f"Splitting strategy {strategy} requires an explicit split given by "
+    #                          f"parameter 'indices'")
+    #
+    #     stratified = options.get("stratified", None)
+    #     if stratified and ds.targets() is None:
+    #         trigger_event('EVENT_WARN',
+    #                       condition=False,
+    #                       source=self,
+    #                       message=f"Targets not provided in dataset {ds}. Can not do stratified splitting")
+    #
+    #     # Check whether the splitting function is given if the splitting strategy is function
+    #     splitting_fn = options.get("fn", None)
+    #     if strategy == "function":
+    #         assert_condition(condition=split_obj.function_pointer is not None, source=self,
+    #                          message=f"Splitting strategy {strategy} requires a function "
+    #                          f"provided via parameter 'fn'")
+    #
+    #     # Check if random seed is an integer
+    #     random_seed = options.get('random_seed', 0)
+    #     assert_condition(condition=isinstance(random_seed, int), source=self,
+    #                      message='Random seed should be an integer type')
 
 class Split(MetadataEntity):
     """

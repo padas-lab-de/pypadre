@@ -25,3 +25,7 @@ class Project(MetadataEntity, Tablefyable):
 
         else:
             return self.__dict__.get(key, None)
+
+    def execute(self, **kwargs):
+        # TODO args per experiment
+        return {experiment: experiment.execute(**kwargs) for experiment in self._experiments}

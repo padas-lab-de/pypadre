@@ -13,7 +13,7 @@ from copy import deepcopy
 
 from sklearn.externals.joblib import Parallel, delayed
 
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 from pypadre.core.events import trigger_event, assert_condition

@@ -3,7 +3,7 @@ from pypa_pytorch import CallBack
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 from sklearn.pipeline import Pipeline
 from sklearn import datasets
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 
 
 class TestCallbacks(CallBack):

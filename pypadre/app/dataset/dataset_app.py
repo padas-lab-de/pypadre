@@ -7,7 +7,7 @@ from pypadre.app.base_app import BaseChildApp
 from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
-    NetworkXLoader, SklearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
+    NetworkXLoader, SKLearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
 from pypadre.pod.service.dataset_service import DatasetService
 
 
@@ -21,7 +21,7 @@ class DatasetApp(BaseChildApp):
 
         if dataset_loaders is None:
             dataset_loaders = {}
-        self._loaders = {CSVLoader(), PandasLoader(), NumpyLoader(), NetworkXLoader(), SklearnLoader(), SnapLoader(),
+        self._loaders = {CSVLoader(), PandasLoader(), NumpyLoader(), NetworkXLoader(), SKLearnLoader(), SnapLoader(),
                          KonectLoader(), OpenMlLoader()}.union(dataset_loaders)
 
     @property

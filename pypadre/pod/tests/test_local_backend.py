@@ -51,9 +51,7 @@ class LocalBackends(unittest.TestCase):
     def test_project(self):
         from pypadre.core.model.project import Project
 
-        self.app.datasets.load_defaults()
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
-
         self.app.projects.patch(project)
         name = 'Test Project'
         projects = self.app.projects.list({'name': name})

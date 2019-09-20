@@ -1,4 +1,4 @@
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 import numpy as np
 import unittest
 

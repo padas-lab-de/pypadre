@@ -3,7 +3,7 @@ from pypadre.app import p_app
 p_app.config.authenticate("cfellicious", "test")
 import uuid
 import pprint
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 
 
 def create_test_pipeline():

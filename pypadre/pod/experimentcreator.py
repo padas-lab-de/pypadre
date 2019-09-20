@@ -11,10 +11,9 @@ from copy import deepcopy
 
 import numpy as np
 
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 from pypadre.core.visitors.mappings import name_mappings
 from pypadre.core.visitors.mappings import supported_frameworks
-from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 from pypadre.core.events import trigger_event, assert_condition
 
 
@@ -540,9 +539,10 @@ class ExperimentCreator:
             assert_condition(condition=False, source=self, message='Dataset name is empty')
             return None
 
-        assert_condition(condition=name in self._local_dataset, source=self, message=name + ' Local Dataset not found')
-
-        return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
+        # TODO FIXME load_sklearn_toys is changed
+        # assert_condition(condition=name in self._local_dataset, source=self, message=name + ' Local Dataset not found')
+        #
+        # return [i for i in load_sklearn_toys()][self._local_dataset.index(name)]
 
     def get_dataset_names(self):
         """
