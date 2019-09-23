@@ -81,7 +81,13 @@ class SKLearnEstimator(Estimator):
                     trigger_event('EVENT_LOG_EVENT', source=data, kind=exp_events.stop, phase='sklearn.scoring.valset')
                     trigger_event('EVENT_LOG_SCORE', source=data, keys=['validation score'], values=score)
 
-    def _infer(self, *args, ctx, train_idx, test_idx, **kwargs):
+    def _infer(self, *args, data, **kwargs):
+
+        ctx = data
+        if self.is_inferencer() and data.has_testset():
+            train_idx = data.train_idx.tolist()
+            test_idx = data.test_idx.tolist()
+
 
         from copy import deepcopy
         if self._step_wise:

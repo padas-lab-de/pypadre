@@ -1,5 +1,6 @@
 import json
 import urllib.request
+import warnings
 from abc import ABCMeta, abstractmethod
 from collections.__init__ import deque
 from importlib import resources
@@ -78,7 +79,9 @@ class Validateable(object):
 
     def _validate_parameters(self, options):
         if self._schema is None:
-            raise ValueError("A validateable object needs a schema to validate to.")
+            # TODO make this an error as soon as all validateables are implemented
+            warnings.warn("A validateable object needs a schema to validate to: " + str(self), FutureWarning)
+            #raise ValueError("A validateable object needs a schema to validate to.")
         else:
             validate(options, self._schema, cls=schema_validator)
 

@@ -54,7 +54,7 @@ class IDataSetLoader:
     def _create_dataset(**kwargs):
         meta = {**{"id": str(uuid.uuid4()), "name": "something",
                    "description": "", "version": "1.0",
-                   "type": "multivariate", "targets": [], "published": False}, **kwargs}
+                   "type": PaDREOntology.SubClassesDataset.Multivariat.value, "targets": [], "published": False}, **kwargs}
 
         trigger_event('EVENT_WARN', condition=len(meta["targets"]) > 0,
                       source=inspect.currentframe().f_code.co_name,
@@ -208,6 +208,23 @@ class NetworkXLoader(IDataSetLoader):
 
 
 class SKLearnLoader(ICollectionDataSetLoader):
+
+    loaders = [("load_boston", ("regression", PaDREOntology.SubClassesDataset.Multivariat.value),
+                "https://scikit-learn.org/stable/modules/generated/"
+                "sklearn.datasets.load_boston.html#sklearn.datasets.load_boston"),
+               ("load_breast_cancer", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
+                "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)"),
+               ("load_diabetes", ("regression", PaDREOntology.SubClassesDataset.Multivariat.value),
+                "https://scikit-learn.org/stable/modules/generated/"
+                "sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes"),
+               ("load_digits", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
+                "http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits"),
+               ("load_iris", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
+                "https://scikit-learn.org/stable/modules/generated/"
+                "sklearn.datasets.load_iris.html#sklearn.datasets.load_iris"),
+               ("load_linnerud", ("mregression", PaDREOntology.SubClassesDataset.Multivariat.value),
+                "https://scikit-learn.org/stable/modules/generated/"
+                "sklearn.datasets.load_linnerud.html#sklearn.datasets.load_linnerud")]
 
     def list(self, **kwargs):
         return ds.__all__

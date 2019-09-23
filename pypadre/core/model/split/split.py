@@ -2,6 +2,7 @@ import uuid
 
 import numpy as np
 
+from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.base import exp_events, phases
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.split.custom_split import split_obj
@@ -66,10 +67,13 @@ class Splitter:
         provides the training slice part)
         :return: generator function
         """
+        # TODO look at incoming params
+        if isinstance(data, Dataset):
+            n = data.size[0]
+
         # TODO FIXME
         # first create index array and random state vector
-        # n = data.size[0]
-        n = data.size
+        # n = data.size
 
         # TODO FIXME usage?
         # stratified = self._stratified
@@ -137,7 +141,7 @@ class Splitter:
                     val = self._index_list[i].get('val', None)
                     if val is not None:
                         val = np.array(val)
-                        
+
                     yield train, test, val
 
             else:
@@ -209,6 +213,7 @@ class Splitter:
     #     assert_condition(condition=isinstance(random_seed, int), source=self,
     #                      message='Random seed should be an integer type')
 
+
 class Split(MetadataEntity):
     """
     A split is a single part of a run and the actual excution over parts of the dataset.
@@ -224,7 +229,7 @@ class Split(MetadataEntity):
         self._keep_splits = options.pop("keep_splits", False)
         self._splits = []
         self._id = options.pop("split_id", None)
-        super().__init__(**options)
+        super().__init__(metadata=options)
 
         if self._id is None:
             self._id = uuid.uuid4()
@@ -344,7 +349,7 @@ class Split(MetadataEntity):
 
     def __str__(self):
         s = []
-        if self.uid is not None:
+        if self.id is not None:
             s.append("id:" + str(self.id))
         if self.name is not None and self.name != self.id:
             s.append("name:" + str(self.name))

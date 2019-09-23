@@ -80,6 +80,7 @@ class Estimator:
 
 class DefaultPythonExperimentPipeline(Pipeline):
 
+    # TODO add source entity instead of callable (if only callable is given how to persist?)
     def __init__(self, *, preproccessing_fn: Optional[Callable] = None, splitting: Callable, estimator: Union[Callable, Estimator], **attr):
         super().__init__(**attr)
         if not networkx.is_empty(self):

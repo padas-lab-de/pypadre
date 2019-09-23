@@ -60,7 +60,7 @@ class Execution(MetadataEntity, Tablefyable):
         return self._experiment
 
     def execute(self, **kwargs):
-        self.experiment.pipeline.execute(execution=self, data=self.experiment.dataset.data(), **kwargs)
+        self.experiment.pipeline.execute(execution=self, data=self.experiment.dataset, **kwargs)
 
 
     # def validate_input_parameters(self, experiment, options):

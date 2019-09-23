@@ -35,7 +35,7 @@ class PipelineComponent(MetadataEntity):
 
     def execute(self, *, execution: Execution, data, **kwargs):
         # Trigger event started
-        results = self._execute(data=data, **kwargs)
+        results = self._execute(data=data, execution=execution, **kwargs)
         computation = Computation(component=self, execution=execution, result=results)
         # Trigger component result event for metrics and visualization
         # Trigger event finished
@@ -108,10 +108,10 @@ class EstimatorComponent(PipelineComponent):
 
     def execute(self, *, data, **kwargs):
         # TODO check data format
-        split, (train_idx, val_idx, test_idx) = data
+        split_index, (train_idx, val_idx, test_idx) = data
         # TODO create split and reference run?
-        # Split(self, split, train_idx, val_idx, test_idx)
-        return super().execute(data=data, **kwargs)
+        split = Split(kwargs.get("execution", None), split_index, train_idx, val_idx, test_idx)
+        return super().execute(data=split, **kwargs)
 
 
 class SplitPythonComponent(SplitComponent, PythonCodeComponent):

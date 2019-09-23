@@ -28,11 +28,11 @@ class TestSKLearnPipeline(unittest.TestCase):
         pipeline = SKLearnPipeline(pipeline=experiment_helper.create_test_pipeline(['SVC']))
 
         loader = SKLearnLoader()
-        datasets = loader.load_default()
-
-        experiment = Experiment(dataset=datasets.__next__(), pipeline=pipeline)
+        iris = loader.load("sklearn", utility="load_iris")
+        experiment = Experiment(dataset=iris, pipeline=pipeline)
 
         experiment.execute()
+        print("test")
         # TODO asserts and stuff
 
 
