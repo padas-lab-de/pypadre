@@ -5,7 +5,6 @@ Test all scenarios for expected run which is loaded from local file system
 """
 import os
 import shutil
-
 import unittest
 import uuid
 

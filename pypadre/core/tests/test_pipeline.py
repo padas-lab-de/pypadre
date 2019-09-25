@@ -20,22 +20,22 @@ class Pipeline(unittest.TestCase):
         super(Pipeline, self).__init__(*args, **kwargs)
 
     def test_default_python_pipeline(self):
-        def splitting(data):
+        def splitting(*, data, **kwargs):
             print(data)
             return [[[1.0, "A", 2], [2.0, "B", 2]], [[3.0, "A", 3], [3.0, "C", 4]]]
 
-        def estimator(data):
+        def estimator(*, data, **kwargs):
             data = "estimate:" + str(data)
             print(data)
             return data
 
-        def evaluator(data):
+        def evaluator(*, data, **kwargs):
             data = "evaluate:" + str(data)
             print(data)
             return data
 
         pipeline = DefaultPythonExperimentPipeline(splitting=splitting, estimator=estimator,
-                                                   evaluation_fn=evaluator)
+                                                   evaluator=evaluator)
 
         dataset = Dataset(name="A name", description="A description",
                           type=PaDREOntology.SubClassesDataset.Multivariat.value)

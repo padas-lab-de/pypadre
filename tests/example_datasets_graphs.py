@@ -1,6 +1,7 @@
 import os
-import pypadre.pod.importing.dataset.graph_import
+
 import pypadre.pod.importing.dataset.ds_import
+import pypadre.pod.importing.dataset.graph_import
 
 if __name__ == '__main__':
     path=os.path.expanduser('~/.pypadre')

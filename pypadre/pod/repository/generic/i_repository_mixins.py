@@ -1,7 +1,7 @@
-from abc import ABCMeta, abstractmethod, ABC
+from abc import ABCMeta, abstractmethod
 
 
-class IStoreable:
+class IStoreableRepository:
     """ This is the interface for all backends being able to store objects onto some kind of persistence storage."""
     __metaclass__ = ABCMeta
 
@@ -54,7 +54,7 @@ class ISearchable:
         return all([hasattr(obj, k) and getattr(obj, k) == v for k, v in search.items()])
 
 
-class IProgressable:
+class IProgressableRepository:
     """ This is the interface for all backends being able to progress the state of one of their
     currently running processes."""
     __metaclass__ = ABCMeta

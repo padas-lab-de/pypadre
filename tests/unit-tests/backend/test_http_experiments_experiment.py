@@ -6,9 +6,8 @@ import json
 import unittest
 
 from mock import MagicMock, patch
-
-from pypadre.pod.backend.http.http_experiments import HttpBackendExperiments
 from pypadre.pod.backend.http import PadreHTTPClient
+from pypadre.pod.backend.http.http_experiments import HttpBackendExperiments
 
 
 class TestGetOrCreateDataSet(unittest.TestCase):

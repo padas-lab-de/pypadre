@@ -5,7 +5,7 @@ from abc import abstractmethod, ABCMeta
 
 from pypadre.core.base import ChildEntity
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.generic.i_repository_mixins import IStoreable, ISearchable, IRepository
+from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable, IRepository
 from pypadre.pod.util.file_util import get_path
 
 
@@ -31,7 +31,7 @@ class File:
         return self._serializer
 
 
-class IFileRepository(IRepository, ISearchable, IStoreable):
+class IFileRepository(IRepository, ISearchable, IStoreableRepository):
     """ This is the abstract class implementation of a backend storing its information onto the disk in a file
     structure"""
     __metaclass__ = ABCMeta
@@ -262,7 +262,7 @@ class IFileRepository(IRepository, ISearchable, IStoreable):
 class IChildFileRepository(IFileRepository, ChildEntity):
 
     @abstractmethod
-    def __init__(self, *, parent: IStoreable, name: str, backend: IPadreBackend, **kwargs):
+    def __init__(self, *, parent: IStoreableRepository, name: str, backend: IPadreBackend, **kwargs):
         super().__init__(backend=backend, name=name, parent=parent, root_dir=os.path.join(parent.root_dir, name), **kwargs)
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):

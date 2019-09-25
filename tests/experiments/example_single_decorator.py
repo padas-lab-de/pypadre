@@ -3,12 +3,14 @@ This file shows an example on how to use PyPaDRE via decorators defining a singl
 
 Note: it is a proof of concept now rather than a test.
 """
-# Note that we want to include all decorator at once using package import
-from pypadre import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+
+# Note that we want to include all decorator at once using package import
+from pypadre import *
 from pypadre.app import p_app
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
+
 
 @Workflow(exp_name="Test",
           description="Test experiment with decorators")

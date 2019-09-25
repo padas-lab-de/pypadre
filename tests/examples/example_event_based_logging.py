@@ -1,11 +1,12 @@
 """
 This file shows an example on how to use the pypadre app.
 """
-from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
+import pprint
+
+from pypadre.core.events import add_logger
 from pypadre.core.model.experiment import Experiment
 from pypadre.pod.base import PadreLogger
-from pypadre.core.events import add_logger
-import pprint
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 def create_test_pipeline():

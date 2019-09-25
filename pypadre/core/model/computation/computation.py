@@ -1,14 +1,21 @@
 from pypadre.core.base import MetadataEntity
+from pypadre.core.events.events import signals
 from pypadre.core.model.execution import Execution
+from pypadre.core.model.generic.i_model_mixins import IProgressable, IStoreable
+from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Computation(MetadataEntity):
+class Computation(IStoreable, IProgressable, MetadataEntity, Tablefyable):
 
     COMPONENT_ID = "component_id"
     EXECUTION_ID = "execution_id"
 
+    @classmethod
+    def _tablefy_register_columns(cls):
+        pass
+
     def __init__(self, *, component, execution: Execution, result, **kwargs):
-        super().__init__(metadata={self.COMPONENT_ID: component.id, self.EXECUTION_ID: execution.id}, **kwargs)
+        super().__init__(metadata={**{self.COMPONENT_ID: component.id, self.EXECUTION_ID: execution.id}, **kwargs.pop("metadata", {})}, **kwargs)
         self._component = component
         self._execution = execution
         self._result = result

@@ -1,5 +1,3 @@
-import os
-
 from pypadre.pod.repository.i_repository import ISourceRepository
 
 

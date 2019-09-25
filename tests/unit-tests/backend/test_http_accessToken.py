@@ -9,11 +9,10 @@ All unnecessary function and http calls are mocked
 import json
 import unittest
 import uuid
-from requests.exceptions import ConnectionError
 
 from mock import MagicMock, patch
-
 from pypadre.pod.backend.http import PadreHTTPClient
+from requests.exceptions import ConnectionError
 
 
 class TestGetAccessToken01(unittest.TestCase):

@@ -1,9 +1,10 @@
 """
 Example showing how to use the altair visualisation together with the pypadre framework.
 """
-from pypadre import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+
+from pypadre import *
 from pypadre.app import p_app
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 

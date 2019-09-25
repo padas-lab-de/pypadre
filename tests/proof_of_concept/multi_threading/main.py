@@ -1,13 +1,13 @@
 
-from sklearn.externals.joblib import Parallel, delayed
-from sklearn.svm import LinearSVC, SVC, LinearSVR, SVR
+import time
+
 from sklearn import datasets
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.manifold import Isomap
+from sklearn.externals.joblib import Parallel, delayed
 from sklearn.neighbors import KNeighborsRegressor
-import time
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import LinearSVR
 
 EXPERIMENT_ARRAY = []
 

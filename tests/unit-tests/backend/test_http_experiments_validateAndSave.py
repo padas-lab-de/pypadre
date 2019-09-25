@@ -4,7 +4,6 @@ This file contains tests covering backend.http_experiments.HttpBackendExperiment
 import unittest
 
 from mock import MagicMock, call
-
 from pypadre.pod.backend.http.http_experiments import HttpBackendExperiments
 
 

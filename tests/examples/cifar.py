@@ -1,8 +1,10 @@
-from pypadre.pod.importing.dataset.ds_import import load_numpy_array_multidimensional
 import numpy as np
-from sklearn.pipeline import Pipeline
 from pypa_pytorch import Wrapper
+from sklearn.pipeline import Pipeline
+
 from pypadre.core.model.experiment import Experiment
+from pypadre.pod.importing.dataset.ds_import import load_numpy_array_multidimensional
+
 
 def custom_split(idx):
     np.random.seed(0)

@@ -140,7 +140,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.core.model.execution import Execution
-        from pypadre.core.model.run import Run
+        from pypadre.core.model.computation.run import Run
 
         # TODO clean up testing (tests should be independent and only test the respective functionality)
         self.app.datasets.load_defaults()
@@ -181,7 +181,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.core.model.execution import Execution
-        from pypadre.core.model.run import Run
+        from pypadre.core.model.computation.run import Run
         from pypadre.core.model.split.split import Split
 
         self.app.datasets.load_defaults()

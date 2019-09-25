@@ -1,8 +1,8 @@
 from typing import List
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.pod.service.project_service import ProjectService
 from pypadre.pod.repository.i_repository import IProjectRepository
+from pypadre.pod.service.project_service import ProjectService
 
 
 class ProjectApp(BaseChildApp):

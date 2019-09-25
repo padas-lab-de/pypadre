@@ -1,6 +1,3 @@
-from pypadre.core.visitors.mappings import type_mappings
-
-
 def test_other_test():
     from pypadre.core.visitors.mappings import type_mappings
     for k in type_mappings:

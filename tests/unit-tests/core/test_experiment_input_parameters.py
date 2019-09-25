@@ -1,6 +1,8 @@
-from pypadre.core.model.experiment import Experiment
-import numpy as np
 import unittest
+
+import numpy as np
+
+from pypadre.core.model.experiment import Experiment
 
 
 def create_test_pipeline():

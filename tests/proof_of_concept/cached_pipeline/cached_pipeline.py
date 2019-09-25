@@ -1,7 +1,9 @@
-from pypadre.pod.experimentcreator import ExperimentCreator
-from copy import deepcopy
 import itertools
+from copy import deepcopy
+
 import numpy as np
+
+from pypadre.pod.experimentcreator import ExperimentCreator
 
 
 def normal_fit(workflow, features, targets, parameters=None):

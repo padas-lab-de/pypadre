@@ -1,8 +1,8 @@
 from typing import List
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.pod.service.experiment_service import ExperimentService
 from pypadre.pod.repository.i_repository import IExperimentRepository
+from pypadre.pod.service.experiment_service import ExperimentService
 
 
 class ExperimentApp(BaseChildApp):
@@ -11,6 +11,10 @@ class ExperimentApp(BaseChildApp):
     """
     def __init__(self, parent, backends: List[IExperimentRepository], **kwargs):
         super().__init__(parent, service=ExperimentService(backends=backends), **kwargs)
+
+    def execute(self, id):
+        self.service.execute(id)
+
 
     # def delete_experiments(self, search):
     #     """

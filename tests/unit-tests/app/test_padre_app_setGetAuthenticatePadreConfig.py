@@ -2,11 +2,10 @@
 This file contains tests covering app.padre_app.PadreConfig class
 """
 
+import configparser
 import os
 import unittest
 import uuid
-
-import configparser
 
 from pypadre.app.padre_app import PadreConfig
 

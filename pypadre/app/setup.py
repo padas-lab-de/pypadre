@@ -1,6 +1,7 @@
-from setuptools import setup, find_packages
 # from sphinx.setup_command import BuildDoc
 import re
+
+from setuptools import setup, find_packages
 
 # cmdclass = {'build_sphinx': BuildDoc}
 

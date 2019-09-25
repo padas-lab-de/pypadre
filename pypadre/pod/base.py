@@ -1,8 +1,6 @@
 """
 Modul containing basic padre datastructures
 """
-import sys
-from abc import ABC
 from datetime import datetime
 from time import time
 

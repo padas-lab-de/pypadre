@@ -1,8 +1,8 @@
 """
 This file creates a JSON file for the mappings. It contains a detailed information about the different hyperparameters and the types of hyperparameters
 """
-import os
 import json
+import os
 from copy import deepcopy
 
 algorithms = "algorithms"

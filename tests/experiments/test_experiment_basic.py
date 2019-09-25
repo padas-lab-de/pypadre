@@ -3,10 +3,11 @@ This file shows an example on how to use the pypadre app.
 """
 import unittest
 
-from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
-from pypadre.core.model.experiment import Experiment
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+
+from pypadre.core.model.experiment import Experiment
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 class TestBasic(unittest.TestCase):

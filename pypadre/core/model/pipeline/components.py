@@ -3,15 +3,19 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from types import GeneratorType
-from typing import List, Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from pypadre.core.base import MetadataEntity
+from pypadre.core.model.computation.training import Training
+from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.execution import Execution
-from pypadre.core.model.pipeline.computation import Computation
-from pypadre.core.model.split.split import Split, Splitter
+from pypadre.core.model.generic.i_model_mixins import IExecuteable
+from pypadre.core.model.computation.computation import Computation
+from pypadre.core.model.split.split import Split
+from pypadre.core.model.split.splitter import Splitter
 
 
-class PipelineComponent(MetadataEntity):
+class PipelineComponent(MetadataEntity, IExecuteable):
     __metaclass__ = ABCMeta
 
     def __init__(self, *, name: str, metadata: Optional[dict]=None, **kwargs):
@@ -31,20 +35,21 @@ class PipelineComponent(MetadataEntity):
         This method should return a hash used to reference the version of the current code or if code was changed
         :return:
         """
-        pass
+        raise NotImplementedError
 
-    def execute(self, *, execution: Execution, data, **kwargs):
-        # Trigger event started
-        results = self._execute(data=data, execution=execution, **kwargs)
-        computation = Computation(component=self, execution=execution, result=results)
-        # Trigger component result event for metrics and visualization
-        # Trigger event finished
-        return computation
+    def _execute(self, *, execution: Execution, data, **kwargs):
+        kwargs["component"] = self
+        results = self._execute_(data=data, execution=execution, **kwargs)
+        # TODO work with generators
+        if not isinstance(results, Computation):
+            results = Computation(component=self, execution=execution, result=results)
+        # TODO Trigger component result event for metrics and visualization
+        return results
 
     @abstractmethod
-    def _execute(self, *, data, **kwargs):
+    def _execute_(self, *, data, **kwargs):
         # Black box execution
-        pass
+        raise NotImplementedError
 
     # TODO Overwrite for no schema validation for now
     def validate(self, **kwargs):
@@ -58,8 +63,8 @@ class BranchingComponent(PipelineComponent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def execute(self, *, execution: Execution, data, **kwargs):
-        computation = super().execute(execution=execution, data=data, **kwargs)
+    def _execute(self, *, execution: Execution, data, **kwargs):
+        computation = super()._execute(execution=execution, data=data, **kwargs)
         if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
         return computation
@@ -78,50 +83,71 @@ class PythonCodeComponent(PipelineComponent):
     def code(self):
         return self._code
 
-    def _execute(self, *, data, **kwargs):
-        # TODO maybe data is itself just another kwargs?
+    def _execute_(self, *, data, **kwargs):
         return self.code(data=data, **kwargs)
+
+
+# def _unpack_computation(cls, computation: Computation):
+#     # TODO don't build all splits here. How to handle generators?
+#     if isinstance(computation.result, GeneratorType):
+#         computation.result = [_unpack_computation_(cls, tuple([i]) + result, computation) if isinstance(result, Tuple) else _unpack_computation_(cls, result, computation) for i, result in enumerate(computation.result)]
+#     else:
+#         computation.result = _unpack_computation_(cls, computation.result, computation)
+#     return computation
+#
+#
+# def _unpack_computation_(cls, result, computation):
+#     if isinstance(result, Tuple):
+#         return cls(*result, component=computation.component, execution=computation.execution)
+#     elif isinstance(result, dict):
+#         return cls(**result, component=computation.component, execution=computation.execution)
+#     else:
+#         return cls(result, component=computation.component, execution=computation.execution)
 
 
 class SplitComponent(BranchingComponent, PipelineComponent):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, **kwargs):
-        super().__init__(name="splitter", **kwargs)
+    def __init__(self, name="splitter", **kwargs):
+        super().__init__(name=name, **kwargs)
 
-    def execute(self, *, data, **kwargs):
-        # TODO create run?
-        computation = super().execute(data=data, **kwargs)
-        # TODO do we need the enumerate? @See EstimatorComponent data tuple
-        computation.result = enumerate(computation.result)
-        return computation
+    # def _execute(self, *, data, **kwargs):
+    #     return _unpack_computation(Split, super()._execute(data=data, **kwargs))
 
 
 class EstimatorComponent(PipelineComponent):
+
+    @abstractmethod
+    def __init__(self, name="estimator", **kwargs):
+        super().__init__(name=name, **kwargs)
+
+    # def _execute(self, *, data, **kwargs):
+    #     return _unpack_computation(Training, super()._execute(data=data, **kwargs))
+
+
+class EvaluatorComponent(PipelineComponent):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, **kwargs):
-        super().__init__(name="estimator", **kwargs)
-        # TODO check if code is
+    def __init__(self, name="evaluator", **kwargs):
+        super().__init__(name=name, **kwargs)
 
-    def execute(self, *, data, **kwargs):
-        # TODO check data format
-        split_index, (train_idx, val_idx, test_idx) = data
-        # TODO create split and reference run?
-        split = Split(kwargs.get("execution", None), split_index, train_idx, val_idx, test_idx)
-        return super().execute(data=split, **kwargs)
+    # def _execute(self, *, data, **kwargs):
+    #     return _unpack_computation(Evaluation, super()._execute(data=data, **kwargs))
 
 
 class SplitPythonComponent(SplitComponent, PythonCodeComponent):
     def __init__(self, *, code: Callable, **kwargs):
-        # TODO splitter shouldn't hold a dataset but receive data in the splits function
         splitter = Splitter(fn=code, **kwargs.get("splitter", {}))
         super().__init__(code=splitter.splits, **kwargs)
 
 
 class EstimatorPythonComponent(EstimatorComponent, PythonCodeComponent):
     def __init__(self, *, code: Callable, **kwargs):
-        # TODO make pipeline instead
+        super().__init__(code=code, **kwargs)
+
+
+class EvaluatorPythonComponent(EvaluatorComponent, PythonCodeComponent):
+    def __init__(self, *, code: Callable, **kwargs):
         super().__init__(code=code, **kwargs)

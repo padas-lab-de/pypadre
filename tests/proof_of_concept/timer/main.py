@@ -1,5 +1,5 @@
-from timer import TimeKeeper
 from TimeTester import TimeTester
+from timer import TimeKeeper
 
 
 def main():

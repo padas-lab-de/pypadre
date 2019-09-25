@@ -6,7 +6,6 @@ import unittest
 
 import numpy as np
 from mock import MagicMock
-
 from pypadre.pod.backend.http.http_experiments import HttpBackendExperiments
 
 

@@ -25,17 +25,18 @@ from pypadre.app.base_app import IBaseApp
 from pypadre.app.config.padre_config import PadreConfig
 from pypadre.app.dataset.dataset_app import DatasetApp
 from pypadre.app.project.execution_app import ExecutionApp
-from pypadre.app.project.run_app import RunApp
-from pypadre.app.project.split_app import SplitApp
 from pypadre.app.project.experiment_app import ExperimentApp
 from pypadre.app.project.project_app import ProjectApp
-from pypadre.pod.base import PadreLogger
-from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.backend.file import PadreFileBackend
+from pypadre.app.project.run_app import RunApp
+from pypadre.app.project.split_app import SplitApp
 # from pypadre.pod.backend.http import PadreHttpBackend
 from pypadre.core.events import add_logger
+from pypadre.core.events.events import Signals
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
+from pypadre.pod.backend.file import PadreFileBackend
+from pypadre.pod.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.base import PadreLogger
 
 logger = PadreLogger(app=None)
 add_logger(logger=logger)
@@ -87,6 +88,8 @@ class PadreApp(IBaseApp):
         self._run_app = RunApp(self, [backend.run for backend in backends] if backends is not None else None)
         self._split_app = SplitApp(self, [backend.split for backend in backends] if backends is not None else None)
         #self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
+
+        self.signals = Signals()
 
     @property
     def backends(self):

@@ -5,12 +5,14 @@ Note: it is a proof of concept now rather than a test.
 """
 import pprint
 
-# Note that we want to include all decorator at once using package import
-from pypadre import *
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+
+# Note that we want to include all decorator at once using package import
+from pypadre import *
 from pypadre.app import p_app
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
+
 
 @Workflow(exp_name="example hyperparameter eval with decorators",
           description="Test experiment with decorators",

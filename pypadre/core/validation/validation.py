@@ -1,7 +1,7 @@
 import json
 import urllib.request
 import warnings
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 from collections.__init__ import deque
 from importlib import resources
 from typing import List
@@ -9,13 +9,21 @@ from typing import List
 from jsonschema import validate, ValidationError, validators
 from padre.PaDREOntology import PaDREOntology
 
-from pypadre.core.events import trigger_event
-
-
 # noinspection PyUnusedLocal,PyShadowingNames,PyProtectedMember
+from pypadre.core.model.generic.i_model_mixins import ILoggable
+
+
 def padre_enum(validator, padre_enum, instance, schema):
+    """
+    Function to evaluate if a enum exists via jsonschema evaluation. This is used for ontology validation.
+    :param validator:
+    :param padre_enum:
+    :param instance:
+    :return:
+    """
     if validator.is_type(instance, "string"):
         if padre_enum is not None:
+            # noinspection PyProtectedMember
             if not hasattr(PaDREOntology, padre_enum):
                 yield ValidationError("%r is not a valid padre enum" % (padre_enum))
             # TODO cleanup access to enum
@@ -26,22 +34,22 @@ def padre_enum(validator, padre_enum, instance, schema):
 schema_validator = validators.extend(validators.Draft7Validator, validators={"padre_enum": padre_enum}, version="1.0")
 
 
-class Validateable(object):
+class Validateable(ILoggable):
     __metaclass__ = ABCMeta
     """ This class implements basic logic for validating the state of it's input parameters """
 
     # noinspection PyBroadException
     def __init__(self, schema=None, schema_path=None, schema_url=None,
-                 schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None, **options):
+                 schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None, *args, **kwargs):
         # Load schema externally
+        super().__init__(*args, **kwargs)
         if schema is None:
             try:
                 if schema_url is not None:
                     with urllib.request.urlopen(schema_url) as url:
                         schema = json.loads(url.read().decode())
             except:
-                trigger_event('EVENT_WARN', source=self,
-                              message='Failed on loading schema file from url ' + schema_url)
+                self.send_warn(message='Failed on loading schema file from url ' + schema_url)
 
         # Load schema from file
         if schema is None:
@@ -51,8 +59,7 @@ class Validateable(object):
                         schema_data = f.read()
                     schema = json.loads(schema_data)
             except:
-                trigger_event('EVENT_WARN', source=self,
-                              message='Failed on loading schema file from disk ' + schema_path)
+                self.send_warn(message='Failed on loading schema file from disk ' + schema_path)
 
         if schema is None:
             try:
@@ -61,13 +68,12 @@ class Validateable(object):
                         schema_data = f.read()
                     schema = json.loads(schema_data)
             except:
-                trigger_event('EVENT_WARN', source=self,
-                              message='Failed on loading schema file from resources ' + schema_resource_package + '.'
-                                      + schema_resource_name)
+                self.send_warn(message='Failed on loading schema file from resources ' + schema_resource_package + '.'
+                                       + schema_resource_name)
 
         self._schema = schema
         # Fail if no schema is provided
-        self.validate(**options)
+        self.validate(**kwargs)
 
     def validate(self, **kwargs):
         """
@@ -80,7 +86,8 @@ class Validateable(object):
     def _validate_parameters(self, options):
         if self._schema is None:
             # TODO make this an error as soon as all validateables are implemented
-            warnings.warn("A validateable object needs a schema to validate to: " + str(self), FutureWarning)
+            self.send_warn(message="A validateable object needs a schema to validate to: " + str(self))
+            # warnings.warn("A validateable object needs a schema to validate to: " + str(self), FutureWarning)
             #raise ValueError("A validateable object needs a schema to validate to.")
         else:
             validate(options, self._schema, cls=schema_validator)

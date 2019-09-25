@@ -1,7 +1,7 @@
 from typing import List
 
-from pypadre.pod.service.base_service import BaseService
 from pypadre.pod.repository.i_repository import IDatasetRepository
+from pypadre.pod.service.base_service import BaseService
 
 
 class DatasetService(BaseService):

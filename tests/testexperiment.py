@@ -1,35 +1,30 @@
 
 import unittest
 
-from sklearn.isotonic import *
-from sklearn.linear_model import *
-from sklearn.discriminant_analysis import *
-from sklearn.mixture import *
-from sklearn.kernel_ridge import *
-from sklearn.gaussian_process import *
-from sklearn.decomposition import *
-from sklearn.feature_selection import *
+from pypadre.core.visitors.scikit import SciKitVisitor
+from sklearn.calibration import *
 from sklearn.cluster import *
 from sklearn.covariance import *
-from sklearn.manifold import *
-from sklearn.semi_supervised import *
-from sklearn.calibration import *
-from sklearn.neural_network import *
 from sklearn.cross_decomposition import *
-from sklearn.multiclass import *
-from sklearn.multioutput import *
+from sklearn.decomposition import *
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import *
 from sklearn.ensemble import *
-from sklearn.tree import *
+from sklearn.feature_selection import *
+from sklearn.gaussian_process import *
+from sklearn.kernel_ridge import *
+from sklearn.linear_model import *
+from sklearn.manifold import *
+from sklearn.mixture import *
 from sklearn.naive_bayes import *
 from sklearn.neighbors import *
-from sklearn.svm import *
+from sklearn.neural_network import *
 from sklearn.pipeline import Pipeline
-from sklearn.decomposition import PCA
+from sklearn.semi_supervised import *
+from sklearn.svm import *
+from sklearn.tree import *
 
 from pypadre.core.visitors import DictVisitor, ListVisitor
-from pypadre.core.visitors.scikit import SciKitVisitor
-
-import pprint
 
 
 class TestExperimentVisitor(unittest.TestCase):

@@ -12,9 +12,9 @@
 # whether the parameter is optional or not, and if it is optional the default value of the parameter
 # The final dictionary to be dumped to JSON
 
-from copy import deepcopy
 import json
 import os
+from copy import deepcopy
 
 # The different strings present in the dictionaries are declared below
 optional = "optional"

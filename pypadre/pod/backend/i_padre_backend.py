@@ -10,6 +10,10 @@ class IPadreBackend:
     def __init__(self, config):
         self._config = config
 
+        # TODO Receiver?
+        def handle_put(sender, **kwargs):
+            pass
+
     @property
     def config(self):
         return self._config

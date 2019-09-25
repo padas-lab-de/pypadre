@@ -1,8 +1,9 @@
 from pypadre.core.base import MetadataEntity
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Project(MetadataEntity, Tablefyable):
+class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
     """ A project should group experiments """
 
     @classmethod
@@ -28,4 +29,5 @@ class Project(MetadataEntity, Tablefyable):
 
     def execute(self, **kwargs):
         # TODO args per experiment
+
         return {experiment: experiment.execute(**kwargs) for experiment in self._experiments}

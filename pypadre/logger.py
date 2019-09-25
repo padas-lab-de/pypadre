@@ -1,6 +1,7 @@
-from pypadre.base import LoggerBase, phases, exp_events
-from datetime import datetime
 import sys
+from datetime import datetime
+
+from pypadre.base import LoggerBase, phases, exp_events
 
 
 class ErrorLogger(LoggerBase):

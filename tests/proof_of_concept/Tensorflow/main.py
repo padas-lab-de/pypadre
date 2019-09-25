@@ -1,8 +1,9 @@
-from pypadre.binding.wrappers.wrapper_tensorflow import WrapperTensorFlow
-from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
-from sklearn.pipeline import Pipeline
 from sklearn import datasets
+from sklearn.pipeline import Pipeline
+
+from pypadre.binding.wrappers.wrapper_tensorflow import WrapperTensorFlow
 from pypadre.core.model.experiment import Experiment
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 def main():

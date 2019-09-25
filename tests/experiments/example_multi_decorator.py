@@ -6,6 +6,7 @@ Note: it is a proof of concept now rather than a test.
 # Note that we want to include all decorator at once using package import
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+
 from pypadre import *
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 

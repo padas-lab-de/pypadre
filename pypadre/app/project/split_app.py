@@ -1,8 +1,8 @@
 from typing import List
 
 from pypadre.app.base_app import BaseChildApp
-from pypadre.pod.service.split_service import SplitService
 from pypadre.pod.repository.i_repository import ISplitRepository
+from pypadre.pod.service.split_service import SplitService
 
 
 class SplitApp(BaseChildApp):

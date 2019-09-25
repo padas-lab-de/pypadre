@@ -1,4 +1,3 @@
-import sys
 from pypadre.app import p_app
 p_app.config.authenticate("cfellicious", "test")
 import uuid
@@ -9,7 +8,6 @@ from pypadre.core.model.experiment import Experiment
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)

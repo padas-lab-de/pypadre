@@ -1293,7 +1293,7 @@ class ComputeMetrics:
         :return: None
         """
         from pypadre.core.model.experiment import Experiment
-        from pypadre.core.model.run import Run
+        from pypadre.core.model.computation.run import Run
         from pypadre.core.model.sklearnworkflow import SKLearnWorkflow
         from copy import deepcopy
 

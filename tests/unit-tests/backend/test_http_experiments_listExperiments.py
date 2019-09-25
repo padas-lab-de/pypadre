@@ -7,7 +7,6 @@ import json
 import unittest
 
 from mock import MagicMock
-
 from pypadre.pod.backend.http.http_experiments import HttpBackendExperiments
 
 

@@ -1,9 +1,10 @@
-from pypa_pytorch import Wrapper
 from pypa_pytorch import CallBack
-from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
-from sklearn.pipeline import Pipeline
+from pypa_pytorch import Wrapper
 from sklearn import datasets
+from sklearn.pipeline import Pipeline
+
 from pypadre.core.model.experiment import Experiment
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 class TestCallbacks(CallBack):

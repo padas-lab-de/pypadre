@@ -1,7 +1,7 @@
 from _py_abc import ABCMeta
 from typing import List
 
-from pypadre.pod.repository.generic.i_repository_mixins import IStoreable, ISearchable
+from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable
 
 
 class BaseService:
@@ -38,7 +38,7 @@ class BaseService:
         :return: Entity
         """
         for b in self.backends:
-            backend: IStoreable = b
+            backend: IStoreableRepository = b
             backend.put(obj)
 
     def patch(self, obj):
@@ -48,7 +48,7 @@ class BaseService:
         :return: Entity
         """
         for b in self.backends:
-            backend: IStoreable = b
+            backend: IStoreableRepository = b
             backend.put(obj, merge=True)
 
     def get(self, id):
@@ -59,7 +59,7 @@ class BaseService:
         """
         obj_list = []
         for b in self.backends:
-            backend: IStoreable = b
+            backend: IStoreableRepository = b
             obj = backend.get(id)
             if obj is not None:
                 obj_list.append(obj)
@@ -72,7 +72,7 @@ class BaseService:
         :return: Entity
         """
         for b in self.backends:
-            backend: IStoreable = b
+            backend: IStoreableRepository = b
             backend.delete(obj)
 
     def delete_by_id(self, id):
@@ -82,5 +82,5 @@ class BaseService:
         :return: Entity
         """
         for b in self.backends:
-            backend: IStoreable = b
+            backend: IStoreableRepository = b
             backend.delete_by_id(id)

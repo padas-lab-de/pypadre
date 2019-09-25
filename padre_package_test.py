@@ -1,8 +1,8 @@
 from pypadre.app import p_app
-from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
+from pypadre.core.events import add_logger
 from pypadre.core.model.experiment import Experiment
 from pypadre.pod.base import PadreLogger
-from pypadre.core.events import add_logger
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 def create_test_pipeline():

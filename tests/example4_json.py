@@ -1,5 +1,6 @@
-from pypadre.pod.experimentcreator import ExperimentCreator
 import os
+
+from pypadre.pod.experimentcreator import ExperimentCreator
 
 
 def main():

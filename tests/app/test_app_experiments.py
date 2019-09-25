@@ -7,8 +7,8 @@ Note: it is a proof of concept now rather than a test.
 import unittest
 
 from pypadre.app import p_app
-from tests.app.experiments_decorated import *
 from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
+from tests.app.experiments_decorated import *
 
 
 class TestApp(unittest.TestCase):

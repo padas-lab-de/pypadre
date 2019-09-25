@@ -12,7 +12,7 @@ from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.events import assert_condition, trigger_event
+from pypadre.core.model.generic.i_model_mixins import ILoggable
 from pypadre.core.util.utils import _Const
 
 
@@ -25,7 +25,7 @@ class _Sources(_Const):
 sources = _Sources()
 
 
-class IDataSetLoader:
+class IDataSetLoader(ILoggable):
     """
     Class used to load external datasets
     """
@@ -50,15 +50,12 @@ class IDataSetLoader:
         """
         raise NotImplementedError()
 
-    @staticmethod
-    def _create_dataset(**kwargs):
+    def _create_dataset(self, **kwargs):
         meta = {**{"id": str(uuid.uuid4()), "name": "something",
                    "description": "", "version": "1.0",
                    "type": PaDREOntology.SubClassesDataset.Multivariat.value, "targets": [], "published": False}, **kwargs}
 
-        trigger_event('EVENT_WARN', condition=len(meta["targets"]) > 0,
-                      source=inspect.currentframe().f_code.co_name,
-                      message='No targets defined. Program will crash when used for supervised learning')
+        self.send_warn(condition=len(meta["targets"]) == 0, source=self, message='No targets defined. Program will crash when used for supervised learning')
 
         # TODO extract attributes
         return Dataset(**meta)
