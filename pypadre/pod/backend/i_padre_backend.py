@@ -1,13 +1,16 @@
 from abc import abstractmethod
 
+from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
 
-class IPadreBackend:
+
+class IPadreBackend(ILogRepository):
     """ This is the base backend for padre. It contains subbackends like dataset and project."""
 
     from pypadre.pod.repository.i_repository import IProjectRepository, IDatasetRepository, IExperimentRepository, \
         ISplitRepository, IRunRepository, IExecutionRepository
 
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
+        super().__init__(**kwargs)
         self._config = config
 
         # TODO Receiver?

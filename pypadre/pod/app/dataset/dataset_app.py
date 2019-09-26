@@ -3,7 +3,7 @@ from typing import List, cast
 
 from jsonschema import ValidationError
 
-from pypadre.app.base_app import BaseChildApp
+from pypadre.pod.app.base_app import BaseChildApp
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
     NetworkXLoader, SKLearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader

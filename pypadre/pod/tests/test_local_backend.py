@@ -2,8 +2,9 @@ import os
 import shutil
 import unittest
 
-from pypadre.app import PadreConfig
-from pypadre.app.padre_app import PadreFactory
+from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.pod.app import PadreConfig
+from pypadre.pod.app.padre_app import PadreAppFactory
 
 config_path = os.path.join(os.path.expanduser("~"), ".padre-test.cfg")
 workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
@@ -19,7 +20,7 @@ class LocalBackends(unittest.TestCase):
                         "root_dir": workspace_path
                     }
                 ]))
-        self.app = PadreFactory.get(config)
+        self.app = PadreAppFactory.get(config)
 
     def tearDown(self):
         # delete data content
@@ -78,11 +79,7 @@ class LocalBackends(unittest.TestCase):
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = Experiment(name="Test Experiment SVM",
-                    description="Testing Support Vector Machines via SKLearn Pipeline",
-                    dataset=dataset[0],
-                    workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project,
-                                path=os.path.abspath('.'))
+        experiment = Experiment(dataset=dataset.pop(), project=project, pipeline=SKLearnPipeline(pipeline=create_test_pipeline()))
 
         self.app.experiments.patch(experiment)
         name = 'Test Experiment SVM'

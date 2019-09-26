@@ -10,8 +10,8 @@ import os
 import click
 from click_shell import shell
 
-from pypadre.app import PadreConfig
-from pypadre.app.padre_app import PadreFactory
+from pypadre.pod.app import PadreConfig
+from pypadre.pod.app.padre_app import PadreAppFactory
 from .config import config_cli
 from .dataset import dataset_cli
 from .experiment import experiment_cli
@@ -40,7 +40,7 @@ def pypadre(ctx, config_file):
     # create context object
     ctx.obj = {
         'config-app': config,
-        'pypadre-app': PadreFactory.get(config)
+        'pypadre-app': PadreAppFactory.get(config)
     }
 
 

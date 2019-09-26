@@ -638,7 +638,7 @@
 #         :return: None
 #         """
 #         import pprint
-#         from pypadre.app.padre_app import DatasetApp
+#         from pypadre.pod.app.padre_app import DatasetApp
 #         from pypadre.core.model.dataset.dataset import Dataset
 #
 #         if self._experiments is None:

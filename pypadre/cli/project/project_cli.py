@@ -8,7 +8,7 @@ import click
 #################################
 from click_shell import make_click_shell
 
-from pypadre.app.project.project_app import ProjectApp
+from pypadre.pod.app.project.project_app import ProjectApp
 from pypadre.cli.experiment import experiment_cli
 from pypadre.core.model.project import Project
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler

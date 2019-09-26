@@ -11,7 +11,7 @@ from pypadre.pod.backend.remote.http.project.experiment.execution.run.split.spli
 from pypadre.pod.backend.remote.http.project.experiment.experiment_http_backend import PadreExperimentHttpBackend
 from pypadre.pod.backend.remote.http.project.project_http_backend import PadreProjectHttpBackend
 
-from pypadre.app import PadreConfig
+from pypadre.pod.app import PadreConfig
 
 
 class HttpBackends(unittest.TestCase):

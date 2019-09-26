@@ -1,8 +1,8 @@
 import os
 from abc import abstractmethod, ABCMeta
 
-from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import IFileRepository
+from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
 
 FILE_NAME = "log.txt"
 
@@ -19,6 +19,7 @@ class ILogFileRepository(IFileRepository, ILogRepository):
         self._write(msg)
 
     def _write(self, message):
+        # TODO close file
         if self._file is None:
             self._file = open(os.path.join(self.root_dir, FILE_NAME), "a")
         self._file.write(message)

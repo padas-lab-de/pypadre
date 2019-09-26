@@ -1,6 +1,6 @@
 from typing import List
 
-from pypadre.app.base_app import BaseChildApp
+from pypadre.pod.app.base_app import BaseChildApp
 from pypadre.pod.repository.generic.i_repository_mixins import IBackend
 
 

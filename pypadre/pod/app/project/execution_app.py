@@ -1,6 +1,6 @@
 from typing import List
 
-from pypadre.app.base_app import BaseChildApp
+from pypadre.pod.app.base_app import BaseChildApp
 from pypadre.pod.repository.i_repository import IExecutionRepository
 from pypadre.pod.service.execution_service import ExecutionService
 

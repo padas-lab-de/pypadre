@@ -1,6 +1,7 @@
 from _py_abc import ABCMeta
-from typing import List
+from typing import List, Type
 
+from pypadre.core.events.events import init_class_signals, Signaler, connect
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable
 
 
@@ -8,7 +9,7 @@ class BaseService:
     """ Base class for apps containing backends. """
     __metaclass__ = ABCMeta
 
-    def __init__(self, backends, **kwargs):
+    def __init__(self, backends, *, model_clz: Type[Signaler], **kwargs):
         b = backends if isinstance(backends, List) else [backends]
         self._backends = [] if backends is None else b
 
@@ -49,7 +50,7 @@ class BaseService:
         """
         for b in self.backends:
             backend: IStoreableRepository = b
-            backend.put(obj, merge=True)
+            backend.put(obj, allow_overwrite=True, merge=True)
 
     def get(self, id):
         """

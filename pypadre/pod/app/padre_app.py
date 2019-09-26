@@ -21,32 +21,28 @@ from typing import List
 
 from jsonschema import ValidationError
 
-from pypadre.app.base_app import IBaseApp
-from pypadre.app.config.padre_config import PadreConfig
-from pypadre.app.dataset.dataset_app import DatasetApp
-from pypadre.app.project.execution_app import ExecutionApp
-from pypadre.app.project.experiment_app import ExperimentApp
-from pypadre.app.project.project_app import ProjectApp
-from pypadre.app.project.run_app import RunApp
-from pypadre.app.project.split_app import SplitApp
-# from pypadre.pod.backend.http import PadreHttpBackend
-from pypadre.core.events import add_logger
-from pypadre.core.events.events import Signals
+from pypadre.pod.app.base_app import IBaseApp
+from pypadre.pod.app.config.padre_config import PadreConfig
+from pypadre.pod.app.dataset.dataset_app import DatasetApp
+from pypadre.pod.app.project.execution_app import ExecutionApp
+from pypadre.pod.app.project.experiment_app import ExperimentApp
+from pypadre.pod.app.project.project_app import ProjectApp
+from pypadre.pod.app.project.run_app import RunApp
+from pypadre.pod.app.project.split_app import SplitApp
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
 from pypadre.pod.backend.file import PadreFileBackend
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.base import PadreLogger
 
-logger = PadreLogger(app=None)
-add_logger(logger=logger)
+# logger = PadreLogger(app=None)
+# add_logger(logger=logger)
 
 
-class PadreFactory:
+class PadreAppFactory:
 
     @staticmethod
     def get(config=PadreConfig()):
-        backends = PadreFactory._parse_backends(config)
+        backends = PadreAppFactory._parse_backends(config)
         return PadreApp(backends=backends)
 
     @staticmethod
@@ -57,7 +53,8 @@ class PadreFactory:
         for b in _backends:
             if 'base_url' in b:
                 # TODO check for validity
-                backends.append(PadreHttpBackend(b))
+                pass
+                # backends.append(PadreHttpBackend(b))
             elif 'root_dir' in b:
                 # TODO check for validity
                 backends.append(PadreFileBackend(b))
@@ -89,7 +86,6 @@ class PadreApp(IBaseApp):
         self._split_app = SplitApp(self, [backend.split for backend in backends] if backends is not None else None)
         #self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
 
-        self.signals = Signals()
 
     @property
     def backends(self):

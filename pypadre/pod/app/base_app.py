@@ -1,12 +1,17 @@
 from abc import ABCMeta, abstractmethod
 
 from pypadre.core.base import ChildEntity
+from pypadre.core.util.inheritance import SuperStop
 from pypadre.pod.service.base_service import BaseService
 
 
-class IBaseApp:
+class IBaseApp(SuperStop):
     """ Base class for apps containing backends. """
     __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @abstractmethod
     def has_print(self) -> bool:

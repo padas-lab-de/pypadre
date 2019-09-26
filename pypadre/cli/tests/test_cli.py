@@ -4,7 +4,7 @@ import unittest
 
 from click.testing import CliRunner
 
-from pypadre.app import PadreConfig
+from pypadre.pod.app import PadreConfig
 from pypadre.cli.pypadre import pypadre
 
 

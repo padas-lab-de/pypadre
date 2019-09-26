@@ -526,7 +526,7 @@
 #         :return: Padre compatible dataset
 #         :rtype: <class 'pypadre.datasets.Dataset'>
 #         """
-#         from pypadre.app.padre_app import p_app
+#         from pypadre.pod.app.padre_app import p_app
 #         path = os.path.expanduser(p_app.config.get("root_dir", "LOCAL BACKEND")) + '/temp/openml'
 #         oml.config.apikey = p_app.config.get("oml_key", "GENERAL")
 #         oml.config.cache_directory = path

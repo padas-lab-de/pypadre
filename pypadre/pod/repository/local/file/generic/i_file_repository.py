@@ -96,8 +96,8 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         # Create or overwrite folder
         if os.path.exists(directory):
             if not allow_overwrite:
-                raise ValueError("Object path %s already exists." +
-                             "Overwriting not explicitly allowed. Set allow_overwrite=True".format(obj))
+                raise ValueError("Object path %s already exists.".format(obj) +
+                                 "Overwriting not explicitly allowed. Set allow_overwrite=True")
             shutil.rmtree(directory)
         os.makedirs(directory)
 
@@ -162,7 +162,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
     def find_dirs(self, matcher, strip_postfix=""):
         # TODO postfix stripping?
         dirs = self._get_all_dirs()
-        #dirs = [f for f in os.listdir(self.root_dir) if f.endswith(strip_postfix)]
+        # dirs = [f for f in os.listdir(self.root_dir) if f.endswith(strip_postfix)]
 
         if matcher is not None:
             rid = re.compile(matcher)
@@ -207,6 +207,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         :param file: File object
         :return: Function to load the file data
         """
+
         def __load_data():
             if not os.path.exists(os.path.join(dir, file.name)):
                 # TODO Raise exception
@@ -214,6 +215,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
             with open(os.path.join(dir, file.name), 'rb') as f:
                 data = file.serializer.deserialize(f.read())
             return data
+
         return __load_data
 
     def write_file(self, dir, file: File, target, mode="w"):
@@ -245,8 +247,12 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         """
         pass
 
+    @classmethod
+    def has_placeholder(cls):
+        return cls.placeholder() is not None
+
     def replace_placeholder(self, obj, path):
-        if not hasattr(self, '_placeholder'):
+        if not self.has_placeholder():
             return path
         return path.replace(self.placeholder(), self.to_folder_name(obj))
 
@@ -262,14 +268,19 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 class IChildFileRepository(IFileRepository, ChildEntity):
 
     @abstractmethod
-    def __init__(self, *, parent: IStoreableRepository, name: str, backend: IPadreBackend, **kwargs):
-        super().__init__(backend=backend, name=name, parent=parent, root_dir=os.path.join(parent.root_dir, name), **kwargs)
+    def __init__(self, *, parent: IFileRepository, name: str, backend: IPadreBackend, **kwargs):
+        if parent.has_placeholder():
+            rootdir = os.path.join(parent.root_dir, parent.placeholder(), name)
+        else:
+            rootdir = os.path.join(parent.root_dir, name)
+        super().__init__(backend=backend, name=name, parent=parent, root_dir=rootdir,
+                         **kwargs)
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
 
         # Put parent if it is not already existing
         if self.parent is not None and isinstance(obj, ChildEntity):
-            if not self.parent.exists(obj.parent.id()):
+            if not self.parent.exists(obj.parent.id):
                 self.parent.put(obj.parent)
 
         super().put(obj, *args, merge=merge, allow_overwrite=allow_overwrite, **kwargs)
@@ -288,6 +299,7 @@ class IChildFileRepository(IFileRepository, ChildEntity):
         # If no placeholder is present we can call the parent placeholder replacement function
         elif hasattr(self.parent, 'replace_placeholder'):
             return self.parent.replace_placeholder(obj.parent, path)
+        return path
 
     def get_parent_dir(self, directory):
         return os.path.abspath(os.path.join(directory, '../..'))

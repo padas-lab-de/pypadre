@@ -89,10 +89,11 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
     DATASET_ID = "dataset_id"
 
     # TODO non-metadata input should be a parameter
-    def __init__(self, project: Project=None, dataset: Dataset=None, pipeline: Pipeline=None, stdout=True, **kwargs):
+    def __init__(self, project: Project=None, dataset: Dataset=None, pipeline: Pipeline=None, metadata=None, **kwargs):
+        if metadata is None:
+            metadata = {}
         super().__init__(parent=project, schema_resource_name="experiment.json",
-                                metadata={**kwargs, **{self.PROJECT_ID: project.id if project else None, self.DATASET_ID: dataset.id if dataset else None, "pipeline": pipeline}})
-
+                                metadata={**metadata, **{self.PROJECT_ID: project.id if project else None, self.DATASET_ID: dataset.id if dataset else None}}, **kwargs)
         # Variables
         self._dataset = dataset
         self._pipeline = pipeline
