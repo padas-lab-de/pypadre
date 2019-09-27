@@ -3,10 +3,12 @@ from copy import deepcopy
 from typing import cast
 
 import numpy as np
+from padre.PaDREOntology import PaDREOntology
 from sklearn.pipeline import Pipeline
 
 from pypadre.binding.visitors.scikit import SciKitVisitor
 from pypadre.core.base import exp_events, phases
+from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
@@ -63,14 +65,14 @@ class SKLearnEstimator(EstimatorComponent):
             score = self._pipeline.score(split.train_features, y)
             self.send_stop(phase=f"sklearn.scoring.trainset")
             # TODO use other signals?
-            self.send_log(keys=['training score'], values=[score], message="TODO")
+            self.send_log(keys=['training score'], values=[score], message="Logging the training score")
 
             if split.has_valset():
                 y = split.val_targets.reshape((len(split.val_targets),))
                 self.send_start(phase='sklearn.scoring.valset')
                 score = self._pipeline.score(split.val_features, y)
                 self.send_stop(phase='sklearn.scoring.valset')
-                self.send_log(keys=['validation score'], values=[score], message="TODO")
+                self.send_log(keys=['validation score'], values=[score], message="Logging the validation score")
         return Training(split=split, model=self._pipeline, **kwargs)
 
     def hash(self):
@@ -95,6 +97,10 @@ class SKLearnEstimator(EstimatorComponent):
 
 
 class SKLearnEvaluator(EvaluatorComponent):
+    """
+    This class takes the output of an sklearn workflow which represents the fitted model along with the corresponding split,
+    report and save all possible results that allows for common/custom metric computations.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -109,114 +115,108 @@ class SKLearnEvaluator(EvaluatorComponent):
 
         # TODO CLEANUP. METRICS SHOULDN'T BE CALCULATED HERE BUT CALCULATED BY INDEPENDENT METRICS MEASURES
         # TODO still allow for custom metrics which are added by using sklearn here?
-        def is_inferencer():
-            return getattr(model, "predict", None)
 
-        def is_scorer():
-            return getattr(model, "score", None)
+        train_idx = split.train_idx
+        test_idx = split.test_idx
 
-        def is_transformer():
-            return getattr(model, "transform", None)
+        self.send_error(message="Test set is missing.", condition=not split.has_testset())
 
-        if is_inferencer() and split.has_testset():
-            train_idx = split.train_idx.tolist()
-            test_idx = split.test_idx.tolist()
+        self.send_start(phase='sklearn.' + phases.inferencing)
+        train_idx = train_idx.tolist()
+        test_idx = test_idx.tolist()
+
+        y_predicted_probabilities = None
+        y = split.test_targets.reshape((len(split.test_targets),))
+
+        y_predicted = np.asarray(model.predict(split.test_features))
+        self.send_stop(phase='sklearn.' + phases.inferencing)
+
+        results = {'predicted': y_predicted.tolist(),
+                   'truth': y.tolist()}
+
+        modified_results = dict()
+
+        self.send_log(mode='probability', pred=y_predicted, truth=y,
+                      message="Checking if the workflow supports probability computation or not.")
+
+        # Check if the final estimator has an attribute called probability and if it has check if it is True
+        compute_probabilities = True
+        if hasattr(model.steps[-1][1], 'probability') and not model.steps[-1][1].probability:
+            compute_probabilities = False
+
+        # log the probabilities of the result too if the method is present
+
+        final_estimator_name = model.steps[-1][0]
+        if name_mappings.get(final_estimator_name) is None:
+            # If estimator name is not present in name mappings check whether it is present in alternate names
+            estimator = alternate_name_mappings.get(str(final_estimator_name).lower())
+            final_estimator_type = name_mappings.get(estimator).get('type')
         else:
-            train_idx = split.train_idx
-            test_idx = split.test_idx
+            final_estimator_type = name_mappings.get(model.steps[-1][0]).get('type')
 
-        if split.has_testset() and is_inferencer():
-            y_predicted_probabilities = None
-            y = split.test_targets.reshape((len(split.test_targets),))
-            # todo: check if we can estimate probabilities, scores or hard decisions
-            # this also changes the result type to be written.
-            # if possible, we will always write the "best" result type, i.e. which retains most information (
-            # if
-            y_predicted = np.asarray(model.predict(split.test_features))
-            results = {'predicted': y_predicted.tolist(),
-                       'truth': y.tolist()}
+        self.send_error(condition=final_estimator_type is None,
+                        message='Final estimator could not be found in names or alternate names')
 
-            modified_results = dict()
+        if final_estimator_type == 'Classification' or \
+                (final_estimator_type == 'Neural Network' and np.all(np.mod(y_predicted, 1)) == 0):
+            results['type'] = PaDREOntology.SubClassesExperiment.Classification.value
 
-            self.send_log(mode='probability', pred=y_predicted, truth=y, message="TODO")
-
-            # Check if the final estimator has an attribute called probability and if it has check if it is True
-            # SVC has such an attribute
-            compute_probabilities = True
-            if hasattr(model.steps[-1][1], 'probability') and not model.steps[-1][1].probability:
-                compute_probabilities = False
-
-            # log the probabilities of the result too if the method is present
-            final_estimator_type = None
-            final_estimator_name = model.steps[-1][0]
-            if name_mappings.get(final_estimator_name) is None:
-                # If estimator name is not present in name mappings check whether it is present in alternate names
-                estimator = alternate_name_mappings.get(str(final_estimator_name).lower())
-                final_estimator_type = name_mappings.get(estimator).get('type')
-            else:
-                final_estimator_type = name_mappings.get(model.steps[-1][0]).get('type')
-
-            self.send_error(condition=final_estimator_type is None, message='Final estimator could not be found in names or alternate names')
-
-            if final_estimator_type == 'Classification' or \
-                    (final_estimator_type == 'Neural Network' and np.all(np.mod(y_predicted, 1)) == 0):
-                results['type'] = 'classification'
-
-                if compute_probabilities:
-                    y_predicted_probabilities = model.predict_proba(split.test_features)
-                    self.send_log(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities, message="TODO")
-                    results['probabilities'] = y_predicted_probabilities.tolist()
-            else:
-                results['type'] = 'regression'
-
-            if is_scorer():
-                score = model.score(data.test_features, y, )
-                self.send_log(keys=["test score"], values=[score], message="TODO")
-
-            results['dataset'] = split.dataset.name
-            results['train_idx'] = train_idx
-            results['test_idx'] = test_idx
-            results['training_sample_count'] = len(train_idx)
-            results['testing_sample_count'] = len(test_idx)
-            results['split_num'] = split.number
-
-            if y_predicted_probabilities is None:
-                for idx in range(0, len(test_idx)):
-                    prop = dict()
-                    prop['truth'] = int(y[idx])
-                    prop['predicted'] = int(y_predicted[idx])
-                    prop['probabilities'] = dict()
-                    modified_results[test_idx[idx]] = deepcopy(prop)
-
-            else:
-                for idx in range(0, len(test_idx)):
-                    prop = dict()
-                    prop['truth'] = int(y[idx])
-                    prop['probabilities'] = y_predicted_probabilities[idx].tolist()
-                    prop['predicted'] = int(y_predicted[idx])
-                    modified_results[test_idx[idx]] = deepcopy(prop)
-
-            results['predictions'] = modified_results
-
-            estimator_parameters = split.run.execution.experiment.hyperparameters()
-
-            # Save the hyperparameters to the workflow hyperparameters variable
-            for curr_estimator in estimator_parameters:
-                parameters = estimator_parameters.get(curr_estimator).get('hyper_parameters').get(
-                    'model_parameters')
-                param_value_dict = dict()
-                for curr_param in parameters:
-                    param_value_dict[curr_param] = parameters.get(curr_param).get('value')
-
-                estimator_name = estimator_parameters.get(curr_estimator).get('algorithm').get('value')
-                self._hyperparameters[estimator_name] = deepcopy(param_value_dict)
-            return Evaluation(training=data, metadata=results, **kwargs)
+            if compute_probabilities:
+                y_predicted_probabilities = model.predict_proba(split.test_features)
+                self.send_log(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
+                              message="Computing and saving the prediction probabilities")
+                results['probabilities'] = y_predicted_probabilities.tolist()
         else:
-            raise NotImplementedError
+            results['type'] = PaDREOntology.SubClassesExperiment.Regression.value
+
+        if self.is_scorer(model):
+            self.send_start(phase=f"sklearn.scoring.testset")
+            score = model.score(split.test_features, y, )
+            self.send_stop(phase=f"sklearn.scoring.testset")
+            self.send_log(keys=["test score"], values=[score], message="Logging the testing score")
+
+        results['dataset'] = split.dataset.name
+        results['train_idx'] = train_idx
+        results['test_idx'] = test_idx
+        results['training_sample_count'] = len(train_idx)
+        results['testing_sample_count'] = len(test_idx)
+        results['split_num'] = split.number
+
+        # if y_predicted_probabilities is None:
+        #     for idx in range(len(test_idx)):
+        #         prop = dict()
+        #         prop['truth'] = int(y[idx])
+        #         prop['predicted'] = int(y_predicted[idx])
+        #         prop['probabilities'] = dict()
+        #         modified_results[test_idx[idx]] = deepcopy(prop)
+        #
+        # else:
+        #     for idx in range(len(test_idx)):
+        #         prop = dict()
+        #         prop['truth'] = int(y[idx])
+        #         prop['probabilities'] = y_predicted_probabilities[idx].tolist()
+        #         prop['predicted'] = int(y_predicted[idx])
+        #         modified_results[test_idx[idx]] = deepcopy(prop)
+
+        # results['predictions'] = modified_results
+
+        return Evaluation(training=data, metadata=results, **kwargs)
+
+    @staticmethod
+    def is_inferencer(model=None):
+        return getattr(model, 'predict', None)
+
+    @staticmethod
+    def is_scorer(model=None):
+        return getattr(model, 'score', None)
+
+    @staticmethod
+    def is_transformer(model=None):
+        return getattr(model, 'transform', None)
 
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
-    def __init__(self, *, splitting: Callable=None, pipeline: Pipeline, **kwargs):
+    def __init__(self, *, splitting: Callable = None, pipeline: Pipeline, **kwargs):
         # TODO kwargs passing
         sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))
         sk_learn_evaluator = SKLearnEvaluator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))

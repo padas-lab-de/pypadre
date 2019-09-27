@@ -212,7 +212,7 @@ class LocalBackends(unittest.TestCase):
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
-
+        self.tearDown()
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
 
@@ -226,7 +226,8 @@ class LocalBackends(unittest.TestCase):
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = Experiment(dataset=dataset.pop(), project=project, pipeline=SKLearnPipeline(pipeline=create_test_pipeline()))
+        experiment = Experiment(dataset=dataset.pop(), project=project,
+                                pipeline=SKLearnPipeline(pipeline=create_test_pipeline()))
 
         def log(sender, *, message, log_level="", **kwargs):
             if log_level is "":

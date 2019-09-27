@@ -9,7 +9,7 @@ from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepos
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
 
 # CONFIG_FILE = File("experiment.json", JSonSerializer)
-WORKFLOW_FILE = File("workflow.json", PickleSerializer)
+WORKFLOW_FILE = File("workflow.pickle", PickleSerializer)
 META_FILE = File("metadata.json", JSonSerializer)
 
 NAME = 'experiments'

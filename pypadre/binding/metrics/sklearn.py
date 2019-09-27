@@ -85,7 +85,7 @@ class ClassificationMetrics(MeasureMeter):
         tp = 0
         column_sum = np.sum(confusion_matrix, axis=0)
         row_sum = np.sum(confusion_matrix, axis=1)
-        for idx in range(0, len(confusion_matrix)):
+        for idx in range(len(confusion_matrix)):
             tp = tp + confusion_matrix[idx][idx]
             # Removes the 0/0 error
             precision[idx] = np.divide(confusion_matrix[idx][idx], column_sum[idx] + int(column_sum[idx] == 0))
