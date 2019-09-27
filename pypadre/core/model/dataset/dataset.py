@@ -8,6 +8,7 @@ Module containing python classes for managing data sets
 import networkx as nx
 import numpy as np
 import pandas as pd
+from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.core.base import MetadataEntity
@@ -15,6 +16,7 @@ from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
+from pypadre.core.model.generic.i_model_mixins import IStoreable
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
 
@@ -29,7 +31,7 @@ class _Formats(_Const):
 formats = _Formats()
 
 
-class Dataset(MetadataEntity):
+class Dataset(IStoreable, MetadataEntity):
 
     def __init__(self, **kwargs):
         """
@@ -39,27 +41,19 @@ class Dataset(MetadataEntity):
         """
 
         # Add defaults
-        defaults = {"name": "", "version": "1.0", "description": "", "originalSource": "",
-                    "type": "", "published": False, "attributes": []}
-
-        # Merge all named parameters and kwargs together for validation
-        # argspec = inspect.getargvalues(inspect.currentframe())
-        # metadata = {**{key: argspec.locals[key] for key in argspec.args if key is not "self"}, **kwargs}
+        defaults = {"name": "default_name", "version": "1.0", "description": "", "originalSource": "",
+                    "type": PaDREOntology.SubClassesDataset.Multivariat.value, "published": False, "attributes": [], "targets": []}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs}
+        metadata = {**defaults, **kwargs.pop("metadata", {})}
 
         super().__init__(schema_resource_name='dataset.json', metadata=metadata, **kwargs)
 
         self._binaries = dict()
 
     @property
-    def metadata(self):
-        """
-        returns the metadata object associated with this dataset
-        :return:
-        """
-        return self._metadata
+    def name(self):
+        return self.metadata["name"]
 
     @property
     def type(self):

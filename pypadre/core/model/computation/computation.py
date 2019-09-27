@@ -1,24 +1,26 @@
-from pypadre.core.base import MetadataEntity
-from pypadre.core.events.events import signals
-from pypadre.core.model.execution import Execution
+from pypadre.core.base import MetadataEntity, ChildEntity
+from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_model_mixins import IProgressable, IStoreable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Computation(IStoreable, IProgressable, MetadataEntity, Tablefyable):
+class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablefyable):
 
     COMPONENT_ID = "component_id"
-    EXECUTION_ID = "execution_id"
+    COMPONENT_CLASS = "component_class"
+    RUN_ID = "run_id"
 
     @classmethod
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, *, component, execution: Execution, result, **kwargs):
-        super().__init__(metadata={**{self.COMPONENT_ID: component.id, self.EXECUTION_ID: execution.id}, **kwargs.pop("metadata", {})}, **kwargs)
+    def __init__(self, *, component, run: Run, result, **kwargs):
+        super().__init__(parent=run, metadata={**{self.COMPONENT_ID: component.id,
+                                                  self.COMPONENT_CLASS: str(component.__class__),
+                                                  self.RUN_ID: run.id}, **kwargs.pop("metadata", {})}, **kwargs)
         self._component = component
-        self._execution = execution
         self._result = result
+        self.send_put()
 
     # TODO Overwrite for no schema validation for now
     def validate(self, **kwargs):
@@ -29,8 +31,8 @@ class Computation(IStoreable, IProgressable, MetadataEntity, Tablefyable):
         return self._component
 
     @property
-    def execution(self):
-        return self._execution
+    def run(self):
+        return self.parent
 
     @property
     def result(self):

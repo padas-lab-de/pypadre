@@ -6,7 +6,7 @@ from pypadre.pod.repository.serializer.serialiser import JSonSerializer
 
 NAME = 'executions'
 
-CONFIG_FILE = File("experiment.json", JSonSerializer)
+# CONFIG_FILE = File("experiment.json", JSonSerializer)
 META_FILE = File("metadata.json", JSonSerializer)
 
 
@@ -34,11 +34,11 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         experiment = self.backend.experiment.get(metadata.get("experiment_id"))
-        return Execution(experiment=experiment, **metadata)
+        return Execution(experiment=experiment, metadata=metadata)
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         execution = obj
         self.write_file(directory, META_FILE, execution.metadata)
 
         # The code for each execution changes. So it is necessary to write the experiment.json file too.
-        self.write_file(directory, CONFIG_FILE, execution.config)
+        # self.write_file(directory, CONFIG_FILE, execution.config)

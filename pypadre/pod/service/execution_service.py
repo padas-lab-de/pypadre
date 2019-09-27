@@ -14,10 +14,12 @@ class ExecutionService(BaseService):
     def __init__(self, backends: List[IExecutionRepository], **kwargs):
         super().__init__(model_clz=Execution, backends=backends, **kwargs)
 
-    @connect(Execution)
-    def put(self, obj):
-        super().put(obj)
+        @connect(Execution)
+        def put(obj, **kwargs):
+            self.put(obj)
+        self.save_signal_fn(put)
 
-    @connect(Execution)
-    def delete(self, obj):
-        super().delete(obj)
+        @connect(Execution)
+        def delete(obj, **kwargs):
+            self.delete(obj)
+        self.save_signal_fn(delete)

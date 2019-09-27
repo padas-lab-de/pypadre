@@ -38,9 +38,10 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
 
         metadata = self.get_file(directory, META_FILE)
 
-        attributes = [Attribute(**a) for a in metadata.pop("attributes", {})]
+        attributes = [Attribute(**a) for a in metadata.get("attributes", {})]
+        metadata["attributes"] = attributes
 
-        ds = Dataset(attributes=attributes, **metadata)
+        ds = Dataset(metadata=metadata)
 
         if self.has_file(os.path.join(self.root_dir, directory), DATA_FILE):
             # TODO: Implement lazy loading of the dataset

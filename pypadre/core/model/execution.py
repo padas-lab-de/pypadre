@@ -1,16 +1,13 @@
-from pypadre.core.base import MetadataEntity
+from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.events.events import signals
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, Tablefyable):
+class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity, Tablefyable):
     """ A execution should save data about the running env and the version of the code on which it was run """
 
-    def _execute(self, *args, **kwargs):
-        from pypadre.core.model.computation.run import Run
-        run = Run(execution=self)
-        self.experiment.pipeline.execute(run=run, data=self.experiment.dataset, execution=self, **kwargs)
+    EXPERIMENT_ID = "experiment_id"
 
     @classmethod
     def _tablefy_register_columns(cls):
@@ -18,12 +15,21 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, Tablefy
         cls.tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
     def __init__(self, experiment, codehash=None, command=None, **kwargs):
-        metadata = {"id": codehash, **kwargs, "command": command, "codehash": codehash}
-        super().__init__(schema_resource_name="execution.json", metadata=metadata, **kwargs)
+        # Add defaults
+        defaults = {}
 
-        self._experiment = experiment
+        # Merge defaults
+        metadata = {**defaults, **{self.EXPERIMENT_ID: experiment.id}, **kwargs.pop("metadata", {})}
+
+        super().__init__(parent=experiment, schema_resource_name="execution.json", metadata=metadata, **kwargs)
+
         self._hash = codehash
         self._command = command
+
+    def _execute(self, *args, **kwargs):
+        from pypadre.core.model.computation.run import Run
+        run = Run(execution=self)
+        self.experiment.pipeline.execute(run=run, data=self.experiment.dataset, execution=self, **kwargs)
 
     @property
     def hash(self):
@@ -35,4 +41,4 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, Tablefy
 
     @property
     def experiment(self):
-        return self._experiment
+        return self.parent

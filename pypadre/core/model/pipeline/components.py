@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from types import GeneratorType
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Iterable
 
 from pypadre.core.base import MetadataEntity
+from pypadre.core.model.computation.run import Run
 from pypadre.core.model.computation.training import Training
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.execution import Execution
@@ -37,12 +38,11 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute(self, *, execution: Execution, data, **kwargs):
+    def _execute(self, *, run: Run, data, **kwargs):
         kwargs["component"] = self
-        results = self._execute_(data=data, execution=execution, **kwargs)
-        # TODO work with generators
+        results = self._execute_(data=data, run=run, **kwargs)
         if not isinstance(results, Computation):
-            results = Computation(component=self, execution=execution, result=results)
+            results = Computation(component=self, run=run, result=results)
         # TODO Trigger component result event for metrics and visualization
         return results
 
@@ -63,8 +63,8 @@ class BranchingComponent(PipelineComponent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def _execute(self, *, execution: Execution, data, **kwargs):
-        computation = super()._execute(execution=execution, data=data, **kwargs)
+    def _execute(self, *, run: Run, data, **kwargs):
+        computation = super()._execute(run=run, data=data, **kwargs)
         if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
         return computation
@@ -112,8 +112,8 @@ class SplitComponent(BranchingComponent, PipelineComponent):
     def __init__(self, name="splitter", **kwargs):
         super().__init__(name=name, **kwargs)
 
-    # def _execute(self, *, data, **kwargs):
-    #     return _unpack_computation(Split, super()._execute(data=data, **kwargs))
+    def _execute(self, *, data, **kwargs):
+        return super()._execute(data=data, **kwargs)
 
 
 class EstimatorComponent(PipelineComponent):

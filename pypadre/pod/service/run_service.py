@@ -14,10 +14,12 @@ class RunService(BaseService):
     def __init__(self, backends: List[IRunRepository], **kwargs):
         super().__init__(model_clz=Run, backends=backends, **kwargs)
 
-    @connect(Run)
-    def put(self, obj):
-        super().put(obj)
+        @connect(Run)
+        def put(obj, **kwargs):
+            self.put(obj)
+        self.save_signal_fn(put)
 
-    @connect(Run)
-    def delete(self, obj):
-        super().delete(obj)
+        @connect(Run)
+        def delete(obj, **kwargs):
+            self.delete(obj)
+        self.save_signal_fn(delete)

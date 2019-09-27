@@ -14,10 +14,12 @@ class DatasetService(BaseService):
     def __init__(self, backends: List[IDatasetRepository], **kwargs):
         super().__init__(model_clz=Dataset, backends=backends, **kwargs)
 
-    @connect(Dataset)
-    def put(self, obj):
-        super().put(obj)
+        @connect(Dataset)
+        def put(obj, **kwargs):
+            self.put(obj)
+        self.save_signal_fn(put)
 
-    @connect(Dataset)
-    def delete(self, obj):
-        super().delete(obj)
+        @connect(Dataset)
+        def delete(obj, **kwargs):
+            self.delete(obj)
+        self.save_signal_fn(delete)

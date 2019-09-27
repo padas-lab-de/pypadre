@@ -3,6 +3,7 @@ import shutil
 import unittest
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.core.events.events import connect_base_signal, LOG_EVENT
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
 
@@ -211,13 +212,8 @@ class LocalBackends(unittest.TestCase):
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
-        from pypadre.pod.base import PadreLogger
-        from pypadre.core.events import add_logger
 
         self.app.datasets.load_defaults()
-        logger = PadreLogger(self.app)
-        add_logger(logger=logger)
-
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
 
         def create_test_pipeline():
@@ -230,12 +226,22 @@ class LocalBackends(unittest.TestCase):
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = Experiment(name="Test Experiment SVM",
-                                description="Testing Support Vector Machines via SKLearn Pipeline",
-                                dataset=dataset[0],
-                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+        experiment = Experiment(dataset=dataset.pop(), project=project, pipeline=SKLearnPipeline(pipeline=create_test_pipeline()))
+
+        def log(sender, *, message, log_level="", **kwargs):
+            if log_level is "":
+                print(str(sender) + ": " + message)
+            else:
+                print(log_level.upper() + ": " + str(sender) + ": " + message)
+
+        def log_event(sender, *, signal, **kwargs):
+            log(sender, message="Triggered " + str(signal.name) + " with " + str(kwargs))
+
+        connect_base_signal("log", log)
+        connect_base_signal(LOG_EVENT, log_event)
 
         experiment.execute()
+        experiments = self.app.experiments.list()
 
 
 if __name__ == '__main__':

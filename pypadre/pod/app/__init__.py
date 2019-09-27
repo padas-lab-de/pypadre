@@ -6,5 +6,3 @@ The package contains
 
 from .padre_app import PadreApp
 from .padre_app import PadreConfig
-from .padre_app import p_app
-

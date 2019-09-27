@@ -35,6 +35,14 @@ def _merge_dict_class_vars(clz, clz_var:str, limit_clz):
     return var
 
 
+def _merge_dict_class_vars(clz, clz_var:str, limit_clz):
+    var = dict()
+    for pclz in clz.mro():
+        if issubclass(pclz, limit_clz) and hasattr(pclz, clz_var):
+            var = {**var, **getattr(pclz, clz_var)}
+    return var
+
+
 def is_jsonable(x):
     try:
         json.dumps(x)

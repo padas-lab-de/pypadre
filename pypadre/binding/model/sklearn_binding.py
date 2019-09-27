@@ -104,10 +104,11 @@ class SKLearnEvaluator(EvaluatorComponent):
         return self.__hash__()
 
     def _execute_(self, *, data, **kwargs):
-        training = data.training
-        model = training.model
-        split = training.split
+        model = data.model
+        split = data.split
 
+        # TODO CLEANUP. METRICS SHOULDN'T BE CALCULATED HERE BUT CALCULATED BY INDEPENDENT METRICS MEASURES
+        # TODO still allow for custom metrics which are added by using sklearn here?
         def is_inferencer():
             return getattr(model, "predict", None)
 
@@ -124,7 +125,7 @@ class SKLearnEvaluator(EvaluatorComponent):
             train_idx = split.train_idx
             test_idx = split.test_idx
 
-        if split.has_testset() and self.is_inferencer():
+        if split.has_testset() and is_inferencer():
             y_predicted_probabilities = None
             y = split.test_targets.reshape((len(split.test_targets),))
             # todo: check if we can estimate probabilities, scores or hard decisions
@@ -209,7 +210,7 @@ class SKLearnEvaluator(EvaluatorComponent):
 
                 estimator_name = estimator_parameters.get(curr_estimator).get('algorithm').get('value')
                 self._hyperparameters[estimator_name] = deepcopy(param_value_dict)
-            return Evaluation(training=training, metadata=results, **kwargs)
+            return Evaluation(training=data, metadata=results, **kwargs)
         else:
             raise NotImplementedError
 

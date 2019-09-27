@@ -6,6 +6,7 @@ import numpy as np
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.events.events import connect_base_signal, LOG_EVENT
 from pypadre.core.model.experiment import Experiment
+from pypadre.core.model.pipeline.components import SplitComponent
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 
 test_numpy_array = np.array([[1.0, "A", 2],

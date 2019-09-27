@@ -18,7 +18,12 @@ class Split(Computation):
         self._keep_splits = kwargs.pop("keep_splits", False)
         self._splits = []
         self._id = kwargs.pop("split_id", None)
-        super().__init__(schema_resource_name="split.json", result=self, metadata=kwargs.pop("metadata", {}), execution=run.execution, **kwargs)
+        # Add defaults
+        defaults = {}
+
+        # Merge defaults
+        metadata = {**defaults, **kwargs.pop("metadata", {})}
+        super().__init__(schema_resource_name="split.json", result=self, metadata=metadata, run=run, execution=run.execution, **kwargs)
 
         if self._id is None:
             self._id = uuid.uuid4()
@@ -26,10 +31,6 @@ class Split(Computation):
     @property
     def number(self):
         return self._num
-
-    @property
-    def execution(self):
-        return self._execution
 
     def has_testset(self):
         return self._test_idx is not None and len(self._test_idx) > 0
@@ -54,7 +55,7 @@ class Split(Computation):
 
     @property
     def dataset(self):
-        return self._execution.experiment.dataset
+        return self.run.execution.experiment.dataset
 
     @property
     def train_features(self):

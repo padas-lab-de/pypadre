@@ -1,25 +1,26 @@
 from typing import List
 
 from pypadre.core.events.events import connect
+from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.split.split import Split
-from pypadre.pod.repository.i_repository import ISplitRepository
+from pypadre.pod.repository.i_repository import ISplitRepository, IComputationRepository
 from pypadre.pod.service.base_service import BaseService
 
 
-class SplitService(BaseService):
+class ComputationService(BaseService):
     """
     Class providing commands for managing datasets.
     """
 
-    def __init__(self, backends: List[ISplitRepository], **kwargs):
+    def __init__(self, backends: List[IComputationRepository], **kwargs):
         super().__init__(model_clz=Split, backends=backends, **kwargs)
 
-        @connect(Split)
+        @connect(Computation)
         def put(obj, **kwargs):
             self.put(obj)
         self.save_signal_fn(put)
 
-        @connect(Split)
+        @connect(Computation)
         def delete(obj, **kwargs):
             self.delete(obj)
         self.save_signal_fn(delete)

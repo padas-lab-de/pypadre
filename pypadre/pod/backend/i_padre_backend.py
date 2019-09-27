@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
 from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
+from pypadre.pod.repository.i_repository import IComputationRepository
 
 
 class IPadreBackend(ILogRepository):
@@ -53,4 +54,9 @@ class IPadreBackend(ILogRepository):
     @property
     @abstractmethod
     def split(self) -> ISplitRepository:
+        pass
+
+    @property
+    @abstractmethod
+    def computation(self) -> IComputationRepository:
         pass

@@ -70,7 +70,7 @@ class IProgressableRepository(SuperStop):
         pass
 
 
-class ILogRepository:
+class ILogRepository(SuperStop):
     """ This is the interface for all backends which are able to log interactions into some kind of log store """
     __metaclass__ = ABCMeta
 

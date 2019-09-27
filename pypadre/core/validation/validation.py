@@ -40,7 +40,9 @@ class Validateable(ILoggable):
 
     # noinspection PyBroadException
     def __init__(self, schema=None, schema_path=None, schema_url=None,
-                 schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None, *args, **kwargs):
+                 schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None, metadata=None, *args, **kwargs):
+        if metadata is None:
+            metadata = {}
         # Load schema externally
         super().__init__(*args, **kwargs)
         if schema is None:
@@ -73,7 +75,7 @@ class Validateable(ILoggable):
 
         self._schema = schema
         # Fail if no schema is provided
-        self.validate(**kwargs)
+        self.validate(metadata=metadata, **kwargs)
 
     def validate(self, **kwargs):
         """
@@ -81,16 +83,16 @@ class Validateable(ILoggable):
         :param kwargs:
         :return:
         """
-        return self._validate_parameters(kwargs)
+        return self._validate_parameters(kwargs.pop("metadata", {}))
 
-    def _validate_parameters(self, options):
+    def _validate_parameters(self, metadata):
         if self._schema is None:
             # TODO make this an error as soon as all validateables are implemented
             self.send_warn(message="A validateable object needs a schema to validate to: " + str(self))
             # warnings.warn("A validateable object needs a schema to validate to: " + str(self), FutureWarning)
             #raise ValueError("A validateable object needs a schema to validate to.")
         else:
-            validate(options, self._schema, cls=schema_validator)
+            validate(metadata, self._schema, cls=schema_validator)
 
 
 class ValidationErrorHandler:

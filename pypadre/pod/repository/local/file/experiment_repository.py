@@ -50,7 +50,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
 
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
 
-        ex = Experiment(project=project, dataset=dataset, **metadata)
+        ex = Experiment(project=project, dataset=dataset, metadata=metadata)
         return ex
 
     def put_progress(self, experiment, **kwargs):

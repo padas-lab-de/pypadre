@@ -41,7 +41,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def _execute_successors(self, node, *, data, execution: Execution, **kwargs):
         successors = self.successors(node)
         for successor in successors:
-            successor.execute(execution=execution, data=data, **kwargs)
+            self._execute_(successor, data=data, execution=execution, **kwargs)
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)

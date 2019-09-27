@@ -100,9 +100,9 @@ class Splitter:
                 train, test = idx[:n_tr], idx[n_tr:]
                 if self._val_ratio > 0:  # create a validation set out of the test set
                     n_v = int(len(train) * self._val_ratio)
-                    yield Split(run, ++num, train[:n_v], test, train[n_v:], component=component)
+                    yield Split(run=run, num=++num, train_idx=train[:n_v], test_idx=test, val_idx=train[n_v:], component=component)
                 else:
-                    yield Split(run, ++num, train, test, None, component=component)
+                    yield Split(run=run, num=++num, train_idx=train, test_idx=test, val_idx=None, component=component)
             elif self._strategy == "cv":
                 for i in range(self._n_folds):
                     # The test array can be seen as a non overlapping sub array of size n_te moving from start to end

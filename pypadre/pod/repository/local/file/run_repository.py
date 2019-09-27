@@ -8,8 +8,6 @@ from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleS
 NAME = "runs"
 
 META_FILE = File("metadata.json", JSonSerializer)
-HYPERPARAMETER_FILE = File("hyperparameter.json", JSonSerializer)
-WORKFLOW_FILE = File("workflow.json", PickleSerializer)
 
 
 class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository):
@@ -23,12 +21,12 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
-        hyperparameter = self.get_file(directory, HYPERPARAMETER_FILE)
-        workflow = self.get_file(directory, WORKFLOW_FILE)
+        #hyperparameter = self.get_file(directory, HYPERPARAMETER_FILE)
+        #workflow = self.get_file(directory, WORKFLOW_FILE)
 
         # TODO what to do with hyperparameters?
         execution = self.parent.get_by_dir(self.get_parent_dir(directory))
-        run = Run(execution=execution, workflow=workflow, **metadata)
+        run = Run(execution=execution, metadata=metadata)
         return run
 
     def put_progress(self, run, **kwargs):
@@ -47,5 +45,5 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         run = obj
         self.write_file(directory, META_FILE, run.metadata)
-        self.write_file(directory, HYPERPARAMETER_FILE, run.experiment.hyperparameters())
-        self.write_file(directory, WORKFLOW_FILE, run.workflow, "wb")
+#        self.write_file(directory, HYPERPARAMETER_FILE, run.experiment.hyperparameters())
+#        self.write_file(directory, WORKFLOW_FILE, run.workflow, "wb")

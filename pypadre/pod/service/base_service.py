@@ -1,5 +1,5 @@
 from _py_abc import ABCMeta
-from typing import List, Type
+from typing import List, Type, Callable
 
 from pypadre.core.events.events import init_class_signals, Signaler, connect
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable
@@ -85,3 +85,6 @@ class BaseService:
         for b in self.backends:
             backend: IStoreableRepository = b
             backend.delete_by_id(id)
+
+    def save_signal_fn(self, fn: Callable):
+        setattr(self, "_signal_" + str(hash(fn)), fn)

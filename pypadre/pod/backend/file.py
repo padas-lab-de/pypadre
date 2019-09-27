@@ -2,6 +2,8 @@ import os
 
 from pypadre.core.events.events import base_signals
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.repository.i_repository import IComputationRepository
+from pypadre.pod.repository.local.file.computation_repository import ComputationFileRepository
 from pypadre.pod.repository.local.file.dataset_repository import DatasetFileRepository
 from pypadre.pod.repository.local.file.execution_repository import ExecutionFileRepository
 from pypadre.pod.repository.local.file.experiment_repository import ExperimentFileRepository
@@ -41,6 +43,7 @@ class PadreFileBackend(IPadreBackend):
         self._execution = ExecutionFileRepository(self)
         self._run = RunFileRepository(self)
         self._split = SplitFileRepository(self)
+        self._computation = ComputationFileRepository(self)
 
         # logging
         self._file = None
@@ -68,3 +71,7 @@ class PadreFileBackend(IPadreBackend):
     @property
     def split(self) -> SplitFileRepository:
         return self._split
+
+    @property
+    def computation(self) -> IComputationRepository:
+        return self._computation

@@ -51,14 +51,11 @@ class IDataSetLoader(ILoggable):
         raise NotImplementedError()
 
     def _create_dataset(self, **kwargs):
-        meta = {**{"id": str(uuid.uuid4()), "name": "something",
-                   "description": "", "version": "1.0",
-                   "type": PaDREOntology.SubClassesDataset.Multivariat.value, "targets": [], "published": False}, **kwargs}
-
-        self.send_warn(condition=len(meta["targets"]) == 0, source=self, message='No targets defined. Program will crash when used for supervised learning')
 
         # TODO extract attributes
-        return Dataset(**meta)
+        dataset = Dataset(metadata=kwargs)
+        self.send_warn(condition=len(dataset.metadata["targets"]) == 0, source=self, message='No targets defined. Program will crash when used for supervised learning')
+        return dataset
 
 
 class ICollectionDataSetLoader(IDataSetLoader):

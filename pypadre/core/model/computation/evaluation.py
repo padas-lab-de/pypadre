@@ -5,13 +5,20 @@ from pypadre.core.model.computation.computation import Computation
 class Evaluation(Computation):
     """ A execution should save data about the running env and the version of the code on which it was run """
 
+    TRAINING_ID = "training_id"
+
     @classmethod
     def _tablefy_register_columns(cls):
         pass
 
     def __init__(self, *, training, **kwargs):
-        super().__init__(schema_resource_name="evaluation.json", result=self, metadata=kwargs.pop("metadata", {}), **kwargs)
+        # Add defaults
+        defaults = {}
+
+        # Merge defaults
+        metadata = {**defaults, **kwargs.pop("metadata", {self.TRAINING_ID: training.id})}
         self._training = training
+        super().__init__(schema_resource_name="evaluation.json", result=self, metadata=metadata, **kwargs)
 
     @property
     def estimation(self):

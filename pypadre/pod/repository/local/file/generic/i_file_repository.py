@@ -47,7 +47,10 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         :param uid: uid to search for
         :return:
         """
-        return self.get_by_dir(self.find_dir_by_id(uid))
+        directory = self.find_dir_by_id(uid)
+        if directory is None:
+            return None
+        return self.get_by_dir(directory)
 
     def list(self, search, offset=0, size=100):
         """
@@ -141,7 +144,9 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         """
         # TODO: Change the hardcoded 'id' to a key value to be searched
         dirs = self.get_dirs_by_search({'id': uid})
-        return dirs.pop() if len(dirs) > 0 else []
+        if len(dirs) > 1:
+            raise RuntimeError("Found multiple directories for one ID. Data corrupted! " + str(directories))
+        return dirs.pop() if len(dirs) == 1 else None
 
     def has_dir(self, directory):
         """
@@ -265,6 +270,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         return glob.glob(self._replace_placeholders_with_wildcard(self.root_dir) + "/*")
 
 
+# TODO Maybe we could simplify the file repository by having all of them on root level. We don't need to use submodules and therefore can cope without the structure when using git tsrc
 class IChildFileRepository(IFileRepository, ChildEntity):
 
     @abstractmethod
