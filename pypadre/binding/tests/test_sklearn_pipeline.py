@@ -4,7 +4,6 @@ import unittest
 import numpy as np
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.events.events import connect_base_signal, LOG_EVENT
 from pypadre.core.model.experiment import Experiment
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 
@@ -47,6 +46,7 @@ class TestSKLearnPipeline(unittest.TestCase):
 
         experiment.execute()
         # TODO asserts and stuff
+
 
 if __name__ == '__main__':
     unittest.main()
