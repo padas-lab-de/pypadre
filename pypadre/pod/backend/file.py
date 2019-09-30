@@ -2,11 +2,12 @@ import os
 
 from pypadre.core.events.events import base_signals
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.i_repository import IComputationRepository
+from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository
 from pypadre.pod.repository.local.file.computation_repository import ComputationFileRepository
 from pypadre.pod.repository.local.file.dataset_repository import DatasetFileRepository
 from pypadre.pod.repository.local.file.execution_repository import ExecutionFileRepository
 from pypadre.pod.repository.local.file.experiment_repository import ExperimentFileRepository
+from pypadre.pod.repository.local.file.metric_repository import MetricFileRepository
 from pypadre.pod.repository.local.file.project_repository import ProjectFileRepository
 from pypadre.pod.repository.local.file.run_repository import RunFileRepository
 from pypadre.pod.repository.local.file.split_repository import SplitFileRepository
@@ -44,6 +45,7 @@ class PadreFileBackend(IPadreBackend):
         self._run = RunFileRepository(self)
         self._split = SplitFileRepository(self)
         self._computation = ComputationFileRepository(self)
+        self._metric = MetricFileRepository(self)
 
         # logging
         self._file = None
@@ -75,3 +77,7 @@ class PadreFileBackend(IPadreBackend):
     @property
     def computation(self) -> IComputationRepository:
         return self._computation
+
+    @property
+    def metric(self) -> IMetricRepository:
+        return self._metric

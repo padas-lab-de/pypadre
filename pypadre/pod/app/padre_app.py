@@ -24,6 +24,7 @@ from jsonschema import ValidationError
 from pypadre.pod.app.base_app import IBaseApp
 from pypadre.pod.app.config.padre_config import PadreConfig
 from pypadre.pod.app.dataset.dataset_app import DatasetApp
+from pypadre.pod.app.metric_app import MetricApp
 from pypadre.pod.app.project.computation_app import ComputationApp
 from pypadre.pod.app.project.execution_app import ExecutionApp
 from pypadre.pod.app.project.experiment_app import ExperimentApp
@@ -86,7 +87,7 @@ class PadreApp(IBaseApp):
         self._run_app = RunApp(self, [backend.run for backend in backends] if backends is not None else None)
         self._split_app = SplitApp(self, [backend.split for backend in backends] if backends is not None else None)
         self._computation_app = ComputationApp(self, [backend.computation for backend in backends] if backends is not None else None)
-        #self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
+        self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
 
 
     @property
@@ -120,6 +121,10 @@ class PadreApp(IBaseApp):
     @property
     def computations(self):
         return self._computation_app
+
+    @property
+    def metrics(self):
+        return self._metric_app
 
     def print(self, obj):
         if self.has_print():

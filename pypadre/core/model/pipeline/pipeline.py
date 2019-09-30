@@ -1,9 +1,8 @@
-from typing import Callable, Optional, Union, Tuple
+from typing import Callable, Optional, Union
 
 import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
-from pypadre.core.events.events import signals
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, BranchingComponent, SplitPythonComponent, \

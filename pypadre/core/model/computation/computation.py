@@ -5,7 +5,6 @@ from pypadre.core.printing.tablefyable import Tablefyable
 
 
 class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablefyable):
-
     COMPONENT_ID = "component_id"
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"
@@ -15,9 +14,15 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         pass
 
     def __init__(self, *, component, run: Run, result, **kwargs):
-        super().__init__(parent=run, metadata={**{self.COMPONENT_ID: component.id,
-                                                  self.COMPONENT_CLASS: str(component.__class__),
-                                                  self.RUN_ID: run.id}, **kwargs.pop("metadata", {})}, **kwargs)
+        # Add defaults
+        defaults = {}
+
+        # Merge defaults
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
+                                                                 self.COMPONENT_CLASS: str(component.__class__),
+                                                                 self.RUN_ID: run.id}}
+
+        super().__init__(parent=run, metadata=metadata, **kwargs)
         self._component = component
         self._result = result
         self.send_put()

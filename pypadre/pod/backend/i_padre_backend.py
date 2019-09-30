@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
-from pypadre.pod.repository.i_repository import IComputationRepository
+from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository
 
 
 class IPadreBackend(ILogRepository):
@@ -59,4 +59,9 @@ class IPadreBackend(ILogRepository):
     @property
     @abstractmethod
     def computation(self) -> IComputationRepository:
+        pass
+
+    @property
+    @abstractmethod
+    def metric(self) -> IMetricRepository:
         pass
