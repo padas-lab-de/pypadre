@@ -220,5 +220,5 @@ class SKLearnPipeline(DefaultPythonExperimentPipeline):
     def __init__(self, *, splitting: Optional[Code, Callable] = None, pipeline: Pipeline, **kwargs):
         # TODO kwargs passing
         sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))
-        sk_learn_evaluator = SKLearnEvaluator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))
+        sk_learn_evaluator = SKLearnEvaluator()
         super().__init__(splitting=splitting, estimator=sk_learn_estimator, evaluator=sk_learn_evaluator, **kwargs)
