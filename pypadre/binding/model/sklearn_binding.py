@@ -1,6 +1,6 @@
 from collections import Callable
 from copy import deepcopy
-from typing import cast
+from typing import cast, Optional
 
 import numpy as np
 from padre.PaDREOntology import PaDREOntology
@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 
 from pypadre.binding.visitors.scikit import SciKitVisitor
 from pypadre.core.base import exp_events, phases
+from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
@@ -216,7 +217,7 @@ class SKLearnEvaluator(EvaluatorComponent):
 
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
-    def __init__(self, *, splitting: Callable = None, pipeline: Pipeline, **kwargs):
+    def __init__(self, *, splitting: Optional[Code, Callable] = None, pipeline: Pipeline, **kwargs):
         # TODO kwargs passing
         sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))
         sk_learn_evaluator = SKLearnEvaluator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))

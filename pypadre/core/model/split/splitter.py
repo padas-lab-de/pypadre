@@ -49,9 +49,13 @@ class Splitter:
         self._no_shuffle = options.pop("no_shuffle", False)
         self._stratified = options.pop("stratified", None)
         self._indices = options.pop("indices", None)
-        self._splitting_fn = options.pop("fn", None)
+        self._splitting_code = options.pop("code", None)
 
         self._index_list = options.pop('index', None)
+
+    @property
+    def splitting_code(self):
+        return self.splitting_code
 
     def splits(self, *, data, run, component, **kwargs):
         """
@@ -86,6 +90,8 @@ class Splitter:
             # now apply splitting strategy
             # todo s: time aware cross validation, stratified splits,
             # Todo do sanity checks that indizes do not overlap
+            if self.splitting_code:
+                yield self.splitting_code.call(data, run, ++num, idx, component=component)
             if self._strategy is None:
                 yield Split(run, ++num, idx, None, None, component=component)
             elif self._strategy == "explicit":

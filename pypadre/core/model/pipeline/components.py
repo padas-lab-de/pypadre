@@ -6,6 +6,8 @@ from types import GeneratorType
 from typing import Callable, Optional, Tuple, Iterable
 
 from pypadre.core.base import MetadataEntity
+from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.computation.training import Training
 from pypadre.core.model.computation.evaluation import Evaluation
@@ -75,7 +77,9 @@ class PythonCodeComponent(PipelineComponent):
     def hash(self):
         return hash(self.code)
 
-    def __init__(self, code: Callable, **kwargs):
+    def __init__(self, code: Optional[Code, Callable], **kwargs):
+        if isinstance(code, Callable):
+            code = Function(fn=code)
         super().__init__(**kwargs)
         self._code = code
 
@@ -84,7 +88,7 @@ class PythonCodeComponent(PipelineComponent):
         return self._code
 
     def _execute_(self, *, data, **kwargs):
-        return self.code(data=data, **kwargs)
+        return self.code.call(data=data, **kwargs)
 
 
 # def _unpack_computation(cls, computation: Computation):
@@ -138,16 +142,16 @@ class EvaluatorComponent(PipelineComponent):
 
 
 class SplitPythonComponent(SplitComponent, PythonCodeComponent):
-    def __init__(self, *, code: Callable, **kwargs):
-        splitter = Splitter(fn=code, **kwargs.get("splitter", {}))
+    def __init__(self, *, code: Optional[Code, Callable], **kwargs):
+        splitter = Splitter(code=code, **kwargs.get("splitter", {}))
         super().__init__(code=splitter.splits, **kwargs)
 
 
 class EstimatorPythonComponent(EstimatorComponent, PythonCodeComponent):
-    def __init__(self, *, code: Callable, **kwargs):
+    def __init__(self, *, code: Optional[Code, Callable], **kwargs):
         super().__init__(code=code, **kwargs)
 
 
 class EvaluatorPythonComponent(EvaluatorComponent, PythonCodeComponent):
-    def __init__(self, *, code: Callable, **kwargs):
+    def __init__(self, *, code: Optional[Code, Callable], **kwargs):
         super().__init__(code=code, **kwargs)
