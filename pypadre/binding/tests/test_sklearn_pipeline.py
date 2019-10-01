@@ -6,6 +6,7 @@ import numpy as np
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.model.code.function import Function
 from pypadre.core.model.experiment import Experiment
+from pypadre.core.tests.padre_test import PadreTest
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 
 test_numpy_array = np.array([[1.0, "A", 2],
@@ -21,7 +22,7 @@ def create_test_pipeline():
     return Pipeline(estimators)
 
 
-class TestSKLearnPipeline(unittest.TestCase):
+class TestSKLearnPipeline(PadreTest):
 
     def __init__(self, *args, **kwargs):
         super(TestSKLearnPipeline, self).__init__(*args, **kwargs)
