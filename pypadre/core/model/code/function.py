@@ -19,7 +19,7 @@ class Function(Code):
 
     @property
     def fn(self):
-        return self.fn
+        return self._fn
 
     def call(self, *args, **kwargs):
         return self.fn(*args, **kwargs)

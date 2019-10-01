@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from types import GeneratorType
-from typing import Callable, Optional, Tuple, Iterable
+from typing import Callable, Optional, Tuple, Iterable, Union
 
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.code import Code
@@ -77,7 +77,7 @@ class PythonCodeComponent(PipelineComponent):
     def hash(self):
         return hash(self.code)
 
-    def __init__(self, code: Optional[Code, Callable], **kwargs):
+    def __init__(self, code: Union[Code, Callable], **kwargs):
         if isinstance(code, Callable):
             code = Function(fn=code)
         super().__init__(**kwargs)
@@ -142,16 +142,16 @@ class EvaluatorComponent(PipelineComponent):
 
 
 class SplitPythonComponent(SplitComponent, PythonCodeComponent):
-    def __init__(self, *, code: Optional[Code, Callable], **kwargs):
+    def __init__(self, *, code: Union[Code, Callable], **kwargs):
         splitter = Splitter(code=code, **kwargs.get("splitter", {}))
         super().__init__(code=splitter.splits, **kwargs)
 
 
 class EstimatorPythonComponent(EstimatorComponent, PythonCodeComponent):
-    def __init__(self, *, code: Optional[Code, Callable], **kwargs):
+    def __init__(self, *, code: Union[Code, Callable], **kwargs):
         super().__init__(code=code, **kwargs)
 
 
 class EvaluatorPythonComponent(EvaluatorComponent, PythonCodeComponent):
-    def __init__(self, *, code: Optional[Code, Callable], **kwargs):
+    def __init__(self, *, code: Union[Code, Callable], **kwargs):
         super().__init__(code=code, **kwargs)

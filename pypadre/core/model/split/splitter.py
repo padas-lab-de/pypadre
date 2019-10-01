@@ -55,7 +55,7 @@ class Splitter:
 
     @property
     def splitting_code(self):
-        return self.splitting_code
+        return self._splitting_code
 
     def splits(self, *, data, run, component, **kwargs):
         """

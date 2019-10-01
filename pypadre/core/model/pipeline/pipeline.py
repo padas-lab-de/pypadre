@@ -3,6 +3,7 @@ from typing import Callable, Optional, Union
 import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
+from pypadre.core.model.code.code import Code
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, BranchingComponent, SplitPythonComponent, \
@@ -57,10 +58,15 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         return [node for node, out_degree in self.in_degree() if out_degree == 0]
 
 
+
+
+
 class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
-    def __init__(self, *, preproccessing_fn: Optional[Callable] = None, splitting: Callable, estimator: Union[Callable, EstimatorComponent], evaluator: Union[Callable, EvaluatorComponent], **attr):
+    def __init__(self, *, preproccessing_fn: Optional[Union[Code, Callable]] = None, splitting: Optional[Union[Code, Callable]],
+                 estimator: Union[Callable, EstimatorComponent],
+                 evaluator: Union[Callable, EvaluatorComponent], **attr):
         super().__init__(**attr)
         if not networkx.is_empty(self):
             # TODO attrs could include some network initialization for the components

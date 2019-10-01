@@ -1,6 +1,6 @@
 from collections import Callable
 from copy import deepcopy
-from typing import cast, Optional
+from typing import cast, Optional, Union
 
 import numpy as np
 from padre.PaDREOntology import PaDREOntology
@@ -217,7 +217,7 @@ class SKLearnEvaluator(EvaluatorComponent):
 
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
-    def __init__(self, *, splitting: Optional[Code, Callable] = None, pipeline: Pipeline, **kwargs):
+    def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline: Pipeline, **kwargs):
         # TODO kwargs passing
         sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))
         sk_learn_evaluator = SKLearnEvaluator()
