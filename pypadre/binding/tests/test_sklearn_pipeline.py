@@ -5,8 +5,10 @@ import numpy as np
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.model.code.function import Function
+from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
+
 
 test_numpy_array = np.array([[1.0, "A", 2],
                              [2.0, "B", 2],
@@ -52,6 +54,27 @@ class TestSKLearnPipeline(unittest.TestCase):
 
         experiment.execute()
         # TODO asserts and stuff
+
+    def test_sklearn_pipeline_with_preprocessing(self):
+
+        def preprocessing(*, data, **kwargs):
+            from sklearn.decomposition import PCA
+            PCA_ = PCA()
+            _data = Transformation(name="transformed_%s"%data.name, dataset=data)
+            new_features = PCA_.fit_transform(data.features())
+            targets = data.targets()
+            new_data = np.hstack((new_features, targets))
+            _data.set_data(new_data, attributes=data.attributes)
+            return _data
+
+        pipeline = SKLearnPipeline(preprocessing_fn=preprocessing, pipeline=create_test_pipeline())
+
+        loader = SKLearnLoader()
+        digits = loader.load("sklearn", utility="load_iris")
+
+        experiment = Experiment(dataset=digits, pipeline=pipeline)
+
+        experiment.execute()
 
 
 if __name__ == '__main__':

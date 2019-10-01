@@ -64,7 +64,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
 class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
-    def __init__(self, *, preproccessing_fn: Optional[Union[Code, Callable]] = None, splitting: Optional[Union[Code, Callable]],
+    def __init__(self, *, preprocessing_fn: Optional[Union[Code, Callable]] = None, splitting: Optional[Union[Code, Callable]],
                  estimator: Union[Callable, EstimatorComponent],
                  evaluator: Union[Callable, EvaluatorComponent], **attr):
         super().__init__(**attr)
@@ -72,8 +72,8 @@ class DefaultPythonExperimentPipeline(Pipeline):
             # TODO attrs could include some network initialization for the components
             raise NotImplementedError("Preinitializing a pipeline is not implemented.")
 
-        self._preprocessor = PythonCodeComponent(name="preprocessor", code=preproccessing_fn,
-                                                 **attr) if preproccessing_fn else None
+        self._preprocessor = PythonCodeComponent(name="preprocessor", code=preprocessing_fn,
+                                                 **attr) if preprocessing_fn else None
 
         self._splitter = SplitPythonComponent(code=splitting, predecessors=self._preprocessor, **attr)
         self.add_node(self._splitter)

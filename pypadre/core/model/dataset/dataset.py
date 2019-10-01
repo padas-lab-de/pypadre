@@ -263,7 +263,50 @@ class Dataset(IStoreable, MetadataEntity):
 
 class Transformation(Dataset):
 
-    def __init__(self, dataset, **metadata):
+    def __init__(self, dataset : Dataset, **kwargs):
+        """
+
+        :param dataset: The original dataset to transform/preprocess
+        :param kwargs: metadata like name, attributes, ...
+        """
+        # Add defaults
+        defaults = {"name": dataset.name, "version": "1.0", "description": dataset.metadata["description"],
+                    "originalSource": dataset.id,
+                    "type": dataset.type, "published": False, "attributes": dataset.attributes}
+
+        metadata = {**defaults,**kwargs}
         super().__init__(**metadata)
         self._dataset = dataset
-        # todo rework preprocessing
+        self._binaries = dict()
+
+    def update_attributes(self,attributes=None):
+        """
+        Update the attributes in case the transformation changes the attributes
+        :param attributes:
+        :return:
+        """
+        self._metadata["attributes"] = attributes
+
+    def set_data(self,data, attributes=None):
+        """
+        Set the transformed data and add its corresponding container
+        :param attributes: The new attributes in case they were changed
+        :param data: The preprocessed data binary
+        :return:
+        """
+
+        if attributes is not None:
+            self.update_attributes(attributes)
+            self.send_warn(message='Old attributes will be overwritten in the transformed dataset', condition=True)
+
+        if isinstance(data, pd.DataFrame):
+            container = PandasContainer(data, self.attributes)
+        elif isinstance(data, np.ndarray):
+            container = NumpyContainer(data, self.attributes)
+        elif isinstance(data, nx.Graph):
+            container = GraphContainer(data, self.attributes)
+        else:
+            raise ValueError("Unknown data format. Type %s not known." % (type(data)))
+
+        self.add_container(container)
+
