@@ -183,24 +183,6 @@ class SKLearnEvaluator(EvaluatorComponent):
         results['testing_sample_count'] = len(test_idx)
         results['split_num'] = split.number
 
-        # if y_predicted_probabilities is None:
-        #     for idx in range(len(test_idx)):
-        #         prop = dict()
-        #         prop['truth'] = int(y[idx])
-        #         prop['predicted'] = int(y_predicted[idx])
-        #         prop['probabilities'] = dict()
-        #         modified_results[test_idx[idx]] = deepcopy(prop)
-        #
-        # else:
-        #     for idx in range(len(test_idx)):
-        #         prop = dict()
-        #         prop['truth'] = int(y[idx])
-        #         prop['probabilities'] = y_predicted_probabilities[idx].tolist()
-        #         prop['predicted'] = int(y_predicted[idx])
-        #         modified_results[test_idx[idx]] = deepcopy(prop)
-
-        # results['predictions'] = modified_results
-
         return Evaluation(training=data, metadata=results, **kwargs)
 
     @staticmethod
