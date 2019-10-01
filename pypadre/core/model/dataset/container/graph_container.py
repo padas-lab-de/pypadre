@@ -1,13 +1,16 @@
 import numpy as np
 import pandas as pd
 import pandas_profiling as pd_pf
+from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.model.dataset import dataset
+from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
+from pypadre.core.model.generic.i_model_mixins import ILoggable
 
 
-class GraphContainer(IBaseContainer):
+class GraphContainer(IBaseContainer,ILoggable):
 
     def __init__(self, data, attributes=None):
         # todo rework binary data into delegate pattern.
@@ -15,15 +18,10 @@ class GraphContainer(IBaseContainer):
 
         self._shape = (data.number_of_edges(), data.number_of_nodes())
         self._data = data
-        if attributes is None:
-            self._attributes = {}
-            self._targets_idx = None
-            self.features_idx = None
-
-        else:
-            self._attributes = attributes
-            self._targets_idx = np.array([idx for idx, a in enumerate(attributes) if a.defaultTargetAttribute])
-            self._features_idx = np.array([idx for idx, a in enumerate(attributes) if not a.defaultTargetAttribute])
+        self._attributes = self.validate_attributes(attributes)
+        self._targets_idx = np.array([idx for idx, a in enumerate(attributes) if a.defaultTargetAttribute])
+        self._features_idx = np.array([idx for idx, a in enumerate(attributes) if not a.defaultTargetAttribute])
+        #TODO rework how graphs are handled in features and targets
 
     @property
     def attributes(self):
@@ -62,10 +60,55 @@ class GraphContainer(IBaseContainer):
         return self._shape
 
     def convert(self, bin_format):
-        if bin_format is _Formats.pandas:
+        if bin_format is dataset.formats.pandas:
             # TODO attributes?
             return PandasContainer(self._pandas_repr())
         return None
+
+    def validate_attributes(self, attributes=None):
+        # TODO look for validating the attributes properties with regards to the ontology
+        if attributes is None or len(attributes) == 0:
+            self.send_warn(message='Attributes are missing! Attempting to derive them from the binary...',
+                           condition=True)
+            attributes = self.derive_attributes(self.data)
+
+        self.send_error(
+            message="Incorrect number of attributes. Data must have at least two columns (source, target), provided attributes %d."
+                    % (len(attributes)), condition=len(attributes) < 2)
+        return attributes
+
+    @staticmethod
+    def derive_attributes(data, targets=None):
+        if targets is None:
+            targets = []
+        graph_attrs = ["source", "target"]
+        edges_attrs = [k for k in set().union(*(d.keys() for s, t, d in data.edges(data=True)))]
+        nodes_attrs = [k for k in set().union(*(d.keys() for node, d in data.nodes(data=True)))]
+        _attributes = []
+        index = 0
+        for a in graph_attrs:
+            _attributes.append(Attribute(name=a, measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                         unit=PaDREOntology.SubClassesUnit.Count.value, index=index,
+                                         defaultTargetAttribute=a in targets,
+                                         type=PaDREOntology.SubClassesDatum.Character.value,
+                                         context={'graph_role': a}))
+            index += 1
+        for a in edges_attrs:
+            _attributes.append(Attribute(name=a, measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                         unit=PaDREOntology.SubClassesUnit.Count.value, index=index,
+                                         defaultTargetAttribute=a in targets,
+                                         type=PaDREOntology.SubClassesDatum.Character.value,
+                                         context={'graph_role': 'edgeattribute'}))
+            index += 1
+        for a in nodes_attrs:
+            _attributes.append(Attribute(name=a, measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                         unit=PaDREOntology.SubClassesUnit.Count.value, index=index,
+                                         defaultTargetAttribute=a in targets,
+                                         type=PaDREOntology.SubClassesDatum.Character.value,
+                                         context={'graph_role': 'nodeattribute'}))
+            index += 1
+
+        return _attributes
 
     def _pandas_repr(self):
         edgelist = self.data.edges(data=True)
@@ -119,11 +162,11 @@ class GraphContainer(IBaseContainer):
 
     def addNode(self, node, attr_dict):
         self.data.add_node(node, **attr_dict)
-        self.shape[1] = +1
+        self.shape[1] += 1
 
     def addEdge(self, source, target, attr_dict):
         self.data.add_edge(source, target, **attr_dict)
-        self.shape[0] = +1
+        self.shape[0] += 1
 
     #      ret = {"n_att" : len(self._attributes),
     #             "n_target" : len([a for a in self._attributes if a.is_target])}
