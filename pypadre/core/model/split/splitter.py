@@ -91,7 +91,9 @@ class Splitter:
             # todo s: time aware cross validation, stratified splits,
             # Todo do sanity checks that indizes do not overlap
             if self.splitting_code:
-                yield self.splitting_code.call(data, run, ++num, idx, component=component)
+                train_idx, test_idx, val_idx = self.splitting_code.call(idx)
+                yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
+                            val_idx=val_idx, component=component)
             if self._strategy is None:
                 yield Split(run, ++num, idx, None, None, component=component)
             elif self._strategy == "explicit":

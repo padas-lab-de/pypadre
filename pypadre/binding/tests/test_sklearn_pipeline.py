@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.core.model.code.function import Function
 from pypadre.core.model.experiment import Experiment
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 
@@ -40,14 +41,14 @@ class TestSKLearnPipeline(unittest.TestCase):
 
         def custom_split(idx):
             cutoff = int(len(idx) / 2)
-            return idx[:cutoff], idx[cutoff:]
+            return idx[:cutoff], idx[cutoff:], None
 
         # TODO please implement custom split function for this example
-        pipeline = SKLearnPipeline(pipeline=create_test_pipeline())
+        pipeline = SKLearnPipeline(splitting=Function(fn=custom_split), pipeline=create_test_pipeline())
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, pipeline=pipeline, splitting=custom_split)
+        experiment = Experiment(dataset=iris, pipeline=pipeline)
 
         experiment.execute()
         # TODO asserts and stuff
