@@ -19,8 +19,8 @@ class PadreTest(unittest.TestCase):
         with open(self.config_path, 'w+') as configfile:
             self.config.write(configfile)
 
-        config = PadreConfig(config_file=self.config_path)
-        config.set("backends", str([
+        self.config = PadreConfig(config_file=self.config_path)
+        self.config.set("backends", str([
             {
                 "root_dir": self.workspace_path
             }
