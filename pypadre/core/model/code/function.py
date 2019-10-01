@@ -20,7 +20,7 @@ class Function(Code):
     @property
     def fn(self):
         # TODO serialize https://medium.com/@emlynoregan/serialising-all-the-functions-in-python-cd880a63b591 or write the maximum of possible information and warn the user about no possibility to reload
-        return self.fn
+        return self._fn
 
     def call(self, *args, **kwargs):
         return self.fn(*args, **kwargs)

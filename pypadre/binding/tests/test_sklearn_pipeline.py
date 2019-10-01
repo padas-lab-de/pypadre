@@ -37,12 +37,17 @@ class TestSKLearnPipeline(unittest.TestCase):
         # TODO asserts and stuff
 
     def test_custom_split_sklearn_pipeline(self):
+
+        def custom_split(idx):
+            cutoff = int(len(idx) / 2)
+            return idx[:cutoff], idx[cutoff:]
+
         # TODO please implement custom split function for this example
         pipeline = SKLearnPipeline(pipeline=create_test_pipeline())
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, pipeline=pipeline)
+        experiment = Experiment(dataset=iris, pipeline=pipeline, splitting=custom_split)
 
         experiment.execute()
         # TODO asserts and stuff
