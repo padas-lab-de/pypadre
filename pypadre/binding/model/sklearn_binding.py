@@ -201,8 +201,21 @@ class SKLearnEvaluator(EvaluatorComponent):
 
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
-    def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline: Pipeline, **kwargs):
+    def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline_fn: Callable, **kwargs):
+        """
+
+        :param splitting:
+        :param pipeline_fn: A function that returns a Sklearn pipeline as the return value
+        :param kwargs:
+        """
+        pipeline = pipeline_fn()
         visitor = SciKitVisitor(pipeline)
+
+        # Check if the return type is a Sklearn Pipeline
+        assert(isinstance(pipeline, Pipeline))
+
+        # Verify running two instances of the function creates two Pipeline objects
+        assert(pipeline is not pipeline_fn())
         sk_learn_estimator = SKLearnEstimator(pipeline=pipeline)
         sk_learn_evaluator = SKLearnEvaluator()
         super().__init__(splitting=splitting, estimator=sk_learn_estimator, evaluator=sk_learn_evaluator, **kwargs)

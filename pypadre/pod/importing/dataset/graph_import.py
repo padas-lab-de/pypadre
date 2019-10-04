@@ -4,6 +4,7 @@ Module containing python classes for managing graphs
 import copy
 import gzip
 import os
+import ssl
 import tarfile
 import tempfile
 from urllib.request import urlopen
@@ -158,7 +159,10 @@ def _gather_parent_data(name,isBiosnap):
     else:
         parent_url = "https://snap.stanford.edu/data/index.html"
 
-    uClient = uReq(parent_url)
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    uClient = uReq(parent_url,context=ctx)
     page_html = uClient.read()
     uClient.close()
     page_soup = soup(page_html, "html.parser")
@@ -193,27 +197,21 @@ def create_from_snap(url, link_num=0):
     Returns:
         A pypadre.dataset object that conatins the graph of the url.
     """
-    meta_dict={}
-    meta_dict["description"]=""
+    meta_dict={"description": "","version":0, "published": False, "originalSource": url}
+    snap_id = None
     atts=[]
-    is_biodata = url.split("/")[3] == "biodata"
-    meta_dict["version"] = 0
-    meta_dict["originalSource"]=url
-    meta_dict["published"]=False
-    name=""
-    description=""
-    graph_type=""
-    is_directed=True
-    short_description = ""
-    edges=None
 
-    #gather data from url
-    uClient = uReq(url)
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    # gather data from url
+    uClient = urlopen(url, context=ctx)
     page_html = uClient.read()
     uClient.close()
     page_soup = soup(page_html, "html.parser")
     all_a = page_soup.find_all('a')
 
+    is_biodata = url.split("/")[3] == "biodata"
 
     if is_biodata:
         #"https://snap.stanford.edu/biodata/datasets/10017/files/ChChSe-Decagon_polypharmacy.csv.gz"
@@ -237,13 +235,15 @@ def create_from_snap(url, link_num=0):
         link = link.replace("https://snap.stanford.edu/", "")
         link = "https://snap.stanford.edu/data/" + link
         name = url.split("/")[4].replace(".html", "")
+
     description = "".join(
         str(page_soup.find("div", {"id": "right-column"})).split("<table")[0].split("<p>")[1:]).replace("</p>", "") \
         .replace("\n", "").replace("\r", "").replace("<br/>", "")
 
-    graph_type, short_description, is_directed, columns =_gather_parent_data(name,is_biodata)
+    graph_type, short_description, is_directed, columns = _gather_parent_data(name,is_biodata)
+
     with tempfile.TemporaryFile(mode='w+b') as ftemp:
-        response = urlopen(link)
+        response = urlopen(link,context=ctx)
         buflen = 1 << 20
         while True:
             buf = response.read(buflen)
@@ -254,8 +254,6 @@ def create_from_snap(url, link_num=0):
         comments=[]
         columns=[]
         if not is_biodata:
-
-
             if ".txt" in link:
                 with gzip.open(ftemp) as gzipread:
                     while(True):
@@ -336,9 +334,9 @@ def create_from_snap(url, link_num=0):
             atts.append(attribute)
 
         pandas_to_networkx(edges, columns[0],columns[1], gr, [],columns[2:])
-        ds = Dataset(None, **meta_dict)
-        ds.set_data(gr, atts)
-        return ds
+
+        meta_dict["attributes"] =atts
+        return gr,meta_dict
 
 
 def create_from_konect(url, zero_based=False):
@@ -359,8 +357,13 @@ def create_from_konect(url, zero_based=False):
     meta_dict["originalSource"] = url
     meta_dict["published"] = False
     atts = []
+
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
     with tempfile.TemporaryFile(mode='w+b') as ftemp:
-        response = urlopen('http://konect.cc/files/download.tsv.%s.tar.bz2' % name)
+        response = urlopen('http://konect.cc/files/download.tsv.%s.tar.bz2' % name, context=ctx)
         buflen = 1 << 20
         while True:
             buf = response.read(buflen)
@@ -375,13 +378,19 @@ def create_from_konect(url, zero_based=False):
                 for root, dirs, files in os.walk(tempdir):
                     for file in files:
                         if file.startswith("README"):
-                            meta_dict["description"] = meta_dict["description"]+" | README: " + open(os.path.join(root, file)).read()
+                            readme_file = open(os.path.join(root, file))
+                            meta_dict["description"] = meta_dict["description"]+" | README: " + readme_file.read()
+                            readme_file.close()
                         if file.startswith("meta."):
-                            meta = open(os.path.join(root, file),encoding="utf-8").read().split("\n")
+                            meta_file = open(os.path.join(root, file),encoding="utf-8")
+                            meta = meta_file.read().split("\n")
+                            meta_file.close()
                             meta_dict["description"]=meta_dict["description"]+" | metafile-content: "+ str({entry.split(":")[0]: entry.split(":")[1][1:] for entry in meta[:-1] if entry is not ""})
                         if file.startswith("out."):
                             edges = np.loadtxt(os.path.join(root, file), comments="%")
-                            line = open(os.path.join(root, file)).read()
+                            line_ = open(os.path.join(root, file))
+                            line = line_.read()
+                            line_.close()
                             if "asym" not in line:
                                 gr = nx.Graph()
                                 meta_dict["type"] = "graph"
@@ -420,7 +429,7 @@ def create_from_konect(url, zero_based=False):
             meta_dict["description"] = meta_dict["description"] +", time"
         atts.append(attribute)
 
-
-    ds=Dataset(None,**meta_dict)
-    ds.set_data(gr, atts)
-    return ds
+    meta_dict["attributes"] = atts
+    # ds=Dataset(None,**meta_dict)
+    # ds.set_data(gr, atts)
+    return gr, meta_dict

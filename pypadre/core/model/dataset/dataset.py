@@ -128,6 +128,12 @@ class Dataset(IStoreable, MetadataEntity):
         """
         return self.container(bin_format).data
 
+    def set_attributes(self, attributes=None):
+        if self.attributes is None or len(self.attributes) == 0:
+            self._metadata['attributes'] = attributes
+        else:
+            pass
+
     def set_data(self, data):
         """
         Set new data. Container type can be derived automatically.
@@ -135,18 +141,30 @@ class Dataset(IStoreable, MetadataEntity):
         :return:
         """
 
-        if self.attributes is None:
-            pass
-            # TODO print warning and try to derive attributes. This should be done by the container while the attributes themselves should be held on the dataset.
-
-        if isinstance(data, pd.DataFrame):
-            container = PandasContainer(data, self.attributes)
-        elif isinstance(data, np.ndarray):
-            container = NumpyContainer(data, self.attributes)
-        elif isinstance(data, nx.Graph):
-            container = GraphContainer(data, self.attributes)
+        if self.attributes is None or len(self.attributes) == 0:
+            self.send_warn(message='Dataset has no attributes yet! Attempting to derive them from the binary using '
+                                   'targets metadata if exits', condition=True)
+            if isinstance(data, pd.DataFrame):
+                attributes = PandasContainer.derive_attributes(data, targets=self.metadata.get("targets", None))
+                container = PandasContainer(data, attributes)
+            elif isinstance(data, np.ndarray):
+                attributes = NumpyContainer.derive_attributes(data, targets=self.metadata.get("targets", None))
+                container = NumpyContainer(data, attributes)
+            elif isinstance(data, nx.Graph):
+                attributes = GraphContainer.derive_attributes(data, targets=self.metadata.get("targets", None))
+                container = GraphContainer(data, attributes)
+            else:
+                raise ValueError("Unknown data format. Type %s not known." % (type(data)))
+            self.set_attributes(attributes)
         else:
-            raise ValueError("Unknown data format. Type %s not known." % (type(data)))
+            if isinstance(data, pd.DataFrame):
+                container = PandasContainer(data, self.attributes)
+            elif isinstance(data, np.ndarray):
+                container = NumpyContainer(data, self.attributes)
+            elif isinstance(data, nx.Graph):
+                container = GraphContainer(data, self.attributes)
+            else:
+                raise ValueError("Unknown data format. Type %s not known." % (type(data)))
 
         # Add the binary
         self.add_container(container)
