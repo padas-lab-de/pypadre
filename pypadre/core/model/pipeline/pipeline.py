@@ -4,10 +4,12 @@ import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.model.code.code import Code
+from pypadre.core.model.computation.run import Run
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, BranchingComponent, SplitPythonComponent, \
-    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent
+    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent
+from pypadre.core.model.pipeline.parameters import PipelineParameters
 from pypadre.core.validation.validation import Validateable
 
 
@@ -19,29 +21,39 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         # TODO this has may have to include if the pipeline structure was changed etc
         return hash(",".join([str(pc.hash()) for pc in self.nodes]))
 
-    def _execute(self, *, execution: Execution, data, **kwargs):
+    def _execute(self, *, parameter_map: PipelineParameters, execution: Execution, data, **kwargs):
         # TODO currently we don't allow for merging in a pipeline again. To solve this a successor can only execute as soon as it gets all data from all predecessors (Computation pipelines etc...)
         # TODO each component should maybe have a own kwargs list for the execute call to allow for the same parameter name on different components
+
         # validate the current state
         self.validate()
 
         entries = self.get_entries()
 
         for entry in entries:
-            self._execute_(entry, execution=execution, data=data, **kwargs)
+            self._execute_(entry, parameter_map=parameter_map, execution=execution, data=data, **kwargs)
 
-    def _execute_(self, node, *, data, execution: Execution, **kwargs):
-        computation = node.execute(execution=execution, data=data, **kwargs)
-        if isinstance(node, BranchingComponent):
-            for res in computation.result:
-                self._execute_successors(node, execution=execution, data=res, **kwargs)
+    def _execute_(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, **kwargs):
+        # TODO do some more sophisticated result analysis in the grid search
+        # Grid search if we have multiple combinations
+        parameter_combinations = parameter_map.combinations(node)
+        for parameters in parameter_combinations:
+            computation = node.execute(execution=execution, parameters=parameters, data=data, **kwargs)
+            if isinstance(node, BranchingComponent):
+                for res in computation.result:
+                    self._execute_successors(node, execution=execution, parameter_map=parameter_map, data=res, **kwargs)
+            else:
+                self._execute_successors(node, execution=execution, parameter_map=parameter_map, data=computation.result, **kwargs)
+
+    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, **kwargs):
+        if self.out_degree(node) == 0:
+            print("we are at the end of the pipeline / store results?")
+            # TODO we are at the end of the pipeline / store results?
         else:
-            self._execute_successors(node, execution=execution, data=computation.result, **kwargs)
+            successors = self.successors(node)
+            for successor in successors:
+                self._execute_(successor, data=data, execution=execution, parameter_map=parameter_map, **kwargs)
 
-    def _execute_successors(self, node, *, data, execution: Execution, **kwargs):
-        successors = self.successors(node)
-        for successor in successors:
-            self._execute_(successor, data=data, execution=execution, **kwargs)
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)
@@ -58,13 +70,11 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         return [node for node, out_degree in self.in_degree() if out_degree == 0]
 
 
-
-
-
 class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
-    def __init__(self, *, preprocessing_fn: Optional[Union[Code, Callable]] = None, splitting: Optional[Union[Code, Callable]],
+    def __init__(self, *, preprocessing_fn: Optional[Union[Code, Callable]] = None,
+                 splitting: Optional[Union[Code, Callable]],
                  estimator: Union[Callable, EstimatorComponent],
                  evaluator: Union[Callable, EvaluatorComponent], **attr):
         super().__init__(**attr)
@@ -79,20 +89,20 @@ class DefaultPythonExperimentPipeline(Pipeline):
         self.add_node(self._splitter)
 
         self._estimator = EstimatorPythonComponent(code=estimator.execute if isinstance(estimator,
-                                                                                        EstimatorComponent) else estimator, predecessors=[self._splitter],
-                                                   **attr)
+                                                                                        EstimatorComponent) else estimator,
+                                                   predecessors=[self._splitter], **attr)
         self.add_node(self._estimator)
 
-        self._evaluator = PythonCodeComponent(name="evaluator", code=evaluator.execute if isinstance(evaluator,
-                                                                                                   EvaluatorComponent) else evaluator, predecessors=[self._estimator],
-                                              **attr)
+        self._evaluator = PythonCodeComponent(name="evaluator",
+                                              code=evaluator.execute if isinstance(evaluator,
+                                                                                   EvaluatorComponent) else evaluator,
+                                              predecessors=[self._estimator], **attr)
         self.add_node(self._evaluator)
 
         # Build pipeline grap
         if self._preprocessor:
             self.add_edge(self._preprocessor, self._splitter)
         self.add_edge(self._splitter, self._estimator)
-
         self.add_edge(self._estimator, self._evaluator)
 
     @property

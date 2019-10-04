@@ -12,6 +12,7 @@ from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
+from pypadre.core.model.pipeline import pipeline
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent
 from pypadre.core.model.split.split import Split
@@ -39,6 +40,7 @@ class SKLearnEstimator(EstimatorComponent):
     """
 
     def __init__(self, *, pipeline=None, **kwargs):
+        # TODO don't change state of pipeline!!!
         # check for final component to determine final results
         # if step wise is true, log intermediate results. Otherwise, log only final results.
         # distingusish between training and fitting in classification.
@@ -200,7 +202,13 @@ class SKLearnEvaluator(EvaluatorComponent):
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
     def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline: Pipeline, **kwargs):
-        # TODO kwargs passing
-        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))
+        visitor = SciKitVisitor(pipeline)
+        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline)
         sk_learn_evaluator = SKLearnEvaluator()
         super().__init__(splitting=splitting, estimator=sk_learn_estimator, evaluator=sk_learn_evaluator, **kwargs)
+
+
+class SKLearnPipelineV2(pipeline.Pipeline):
+    def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline: Pipeline, **kwargs):
+        super().__init__(**kwargs)
+        # TODO for each pipeline element in sklearn create a pipeline component

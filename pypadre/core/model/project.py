@@ -33,7 +33,8 @@ class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
         else:
             return self.__dict__.get(key, None)
 
-    def execute(self, **kwargs):
-        # TODO args per experiment
-
-        return {experiment: experiment.execute(**kwargs) for experiment in self._experiments}
+    def execute(self, experiment_pipeline_parameters: dict, **kwargs):
+        return {
+            experiment: experiment.execute(pipeline_parameters=experiment_pipeline_parameters.get(experiment.id),
+                                           **kwargs)
+            for experiment in self._experiments}

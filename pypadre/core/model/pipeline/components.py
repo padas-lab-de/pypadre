@@ -3,18 +3,14 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from types import GeneratorType
-from typing import Callable, Optional, Tuple, Iterable, Union
+from typing import Callable, Optional, Union, List
 
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.code.function import Function
-from pypadre.core.model.computation.run import Run
-from pypadre.core.model.computation.training import Training
-from pypadre.core.model.computation.evaluation import Evaluation
-from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.i_model_mixins import IExecuteable
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.split.split import Split
+from pypadre.core.model.computation.run import Run
+from pypadre.core.model.generic.i_model_mixins import IExecuteable
 from pypadre.core.model.split.splitter import Splitter
 
 
@@ -24,7 +20,7 @@ class PipelineComponent(MetadataEntity, IExecuteable):
     def __init__(self, *, name: str, metadata: Optional[dict]=None, **kwargs):
         if metadata is None:
             metadata = {}
-        # TODO name via enum or removal and name via owlread2
+        # TODO name via enum or name via owlready2
         super().__init__(metadata=metadata, **kwargs)
         self._name = name
 
@@ -40,16 +36,16 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute(self, *, run: Run, data, **kwargs):
+    def _execute(self, *, run: Run, data, parameters, **kwargs):
         kwargs["component"] = self
-        results = self._execute_(data=data, run=run, **kwargs)
+        results = self._execute_(data=data, run=run, parameters=parameters, **kwargs)
         if not isinstance(results, Computation):
             results = Computation(component=self, run=run, result=results)
         # TODO Trigger component result event for metrics and visualization
         return results
 
     @abstractmethod
-    def _execute_(self, *, data, **kwargs):
+    def _execute_(self, *, data, parameters, **kwargs):
         # Black box execution
         raise NotImplementedError
 
@@ -70,6 +66,26 @@ class BranchingComponent(PipelineComponent):
         if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
         return computation
+#
+#
+# class GridSearchComponent(BranchingComponent):
+#
+#     def __init__(self, for_component: PipelineComponent, **kwargs):
+#         super().__init__(**kwargs)
+#         self._for_component = for_component
+#
+#     @property
+#     def for_component(self):
+#         return self._for_component
+#
+#     def hash(self):
+#         self.__hash__()
+#
+#     def _execute_(self, *, data, parameters, **kwargs):
+#         # TODO check for parameter type to decide if this is a iterable or not and start doing a grid search here
+#         # TODO Get all combinations generator
+#         # TODO how do we aggregate the data afterwards? Maybe a run looks for all it's results in different Grid
+#         return data
 
 
 class PythonCodeComponent(PipelineComponent):
@@ -87,8 +103,8 @@ class PythonCodeComponent(PipelineComponent):
     def code(self):
         return self._code
 
-    def _execute_(self, *, data, **kwargs):
-        return self.code.call(data=data, **kwargs)
+    def _execute_(self, *, data, parameters, **kwargs):
+        return self.code.call(data=data, parameters=parameters, **kwargs)
 
 
 # def _unpack_computation(cls, computation: Computation):
