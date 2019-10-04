@@ -14,6 +14,7 @@ from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.generic.i_model_mixins import ILoggable
 from pypadre.core.util.utils import _Const
+from pypadre.pod.importing.dataset.graph_import import create_from_snap, create_from_konect
 
 
 class _Sources(_Const):
@@ -94,9 +95,7 @@ class CSVLoader(IDataSetLoader):
             <class 'pypadre.datasets.Dataset'> A dataset containing the data of the .csv file
 
         """
-        assert_condition(condition=os.path.exists(os.path.abspath(source)),
-                         source=self.__class__.__name__ + inspect.currentframe().f_code.co_name,
-                         message='Dataset path does not exist')
+        self.send_error(message="Dataset path does not exist", condition=os.path.exists(os.path.abspath(source)),source=self)
 
         # TODO something else than multivariat?
         meta = {**{"name": source.split('/')[-1].split('.csv')[0],
@@ -105,23 +104,23 @@ class CSVLoader(IDataSetLoader):
 
         # TODO maybe check this somewhere else?
         data = pd.read_csv(source)
-        trigger_event('EVENT_WARN', condition=data.applymap(np.isreal).all(1).all() == True,
-                      source=self.__class__.__name__ + inspect.currentframe().f_code.co_name,
-                      message='Non-numeric data values found. Program may crash if not handled by estimators')
+        self.send_warn(condition=data.applymap(np.isreal).all(1).all() == True,
+                       source=self.__class__.__name__ + inspect.currentframe().f_code.co_name,
+                       message='Non-numeric data values found. Program may crash if not handled by estimators')
 
         # find targets by searching in the string
         targets = meta.get("targets")
-        for col_name in meta.get("targets"):
+        for col_name in targets:
             data[col_name] = data[col_name].astype('category')
             data[col_name] = data[col_name].cat.codes
 
-        # Extract attributes from column names
-        atts = []
-        for feature in data.columns.values:
-            atts.append(Attribute(name=feature,
-                                  measurementLevel="Ratio" if feature in targets else None,
-                                  defaultTargetAttribute=feature in targets))
-        data_set.set_data(data, atts)
+        # Extract attributes from column names #TODO for now it is done inside the container
+        # atts = []
+        # for feature in data.columns.values:
+        #     atts.append(Attribute(name=feature,
+        #                           measurementLevel="Ratio" if feature in targets else None,
+        #                           defaultTargetAttribute=feature in targets))
+        data_set.set_data(data)
         return data_set
 
 
@@ -145,16 +144,12 @@ class PandasLoader(IDataSetLoader):
         """
         meta = {**{"name": "pandas_imported_df", "description": "imported by pandas_df",
                    "originalSource": "https://imported/from/pandas/Dataframe.html"}, **kwargs}
+
+        # if len(meta["targets"]) == 0:
+        #     meta["targets"] = [0] * len(source)
         data_set = self._create_dataset(**meta)
 
-        atts = []
-        if len(meta["targets"]) == 0:
-            meta["targets"] = [0] * len(source)
-
-        for feature in source.columns.values:
-            atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
-                                  defaultTargetAttribute=feature in target_features, context=None))
-        data_set.set_data(source, atts)
+        data_set.set_data(source)
         return data_set
 
 
@@ -173,19 +168,19 @@ class NumpyLoader(IDataSetLoader):
             :param kwargs: Additional meta info (targets: The targets corresponding to every feature)
             :return: A dataset object
             """
-        meta = {**{"name": "numpy_imported",
-                   "description": "imported by numpy multidimensional",
-                   "originalSource": "https://imported/from/pandas/Dataframe.html"}, **kwargs}
-        data_set = self._create_dataset(**meta)
-
         atts = []
-        if len(meta["target_features"]) == 0:
-            targets = [0] * len(source)
-
         for feature in columns:
             atts.append(Attribute(name=feature, measurementLevel=None, unit=None, description=None,
                                   defaultTargetAttribute=feature in target_features, context=None))
 
+        meta = {**{"name": "numpy_imported",
+                   "description": "imported by numpy multidimensional",
+                   "originalSource": "https://imported/from/numpy/NumpyArray.html", "attributes":atts,
+                   "targets":target_features}, **kwargs}
+
+        data_set = self._create_dataset(**meta)
+
+        data_set.set_data(source)
         # FIXME add none multi dim data
         # FIXME add multidimensional data
         return data_set
@@ -197,8 +192,26 @@ class NetworkXLoader(IDataSetLoader):
     def mapping(source):
         return isinstance(source, nx.Graph)
 
-    def load(self, **kwargs):
-        pass
+    def load(self, source, target_features=None,**kwargs):
+        """
+        Takes a networkx graph object and creates a padre dataset.
+        :param source: networkx graph object
+        :param target_features: (list) targets attributes names
+        :param kwargs: Additional meta data for the created dataset (e.g, attributes)
+        :return: A dataset object
+        """
+
+        meta = {**{"name": "networkx_imported",
+                   "description": "imported by networkx graph",
+                   "originalSource": "https://imported/from/networkx/Graph.html",
+                   "targets": target_features}, **kwargs}
+
+        data_set = self._create_dataset(**meta)
+
+        data_set.set_data(source)
+
+        return data_set
+
 
 
 class SKLearnLoader(ICollectionDataSetLoader):
@@ -309,9 +322,14 @@ class SnapLoader(ICollectionDataSetLoader):
     def mapping(source):
         return source.__eq__("snap")
 
-    def load(self, **kwargs):
-        pass
+    def load(self, source, url="", link_num=0, **kwargs):
 
+        graph, meta = create_from_snap(url,link_num=link_num)
+
+        data_set = self._create_dataset(**meta)
+        data_set.set_data(graph)
+
+        return data_set
 
 class KonectLoader(ICollectionDataSetLoader):
 
@@ -325,8 +343,13 @@ class KonectLoader(ICollectionDataSetLoader):
     def mapping(source):
         return source.__eq__("konect")
 
-    def load(self, **kwargs):
-        pass
+    def load(self, source, url="", zero_based = False, **kwargs):
+
+        graph , meta = create_from_konect(url=url, zero_based=zero_based)
+        data_set = self._create_dataset(**meta)
+        data_set.set_data(graph)
+
+        return data_set
 
 
 class OpenMlLoader(ICollectionDataSetLoader):

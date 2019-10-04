@@ -59,10 +59,13 @@ class TestSKLearnPipeline(PadreTest):
     def test_sklearn_pipeline_with_preprocessing(self):
 
         def preprocessing(*, data, **kwargs):
+            from sklearn.preprocessing import StandardScaler
             from sklearn.decomposition import PCA
             PCA_ = PCA()
+            scaler = StandardScaler()
             _data = Transformation(name="transformed_%s"%data.name, dataset=data)
-            new_features = PCA_.fit_transform(data.features())
+            features = scaler.fit_transform(data.features())
+            new_features = PCA_.fit_transform(features)
             targets = data.targets()
             new_data = np.hstack((new_features, targets))
             _data.set_data(new_data, attributes=data.attributes)
