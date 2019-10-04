@@ -46,6 +46,4 @@ class PadreTest(unittest.TestCase):
         except FileNotFoundError:
             pass
 
-        print('Teardown of test')
-
 
