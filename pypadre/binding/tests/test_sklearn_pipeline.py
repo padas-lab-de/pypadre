@@ -7,6 +7,7 @@ from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.model.code.function import Function
 from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
+from pypadre.core.model.project import Project
 from pypadre.core.tests.padre_test import PadreTest
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 
@@ -28,6 +29,7 @@ class TestSKLearnPipeline(PadreTest):
 
     def __init__(self, *args, **kwargs):
         super(TestSKLearnPipeline, self).__init__(*args, **kwargs)
+        self.project = Project(name='Test Project')
 
     def test_default_sklearn_pipeline(self):
         # TODO clean up experiment creator
@@ -51,10 +53,20 @@ class TestSKLearnPipeline(PadreTest):
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, pipeline=pipeline)
+        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline)
 
         experiment.execute()
+
         # TODO asserts and stuff
+        assert(isinstance(experiment.project, Project))
+
+        assert(experiment.parent is not None)
+        assert(experiment.createdAt is not None)
+
+        assert(len(experiment.executions) > 0)
+        assert(experiment.executions is not None and isinstance(experiment.executions, list))
+        assert(experiment.executions[0].parent == experiment)
+        assert(isinstance(experiment.pipeline, SKLearnPipeline))
 
     def test_sklearn_pipeline_with_preprocessing(self):
 
@@ -73,7 +85,7 @@ class TestSKLearnPipeline(PadreTest):
         loader = SKLearnLoader()
         digits = loader.load("sklearn", utility="load_iris")
 
-        experiment = Experiment(dataset=digits, pipeline=pipeline)
+        experiment = Experiment(name='Test Experiment', dataset=digits, pipeline=pipeline)
 
         experiment.execute()
 
