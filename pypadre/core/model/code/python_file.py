@@ -19,8 +19,9 @@ class PythonFile(CodeFile):
         super().__init__(metadata=metadata, **kwargs)
 
     def call(self, args):
-        # TODO subprocess.Popen(), os.system() or execfile()
-        # Add code to specify entry point
+
+        # https://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
+        # https://stackoverflow.com/questions/3606202/how-can-i-import-a-python-module-function-dynamically
 
         import sys
         import os
@@ -32,4 +33,6 @@ class PythonFile(CodeFile):
         # Get the filename with out the extension for importing
         package_name = str(os.path.basename(self.path)).split(sep='.')[0]
         func = getattr(__import__(package_name), self._function)
+
+        # Call function with passed arguments and return result
         return func(args)

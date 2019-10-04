@@ -33,7 +33,7 @@ class TestSKLearnPipeline(PadreTest):
 
     def test_default_sklearn_pipeline(self):
         # TODO clean up experiment creator
-        pipeline = SKLearnPipeline(pipeline=create_test_pipeline())
+        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline)
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
@@ -49,7 +49,7 @@ class TestSKLearnPipeline(PadreTest):
             return idx[:cutoff], idx[cutoff:], None
 
         # TODO please implement custom split function for this example
-        pipeline = SKLearnPipeline(splitting=Function(fn=custom_split), pipeline=create_test_pipeline())
+        pipeline = SKLearnPipeline(splitting=Function(fn=custom_split), pipeline_fn=create_test_pipeline)
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
@@ -58,6 +58,7 @@ class TestSKLearnPipeline(PadreTest):
         experiment.execute()
 
         # TODO asserts and stuff
+
         assert(isinstance(experiment.project, Project))
 
         assert(experiment.parent is not None)
@@ -80,7 +81,7 @@ class TestSKLearnPipeline(PadreTest):
             _data.set_data(new_data, attributes=data.attributes)
             return _data
 
-        pipeline = SKLearnPipeline(preprocessing_fn=preprocessing, pipeline=create_test_pipeline())
+        pipeline = SKLearnPipeline(preprocessing_fn=preprocessing, pipeline_fn=create_test_pipeline)
 
         loader = SKLearnLoader()
         digits = loader.load("sklearn", utility="load_iris")
