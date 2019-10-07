@@ -227,7 +227,7 @@ class LocalBackends(unittest.TestCase):
         dataset = self.app.datasets.list({'name': id})
 
         experiment = Experiment(dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline=create_test_pipeline()))
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline))
 
         def log(sender, *, message, log_level="", **kwargs):
             if log_level is "":

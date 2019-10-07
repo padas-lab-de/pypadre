@@ -2,15 +2,14 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from types import GeneratorType
-from typing import Callable, Optional, Union, List
+from typing import Callable, Optional, Union, Iterable
 
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.i_model_mixins import IExecuteable
+from pypadre.core.model.execution import Execution
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.split.splitter import Splitter
 
 
@@ -36,11 +35,11 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute(self, *, run: Run, data, parameters, **kwargs):
+    def _execute(self, *, execution: Execution, data, parameters, predecessor: Computation=None, branch=False, **kwargs):
         kwargs["component"] = self
-        results = self._execute_(data=data, run=run, parameters=parameters, **kwargs)
+        results = self._execute_(data=data, execution=execution, predecessor=predecessor, parameters=parameters, **kwargs)
         if not isinstance(results, Computation):
-            results = Computation(component=self, run=run, result=results)
+            results = Computation(component=self, execution=execution, predecessor=predecessor, branch=branch, result=results)
         # TODO Trigger component result event for metrics and visualization
         return results
 
@@ -54,18 +53,27 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         pass
 
 
-class BranchingComponent(PipelineComponent):
+class ParameterizedPipelineComponent(PipelineComponent):
     __metaclass__ = ABCMeta
 
-    @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, *, parameters: Iterable, **kwargs):
+        # TODO name via enum or name via owlready2
         super().__init__(**kwargs)
+        self._parameters = parameters
 
-    def _execute(self, *, run: Run, data, **kwargs):
-        computation = super()._execute(run=run, data=data, **kwargs)
-        if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
-            raise ValueError("Can only branch if the computation produces a list or generator of data")
-        return computation
+
+# class BranchingComponent(PipelineComponent):
+#     __metaclass__ = ABCMeta
+#
+#     @abstractmethod
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#
+#     def _execute(self, *, run: Run, data, **kwargs):
+#         computation = super()._execute(execution=execution, data=data, **kwargs)
+#         if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
+#             raise ValueError("Can only branch if the computation produces a list or generator of data")
+#         return computation
 #
 #
 # class GridSearchComponent(BranchingComponent):
@@ -125,15 +133,16 @@ class PythonCodeComponent(PipelineComponent):
 #         return cls(result, component=computation.component, execution=computation.execution)
 
 
-class SplitComponent(BranchingComponent, PipelineComponent):
+# class SplitComponent(BranchingComponent, PipelineComponent):
+class SplitComponent(PipelineComponent):
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def __init__(self, name="splitter", **kwargs):
         super().__init__(name=name, **kwargs)
 
-    def _execute(self, *, data, **kwargs):
-        return super()._execute(data=data, **kwargs)
+    def _execute(self, *, data, branch=True, **kwargs):
+        return super()._execute(data=data, branch=branch, **kwargs)
 
 
 class EstimatorComponent(PipelineComponent):

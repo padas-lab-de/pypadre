@@ -4,7 +4,8 @@ from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.events.events import signals
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.pipeline import Pipeline
 from pypadre.core.model.project import Project
 

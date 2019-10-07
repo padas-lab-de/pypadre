@@ -42,6 +42,10 @@ class TestSKLearnPipeline(PadreTest):
         experiment.execute()
         # TODO asserts and stuff
 
+    def test_default_sklearn_pipeline_grid_search(self):
+        pass
+        # TODO test grid search
+
     def test_custom_split_sklearn_pipeline(self):
 
         def custom_split(idx):

@@ -1,5 +1,6 @@
 from pypadre.core.base import MetadataEntity
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 

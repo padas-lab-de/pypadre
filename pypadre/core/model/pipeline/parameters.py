@@ -1,6 +1,3 @@
-import itertools
-
-
 class PipelineParameters:
 
     def __init__(self, parameter_map):
@@ -23,7 +20,8 @@ class PipelineParameters:
     def is_grid_search(self, component):
         return len(self.combinations(component)) == 1
 
-    def combinations(self, component):
+    def combinations(self, *, execution, component):
+        from pypadre.core.model.computation.computation import Computation
         parameters = self.get_for(component)
         # TODO parameters could also be a generator function if this is the case just call it and check if combinations are valid regarding the schema
         # TODO look through the parameters and add combination if one of it is a iterable instead of an expected parameter type
@@ -69,4 +67,4 @@ class PipelineParameters:
         #         estimator.set_params(**{split_params[1]: element[idx]})
         #
         #     r = Run(self, workflow, **dict(self._metadata))
-        return [{}]
+        return Computation(component=component, execution=execution, result=parameters, branch=False)

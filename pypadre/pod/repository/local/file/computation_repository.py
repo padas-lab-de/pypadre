@@ -34,8 +34,8 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         self.log(
             "RUN COMPUTATION: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
-    def _put(self, obj, *args, directory: str, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         computation = obj
         self.write_file(directory, META_FILE, computation.metadata)
-        if not isinstance(computation.result, GeneratorType):
+        if not isinstance(computation.result, GeneratorType) and store_results:
             self.write_file(directory, RESULT_FILE, computation.result, mode='wb')

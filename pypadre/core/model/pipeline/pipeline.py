@@ -4,10 +4,12 @@ import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.model.code.code import Code
+from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
-from pypadre.core.model.pipeline.components import PythonCodeComponent, BranchingComponent, SplitPythonComponent, \
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
     EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent
 from pypadre.core.model.pipeline.parameters import PipelineParameters
 from pypadre.core.validation.validation import Validateable
@@ -36,24 +38,33 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def _execute_(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
-        parameter_combinations = parameter_map.combinations(node)
-        for parameters in parameter_combinations:
-            computation = node.execute(execution=execution, parameters=parameters, data=data, **kwargs)
-            if isinstance(node, BranchingComponent):
-                for res in computation.result:
-                    self._execute_successors(node, execution=execution, parameter_map=parameter_map, data=res, **kwargs)
-            else:
-                self._execute_successors(node, execution=execution, parameter_map=parameter_map, data=computation.result, **kwargs)
+        parameter_computation = parameter_map.combinations(execution=execution, component=node)
 
-    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, **kwargs):
+        if parameter_computation.branch:
+            for parameters in parameter_computation.result:
+                self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
+        else:
+            self._execute__(node, data=data, parameters=parameter_computation.result, parameter_map=parameter_map, execution=execution)
+
+    def _execute__(self, node: PipelineComponent, *, data, parameters, parameter_map: PipelineParameters, execution: Execution, **kwargs):
+        computation = node.execute(execution=execution, parameters=parameters, data=data, **kwargs)
+        if computation.branch:
+            for res in computation.result:
+                self._execute_successors(node, execution=execution, predecessor=computation,
+                                         parameter_map=parameter_map, data=res, **kwargs)
+        else:
+            self._execute_successors(node, execution=execution, predecessor=computation, parameter_map=parameter_map,
+                                     data=computation.result, **kwargs)
+
+    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, predecessor: Computation=None, **kwargs):
         if self.out_degree(node) == 0:
             print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
+            data.send_put(store_results=True)
         else:
             successors = self.successors(node)
             for successor in successors:
-                self._execute_(successor, data=data, execution=execution, parameter_map=parameter_map, **kwargs)
-
+                self._execute_(successor, data=data, execution=execution, predecessor=predecessor, parameter_map=parameter_map, **kwargs)
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)
