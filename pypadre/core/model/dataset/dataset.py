@@ -143,7 +143,7 @@ class Dataset(IStoreable, MetadataEntity):
 
         if self.attributes is None or len(self.attributes) == 0:
             self.send_warn(message='Dataset has no attributes yet! Attempting to derive them from the binary using '
-                                   'targets metadata if exits', condition=True)
+                                   'targets metadata if exits')
             if isinstance(data, pd.DataFrame):
                 attributes = PandasContainer.derive_attributes(data, targets=self.metadata.get("targets", None))
                 container = PandasContainer(data, attributes)
@@ -315,7 +315,7 @@ class Transformation(Dataset):
 
         if attributes is not None:
             self.update_attributes(attributes)
-            self.send_warn(message='Old attributes will be overwritten in the transformed dataset', condition=True)
+            self.send_warn(message='Old attributes will be overwritten in the transformed dataset')
 
         if isinstance(data, pd.DataFrame):
             container = PandasContainer(data, self.attributes)

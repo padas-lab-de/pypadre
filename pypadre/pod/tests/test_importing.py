@@ -31,5 +31,9 @@ class Test_loaders(PadreTest):
 
         loader = OpenMlLoader()
 
+        data = loader.load("openml", url="https://www.openml.org/d/31")
+
+
+
 
 
