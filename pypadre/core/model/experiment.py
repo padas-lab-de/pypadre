@@ -150,6 +150,5 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
         # TODO command
         # TODO check pipeline_parameters mapping to components?
         execution = Execution(experiment=self, codehash=self.pipeline.hash(), command=kwargs.pop("cmd", "default"))
-        self.send_put()
         self._executions.append(execution)
         return execution.execute(parameter_map=parameter_map, **kwargs)

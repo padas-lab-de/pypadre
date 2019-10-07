@@ -2,6 +2,7 @@ import os
 import re
 
 from pypadre.core.model.experiment import Experiment
+from pypadre.core.model.project import Project
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
@@ -56,7 +57,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
     def put_progress(self, experiment, **kwargs):
         self.log("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
-    def _put(self, experiment, *args, directory, merge=False, **kwargs):
+    def _put(self, experiment: Experiment, *args, directory, merge=False, **kwargs):
         # update experiment
         if merge:
             metadata = self.get_file(directory, META_FILE)

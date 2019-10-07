@@ -29,6 +29,7 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
         self._command = command
 
     def _execute(self, *args, parameter_map: PipelineParameters, **kwargs):
+        self.send_put()
         self.experiment.pipeline.execute(data=self.experiment.dataset, parameter_map=parameter_map, execution=self, **kwargs)
 
     @property

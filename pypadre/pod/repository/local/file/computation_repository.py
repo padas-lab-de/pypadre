@@ -20,7 +20,7 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         return '{COMPUTATION_ID}'
 
     def __init__(self, backend: IPadreBackend):
-        super().__init__(parent=backend.run, name=NAME, backend=backend)
+        super().__init__(parent=backend.execution, name=NAME, backend=backend)
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)

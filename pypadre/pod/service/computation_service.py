@@ -16,8 +16,8 @@ class ComputationService(BaseService):
         super().__init__(model_clz=Split, backends=backends, **kwargs)
 
         @connect(Computation)
-        def put(obj, store_results=False, **kwargs):
-            self.put(obj, store_results)
+        def put(obj, **kwargs):
+            self.put(obj, **kwargs)
         self.save_signal_fn(put)
 
         @connect(Computation)

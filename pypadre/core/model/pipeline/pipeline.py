@@ -60,7 +60,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         if self.out_degree(node) == 0:
             print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
-            data.send_put(store_results=True)
+            data.send_put(store_results=True, allow_overwrite=True)
         else:
             successors = self.successors(node)
             for successor in successors:
