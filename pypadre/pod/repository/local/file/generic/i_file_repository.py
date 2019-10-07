@@ -303,7 +303,7 @@ class IChildFileRepository(IFileRepository, ChildEntity):
                 return super().replace_placeholder(obj, path)
 
         # If no placeholder is present we can call the parent placeholder replacement function
-        elif hasattr(self.parent, 'replace_placeholder'):
+        elif hasattr(self.parent, 'replace_placeholder') and hasattr(obj, 'parent'):
             return self.parent.replace_placeholder(obj.parent, path)
         return path
 

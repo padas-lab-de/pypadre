@@ -20,7 +20,11 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, *, component, execution: Execution, predecessor: Optional[Computation]=None, result, branch=False, **kwargs):
+    def __init__(self, *, component, execution: Execution, predecessor: Optional[Computation]=None, result,
+                 parameters=None, branch=False, **kwargs):
+        if parameters is None:
+            parameters = {}
+
         # Add defaults
         defaults = {}
 
@@ -34,6 +38,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         self._result = result
         # Todo allow for multiple predecessors
         self._predecessor = predecessor
+        self._parameters = parameters
         self._branch = branch
         self.send_put()
 
@@ -51,6 +56,10 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     @property
     def predecessor(self):
         return self._predecessor
+
+    @property
+    def parameters(self):
+        return self._parameters
 
     @property
     def run(self):

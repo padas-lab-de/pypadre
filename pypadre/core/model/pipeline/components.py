@@ -39,7 +39,7 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         kwargs["component"] = self
         results = self._execute_(data=data, execution=execution, predecessor=predecessor, parameters=parameters, **kwargs)
         if not isinstance(results, Computation):
-            results = Computation(component=self, execution=execution, predecessor=predecessor, branch=branch, result=results)
+            results = Computation(component=self, parameters=parameters, execution=execution, predecessor=predecessor, branch=branch, result=results)
         # TODO Trigger component result event for metrics and visualization
         return results
 
