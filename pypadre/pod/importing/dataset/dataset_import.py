@@ -1,21 +1,23 @@
 import inspect
 import os
 import re
+import tempfile
 import uuid
 from abc import abstractmethod, ABCMeta
 
+import arff
 import networkx as nx
 import numpy as np
 import pandas as pd
 import sklearn.datasets as ds
 from padre.PaDREOntology import PaDREOntology
-
+import openml as oml
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.generic.i_model_mixins import ILoggable
 from pypadre.core.util.utils import _Const
 from pypadre.pod.importing.dataset.graph_import import create_from_snap, create_from_konect
-
+from openml import exceptions
 
 class _Sources(_Const):
     file = "file"
@@ -262,6 +264,7 @@ class SKLearnLoader(ICollectionDataSetLoader):
         return source.__eq__("sklearn")
 
     def load(self, source, utility: str = None, **kwargs):
+
         if not utility or getattr(ds, utility) is None or not callable(getattr(ds, utility)):
             raise ValueError(
                 "A sklearn utility name has to be passed with the utility parameter to specify which data set to load.")
@@ -366,5 +369,36 @@ class OpenMlLoader(ICollectionDataSetLoader):
     def mapping(source):
         return source.__eq__("openml")
 
-    def load(self, **kwargs):
-        pass
+    def load(self, source, url="", apikey="1f8766e1615225a727bdea12ad4c72fa",**kwargs):
+        """
+
+        :param source:
+        :param url:
+        :param apikey:
+        :param kwargs:
+        :return:
+        """
+
+        dataset_id = url.split("/")[-1].strip(" ")
+        oml.config.apikey = apikey
+        with tempfile.TemporaryDirectory() as temp_dir:
+            oml.config.cache_directory = temp_dir
+
+            try:
+                load = oml.datasets.get_dataset(int(dataset_id))
+            except exceptions.OpenMLServerException as err:
+                print("Dataset not found! \nErrormessage: " + str(err))
+                return None
+            except ConnectionError as err:
+                print("openML unreachable! \nErrormessage: " + str(err))
+                return None
+            except OSError as err:
+                print("Invalid datapath! \nErrormessage: " + str(err))
+                return None
+
+            meta = {"name": load.name, "version": load.version,}
+            bunch = arff.load(open(temp_dir+'/org/openml/www/datasets/'+dataset_id+'/dataset.arff', encoding='utf-8'))
+            print('mehdi')
+
+
+        return 1
