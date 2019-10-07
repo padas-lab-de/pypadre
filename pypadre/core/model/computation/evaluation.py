@@ -11,14 +11,14 @@ class Evaluation(Computation):
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, *, training, **kwargs):
+    def __init__(self, *, training, result, **kwargs):
         # Add defaults
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {self.TRAINING_ID: training.id})}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.TRAINING_ID: training.id}}
         self._training = training
-        super().__init__(schema_resource_name="evaluation.json", result=self, metadata=metadata, **kwargs)
+        super().__init__(schema_resource_name="evaluation.json", result=result, metadata=metadata, **kwargs)
 
     @property
     def estimation(self):

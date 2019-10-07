@@ -1,3 +1,6 @@
+from pypadre.core.model.computation.hyper_parameter_search import HyperParameterSearch
+
+
 class PipelineParameters:
 
     def __init__(self, parameter_map):
@@ -18,10 +21,9 @@ class PipelineParameters:
             return {}
 
     def is_grid_search(self, component):
-        return len(self.combinations(component)) == 1
+        pass
 
-    def combinations(self, *, execution, component):
-        from pypadre.core.model.computation.computation import Computation
+    def combinations(self, *, execution, component, predecessor):
         parameters = self.get_for(component)
         # TODO parameters could also be a generator function if this is the case just call it and check if combinations are valid regarding the schema
         # TODO look through the parameters and add combination if one of it is a iterable instead of an expected parameter type
@@ -67,4 +69,4 @@ class PipelineParameters:
         #         estimator.set_params(**{split_params[1]: element[idx]})
         #
         #     r = Run(self, workflow, **dict(self._metadata))
-        return Computation(component=component, execution=execution, result=parameters, branch=False)
+        return HyperParameterSearch(component=component, execution=execution, result=parameters, predecessor=predecessor, branch=False)

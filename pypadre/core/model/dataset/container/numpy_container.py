@@ -88,7 +88,7 @@ class NumpyContainer(IBaseContainer,ILoggable):
                        for i in range(data.shape[1])]
         return _attributes
 
-    def get_Ontology(self):
+    def get_ontology(self):
         """
         Looks through the binary data to determine the corresponding ontology of each attribute property
         :return: a dict()

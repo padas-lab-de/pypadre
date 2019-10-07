@@ -4,6 +4,7 @@ Module containing python classes for managing data sets
 - TODO allow group based management of binary files similar to hdF5
 
 """
+from typing import Callable
 
 import networkx as nx
 import numpy as np
@@ -50,6 +51,10 @@ class Dataset(IStoreable, MetadataEntity):
         super().__init__(schema_resource_name='dataset.json', metadata=metadata, **kwargs)
 
         self._binaries = dict()
+        self._proxy_loaders = {}
+
+    def add_proxy_loader(self, fn: Callable):
+        self._proxy_loaders[fn.__hash__()] = lambda: self.set_data(data=fn())
 
     @property
     def name(self):
@@ -79,6 +84,10 @@ class Dataset(IStoreable, MetadataEntity):
         # assert_condition(condition=options.get("type") is not None, source=self,
         #                  message="type attribute has to be set for a dataset")
 
+    def _execute_proxy_loaders(self):
+        for key in list(self._proxy_loaders.keys()):
+            self._proxy_loaders.pop(key)()
+
     def container(self, bin_format=None):
         """
         Gets the container holding the data with given format. If no format is given we just get the only container
@@ -87,6 +96,10 @@ class Dataset(IStoreable, MetadataEntity):
         # Try to get data of unknown binary format
         if bin_format is None:
             if len(self._binaries) == 0:
+                if self._proxy_loaders.__len__() > 0:
+                    self.send_info(message="Trying to load proxied object.")
+                    self._execute_proxy_loaders()
+                    return self.container(bin_format)
                 raise ValueError("No binary exists.")
             if len(self._binaries) > 1:
                 raise ValueError("More than one binary exists. Pass a format.")

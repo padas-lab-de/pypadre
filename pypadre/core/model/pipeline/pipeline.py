@@ -5,6 +5,7 @@ from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
+from pypadre.core.model.computation.hyper_parameter_search import HyperParameterSearch
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
@@ -12,6 +13,7 @@ from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
     EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent
 from pypadre.core.model.pipeline.parameters import PipelineParameters
+from pypadre.core.model.split.split import Split
 from pypadre.core.validation.validation import Validateable
 
 
@@ -23,7 +25,13 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         # TODO this has may have to include if the pipeline structure was changed etc
         return hash(",".join([str(pc.hash()) for pc in self.nodes]))
 
-    def _execute(self, *, parameter_map: PipelineParameters, execution: Execution, data, **kwargs):
+    def _execute(self, *, pipeline_parameters: Union[PipelineParameters, dict]=None, parameter_map: PipelineParameters=None, execution: Execution, data, **kwargs):
+        if parameter_map is None:
+            if pipeline_parameters is None:
+                parameter_map = PipelineParameters({})
+            if not isinstance(pipeline_parameters, PipelineParameters):
+                parameter_map = PipelineParameters(pipeline_parameters)
+
         # TODO currently we don't allow for merging in a pipeline again. To solve this a successor can only execute as soon as it gets all data from all predecessors (Computation pipelines etc...)
         # TODO each component should maybe have a own kwargs list for the execute call to allow for the same parameter name on different components
 
@@ -38,33 +46,53 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def _execute_(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
-        parameter_computation = parameter_map.combinations(execution=execution, component=node)
+        parameters = parameter_map.combinations(execution=execution, component=node, predecessor=kwargs.get("predecessor", None))
 
-        if parameter_computation.branch:
-            for parameters in parameter_computation.result:
-                self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
+        if isinstance(parameters, HyperParameterSearch):
+            if parameters.branch:
+                for parameters in parameters.result:
+                    # If the parameter map returns a generator or other iterable and should branch we have to execute
+                    #  for each item
+                    self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+            else:
+                # If the parameter map returns a search with a single item without branch we can just use it
+                self._execute__(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
         else:
-            self._execute__(node, data=data, parameters=parameter_computation.result, parameter_map=parameter_map, execution=execution)
+            # Todo don't force the user to provide a hyper parameter search in a parameter_map?
+            raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
+            #self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
 
     def _execute__(self, node: PipelineComponent, *, data, parameters, parameter_map: PipelineParameters, execution: Execution, **kwargs):
-        computation = node.execute(execution=execution, parameters=parameters, data=data, **kwargs)
+        computation = node.execute(execution=execution, parameters=parameters, data=data,
+                                   predecessor=kwargs.pop("predecessor", None), **kwargs)
         if computation.branch:
             for res in computation.result:
                 self._execute_successors(node, execution=execution, predecessor=computation,
-                                         parameter_map=parameter_map, data=res, **kwargs)
+                                         parameter_map=parameter_map, data=res)
         else:
             self._execute_successors(node, execution=execution, predecessor=computation, parameter_map=parameter_map,
-                                     data=computation.result, **kwargs)
+                                     data=computation.result)
 
-    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, predecessor: Computation=None, **kwargs):
+        # Check if we are a end node
         if self.out_degree(node) == 0:
             print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
-            data.send_put(store_results=True, allow_overwrite=True)
-        else:
-            successors = self.successors(node)
-            for successor in successors:
-                self._execute_(successor, data=data, execution=execution, predecessor=predecessor, parameter_map=parameter_map, **kwargs)
+            computation.send_put(store_results=True, allow_overwrite=True)
+            parameters = {computation.id: computation.parameters}
+            splits = []
+            predecessor = computation.predecessor
+            while predecessor is not None:
+                parameters[predecessor.computation.id] = predecessor.parameters
+                if isinstance(predecessor, Split):
+                    splits.append(predecessor)
+                predecessor = predecessor.predecessor
+            run = Run(execution=execution, parameter_selection=parameters, splits=splits)
+            run.send_put()
+
+    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, predecessor: Computation=None, **kwargs):
+        successors = self.successors(node)
+        for successor in successors:
+            self._execute_(successor, data=data, execution=execution, predecessor=predecessor, parameter_map=parameter_map, **kwargs)
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)

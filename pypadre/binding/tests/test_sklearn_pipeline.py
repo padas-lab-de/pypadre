@@ -40,6 +40,7 @@ class TestSKLearnPipeline(PadreTest):
         experiment = Experiment(dataset=iris, pipeline=pipeline)
 
         experiment.execute()
+        print(experiment)
         # TODO asserts and stuff
 
     def test_default_sklearn_pipeline_grid_search(self):

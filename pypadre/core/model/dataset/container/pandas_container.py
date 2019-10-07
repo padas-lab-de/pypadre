@@ -91,7 +91,7 @@ class PandasContainer(IBaseContainer,ILoggable):
                        for i, feat in enumerate(data.columns.values)]
         return _attributes
 
-    def get_Ontology(self):
+    def get_ontology(self):
         """
         Looks through the binary data to determine the corresponding ontology of each attribute property
         :return: a dict()

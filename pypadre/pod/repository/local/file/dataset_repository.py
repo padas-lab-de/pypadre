@@ -45,7 +45,9 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
 
         if self.has_file(os.path.join(self.root_dir, directory), DATA_FILE):
             # TODO: Implement lazy loading of the dataset
-            ds.set_data(self.get_file(os.path.join(self.root_dir, directory), DATA_FILE))
+            def _load_data():
+                return self.get_file(os.path.join(self.root_dir, directory), DATA_FILE)
+            ds.add_proxy_loader(_load_data)
         return ds
 
     def to_folder_name(self, dataset):

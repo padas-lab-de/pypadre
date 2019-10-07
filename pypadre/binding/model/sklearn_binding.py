@@ -112,9 +112,9 @@ class SKLearnEvaluator(EvaluatorComponent):
         # TODO
         return self.__hash__()
 
-    def _execute_(self, *, data, **kwargs):
-        model = data.model
-        split = data.split
+    def _execute_(self, *, data, predecessor, **kwargs):
+        model = data["model"]
+        split = data["split"]
 
         # TODO CLEANUP. METRICS SHOULDN'T BE CALCULATED HERE BUT CALCULATED BY INDEPENDENT METRICS MEASURES
         # TODO still allow for custom metrics which are added by using sklearn here?
@@ -185,7 +185,7 @@ class SKLearnEvaluator(EvaluatorComponent):
         results['testing_sample_count'] = len(test_idx)
         results['split_num'] = split.number
 
-        return Evaluation(training=data, metadata=results, **kwargs)
+        return Evaluation(training=predecessor, result=results, **kwargs)
 
     @staticmethod
     def is_inferencer(model=None):

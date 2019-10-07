@@ -23,7 +23,7 @@ class ProjectFileRepository(IGitRepository, IProjectRepository):
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
-        return Project(metadata=metadata)
+        return Project(name=metadata.pop("name"), description=metadata.pop("description"), metadata=metadata)
 
     def to_folder_name(self, project):
         # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)

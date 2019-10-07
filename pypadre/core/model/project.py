@@ -12,12 +12,12 @@ class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
         # TODO fill with properties to extract for table
         cls.tablefy_register_columns({})
 
-    def __init__(self, **kwargs):
+    def __init__(self, name, description, **kwargs):
         # Add defaults
         defaults = {"name": "default", "description": "This is the default project."}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
 
         super().__init__(schema_resource_name='project.json', metadata=metadata, **kwargs)
 

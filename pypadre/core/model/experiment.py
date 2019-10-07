@@ -142,7 +142,7 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
     def executions(self):
         return self._executions
 
-    def _execute(self, *args, parameter_map, **kwargs):
+    def _execute(self, *args, **kwargs):
         if self.pipeline is None:
             raise ValueError("Pipeline has to be defined to run an experiment")
         if self.dataset is None:
@@ -151,4 +151,4 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
         # TODO check pipeline_parameters mapping to components?
         execution = Execution(experiment=self, codehash=self.pipeline.hash(), command=kwargs.pop("cmd", "default"))
         self._executions.append(execution)
-        return execution.execute(parameter_map=parameter_map, **kwargs)
+        return execution.execute(**kwargs)
