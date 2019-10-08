@@ -35,11 +35,15 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute(self, *, execution: Execution, data, parameters, predecessor: Computation=None, branch=False, **kwargs):
+    def _execute(self, *, execution: Execution, data, parameters,
+                 predecessor: Computation=None, branch=False, **kwargs):
         kwargs["component"] = self
-        results = self._execute_(data=data, execution=execution, predecessor=predecessor, parameters=parameters, **kwargs)
+        results = self._execute_(data=data, execution=execution,
+                                 predecessor=predecessor, parameters=parameters, **kwargs)
         if not isinstance(results, Computation):
-            results = Computation(component=self, parameters=parameters, execution=execution, predecessor=predecessor, branch=branch, result=results)
+            results = Computation(component=self, parameters=parameters, execution=execution, predecessor=predecessor,
+                                  branch=branch, result=results)
+
         # TODO Trigger component result event for metrics and visualization
         return results
 
@@ -54,6 +58,12 @@ class PipelineComponent(MetadataEntity, IExecuteable):
 
 
 class ParameterizedPipelineComponent(PipelineComponent):
+    def hash(self):
+        pass
+
+    def _execute_(self, *, data, parameters, **kwargs):
+        pass
+
     __metaclass__ = ABCMeta
 
     def __init__(self, *, parameters: Iterable, **kwargs):
