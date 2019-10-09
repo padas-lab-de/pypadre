@@ -41,6 +41,11 @@ class PipelineParameters:
         # The params_list contains the names of the hyperparameters in the grid
         grid, params_list = self.create_combinations(hyperparameters)
 
+        return HyperParameterSearch(component=component, execution=execution,
+                                    parameters=grid, parameter_names= params_list,
+                                    predecessor=predecessor, branch=len(grid)>1)
+
+        """
         # We need to either create multiple components
         # based on the number of elements in the grid or iterate of the grid
         for element in grid:
@@ -55,8 +60,9 @@ class PipelineParameters:
             # TODO Decide whether the grid creation logic should be within the HyperParameter Search Component or not
             yield HyperParameterSearch(component=component, execution=execution,
                                        parameters=execution_params, predecessor=predecessor, branch=False)
+        """
 
-    def create_combinations(self, parameters):
+    def create_combinations(self, parameters:dict):
         """
         Creates all the possible combinations of hyper parameters passed
         :param parameters: Dictionary containing hyperparameter names and their possible values

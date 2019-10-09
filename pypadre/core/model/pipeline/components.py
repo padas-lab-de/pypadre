@@ -36,8 +36,9 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         raise NotImplementedError
 
     def _execute(self, *, execution: Execution, data, parameters,
-                 predecessor: Computation=None, branch=False, **kwargs):
+                 predecessor: Computation = None, branch=False, **kwargs):
         kwargs["component"] = self
+
         results = self._execute_(data=data, execution=execution,
                                  predecessor=predecessor, parameters=parameters, **kwargs)
         if not isinstance(results, Computation):
