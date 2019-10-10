@@ -45,9 +45,9 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         entries = self.get_entries()
 
         for entry in entries:
-            self._execute_(entry, parameter_map=parameter_map, execution=execution, data=data, **kwargs)
+            self._execute_pipeline(entry, parameter_map=parameter_map, execution=execution, data=data, **kwargs)
 
-    def _execute_(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
+    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
 
@@ -60,18 +60,18 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
                     for parameters in parameters.result:
                         # If the parameter map returns a generator or other iterable and should branch we have to
                         # execute for each item
-                        self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                        self._execute_pipeline_helper(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
                 else:
                     # If the parameter map returns a search with a single item without branch we can just use it
-                    self._execute__(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                    self._execute_pipeline_helper(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
             else:
                 # Todo don't force the user to provide a hyper parameter search in a parameter_map?
                 raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
                 #self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
         else:
             # If we don't need parameters we don't extract them from the map but only pass the map to the following components
-            self._execute__(node, data=data, parameter_map=parameter_map, execution=execution,
-                            predecessor=kwargs.get("predecessor", None))
+            self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map, execution=execution,
+                                          predecessor=kwargs.get("predecessor", None))
 
     def _execute__(self, node: PipelineComponent, *, data, parameters, parameter_map: ParameterMap, execution: Execution, **kwargs):
         computation = node.execute(execution=execution, parameters=parameters, data=data,
@@ -95,7 +95,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, predecessor: Computation=None, **kwargs):
         successors = self.successors(node)
         for successor in successors:
-            self._execute_(successor, data=data, execution=execution, predecessor=predecessor, parameter_map=parameter_map, **kwargs)
+            self._execute_pipeline(successor, data=data, execution=execution, predecessor=predecessor, parameter_map=parameter_map, **kwargs)
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)
