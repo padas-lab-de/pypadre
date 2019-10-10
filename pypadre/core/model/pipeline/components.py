@@ -77,6 +77,16 @@ class ParameterizedPipelineComponent(PipelineComponent):
     def parameter_schema(self):
         return self._parameter_schema
 
+    def _execute(self, *, execution: Execution, data, parameters, predecessor: Computation = None, branch=False,
+                 **kwargs):
+        self._validate_parameters(parameters)
+        return super()._execute(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
+                                branch=branch, **kwargs)
+
+    def _validate_parameters(self, parameters):
+        # TODO validate if the parameters are according to the schema. If no schema was provided always true???
+        pass
+
     def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
         self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor, parameter_map=parameter_map)
 
