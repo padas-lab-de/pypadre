@@ -10,7 +10,7 @@ from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.pipeline.parameters import IParameterProvider
+from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap
 from pypadre.core.model.split.splitter import Splitter
 
 
@@ -76,9 +76,8 @@ class ParameterizedPipelineComponent(PipelineComponent):
     def parameter_schema(self):
         return self._parameter_schema
 
-
-    def get_parameters(self, parameter_map):
-        self._parameter_provider
+    def combinations(self, *, execution, component, predecessor, parameter_map: ParameterMap):
+        self._parameter_provider.combinations(execution=execution, component=component, predecessor=predecessor, parameter_map=parameter_map)
 
 # class BranchingComponent(PipelineComponent):
 #     __metaclass__ = ABCMeta
