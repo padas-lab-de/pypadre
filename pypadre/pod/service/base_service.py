@@ -32,7 +32,7 @@ class BaseService:
             [entities.append(e) for e in backend.list(search=search, offset=offset, size=size) if len(entities) < size and e not in entities]
         return entities
 
-    def put(self, obj):
+    def put(self, obj, **kwargs):
         """
         Puts the entity
         :param obj: Entity to put
@@ -40,7 +40,7 @@ class BaseService:
         """
         for b in self.backends:
             backend: IStoreableRepository = b
-            backend.put(obj)
+            backend.put(obj, **kwargs)
 
     def patch(self, obj):
         """

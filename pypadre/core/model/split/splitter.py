@@ -57,7 +57,7 @@ class Splitter:
     def splitting_code(self):
         return self._splitting_code
 
-    def splits(self, *, data, run, component, **kwargs):
+    def splits(self, *, data, execution, component, predecessor=None, **kwargs):
         """
         returns an generator function over all available splits. Every iterator returns
         a triple (train_idx, test_idx, eval_idx)
@@ -92,10 +92,10 @@ class Splitter:
             # Todo do sanity checks that indizes do not overlap
             if self.splitting_code:
                 train_idx, test_idx, val_idx = self.splitting_code.call(idx)
-                yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
-                            val_idx=val_idx, component=component)
+                yield Split(execution=execution, num=++num, train_idx=train_idx, test_idx=test_idx,
+                            val_idx=val_idx, component=component, predecessor=predecessor)
             if self._strategy is None:
-                yield Split(run, ++num, idx, None, None, component=component)
+                yield Split(execution=execution, num=++num, train_idx=idx, test_idx=None, val_idx=None, component=component, predecessor=predecessor)
             elif self._strategy == "explicit":
                 for i in self._indices:
                     # TODO FIXME
@@ -108,9 +108,9 @@ class Splitter:
                 train, test = idx[:n_tr], idx[n_tr:]
                 if self._val_ratio > 0:  # create a validation set out of the test set
                     n_v = int(len(train) * self._val_ratio)
-                    yield Split(run=run, num=++num, train_idx=train[:n_v], test_idx=test, val_idx=train[n_v:], component=component)
+                    yield Split(execution=execution, num=++num, train_idx=train[:n_v], test_idx=test, val_idx=train[n_v:], component=component, predecessor=predecessor)
                 else:
-                    yield Split(run=run, num=++num, train_idx=train, test_idx=test, val_idx=None, component=component)
+                    yield Split(execution=execution, num=++num, train_idx=train, test_idx=test, val_idx=None, component=component, predecessor=predecessor)
             elif self._strategy == "cv":
                 for i in range(self._n_folds):
                     # The test array can be seen as a non overlapping sub array of size n_te moving from start to end
@@ -125,9 +125,9 @@ class Splitter:
 
                     if self._val_ratio > 0:  # create a validation set out of the test set
                         n_v = int(len(train) * self._val_ratio)
-                        yield Split(run, ++num, train[:n_v], test, train[n_v:], component=component)
+                        yield Split(execution=execution, num=++num, train_idx=train[:n_v], test_idx=test, val_idx=train[n_v:], component=component, predecessor=predecessor)
                     else:
-                        yield Split(run, ++num, train, test, None, component=component)
+                        yield Split(execution=execution, num=++num, train_idx=train, test_idx=test, val_idx=None, component=component, predecessor=predecessor)
 
             elif self._strategy == "index":
                 # If a list of dictionaries are given to the experiment as indices, pop each one out and return
@@ -144,7 +144,7 @@ class Splitter:
                     if val is not None:
                         val = np.array(val)
 
-                    yield Split(run, ++num, train, test, val, component=component)
+                    yield Split(execution=execution, num=++num, train_idx=train, test_idx=test, val_idx=val, component=component, predecessor=predecessor)
 
             else:
                 raise ValueError(f"Unknown splitting strategy {self._strategy}")

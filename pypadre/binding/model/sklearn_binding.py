@@ -12,6 +12,7 @@ from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
+from pypadre.core.model.pipeline import pipeline
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent
 from pypadre.core.model.split.split import Split
@@ -39,6 +40,7 @@ class SKLearnEstimator(EstimatorComponent):
     """
 
     def __init__(self, *, pipeline=None, **kwargs):
+        # TODO don't change state of pipeline!!!
         # check for final component to determine final results
         # if step wise is true, log intermediate results. Otherwise, log only final results.
         # distingusish between training and fitting in classification.
@@ -110,9 +112,9 @@ class SKLearnEvaluator(EvaluatorComponent):
         # TODO
         return self.__hash__()
 
-    def _execute_(self, *, data, **kwargs):
-        model = data.model
-        split = data.split
+    def _execute_(self, *, data, predecessor, **kwargs):
+        model = data["model"]
+        split = data["split"]
 
         # TODO CLEANUP. METRICS SHOULDN'T BE CALCULATED HERE BUT CALCULATED BY INDEPENDENT METRICS MEASURES
         # TODO still allow for custom metrics which are added by using sklearn here?
@@ -183,7 +185,7 @@ class SKLearnEvaluator(EvaluatorComponent):
         results['testing_sample_count'] = len(test_idx)
         results['split_num'] = split.number
 
-        return Evaluation(training=data, metadata=results, **kwargs)
+        return Evaluation(training=predecessor, result=results, **kwargs)
 
     @staticmethod
     def is_inferencer(model=None):
@@ -207,14 +209,19 @@ class SKLearnPipeline(DefaultPythonExperimentPipeline):
         :param kwargs:
         """
         pipeline = pipeline_fn()
+        visitor = SciKitVisitor(pipeline)
 
         # Check if the return type is a Sklearn Pipeline
         assert(isinstance(pipeline, Pipeline))
 
         # Verify running two instances of the function creates two Pipeline objects
         assert(pipeline is not pipeline_fn())
-
-        # TODO kwargs passing
-        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, **kwargs.get("SKLearnPipeline", {}))
+        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline)
         sk_learn_evaluator = SKLearnEvaluator()
         super().__init__(splitting=splitting, estimator=sk_learn_estimator, evaluator=sk_learn_evaluator, **kwargs)
+
+
+class SKLearnPipelineV2(pipeline.Pipeline):
+    def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline: Pipeline, **kwargs):
+        super().__init__(**kwargs)
+        # TODO for each pipeline element in sklearn create a pipeline component

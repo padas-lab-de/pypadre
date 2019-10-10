@@ -10,6 +10,7 @@ from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleS
 NAME = "computations"
 
 META_FILE = File("metadata.json", JSonSerializer)
+PARAMETER_FILE = File("parameters.json", JSonSerializer)
 RESULT_FILE = File("results.bin", PickleSerializer)
 
 
@@ -20,7 +21,7 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         return '{COMPUTATION_ID}'
 
     def __init__(self, backend: IPadreBackend):
-        super().__init__(parent=backend.run, name=NAME, backend=backend)
+        super().__init__(parent=backend.execution, name=NAME, backend=backend)
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
@@ -34,8 +35,9 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         self.log(
             "RUN COMPUTATION: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
-    def _put(self, obj, *args, directory: str, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         computation = obj
         self.write_file(directory, META_FILE, computation.metadata)
-        if not isinstance(computation.result, GeneratorType):
+        self.write_file(directory, PARAMETER_FILE, computation.parameters)
+        if not isinstance(computation.result, GeneratorType) and store_results:
             self.write_file(directory, RESULT_FILE, computation.result, mode='wb')

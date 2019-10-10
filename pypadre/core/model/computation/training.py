@@ -16,7 +16,7 @@ class Training(Computation):
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {self.SPLIT_ID: split.id})}
-        super().__init__(schema_resource_name="model.json", result=self, metadata=metadata, **kwargs)
+        super().__init__(schema_resource_name="model.json", result={"split": split, "model": model}, metadata=metadata, **kwargs)
         self._split = split
         self._model = model
 

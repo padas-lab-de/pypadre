@@ -80,7 +80,8 @@ class LocalBackends(unittest.TestCase):
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = Experiment(dataset=dataset.pop(), project=project, pipeline=SKLearnPipeline(pipeline=create_test_pipeline()))
+        experiment = Experiment(dataset=dataset.pop(), project=project,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline))
 
         self.app.experiments.patch(experiment)
         name = 'Test Experiment SVM'
@@ -168,9 +169,12 @@ class LocalBackends(unittest.TestCase):
         self.app.executions.put(execution)
 
         executions = self.app.executions.list({'name': codehash})
+        if len(executions) > 0:
+            run = Run(execution=executions[0], workflow=execution.experiment.workflow, keep_splits=True)
+            self.app.runs.put(run)
 
-        run = Run(execution=executions[0], workflow=execution.experiment.workflow, keep_splits=True)
-        self.app.runs.put(run)
+        else:
+            raise ValueError('Execution not listed for the same code has')
 
         runs = self.app.runs.list(None)
 
@@ -227,7 +231,7 @@ class LocalBackends(unittest.TestCase):
         dataset = self.app.datasets.list({'name': id})
 
         experiment = Experiment(dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline=create_test_pipeline()))
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline))
 
         def log(sender, *, message, log_level="", **kwargs):
             if log_level is "":

@@ -17,7 +17,7 @@ class ComputationService(BaseService):
 
         @connect(Computation)
         def put(obj, **kwargs):
-            self.put(obj)
+            self.put(obj, **kwargs)
         self.save_signal_fn(put)
 
         @connect(Computation)

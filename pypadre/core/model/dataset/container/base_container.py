@@ -61,7 +61,7 @@ class IBaseContainer:
         return self._attributes
 
     @abstractmethod
-    def get_Ontology(self):
+    def get_ontology(self):
         pass
 
     @abstractmethod

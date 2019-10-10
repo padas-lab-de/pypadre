@@ -10,7 +10,7 @@ class Split(Computation):
     According to the experiment setup the pipeline/workflow will be executed
     """
 
-    def __init__(self, run, num, train_idx, val_idx, test_idx, **kwargs):
+    def __init__(self, execution, num, train_idx, val_idx, test_idx, **kwargs):
         self._num = num
         self._train_idx = train_idx
         self._val_idx = val_idx
@@ -18,15 +18,20 @@ class Split(Computation):
         self._keep_splits = kwargs.pop("keep_splits", False)
         self._splits = []
         self._id = kwargs.pop("split_id", None)
+        self._execution = execution
         # Add defaults
         defaults = {}
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {})}
-        super().__init__(schema_resource_name="split.json", result=self, metadata=metadata, run=run, execution=run.execution, **kwargs)
+        super().__init__(schema_resource_name="split.json", result=self, metadata=metadata, execution=execution, **kwargs)
 
         if self._id is None:
             self._id = uuid.uuid4()
+
+    @property
+    def execution(self):
+        return self._execution
 
     @property
     def number(self):
@@ -55,7 +60,7 @@ class Split(Computation):
 
     @property
     def dataset(self):
-        return self.run.execution.experiment.dataset
+        return self.execution.experiment.dataset
 
     @property
     def train_features(self):

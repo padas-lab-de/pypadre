@@ -2,19 +2,15 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from types import GeneratorType
-from typing import Callable, Optional, Tuple, Iterable, Union
+from typing import Callable, Optional, Union, Iterable
 
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.code.function import Function
-from pypadre.core.model.computation.run import Run
-from pypadre.core.model.computation.training import Training
-from pypadre.core.model.computation.evaluation import Evaluation
-from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.i_model_mixins import IExecuteable
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.split.split import Split
+from pypadre.core.model.execution import Execution
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap
 from pypadre.core.model.split.splitter import Splitter
 
 
@@ -24,7 +20,7 @@ class PipelineComponent(MetadataEntity, IExecuteable):
     def __init__(self, *, name: str, metadata: Optional[dict]=None, **kwargs):
         if metadata is None:
             metadata = {}
-        # TODO name via enum or removal and name via owlread2
+        # TODO name via enum or name via owlready2
         super().__init__(metadata=metadata, **kwargs)
         self._name = name
 
@@ -40,16 +36,20 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute(self, *, run: Run, data, **kwargs):
-        kwargs["component"] = self
-        results = self._execute_(data=data, run=run, **kwargs)
+    def _execute(self, *, execution: Execution, data, parameters,
+                 predecessor: Computation = None, branch=False, **kwargs):
+
+        results = self._execute_(data=data, execution=execution,
+                                 predecessor=predecessor, parameters=parameters, component=self, **kwargs)
         if not isinstance(results, Computation):
-            results = Computation(component=self, run=run, result=results)
+            results = Computation(component=self, parameters=parameters, execution=execution, predecessor=predecessor,
+                                  branch=branch, result=results)
+
         # TODO Trigger component result event for metrics and visualization
         return results
 
     @abstractmethod
-    def _execute_(self, *, data, **kwargs):
+    def _execute_(self, *, data, parameters, **kwargs):
         # Black box execution
         raise NotImplementedError
 
@@ -58,18 +58,27 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         pass
 
 
-class BranchingComponent(PipelineComponent):
+class ParameterizedPipelineComponent(PipelineComponent):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, *, parameter_schema: Iterable, parameter_provider: IParameterProvider, **kwargs):
+        # TODO name via enum or name via owlready2
+        # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)
+        self._parameter_schema = parameter_schema
+        self._parameter_provider = parameter_provider
 
-    def _execute(self, *, run: Run, data, **kwargs):
-        computation = super()._execute(run=run, data=data, **kwargs)
-        if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
-            raise ValueError("Can only branch if the computation produces a list or generator of data")
-        return computation
+    @property
+    def parameter_provider(self):
+        return self._parameter_provider
+
+    @property
+    def parameter_schema(self):
+        return self._parameter_schema
+
+    def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
+        self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor, parameter_map=parameter_map)
 
 
 class PythonCodeComponent(PipelineComponent):
@@ -87,8 +96,8 @@ class PythonCodeComponent(PipelineComponent):
     def code(self):
         return self._code
 
-    def _execute_(self, *, data, **kwargs):
-        return self.code.call(data=data, **kwargs)
+    def _execute_(self, *, data, parameters, **kwargs):
+        return self.code.call(data=data, parameters=parameters, **kwargs)
 
 
 # def _unpack_computation(cls, computation: Computation):
@@ -109,15 +118,16 @@ class PythonCodeComponent(PipelineComponent):
 #         return cls(result, component=computation.component, execution=computation.execution)
 
 
-class SplitComponent(BranchingComponent, PipelineComponent):
+# class SplitComponent(BranchingComponent, PipelineComponent):
+class SplitComponent(PipelineComponent):
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def __init__(self, name="splitter", **kwargs):
         super().__init__(name=name, **kwargs)
 
-    def _execute(self, *, data, **kwargs):
-        return super()._execute(data=data, **kwargs)
+    def _execute(self, *, data, branch=True, **kwargs):
+        return super()._execute(data=data, branch=branch, **kwargs)
 
 
 class EstimatorComponent(PipelineComponent):

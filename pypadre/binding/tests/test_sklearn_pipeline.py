@@ -40,7 +40,12 @@ class TestSKLearnPipeline(PadreTest):
         experiment = Experiment(dataset=iris, pipeline=pipeline)
 
         experiment.execute()
+        print(experiment)
         # TODO asserts and stuff
+
+    def test_default_sklearn_pipeline_grid_search(self):
+        pass
+        # TODO test grid search
 
     def test_custom_split_sklearn_pipeline(self):
 

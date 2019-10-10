@@ -1,5 +1,6 @@
 from pypadre.core.base import MetadataEntity
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
@@ -11,12 +12,12 @@ class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
         # TODO fill with properties to extract for table
         cls.tablefy_register_columns({})
 
-    def __init__(self, **kwargs):
+    def __init__(self, name, description, **kwargs):
         # Add defaults
         defaults = {"name": "default", "description": "This is the default project."}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
 
         super().__init__(schema_resource_name='project.json', metadata=metadata, **kwargs)
 
@@ -33,7 +34,8 @@ class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
         else:
             return self.__dict__.get(key, None)
 
-    def execute(self, **kwargs):
-        # TODO args per experiment
-
-        return {experiment: experiment.execute(**kwargs) for experiment in self._experiments}
+    def execute(self, experiment_pipeline_parameters: dict, **kwargs):
+        return {
+            experiment: experiment.execute(pipeline_parameters=experiment_pipeline_parameters.get(experiment.id),
+                                           **kwargs)
+            for experiment in self._experiments}

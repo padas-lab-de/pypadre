@@ -1,6 +1,6 @@
 from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.events.events import signals
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable, IExecuteable
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
@@ -27,9 +27,8 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
         self._command = command
 
     def _execute(self, *args, **kwargs):
-        from pypadre.core.model.computation.run import Run
-        run = Run(execution=self)
-        self.experiment.pipeline.execute(run=run, data=self.experiment.dataset, execution=self, **kwargs)
+        self.send_put()
+        return self.experiment.pipeline.execute(data=self.experiment.dataset, execution=self, **kwargs)
 
     @property
     def hash(self):

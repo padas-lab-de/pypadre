@@ -1,4 +1,3 @@
-from _py_abc import ABCMeta
 from typing import Callable
 
 from pypadre.core.model.code.code import Code
@@ -6,7 +5,6 @@ from pypadre.core.model.code.code import Code
 
 class Function(Code):
     """ Function to execute."""
-    __metaclass__ = ABCMeta
 
     def __init__(self, *, fn: Callable, **kwargs):
         # TODO Add defaults
