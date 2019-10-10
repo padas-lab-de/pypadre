@@ -5,7 +5,7 @@ from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.computation.hyper_parameter_search import HyperParameterSearch
+from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
@@ -66,7 +66,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
             parameters = node.combinations(execution=execution, predecessor=kwargs.get("predecessor", None),
                                            parameter_map=parameter_map)
 
-            if isinstance(parameters, HyperParameterSearch):
+            if isinstance(parameters, HyperParameterGrid):
                 if parameters.branch:
                     for parameters in parameters.result:
                         # If the parameter map returns a generator or other iterable and should branch we have to

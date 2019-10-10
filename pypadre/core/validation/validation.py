@@ -95,6 +95,26 @@ class Validateable(ILoggable):
             validate(metadata, self._schema, cls=schema_validator)
 
 
+class ValidateParameters(ILoggable):
+
+    def __init__(self, *args, **kwargs):
+        self._parameter_schema = kwargs.pop('parameter_schema', None)
+        super().__init__(args, kwargs)
+
+    def _validate_parameters(self, parameters):
+        if self._parameter_schema is None:
+            self.send_warn(
+                "A parameterized component needs a schema to validate parameters on execution time. Component: " + str(
+                    self) + " Parameters: " + str(parameters))
+        else:
+            # TODO validate if the parameters are according to the schema.
+            pass
+
+    @property
+    def parameter_schema(self):
+        return self._parameter_schema
+
+
 class ValidationErrorHandler:
     """ Class to handle errors on the validation of an validatable. """
 

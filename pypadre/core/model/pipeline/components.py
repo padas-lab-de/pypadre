@@ -12,6 +12,7 @@ from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap
 from pypadre.core.model.split.splitter import Splitter
+from pypadre.core.validation.validation import ValidateParameters
 
 
 class PipelineComponent(MetadataEntity, IExecuteable):
@@ -60,7 +61,7 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         pass
 
 
-class ParameterizedPipelineComponent(PipelineComponent):
+class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters):
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -75,10 +76,6 @@ class ParameterizedPipelineComponent(PipelineComponent):
     def parameter_provider(self):
         return self._parameter_provider
 
-    @property
-    def parameter_schema(self):
-        return self._parameter_schema
-
     def _execute_helper(self, *, execution: Execution, data, parameters=None, predecessor: Computation = None,
                         branch=False,
                         **kwargs):
@@ -87,15 +84,6 @@ class ParameterizedPipelineComponent(PipelineComponent):
         self._validate_parameters(parameters)
         return super()._execute_helper(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
                                        branch=branch, **kwargs)
-
-    def _validate_parameters(self, parameters):
-        if self._parameter_schema is None:
-            self.send_warn(
-                "A parameterized component needs a schema to validate parameters on execution time. Component: " + str(
-                    self) + " Parameters: " + str(parameters))
-        else:
-            # TODO validate if the parameters are according to the schema.
-            pass
 
     def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
         self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor,

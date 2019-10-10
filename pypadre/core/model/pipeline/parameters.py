@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABCMeta
 
 from pypadre.core.model.code.code import Code
-from pypadre.core.model.computation.hyper_parameter_search import HyperParameterSearch
+from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
 
 
 class ParameterMap:
@@ -44,8 +44,10 @@ class CodeParameterProvider(IParameterProvider):
     def code(self):
         return self._code
 
-    def combinations(self, *, execution, component, predecessor, parameter_map: ParameterMap):
-        return self._code.call(execution=execution, component=component, predecessor=predecessor, parameter_map=parameter_map)
+    def combinations(self, *, execution, component, predecessor, parameter_map: ParameterMap) -> HyperParameterGrid:
+        # The function call will return a hyperparametergrid object
+        return self._code.call(execution=execution, component=component,
+                               predecessor=predecessor, parameter_map=parameter_map)
 
 
 class GridSearch(Code):
@@ -85,9 +87,9 @@ class GridSearch(Code):
         # The params_list contains the names of the hyperparameters in the grid
         grid, params_list = self.create_combinations(hyperparameters)
 
-        return HyperParameterSearch(component=component, execution=execution,
-                                    parameters=grid, parameter_names=params_list,
-                                    predecessor=predecessor, branch=len(grid) > 1)
+        return HyperParameterGrid(component=component, execution=execution,
+                                  parameters=grid, parameter_names=params_list,
+                                  predecessor=predecessor, branch=len(grid) > 1)
 
     def create_combinations(self, parameters:dict):
         """
@@ -145,7 +147,7 @@ class GridSearch(Code):
     #     #  check if combinations are valid regarding the schema
     #     # TODO look through the parameters and add combination if one of it is a iterable
     #     #  instead of an expected parameter type
-    #     # TODO expected parameter types are to be given in the component schema FIXME Christofer
+    #     # TODO expected parameter types are to be given in the component schema FIXME
     #
     #     # If the parameters are returned within a function
     #     hyperparameters = parameters() if callable(parameters) else parameters
