@@ -11,10 +11,14 @@ from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
-    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent
+    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent, ParameterizedPipelineComponent
 from pypadre.core.model.pipeline.parameters import ParameterMap
 from pypadre.core.model.split.split import Split
 from pypadre.core.validation.validation import Validateable
+
+
+class ParameterizedComponent(object):
+    pass
 
 
 class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
@@ -46,21 +50,28 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def _execute_(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
-        parameters = parameter_map.combinations(execution=execution, component=node, predecessor=kwargs.get("predecessor", None))
 
-        if isinstance(parameters, HyperParameterSearch):
-            if parameters.branch:
-                for parameters in parameters.result:
-                    # If the parameter map returns a generator or other iterable and should branch we have to execute
-                    #  for each item
-                    self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+        if isinstance(node, ParameterizedPipelineComponent):
+            # extract all combinations of parameters we have to execute
+            parameters = node.combinations(execution=execution, predecessor=kwargs.get("predecessor", None), parameter_map=parameter_map )
+
+            if isinstance(parameters, HyperParameterSearch):
+                if parameters.branch:
+                    for parameters in parameters.result:
+                        # If the parameter map returns a generator or other iterable and should branch we have to
+                        # execute for each item
+                        self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                else:
+                    # If the parameter map returns a search with a single item without branch we can just use it
+                    self._execute__(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
             else:
-                # If the parameter map returns a search with a single item without branch we can just use it
-                self._execute__(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                # Todo don't force the user to provide a hyper parameter search in a parameter_map?
+                raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
+                #self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
         else:
-            # Todo don't force the user to provide a hyper parameter search in a parameter_map?
-            raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
-            #self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
+            # If we don't need parameters we don't extract them from the map but only pass the map to the following components
+            self._execute__(node, data=data, parameter_map=parameter_map, execution=execution,
+                            predecessor=kwargs.get("predecessor", None))
 
     def _execute__(self, node: PipelineComponent, *, data, parameters, parameter_map: ParameterMap, execution: Execution, **kwargs):
         computation = node.execute(execution=execution, parameters=parameters, data=data,

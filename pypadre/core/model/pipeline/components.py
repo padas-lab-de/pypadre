@@ -77,8 +77,8 @@ class ParameterizedPipelineComponent(PipelineComponent):
     def parameter_schema(self):
         return self._parameter_schema
 
-    def combinations(self, *, execution, component, predecessor, parameter_map: ParameterMap):
-        self._parameter_provider.combinations(execution=execution, component=component, predecessor=predecessor, parameter_map=parameter_map)
+    def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
+        self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor, parameter_map=parameter_map)
 
 
 class PythonCodeComponent(PipelineComponent):
