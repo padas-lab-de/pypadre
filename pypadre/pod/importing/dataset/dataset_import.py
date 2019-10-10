@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import sklearn.datasets as ds
 from padre.PaDREOntology import PaDREOntology
-import openml as oml
+# import openml as oml
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.generic.i_model_mixins import ILoggable
@@ -326,8 +326,17 @@ class SnapLoader(ICollectionDataSetLoader):
         return source.__eq__("snap")
 
     def load(self, source, url="", link_num=0, **kwargs):
+        """Takes the graph of the Snap website and puts it into a pypadre.dataset.
 
-        graph, meta = create_from_snap(url,link_num=link_num)
+        Args:
+            url (str): The url of the specific graph. From graph of this website: https://snap.stanford.edu/
+            link_num (int): Some Graphs have several datasets and thus several download-links.
+        Returns:
+            A pypadre.dataset object that conatins the graph of the url.
+        """
+        graph, meta = create_from_snap(url,link_num=link_num,logger=self)
+
+        meta = {**meta,**kwargs}
 
         data_set = self._create_dataset(**meta)
         data_set.set_data(graph)
@@ -349,96 +358,101 @@ class KonectLoader(ICollectionDataSetLoader):
     def load(self, source, url="", zero_based = False, **kwargs):
 
         graph , meta = create_from_konect(url=url, zero_based=zero_based)
+
+        meta = {**meta,**kwargs}
+
         data_set = self._create_dataset(**meta)
         data_set.set_data(graph)
 
         return data_set
 
 
-class OpenMlLoader(ICollectionDataSetLoader):
-    DATATYPE_MAP = {'INTEGER': (PaDREOntology.SubClassesDatum.Integer.value,PaDREOntology.SubClassesMeasurement.Ratio.value),
-                    'NUMERIC': (PaDREOntology.SubClassesDatum.Number.value, PaDREOntology.SubClassesMeasurement.Ratio.value),
-                    'REAL': (PaDREOntology.SubClassesDatum.Float.value,PaDREOntology.SubClassesMeasurement.Ratio.value) ,
-                    'STRING': (PaDREOntology.SubClassesDatum.Character.value,PaDREOntology.SubClassesMeasurement.Nominal)}
-
-    def list(self, **kwargs):
-        # TODO return openMl datasets
-        pass
-
-    def load_default(self):
-        # TODO load some default datasets
-        return []
-
-    @staticmethod
-    def mapping(source):
-        return source.__eq__("openml")
-
-    def load(self, source, url="",**kwargs):
-        """
-
-        :param source:
-        :param url:
-        :param kwargs:
-        :return:
-        """
-
-        dataset_id = url.split("/")[-1].strip(" ")
-        # oml.config.apikey = apikey
-        with tempfile.TemporaryDirectory() as temp_dir:
-            oml.config.cache_directory = temp_dir
-
-            try:
-                load = oml.datasets.get_dataset(int(dataset_id))
-            except exceptions.OpenMLServerException as err:
-                print("Dataset not found! \nErrormessage: " + str(err))
-                return None
-            except ConnectionError as err:
-                print("openML unreachable! \nErrormessage: " + str(err))
-                return None
-            except OSError as err:
-                print("Invalid datapath! \nErrormessage: " + str(err))
-                return None
-
-            meta = {**{"name": load.name, "version": load.version, "description": load.description,
-                    "originalSource":load.url,"type": PaDREOntology.SubClassesDataset.Multivariat.value},**kwargs}
-
-            bunch = arff.load(open(temp_dir+'/org/openml/www/datasets/'+dataset_id+'/dataset.arff', encoding='utf-8'))
-            bunch_atts = bunch["attributes"]
-            attributes = []
-
-            for att in bunch_atts:
-                attributes.append(att[0])
-
-            df_data = pd.DataFrame(data = bunch['data'])
-            atts = []
-
-            for col in df_data.columns:
-                unit = None
-                measurment_lvl = None
-                data_type = None
-                curr_attribute = bunch_atts[col]
-                self.send_error(message="Name failure, Inconsistency encountered in attributes names",
-                                condition=load.features[col]!=curr_attribute[0])
-
-                if isinstance(curr_attribute[1], list):
-                    measurment_lvl = PaDREOntology.SubClassesMeasurement.Nominal.value
-                    if any( op in ''.join(curr_attribute[1]) for op in ["<",">","="]):
-                        measurment_lvl = PaDREOntology.SubClassesMeasurement.Interval.value
-                    data_type = PaDREOntology.SubClassesDatum.Character.value
-                    df_data[col] = df_data[col].astype('category')
-                elif isinstance(curr_attribute[1], str) and curr_attribute[1] in self.DATATYPE_MAP.keys():
-                    data_type = self.DATATYPE_MAP[curr_attribute[1]][0]
-                    measurment_lvl = self.DATATYPE_MAP[curr_attribute[1]][1]
-                else:
-                    self.send_error(message="Invalid data format from openml")
-
-                atts.append(Attribute(name=curr_attribute[0],measurementLevel=measurment_lvl, unit=unit, type=data_type,
-                                      defaultTargetAttribute=(curr_attribute[0] == load.default_target_attribute)))
-
-            df_data.columns = attributes
-            meta["attributes"] = atts
-            dataset = self._create_dataset(**meta)
-
-            dataset.set_data(df_data)
-
-            return dataset
+# class OpenMlLoader(ICollectionDataSetLoader):
+#     DATATYPE_MAP = {'INTEGER': (PaDREOntology.SubClassesDatum.Integer.value,PaDREOntology.SubClassesMeasurement.Ratio.value),
+#                     'NUMERIC': (PaDREOntology.SubClassesDatum.Number.value, PaDREOntology.SubClassesMeasurement.Ratio.value),
+#                     'REAL': (PaDREOntology.SubClassesDatum.Float.value,PaDREOntology.SubClassesMeasurement.Ratio.value) ,
+#                     'STRING': (PaDREOntology.SubClassesDatum.Character.value,PaDREOntology.SubClassesMeasurement.Nominal)}
+#
+#     def list(self, **kwargs):
+#         # TODO return openMl datasets
+#         pass
+#
+#     def load_default(self):
+#         # TODO load some default datasets
+#         return []
+#
+#     @staticmethod
+#     def mapping(source):
+#         return source.__eq__("openml")
+#
+#     def load(self, source, url="",**kwargs):
+#         """
+#
+#         :param source:
+#         :param url:
+#         :param kwargs:
+#         :return:
+#         """
+#
+#         dataset_id = url.split("/")[-1].strip(" ")
+#         # oml.config.apikey = apikey
+#         with tempfile.TemporaryDirectory(suffix=dataset_id) as temp_dir:
+#             oml.config.cache_directory = temp_dir
+#
+#             try:
+#                 load = oml.datasets.get_dataset(int(dataset_id))
+#             except exceptions.OpenMLServerException as err:
+#                 print("Dataset not found! \nErrormessage: " + str(err))
+#                 return None
+#             except ConnectionError as err:
+#                 print("openML unreachable! \nErrormessage: " + str(err))
+#                 return None
+#             except OSError as err:
+#                 print("Invalid datapath! \nErrormessage: " + str(err))
+#                 return None
+#
+#             meta = {**{"name": load.name, "version": load.version, "description": load.description,
+#                     "originalSource":load.url,"type": PaDREOntology.SubClassesDataset.Multivariat.value},**kwargs}
+#
+#             temp_file = open(temp_dir+'/org/openml/www/datasets/'+dataset_id+'/dataset.arff', encoding='utf-8')
+#             bunch = arff.load(temp_file)
+#             temp_file.close()
+#             bunch_atts = bunch["attributes"]
+#             attributes = []
+#
+#             for att in bunch_atts:
+#                 attributes.append(att[0])
+#
+#             df_data = pd.DataFrame(data = bunch['data'])
+#             atts = []
+#
+#             for col in df_data.columns:
+#                 unit = None
+#                 measurment_lvl = None
+#                 data_type = None
+#                 curr_attribute = bunch_atts[col]
+#                 self.send_error(message="Name failure, Inconsistency encountered in attributes names",
+#                                 condition=load.features[col]!=curr_attribute[0])
+#
+#                 if isinstance(curr_attribute[1], list):
+#                     measurment_lvl = PaDREOntology.SubClassesMeasurement.Nominal.value
+#                     if any( op in ''.join(curr_attribute[1]) for op in ["<",">","="]):
+#                         measurment_lvl = PaDREOntology.SubClassesMeasurement.Interval.value
+#                     data_type = PaDREOntology.SubClassesDatum.Character.value
+#                     df_data[col] = df_data[col].astype('category')
+#                 elif isinstance(curr_attribute[1], str) and curr_attribute[1] in self.DATATYPE_MAP.keys():
+#                     data_type = self.DATATYPE_MAP[curr_attribute[1]][0]
+#                     measurment_lvl = self.DATATYPE_MAP[curr_attribute[1]][1]
+#                 else:
+#                     self.send_error(message="Invalid data format from openml")
+#
+#                 atts.append(Attribute(name=curr_attribute[0],measurementLevel=measurment_lvl, unit=unit, type=data_type,
+#                                       defaultTargetAttribute=(curr_attribute[0] == load.default_target_attribute)))
+#
+#             df_data.columns = attributes
+#             meta["attributes"] = atts
+#             dataset = self._create_dataset(**meta)
+#
+#             dataset.set_data(df_data)
+#
+#             return dataset
