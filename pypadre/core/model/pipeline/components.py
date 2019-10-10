@@ -36,7 +36,7 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute(self, *, execution: Execution, data, parameters,
+    def _execute(self, *, execution: Execution, data, parameters=dict(),
                  predecessor: Computation = None, branch=False, **kwargs):
 
         results = self._execute_(data=data, execution=execution,
@@ -68,6 +68,17 @@ class ParameterizedPipelineComponent(PipelineComponent):
         self._parameter_schema = parameter_schema
         self._parameter_provider = parameter_provider
 
+    def _execute(self, *, execution: Execution, data, parameters, predecessor: Computation = None, branch=False,
+                 **kwargs):
+        return super()._execute(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
+                                branch=branch, **kwargs)
+
+    def execute(self, *args, **kwargs):
+        # Verify the input parameters based on the mapping file
+        parameters = kwargs.get('parameters')
+        self._validate_parameters(parameters)
+        return super().execute(*args, **kwargs)
+
     @property
     def parameter_provider(self):
         return self._parameter_provider
@@ -75,7 +86,6 @@ class ParameterizedPipelineComponent(PipelineComponent):
     @property
     def parameter_schema(self):
         return self._parameter_schema
-
 
     def get_parameters(self, parameter_map):
         self._parameter_provider

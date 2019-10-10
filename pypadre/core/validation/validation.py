@@ -95,6 +95,22 @@ class Validateable(ILoggable):
             validate(metadata, self._schema, cls=schema_validator)
 
 
+class ValidateParmeters(ILoggable):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+
+    def validate_parameters(self, **kwargs):
+
+        if self._schema is None:
+            # TODO make this an error as soon as all validateables are implemented
+            self.send_warn(message="A validateable object needs a schema to validate to: " + str(self))
+            # warnings.warn("A validateable object needs a schema to validate to: " + str(self), FutureWarning)
+            # raise ValueError("A validateable object needs a schema to validate to.")
+        else:
+            pass
+
+
 class ValidationErrorHandler:
     """ Class to handle errors on the validation of an validatable. """
 

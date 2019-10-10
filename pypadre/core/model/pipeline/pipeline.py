@@ -5,7 +5,7 @@ from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.computation.hyper_parameter_search import HyperParameterSearch
+from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
@@ -46,17 +46,20 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def _execute_(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
-        parameters = parameter_map.combinations(execution=execution, component=node, predecessor=kwargs.get("predecessor", None))
+        parameters = parameter_map.combinations(execution=execution, component=node,
+                                                predecessor=kwargs.get("predecessor", None))
 
-        if isinstance(parameters, HyperParameterSearch):
+        if isinstance(parameters, HyperParameterGrid):
             if parameters.branch:
                 for parameters in parameters.result:
                     # If the parameter map returns a generator or other iterable and should branch we have to execute
                     #  for each item
-                    self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                    self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map,
+                                    execution=execution, predecessor=kwargs.get("predecessor", None))
             else:
                 # If the parameter map returns a search with a single item without branch we can just use it
-                self._execute__(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                self._execute__(node, data=data, parameters=parameters.result, parameter_map=parameter_map,
+                                execution=execution, predecessor=kwargs.get("predecessor", None))
         else:
             # Todo don't force the user to provide a hyper parameter search in a parameter_map?
             raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
