@@ -60,10 +60,14 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
                     for parameters in parameters.result:
                         # If the parameter map returns a generator or other iterable and should branch we have to
                         # execute for each item
-                        self._execute_pipeline_helper(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                        self._execute_pipeline_helper(node, data=data, parameters=parameters,
+                                                      parameter_map=parameter_map, execution=execution,
+                                                      predecessor=kwargs.get("predecessor", None))
                 else:
                     # If the parameter map returns a search with a single item without branch we can just use it
-                    self._execute_pipeline_helper(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                    self._execute_pipeline_helper(node, data=data, parameters=parameters.result,
+                                                  parameter_map=parameter_map, execution=execution,
+                                                  predecessor=kwargs.get("predecessor", None))
             else:
                 # Todo don't force the user to provide a hyper parameter search in a parameter_map?
                 raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
