@@ -17,7 +17,7 @@ from pypadre.core.model.split.splitter import Splitter
 class PipelineComponent(MetadataEntity, IExecuteable):
     __metaclass__ = ABCMeta
 
-    def __init__(self, *, name: str, metadata: Optional[dict]=None, **kwargs):
+    def __init__(self, *, name: str, metadata: Optional[dict] = None, **kwargs):
         if metadata is None:
             metadata = {}
         # TODO name via enum or name via owlready2
@@ -84,11 +84,17 @@ class ParameterizedPipelineComponent(PipelineComponent):
                                 branch=branch, **kwargs)
 
     def _validate_parameters(self, parameters):
-        # TODO validate if the parameters are according to the schema. If no schema was provided always true???
-        pass
+        if self._parameter_schema is None:
+            self.send_warn(
+                "A parameterized component needs a schema to validate parameters on execution time. Component: " + str(
+                    self) + " Parameters: " + str(parameters))
+        else:
+            # TODO validate if the parameters are according to the schema.
+            pass
 
     def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
-        self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor, parameter_map=parameter_map)
+        self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor,
+                                              parameter_map=parameter_map)
 
 
 class PythonCodeComponent(PipelineComponent):
