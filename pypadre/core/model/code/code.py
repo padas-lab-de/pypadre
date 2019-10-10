@@ -14,3 +14,12 @@ class Code(MetadataEntity):
 
     def hash(self):
         return self.__hash__()
+
+
+class SourceCode(Code):
+    """ This code is provided in padre and doesn't have to be stored """
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, **kwargs):
+        super().__init__(metadata={"scope": "provided", "ref": str(self.__class__)}, **kwargs)

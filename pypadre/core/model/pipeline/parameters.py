@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABCMeta
 
-from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.code import Code, SourceCode
 from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
 
 
@@ -50,10 +50,10 @@ class CodeParameterProvider(IParameterProvider):
                                predecessor=predecessor, parameter_map=parameter_map)
 
 
-class GridSearch(Code):
+class GridSearch(SourceCode):
 
-    def __init__(self, *, metadata: dict, **kwargs):
-        super().__init__(metadata=metadata, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def call(self, *args, execution, component, predecessor, parameter_map: ParameterMap, **kwargs):
         """
@@ -91,7 +91,7 @@ class GridSearch(Code):
                                   parameters=grid, parameter_names=params_list,
                                   predecessor=predecessor, branch=len(grid) > 1)
 
-    def create_combinations(self, parameters:dict):
+    def create_combinations(self, parameters: dict):
         """
         Creates all the possible combinations of hyper parameters passed
         :param parameters: Dictionary containing hyperparameter names and their possible values
@@ -105,7 +105,6 @@ class GridSearch(Code):
         master_list = []
 
         for parameter in parameters:
-
             # Append only the parameters to create a master list
             parameter_values = param_dict.get(parameter)
 
@@ -202,5 +201,8 @@ class GridSearch(Code):
     #     #
     #     #     r = Run(self, workflow, **dict(self._metadata))
 
-class DefaultParameterProvider(IParameterProvider):
-    pass
+
+class DefaultParameterProvider(CodeParameterProvider):
+
+    def __init__(self):
+        super().__init__(GridSearch())

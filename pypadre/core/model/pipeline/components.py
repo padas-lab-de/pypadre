@@ -10,7 +10,7 @@ from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap
+from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap, DefaultParameterProvider
 from pypadre.core.model.split.splitter import Splitter
 from pypadre.core.validation.validation import ValidateParameters
 
@@ -69,6 +69,8 @@ class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters):
         # TODO name via enum or name via owlready2
         # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)
+        if parameter_provider is None:
+            parameter_provider = DefaultParameterProvider()
         self._parameter_schema = parameter_schema
         self._parameter_provider = parameter_provider
 
