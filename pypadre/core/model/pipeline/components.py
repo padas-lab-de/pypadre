@@ -36,20 +36,22 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute(self, *, execution: Execution, data, parameters=dict(),
-                 predecessor: Computation = None, branch=False, **kwargs):
+    def _execute_helper(self, *, execution: Execution, data,
+                        component=None, predecessor: Computation = None, branch=False, **kwargs):
 
-        results = self._execute_(data=data, execution=execution,
-                                 predecessor=predecessor, parameters=parameters, component=self, **kwargs)
+        # TODO find the problem in the loop
+        component = self
+        results = self._execute_component_code(data=data, execution=execution,
+                                               predecessor=predecessor, component=component, **kwargs)
         if not isinstance(results, Computation):
-            results = Computation(component=self, parameters=parameters, execution=execution, predecessor=predecessor,
+            results = Computation(component=self, execution=execution, predecessor=predecessor,
                                   branch=branch, result=results)
 
         # TODO Trigger component result event for metrics and visualization
         return results
 
     @abstractmethod
-    def _execute_(self, *, data, parameters, **kwargs):
+    def _execute_component_code(self, *, data, parameters, **kwargs):
         # Black box execution
         raise NotImplementedError
 
@@ -62,23 +64,12 @@ class ParameterizedPipelineComponent(PipelineComponent):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *, parameter_schema: Iterable, parameter_provider: IParameterProvider, **kwargs):
+    def __init__(self, *, parameter_schema: Iterable = None, parameter_provider: IParameterProvider = None, **kwargs):
         # TODO name via enum or name via owlready2
         # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)
         self._parameter_schema = parameter_schema
         self._parameter_provider = parameter_provider
-
-    def _execute(self, *, execution: Execution, data, parameters, predecessor: Computation = None, branch=False,
-                 **kwargs):
-        return super()._execute(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
-                                branch=branch, **kwargs)
-
-    def execute(self, *args, **kwargs):
-        # Verify the input parameters based on the mapping file
-        parameters = kwargs.get('parameters')
-        self._validate_parameters(parameters)
-        return super().execute(*args, **kwargs)
 
     @property
     def parameter_provider(self):
@@ -88,11 +79,14 @@ class ParameterizedPipelineComponent(PipelineComponent):
     def parameter_schema(self):
         return self._parameter_schema
 
-    def _execute(self, *, execution: Execution, data, parameters, predecessor: Computation = None, branch=False,
-                 **kwargs):
+    def _execute_helper(self, *, execution: Execution, data, parameters=None, predecessor: Computation = None,
+                        branch=False,
+                        **kwargs):
+        if parameters is None:
+            parameters = {}
         self._validate_parameters(parameters)
-        return super()._execute(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
-                                branch=branch, **kwargs)
+        return super()._execute_helper(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
+                                       branch=branch, **kwargs)
 
     def _validate_parameters(self, parameters):
         if self._parameter_schema is None:
@@ -123,7 +117,9 @@ class PythonCodeComponent(PipelineComponent):
     def code(self):
         return self._code
 
-    def _execute_(self, *, data, parameters, **kwargs):
+    def _execute_component_code(self, *, data, parameters=None, **kwargs):
+        if parameters is None:
+            parameters = {}
         return self.code.call(data=data, parameters=parameters, **kwargs)
 
 
@@ -153,8 +149,8 @@ class SplitComponent(PipelineComponent):
     def __init__(self, name="splitter", **kwargs):
         super().__init__(name=name, **kwargs)
 
-    def _execute(self, *, data, branch=True, **kwargs):
-        return super()._execute(data=data, branch=branch, **kwargs)
+    def _execute_helper(self, *, data, branch=True, **kwargs):
+        return super()._execute_helper(data=data, branch=branch, **kwargs)
 
 
 class EstimatorComponent(PipelineComponent):

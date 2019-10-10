@@ -26,7 +26,7 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
         self._hash = codehash
         self._command = command
 
-    def _execute(self, *args, **kwargs):
+    def _execute_helper(self, *args, **kwargs):
         self.send_put()
         return self.experiment.pipeline.execute(data=self.experiment.dataset, execution=self, **kwargs)
 

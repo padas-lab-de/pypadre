@@ -142,7 +142,7 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
     def executions(self):
         return self._executions
 
-    def _execute(self, *args, **kwargs):
+    def _execute_helper(self, *args, **kwargs):
         if self.pipeline is None:
             raise ValueError("Pipeline has to be defined to run an experiment")
         if self.dataset is None:
