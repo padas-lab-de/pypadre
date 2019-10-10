@@ -78,16 +78,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         if self.out_degree(node) == 0:
             print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
-            computation.send_put(store_results=True, allow_overwrite=True)
-            parameters = {computation.id: computation.parameters}
-            splits = []
-            predecessor = computation.predecessor
-            while predecessor is not None:
-                parameters[predecessor.computation.id] = predecessor.parameters
-                if isinstance(predecessor, Split):
-                    splits.append(predecessor)
-                predecessor = predecessor.predecessor
-            run = Run(execution=execution, parameter_selection=parameters, splits=splits)
+            run = Run.from_computation(computation)
             run.send_put()
 
     def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, predecessor: Computation=None, **kwargs):

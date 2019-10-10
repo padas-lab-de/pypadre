@@ -50,6 +50,10 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         pass
 
     @property
+    def execution(self):
+        return self.parent
+
+    @property
     def component(self):
         return self._component
 
