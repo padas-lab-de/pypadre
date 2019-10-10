@@ -10,6 +10,7 @@ from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.pipeline.parameters import IParameterProvider
 from pypadre.core.model.split.splitter import Splitter
 
 
@@ -37,10 +38,9 @@ class PipelineComponent(MetadataEntity, IExecuteable):
 
     def _execute(self, *, execution: Execution, data, parameters,
                  predecessor: Computation = None, branch=False, **kwargs):
-        kwargs["component"] = self
 
         results = self._execute_(data=data, execution=execution,
-                                 predecessor=predecessor, parameters=parameters, **kwargs)
+                                 predecessor=predecessor, parameters=parameters, component=self, **kwargs)
         if not isinstance(results, Computation):
             results = Computation(component=self, parameters=parameters, execution=execution, predecessor=predecessor,
                                   branch=branch, result=results)
@@ -59,19 +59,26 @@ class PipelineComponent(MetadataEntity, IExecuteable):
 
 
 class ParameterizedPipelineComponent(PipelineComponent):
-    def hash(self):
-        pass
-
-    def _execute_(self, *, data, parameters, **kwargs):
-        pass
-
     __metaclass__ = ABCMeta
 
-    def __init__(self, *, parameters: Iterable, **kwargs):
+    @abstractmethod
+    def __init__(self, *, parameter_schema: Iterable, parameter_provider: IParameterProvider, **kwargs):
         # TODO name via enum or name via owlready2
         super().__init__(**kwargs)
-        self._parameters = parameters
+        self._parameter_schema = parameter_schema
+        self._parameter_provider = parameter_provider
 
+    @property
+    def parameter_provider(self):
+        return self._parameter_provider
+
+    @property
+    def parameter_schema(self):
+        return self._parameter_schema
+
+
+    def get_parameters(self, parameter_map):
+        self._parameter_provider
 
 # class BranchingComponent(PipelineComponent):
 #     __metaclass__ = ABCMeta

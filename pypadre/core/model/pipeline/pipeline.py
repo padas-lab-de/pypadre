@@ -12,7 +12,7 @@ from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
     EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent
-from pypadre.core.model.pipeline.parameters import PipelineParameters
+from pypadre.core.model.pipeline.parameters import ParameterMap
 from pypadre.core.model.split.split import Split
 from pypadre.core.validation.validation import Validateable
 
@@ -25,12 +25,12 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         # TODO this has may have to include if the pipeline structure was changed etc
         return hash(",".join([str(pc.hash()) for pc in self.nodes]))
 
-    def _execute(self, *, pipeline_parameters: Union[PipelineParameters, dict]=None, parameter_map: PipelineParameters=None, execution: Execution, data, **kwargs):
+    def _execute(self, *, pipeline_parameters: Union[ParameterMap, dict]=None, parameter_map: ParameterMap=None, execution: Execution, data, **kwargs):
         if parameter_map is None:
             if pipeline_parameters is None:
-                parameter_map = PipelineParameters({})
-            if not isinstance(pipeline_parameters, PipelineParameters):
-                parameter_map = PipelineParameters(pipeline_parameters)
+                parameter_map = ParameterMap({})
+            if not isinstance(pipeline_parameters, ParameterMap):
+                parameter_map = ParameterMap(pipeline_parameters)
 
         # TODO currently we don't allow for merging in a pipeline again. To solve this a successor can only execute as soon as it gets all data from all predecessors (Computation pipelines etc...)
         # TODO each component should maybe have a own kwargs list for the execute call to allow for the same parameter name on different components
@@ -43,7 +43,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         for entry in entries:
             self._execute_(entry, parameter_map=parameter_map, execution=execution, data=data, **kwargs)
 
-    def _execute_(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, **kwargs):
+    def _execute_(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
         parameters = parameter_map.combinations(execution=execution, component=node, predecessor=kwargs.get("predecessor", None))
@@ -62,9 +62,10 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
             raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
             #self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
 
-    def _execute__(self, node: PipelineComponent, *, data, parameters, parameter_map: PipelineParameters, execution: Execution, **kwargs):
+    def _execute__(self, node: PipelineComponent, *, data, parameters, parameter_map: ParameterMap, execution: Execution, **kwargs):
         computation = node.execute(execution=execution, parameters=parameters, data=data,
                                    predecessor=kwargs.pop("predecessor", None), **kwargs)
+        # TODO add metric calculation
         if computation.branch:
             for res in computation.result:
                 self._execute_successors(node, execution=execution, predecessor=computation,
@@ -89,7 +90,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
             run = Run(execution=execution, parameter_selection=parameters, splits=splits)
             run.send_put()
 
-    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: PipelineParameters, execution: Execution, predecessor: Computation=None, **kwargs):
+    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, predecessor: Computation=None, **kwargs):
         successors = self.successors(node)
         for successor in successors:
             self._execute_(successor, data=data, execution=execution, predecessor=predecessor, parameter_map=parameter_map, **kwargs)

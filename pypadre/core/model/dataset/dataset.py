@@ -294,7 +294,7 @@ class Dataset(IStoreable, MetadataEntity):
 
 class Transformation(Dataset):
 
-    def __init__(self, dataset : Dataset, **kwargs):
+    def __init__(self, dataset: Dataset, **kwargs):
         """
 
         :param dataset: The original dataset to transform/preprocess
