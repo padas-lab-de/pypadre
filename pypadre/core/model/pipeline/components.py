@@ -64,6 +64,7 @@ class ParameterizedPipelineComponent(PipelineComponent):
     @abstractmethod
     def __init__(self, *, parameter_schema: Iterable, parameter_provider: IParameterProvider, **kwargs):
         # TODO name via enum or name via owlready2
+        # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)
         self._parameter_schema = parameter_schema
         self._parameter_provider = parameter_provider
@@ -78,39 +79,6 @@ class ParameterizedPipelineComponent(PipelineComponent):
 
     def combinations(self, *, execution, component, predecessor, parameter_map: ParameterMap):
         self._parameter_provider.combinations(execution=execution, component=component, predecessor=predecessor, parameter_map=parameter_map)
-
-# class BranchingComponent(PipelineComponent):
-#     __metaclass__ = ABCMeta
-#
-#     @abstractmethod
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#
-#     def _execute(self, *, run: Run, data, **kwargs):
-#         computation = super()._execute(execution=execution, data=data, **kwargs)
-#         if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
-#             raise ValueError("Can only branch if the computation produces a list or generator of data")
-#         return computation
-#
-#
-# class GridSearchComponent(BranchingComponent):
-#
-#     def __init__(self, for_component: PipelineComponent, **kwargs):
-#         super().__init__(**kwargs)
-#         self._for_component = for_component
-#
-#     @property
-#     def for_component(self):
-#         return self._for_component
-#
-#     def hash(self):
-#         self.__hash__()
-#
-#     def _execute_(self, *, data, parameters, **kwargs):
-#         # TODO check for parameter type to decide if this is a iterable or not and start doing a grid search here
-#         # TODO Get all combinations generator
-#         # TODO how do we aggregate the data afterwards? Maybe a run looks for all it's results in different Grid
-#         return data
 
 
 class PythonCodeComponent(PipelineComponent):
