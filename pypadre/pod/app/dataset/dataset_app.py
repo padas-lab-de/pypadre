@@ -6,7 +6,7 @@ from jsonschema import ValidationError
 from pypadre.pod.app.base_app import BaseChildApp
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
-    NetworkXLoader, SKLearnLoader, SnapLoader, KonectLoader, OpenMlLoader, ICollectionDataSetLoader
+    NetworkXLoader, SKLearnLoader, SnapLoader, KonectLoader, ICollectionDataSetLoader
 from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.pod.service.dataset_service import DatasetService
 
