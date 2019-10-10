@@ -14,10 +14,15 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup as soup
+from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
 
+
+_ctx = ssl.create_default_context()
+_ctx.check_hostname = False
+_ctx.verify_mode = ssl.CERT_NONE
 
 def pandas_to_networkx(df, source, target, create_using, node_attr=[], edge_attr=[]):
     """Takes a pandas dataframe and convertes it to a networkx object. The column-name of the source and target column
@@ -145,7 +150,7 @@ def _get_row_in_parent(name,tables):
                 return row_content
 
 
-def _gather_parent_data(name,isBiosnap):
+def _gather_parent_data(name,url=None,isBiosnap=False):
     """Web-scrapes the Snap website to gather additional meta-data about the graph.
 
     Args:
@@ -159,10 +164,7 @@ def _gather_parent_data(name,isBiosnap):
     else:
         parent_url = "https://snap.stanford.edu/data/index.html"
 
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    uClient = uReq(parent_url,context=ctx)
+    uClient = uReq(parent_url,context=_ctx)
     page_html = uClient.read()
     uClient.close()
     page_soup = soup(page_html, "html.parser")
@@ -172,12 +174,15 @@ def _gather_parent_data(name,isBiosnap):
 
     type = row_content[1].text
     short_description = row_content[-1].text
+    snap_id = None
     if(isBiosnap):
         columns=row_content[2].text.split(", ")
+        snap_id = url.split("/")[5]
 
     is_directed = not "Undirected" in type
 
-    return (type,short_description,is_directed,columns)
+    return {"graph_type":type,"short_description":short_description,"is_directed":is_directed,"columns":columns,
+            "snap_id":snap_id}
 
 def _pair_different(columns):
     #check pairwise distinct
@@ -187,8 +192,61 @@ def _pair_different(columns):
                 return False
     return True
 
+def _get_html_page(url):
+    """
 
-def create_from_snap(url, link_num=0):
+    :param url:
+    :return:
+    """
+
+    response = urlopen(url, context= _ctx)
+    page_html = response.read()
+    response.close()
+    page_soup = soup(page_html,"html.parser")
+
+    return page_soup
+
+
+def _get_link(url,page_soup=None,link_num=0,logger=None):
+
+    all_href = page_soup.find_all("a")
+    if all_href is None:
+        pass
+    else:
+        is_biodata = url.split("/")[3] == "biodata"
+
+        if is_biodata:
+            links = [i for i in all_href if ".tsv.gz" in str(i) or ".csv.gz" in str(i)]
+            if len(links) < link_num:
+                #
+                if logger:
+                    logger.send_error(message="Invalid Link or invalid Link Number")
+                else:
+                    print("Invalid Link or invalid Link Number")
+                    return None
+
+            snap_id = url.split("/")[5]
+            name = url.split("/")[6].replace(snap_id + "-", "").replace(".html", "")
+            link = "https://snap.stanford.edu/biodata/datasets/" + snap_id + "/" + links[link_num]["href"]
+        else:
+            links = [i for i in all_href if ".txt.gz" in str(i) or ".csv.gz" in str(i)]
+            if len(links) < link_num:
+                if logger:
+                    logger.send_error(message="Invalid Link or invalid Link Number")
+                else:
+                    print("Invalid Link or invalid Link Number")
+                    return None
+
+            link = links[link_num]["href"]
+            link = link.replace("../data", "")
+            link = link.replace("https://snap.stanford.edu/data/", "")
+            link = link.replace("https://snap.stanford.edu/", "")
+            link = "https://snap.stanford.edu/data/" + link
+            name = url.split("/")[4].replace(".html", "")
+
+        return name, link, is_biodata
+
+def create_from_snap(url, link_num=0, logger=None):
     """Takes the graph of the Snap website and puts it into a pypadre.dataset.
 
     Args:
@@ -198,52 +256,18 @@ def create_from_snap(url, link_num=0):
         A pypadre.dataset object that conatins the graph of the url.
     """
     meta_dict={"description": "","version":0, "published": False, "originalSource": url}
-    snap_id = None
     atts=[]
 
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    # gather data from url
-    uClient = urlopen(url, context=ctx)
-    page_html = uClient.read()
-    uClient.close()
-    page_soup = soup(page_html, "html.parser")
-    all_a = page_soup.find_all('a')
+    page_soup = _get_html_page(url)
+    name, link, is_biodata = _get_link(url,page_soup=page_soup,link_num=link_num,logger=logger)
 
-    is_biodata = url.split("/")[3] == "biodata"
+    graph_meta = _gather_parent_data(name,url,is_biodata)
 
-    if is_biodata:
-        #"https://snap.stanford.edu/biodata/datasets/10017/files/ChChSe-Decagon_polypharmacy.csv.gz"
-        links = [i for i in all_a if ".tsv.gz" in str(i) or ".csv.gz" in str(i)]
-        if len(links) < link_num:
-            print("Invalid Link or invalid Link Number")
-            return None
-
-        snap_id=url.split("/")[5]
-        name=url.split("/")[6].replace(snap_id+"-","").replace(".html", "")
-        link="https://snap.stanford.edu/biodata/datasets/"+snap_id+"/"+links[link_num]["href"]
-    else:
-        links = [i for i in all_a if ".txt.gz" in str(i) or ".csv.gz" in str(i)]
-        if len(links) < link_num:
-            print("Invalid Link or invalid Link Number")
-            return None
-
-        link = links[link_num]["href"]
-        link = link.replace("../data", "")
-        link = link.replace("https://snap.stanford.edu/data/", "")
-        link = link.replace("https://snap.stanford.edu/", "")
-        link = "https://snap.stanford.edu/data/" + link
-        name = url.split("/")[4].replace(".html", "")
-
-    description = "".join(
-        str(page_soup.find("div", {"id": "right-column"})).split("<table")[0].split("<p>")[1:]).replace("</p>", "") \
-        .replace("\n", "").replace("\r", "").replace("<br/>", "")
-
-    graph_type, short_description, is_directed, columns = _gather_parent_data(name,is_biodata)
+    description = "".join(str(page_soup.find("div", {"id": "right-column"})).split("<table")[0].split("<p>")[1:]) \
+        .replace("</p>", "").replace("\n", "").replace("\r", "").replace("<br/>", "").replace("<a", "").replace("</a>","")
 
     with tempfile.TemporaryFile(mode='w+b') as ftemp:
-        response = urlopen(link,context=ctx)
+        response = urlopen(link,context=_ctx)
         buflen = 1 << 20
         while True:
             buf = response.read(buflen)
@@ -256,87 +280,103 @@ def create_from_snap(url, link_num=0):
         if not is_biodata:
             if ".txt" in link:
                 with gzip.open(ftemp) as gzipread:
-                    while(True):
+                    while True:
 
-                        line=gzipread.readline().decode("utf-8")
+                        line = gzipread.readline().decode("utf-8")
                         if (line[0] is "#"):
                             comments.append(line)
                         else:
                             break
 
                 ftemp.seek(0)
-                edges = pd.read_csv(ftemp, delim_whitespace=True, compression='gzip', comment="#", header=None)
+                df_edges = pd.read_csv(ftemp, delim_whitespace=True, compression='gzip', comment="#", header=None)
                 if len(comments) == 4:
-                    meta_dict["description"] = meta_dict["description"]+" short-description:" +comments[0] + " | " + comments[1]
+                    meta_dict["description"] += " short-description:" + comments[
+                        0] + " | " + comments[1]
 
-                    columns=comments[-1][2:].replace("\n", "").replace("\r", "").split("\t")
-                    meta_dict["description"] = meta_dict["description"] +" | column names: " + str(columns)
+                    columns = comments[-1][2:].replace("\n", "").replace("\r", "").split("\t")
+                    meta_dict["description"] += " | column names: " + str(columns)
                 else:
-                    meta_dict["description"] = meta_dict["description"] + " | file_comments: " + str(comments)
+                    meta_dict["description"] += " | file_comments: " + str(comments) + " | short-description: " + \
+                                           str(graph_meta["short_description"])
             else:
-                edges = pd.read_csv(ftemp, delimiter=",", compression='gzip', header=None)
+                df_edges = pd.read_csv(ftemp, delimiter=",", compression='gzip', header=None)
 
-                meta_dict["description"] = meta_dict["description"] +" | short_description: " + str(short_description)
+                meta_dict["description"] += " | short_description: " + str(
+                    graph_meta["short_description"])
 
-                columns=page_soup.find_all("div", {"class": "code"})[0].text.split(", ")
+                columns = page_soup.find_all("div", {"class": "code"})[0].text.split(", ")
 
-                meta_dict["description"] = meta_dict["description"] + " | column names: " + str(columns)
-
+                meta_dict["description"] += " | column names: " + str(columns)
 
                 for i in page_soup.find_all("ul")[-1].find_all("li"):
-                    description =description+" | " + i.text
-
-
+                    description = description + " | " + i.text
         else:
+            col_names=None
+            header = None
+            with gzip.open(ftemp) as gzipread:
+                line = gzipread.readline().decode("utf-8")
+                if (line[0] is "#"):
+                    header = 'infer'
+                else:
+                    col_names = graph_meta["columns"]
+            ftemp.seek(0)
+
+            delimiter = ","
             if ".tsv" in link:
-                edges = pd.read_csv(ftemp, delimiter="\t",compression='gzip')
-            else:
-                edges = pd.read_csv(ftemp, delimiter=",", compression='gzip')
-            edge_col=[str(col) for col in edges.columns.values]
+                delimiter = "\t"
+
+            df_edges = pd.read_csv(ftemp, delimiter=delimiter, compression='gzip', header=header, names=col_names)
+            edge_col = [str(col) for col in df_edges.columns.values]
+
+            edge_col[0] = edge_col[0][2:]
+            columns = edge_col
+            meta_dict["description"] += " | short_description: " + str(graph_meta["short_description"])
+            meta_dict["description"] += " | columns: " + str(edge_col)
+            meta_dict["description"] += " | alternative_column names: " + str(graph_meta["columns"])
+            meta_dict["description"] += " | snap_ip: " + str(graph_meta["snap_id"])
 
 
-            edge_col[0]=edge_col[0][2:]
-            columns=edge_col
-            meta_dict["description"] = meta_dict["description"] + " | short_description: " + str(short_description)
-            meta_dict["description"] = meta_dict["description"] + " | columns: " +str(edge_col)
-            meta_dict["description"] = meta_dict["description"] + " | alternative_column names: " + str(columns)
-            meta_dict["description"] = meta_dict["description"] + " | snap_ip: " +str(snap_id)
-
-
-        if is_directed:
-            gr = nx.DiGraph()
-            meta_dict["type"] = "graphDirected"
+        if graph_meta["is_directed"]:
+            graph = nx.DiGraph()
+            meta_dict["type"] = PaDREOntology.SubClassesDataset.Graph.value + "Directed"
         else:
-            gr = nx.Graph()
-            meta_dict["type"] = "graph"
+            graph = nx.Graph()
+            meta_dict["type"] = PaDREOntology.SubClassesDataset.Graph.value
 
         meta_dict["name"]=name
-        meta_dict["description"]=meta_dict["description"]+" | description: " + str(description)
-        meta_dict["description"] = meta_dict["description"] + " | graph_type: "+graph_type
+        meta_dict["description"] += " | description: " + str(description) + " | graph_type: " + graph_meta["graph_type"]
+
         if len(columns)==0:
             columns=["source","target"]
-            for i in range(edges.shape[1]-2):
+            for i in range(df_edges.shape[1]-2):
                 columns.append("edgeattribute"+str(i))
 
         columns=[str(col) for col in columns]
         if _pair_different(columns):
-            edges.columns=columns
+            df_edges.columns=columns
         else:
-            columns=edges.columns.values
+            columns=df_edges.columns.values
 
         for col in enumerate(columns):
-            if col[0]==0:
-                attribute = Attribute(col[1], context={"graph_role":"source"})
-            elif col[0]==1:
-                attribute = Attribute(col[1], context={"graph_role":"target"})
+            if col[0] == 0:
+                atts.append(Attribute(name=col[1], measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                      type=PaDREOntology.SubClassesDatum.Character.value,
+                                      context={"graph_role": "source"}))
+            elif col[0] == 1:
+                atts.append(Attribute(name=col[1], measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                      type=PaDREOntology.SubClassesDatum.Character.value,
+                                      context={"graph_role": "target"}))
             else:
-                attribute = Attribute(col[1], context={"graph_role":"edgeattribute"})
-            atts.append(attribute)
+                atts.append(Attribute(name=col[1], measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                      type=PaDREOntology.SubClassesDatum.Character.value,
+                                      context={"graph_role": "edgeattribute"}))
 
-        pandas_to_networkx(edges, columns[0],columns[1], gr, [],columns[2:])
+        pandas_to_networkx(df_edges, columns[0],columns[1], graph, [],columns[2:])
 
         meta_dict["attributes"] =atts
-        return gr,meta_dict
+
+        return graph,meta_dict
 
 
 def create_from_konect(url, zero_based=False):
@@ -350,20 +390,12 @@ def create_from_konect(url, zero_based=False):
         A pypadre.dataset object that contains the graph of the url.
     """
     name = url.split("/")[4]
-    meta_dict = dict()
-    meta_dict["version"] = 0
-    meta_dict["name"] = name
-    meta_dict["description"] = ""
-    meta_dict["originalSource"] = url
-    meta_dict["published"] = False
+    meta_dict = {"name":name,"description":"","version":0,"originalSource":url,"published":False}
     atts = []
 
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
 
     with tempfile.TemporaryFile(mode='w+b') as ftemp:
-        response = urlopen('http://konect.cc/files/download.tsv.%s.tar.bz2' % name, context=ctx)
+        response = urlopen('http://konect.cc/files/download.tsv.%s.tar.bz2' % name, context=_ctx)
         buflen = 1 << 20
         while True:
             buf = response.read(buflen)
@@ -379,26 +411,31 @@ def create_from_konect(url, zero_based=False):
                     for file in files:
                         if file.startswith("README"):
                             readme_file = open(os.path.join(root, file))
-                            meta_dict["description"] = meta_dict["description"]+" | README: " + readme_file.read()
+                            meta_dict["description"] += " | README: " + readme_file.read()
                             readme_file.close()
+
                         if file.startswith("meta."):
                             meta_file = open(os.path.join(root, file),encoding="utf-8")
                             meta = meta_file.read().split("\n")
                             meta_file.close()
-                            meta_dict["description"]=meta_dict["description"]+" | metafile-content: "+ str({entry.split(":")[0]: entry.split(":")[1][1:] for entry in meta[:-1] if entry is not ""})
+                            meta_dict["description"]+=" | metafile-content: "+ str({entry.split(":")[0]: entry.split(":")[1][1:] for entry in meta[:-1] if entry is not ""})
+
                         if file.startswith("out."):
                             edges = np.loadtxt(os.path.join(root, file), comments="%")
                             line_ = open(os.path.join(root, file))
                             line = line_.read()
                             line_.close()
+
                             if "asym" not in line:
                                 gr = nx.Graph()
-                                meta_dict["type"] = "graph"
+                                meta_dict["type"] = PaDREOntology.SubClassesDataset.Graph.value
                             else:
                                 gr = nx.DiGraph()
-                                meta_dict["type"] = "graphDirected"
+                                meta_dict["type"] = PaDREOntology.SubClassesDataset.Graph.value + "Directed"
+
                             if(zero_based):
                                 edges[:, :2] -= 1  # we need zero-based indexing
+
                             if "bip" in line:  # bipartite graphs have non-unique indexing
                                 edges[:, 1] += edges[:, 0].max() + 1
 
@@ -415,21 +452,27 @@ def create_from_konect(url, zero_based=False):
                                                    "target", gr, [], ["weight","time"])
 
 
-    meta_dict["description"] = meta_dict["description"] + " | Columns: source, target"
+    meta_dict["description"] += " | Columns: source, target"
     for col in range(edges.shape[1]):
         if col == 0:
-            attribute = Attribute("source", context={"graph_role":"source"})
+            atts.append(Attribute(name="source", measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                  type=PaDREOntology.SubClassesDatum.Character.value,
+                                  context={"graph_role": "source"}))
         elif col == 1:
-            attribute = Attribute("target", context={"graph_role":"target"})
+            atts.append(Attribute(name="target", measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                  type=PaDREOntology.SubClassesDatum.Character.value,
+                                  context={"graph_role": "target"}))
         elif col == 2:
-            attribute = Attribute("weight", context={"graph_role":"edgeattribute"})
-            meta_dict["description"] = meta_dict["description"] +", weigth"
+            atts.append(Attribute(name="weight", measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                  type=PaDREOntology.SubClassesDatum.Character.value,
+                                  context={"graph_role": "edgeattribute"}))
+            meta_dict["description"] += ", weight"
         else:
-            attribute = Attribute("time", context={"graph_role":"edgeattribute"})
-            meta_dict["description"] = meta_dict["description"] +", time"
-        atts.append(attribute)
+            atts.append(Attribute(name="time", measurementLevel=PaDREOntology.SubClassesMeasurement.Nominal.value,
+                                  type=PaDREOntology.SubClassesDatum.Character.value,
+                                  context={"graph_role": "edgeattribute"}))
+            meta_dict["description"] += ", time"
 
     meta_dict["attributes"] = atts
-    # ds=Dataset(None,**meta_dict)
-    # ds.set_data(gr, atts)
+
     return gr, meta_dict
