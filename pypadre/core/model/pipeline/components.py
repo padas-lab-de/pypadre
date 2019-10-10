@@ -10,14 +10,14 @@ from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.pipeline.parameters import IParameterProvider
+from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap
 from pypadre.core.model.split.splitter import Splitter
 
 
 class PipelineComponent(MetadataEntity, IExecuteable):
     __metaclass__ = ABCMeta
 
-    def __init__(self, *, name: str, metadata: Optional[dict]=None, **kwargs):
+    def __init__(self, *, name: str, metadata: Optional[dict] = None, **kwargs):
         if metadata is None:
             metadata = {}
         # TODO name via enum or name via owlready2
@@ -64,6 +64,7 @@ class ParameterizedPipelineComponent(PipelineComponent):
     @abstractmethod
     def __init__(self, *, parameter_schema: Iterable, parameter_provider: IParameterProvider, **kwargs):
         # TODO name via enum or name via owlready2
+        # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)
         self._parameter_schema = parameter_schema
         self._parameter_provider = parameter_provider
@@ -87,41 +88,24 @@ class ParameterizedPipelineComponent(PipelineComponent):
     def parameter_schema(self):
         return self._parameter_schema
 
-    def get_parameters(self, parameter_map):
-        self._parameter_provider
+    def _execute(self, *, execution: Execution, data, parameters, predecessor: Computation = None, branch=False,
+                 **kwargs):
+        self._validate_parameters(parameters)
+        return super()._execute(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
+                                branch=branch, **kwargs)
 
-# class BranchingComponent(PipelineComponent):
-#     __metaclass__ = ABCMeta
-#
-#     @abstractmethod
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#
-#     def _execute(self, *, run: Run, data, **kwargs):
-#         computation = super()._execute(execution=execution, data=data, **kwargs)
-#         if not isinstance(computation.result, GeneratorType) and not isinstance(computation.result, list):
-#             raise ValueError("Can only branch if the computation produces a list or generator of data")
-#         return computation
-#
-#
-# class GridSearchComponent(BranchingComponent):
-#
-#     def __init__(self, for_component: PipelineComponent, **kwargs):
-#         super().__init__(**kwargs)
-#         self._for_component = for_component
-#
-#     @property
-#     def for_component(self):
-#         return self._for_component
-#
-#     def hash(self):
-#         self.__hash__()
-#
-#     def _execute_(self, *, data, parameters, **kwargs):
-#         # TODO check for parameter type to decide if this is a iterable or not and start doing a grid search here
-#         # TODO Get all combinations generator
-#         # TODO how do we aggregate the data afterwards? Maybe a run looks for all it's results in different Grid
-#         return data
+    def _validate_parameters(self, parameters):
+        if self._parameter_schema is None:
+            self.send_warn(
+                "A parameterized component needs a schema to validate parameters on execution time. Component: " + str(
+                    self) + " Parameters: " + str(parameters))
+        else:
+            # TODO validate if the parameters are according to the schema.
+            pass
+
+    def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
+        self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor,
+                                              parameter_map=parameter_map)
 
 
 class PythonCodeComponent(PipelineComponent):

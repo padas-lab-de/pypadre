@@ -83,9 +83,9 @@ class Validateable(ILoggable):
         :param kwargs:
         :return:
         """
-        return self._validate_parameters(kwargs.pop("metadata", {}))
+        self._validate_metadata(kwargs.pop("metadata", {}))
 
-    def _validate_parameters(self, metadata):
+    def _validate_metadata(self, metadata):
         if self._schema is None:
             # TODO make this an error as soon as all validateables are implemented
             self.send_warn(message="A validateable object needs a schema to validate to: " + str(self))
