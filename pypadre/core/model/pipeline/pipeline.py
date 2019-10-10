@@ -29,7 +29,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         # TODO this has may have to include if the pipeline structure was changed etc
         return hash(",".join([str(pc.hash()) for pc in self.nodes]))
 
-    def _execute(self, *, pipeline_parameters: Union[ParameterMap, dict]=None, parameter_map: ParameterMap=None, execution: Execution, data, **kwargs):
+    def _execute_helper(self, *, pipeline_parameters: Union[ParameterMap, dict]=None, parameter_map: ParameterMap=None, execution: Execution, data, **kwargs):
         if parameter_map is None:
             if pipeline_parameters is None:
                 parameter_map = ParameterMap({})
@@ -73,8 +73,8 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
             self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map, execution=execution,
                                           predecessor=kwargs.get("predecessor", None))
 
-    def _execute__(self, node: PipelineComponent, *, data, parameters, parameter_map: ParameterMap, execution: Execution, **kwargs):
-        computation = node.execute(execution=execution, parameters=parameters, data=data,
+    def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
+        computation = node.execute(execution=execution, data=data,
                                    predecessor=kwargs.pop("predecessor", None), **kwargs)
         # TODO add metric calculation
         if computation.branch:

@@ -14,7 +14,8 @@ from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
 from pypadre.core.model.pipeline import pipeline
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
-from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent
+from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, \
+    ParameterizedPipelineComponent
 from pypadre.core.model.split.split import Split
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
@@ -29,7 +30,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class SKLearnEstimator(EstimatorComponent):
+class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
     """
     This class encapsulates an sklearn workflow which allows to run sklearn pipelines or a list of sklearn components,
     report the results according to the outcome via the experiment logger.
@@ -39,11 +40,12 @@ class SKLearnEstimator(EstimatorComponent):
     Workflows are used for abstracting from the underlying machine learning framework.
     """
 
-    def __init__(self, *, pipeline=None, **kwargs):
+    def __init__(self, *, pipeline=None, parameter_provider=None, **kwargs):
         # TODO don't change state of pipeline!!!
         # check for final component to determine final results
         # if step wise is true, log intermediate results. Otherwise, log only final results.
         # distingusish between training and fitting in classification.
+        # TODO use default parameter provider if none is given
 
         if not pipeline or not _is_sklearn_pipeline(pipeline):
             raise ValueError("SKLearnEstimator needs a delegate defined as sklearn.pipeline")
@@ -51,7 +53,7 @@ class SKLearnEstimator(EstimatorComponent):
 
         super().__init__(name="SKLearnEstimator", **kwargs)
 
-    def _execute_(self, *, data, **kwargs):
+    def _execute_component_code(self, *, data, **kwargs):
         split = data
 
         self.send_start(phase='sklearn.' + phases.fitting)
@@ -112,7 +114,7 @@ class SKLearnEvaluator(EvaluatorComponent):
         # TODO
         return self.__hash__()
 
-    def _execute_(self, *, data, predecessor, **kwargs):
+    def _execute_component_code(self, *, data, predecessor, **kwargs):
         model = data["model"]
         split = data["split"]
 
@@ -210,6 +212,7 @@ class SKLearnPipeline(DefaultPythonExperimentPipeline):
         """
         pipeline = pipeline_fn()
         visitor = SciKitVisitor(pipeline)
+        # TODO use visitor to extract parameter schema from pipeline
 
         # Check if the return type is a Sklearn Pipeline
         assert(isinstance(pipeline, Pipeline))

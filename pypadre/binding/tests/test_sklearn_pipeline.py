@@ -29,7 +29,7 @@ class TestSKLearnPipeline(PadreTest):
 
     def __init__(self, *args, **kwargs):
         super(TestSKLearnPipeline, self).__init__(*args, **kwargs)
-        self.project = Project(name='Test Project')
+        self.project = Project(name='Test Project', description='Some description')
 
     def test_default_sklearn_pipeline(self):
         # TODO clean up experiment creator

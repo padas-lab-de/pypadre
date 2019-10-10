@@ -20,10 +20,10 @@ class IExecuteable(Signaler):
 
     def execute(self, *args, **kwargs):
         self.send_start()
-        execute = self._execute(*args, **kwargs)
+        execute = self._execute_helper(*args, **kwargs)
         self.send_stop()
         return execute
 
     @abstractmethod
-    def _execute(self, *args, **kwargs):
+    def _execute_helper(self, *args, **kwargs):
         raise NotImplementedError
