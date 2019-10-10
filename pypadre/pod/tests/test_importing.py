@@ -4,7 +4,7 @@ import numpy as np
 from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.tests.padre_test import PadreTest
-from pypadre.pod.importing.dataset.dataset_import import SnapLoader, KonectLoader, OpenMlLoader, SKLearnLoader
+from pypadre.pod.importing.dataset.dataset_import import SnapLoader, KonectLoader, SKLearnLoader
 
 
 class Test_loaders(PadreTest):
@@ -50,14 +50,14 @@ class Test_loaders(PadreTest):
         assert isinstance(ds.data(), networkx.Graph)
         assert len(ds.attributes) == 2
 
-    def test_openml_loader(self):
-
-        loader = OpenMlLoader()
-
-        ds = loader.load("openml", url="https://www.openml.org/d/41078")
-
-        assert ds.name == "iris"
-        assert ds.attributes[0].name == "sepallength"
+    # def test_openml_loader(self):
+    #
+    #     loader = OpenMlLoader()
+    #
+    #     ds = loader.load("openml", url="https://www.openml.org/d/41078")
+    #
+    #     assert ds.name == "iris"
+    #     assert ds.attributes[0].name == "sepallength"
 
 
 
