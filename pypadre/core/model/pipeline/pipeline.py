@@ -63,12 +63,12 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
 
         if isinstance(node, ParameterizedPipelineComponent):
             # extract all combinations of parameters we have to execute
-            parameters = node.combinations(execution=execution, predecessor=kwargs.get("predecessor", None),
+            parameter_grid = node.combinations(execution=execution, predecessor=kwargs.get("predecessor", None),
                                            parameter_map=parameter_map)
 
-            if isinstance(parameters, HyperParameterGrid):
-                if parameters.branch:
-                    for parameters in parameters.result:
+            if isinstance(parameter_grid, HyperParameterGrid):
+                if parameter_grid.branch:
+                    for parameters in parameter_grid.grid:
                         # If the parameter map returns a generator or other iterable and should branch we have to
                         # execute for each item
                         self._execute_pipeline_helper(node, data=data, parameters=parameters,
@@ -76,12 +76,12 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
                                                       predecessor=kwargs.get("predecessor", None))
                 else:
                     # If the parameter map returns a search with a single item without branch we can just use it
-                    self._execute_pipeline_helper(node, data=data, parameters=parameters.result,
+                    self._execute_pipeline_helper(node, data=data, parameters=parameter_grid.grid.__next__(),
                                                   parameter_map=parameter_map, execution=execution,
                                                   predecessor=kwargs.get("predecessor", None))
             else:
                 # Todo don't force the user to provide a hyper parameter search in a parameter_map?
-                raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
+                raise NotImplementedError("A hyper parameter grid has to be returned by the parameter provider")
                 # self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
         else:
             # If we don't need parameters we don't extract them from the map but only pass the map to the following components

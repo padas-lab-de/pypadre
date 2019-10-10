@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from types import GeneratorType
-from typing import Optional, Iterable
+from typing import Optional, Iterable, Callable, Union
 
 from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.model.execution import Execution
@@ -42,7 +42,6 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         self._predecessor = predecessor
         self._parameters = parameters
         self._branch = branch
-        self.send_put()
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")

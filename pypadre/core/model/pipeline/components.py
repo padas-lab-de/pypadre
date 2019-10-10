@@ -48,6 +48,7 @@ class PipelineComponent(MetadataEntity, IExecuteable):
             results = Computation(component=self, execution=execution, predecessor=predecessor,
                                   branch=branch, result=results)
 
+        results.send_put()
         # TODO Trigger component result event for metrics and visualization
         return results
 
@@ -88,8 +89,10 @@ class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters):
                                        branch=branch, **kwargs)
 
     def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
-        self._parameter_provider.combinations(execution=execution, component=self, predecessor=predecessor,
-                                              parameter_map=parameter_map)
+        combinations = self._parameter_provider.combinations(execution=execution, component=self,
+                                                             predecessor=predecessor, parameter_map=parameter_map)
+        combinations.send_put()
+        return combinations
 
 
 class PythonCodeComponent(PipelineComponent):
