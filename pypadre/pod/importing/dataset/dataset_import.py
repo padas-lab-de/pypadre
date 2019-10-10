@@ -326,8 +326,17 @@ class SnapLoader(ICollectionDataSetLoader):
         return source.__eq__("snap")
 
     def load(self, source, url="", link_num=0, **kwargs):
+        """Takes the graph of the Snap website and puts it into a pypadre.dataset.
 
-        graph, meta = create_from_snap(url,link_num=link_num)
+        Args:
+            url (str): The url of the specific graph. From graph of this website: https://snap.stanford.edu/
+            link_num (int): Some Graphs have several datasets and thus several download-links.
+        Returns:
+            A pypadre.dataset object that conatins the graph of the url.
+        """
+        graph, meta = create_from_snap(url,link_num=link_num,logger=self)
+
+        meta = {**meta,**kwargs}
 
         data_set = self._create_dataset(**meta)
         data_set.set_data(graph)
@@ -349,6 +358,9 @@ class KonectLoader(ICollectionDataSetLoader):
     def load(self, source, url="", zero_based = False, **kwargs):
 
         graph , meta = create_from_konect(url=url, zero_based=zero_based)
+
+        meta = {**meta,**kwargs}
+
         data_set = self._create_dataset(**meta)
         data_set.set_data(graph)
 
@@ -384,7 +396,7 @@ class OpenMlLoader(ICollectionDataSetLoader):
 
         dataset_id = url.split("/")[-1].strip(" ")
         # oml.config.apikey = apikey
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory(suffix=dataset_id) as temp_dir:
             oml.config.cache_directory = temp_dir
 
             try:
@@ -402,7 +414,9 @@ class OpenMlLoader(ICollectionDataSetLoader):
             meta = {**{"name": load.name, "version": load.version, "description": load.description,
                     "originalSource":load.url,"type": PaDREOntology.SubClassesDataset.Multivariat.value},**kwargs}
 
-            bunch = arff.load(open(temp_dir+'/org/openml/www/datasets/'+dataset_id+'/dataset.arff', encoding='utf-8'))
+            temp_file = open(temp_dir+'/org/openml/www/datasets/'+dataset_id+'/dataset.arff', encoding='utf-8')
+            bunch = arff.load(temp_file)
+            temp_file.close()
             bunch_atts = bunch["attributes"]
             attributes = []
 
