@@ -43,7 +43,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
 
         metadata = self.get_file(path, META_FILE)
         # config = self.get_file(path, CONFIG_FILE)
-        workflow = self.get_file(path, WORKFLOW_FILE)
+        pipeline = self.get_file(path, WORKFLOW_FILE)
         # preprocess_workflow = self.get_file(path, PREPROCESS_WORKFLOW_FILE)
 
         project = self.backend.project.get(metadata.get(Experiment.PROJECT_ID))
@@ -51,7 +51,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
 
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
 
-        ex = Experiment(project=project, dataset=dataset, metadata=metadata)
+        ex = Experiment(project=project, dataset=dataset, metadata=metadata, pipeline=pipeline)
         return ex
 
     def put_progress(self, experiment, **kwargs):

@@ -11,7 +11,8 @@ from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
-    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent, ParameterizedPipelineComponent
+    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent, ParameterizedPipelineComponent, \
+    EvaluatorPythonComponent
 from pypadre.core.model.pipeline.parameters import ParameterMap
 from pypadre.core.model.split.split import Split
 from pypadre.core.validation.validation import Validateable
@@ -29,7 +30,15 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         # TODO this has may have to include if the pipeline structure was changed etc
         return hash(",".join([str(pc.hash()) for pc in self.nodes]))
 
-    def _execute_helper(self, *, pipeline_parameters: Union[ParameterMap, dict]=None, parameter_map: ParameterMap=None, execution: Execution, data, **kwargs):
+    def get_component(self, id):
+        # TODO make this defensive
+        for node in self.nodes:
+            if node.id == id:
+                return node
+        return None
+
+    def _execute_helper(self, *, pipeline_parameters: Union[ParameterMap, dict] = None,
+                        parameter_map: ParameterMap = None, execution: Execution, data, **kwargs):
         if parameter_map is None:
             if pipeline_parameters is None:
                 parameter_map = ParameterMap({})
@@ -47,33 +56,40 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         for entry in entries:
             self._execute_pipeline(entry, parameter_map=parameter_map, execution=execution, data=data, **kwargs)
 
-    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
+    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution,
+                          **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
 
         if isinstance(node, ParameterizedPipelineComponent):
             # extract all combinations of parameters we have to execute
-            parameters = node.combinations(execution=execution, predecessor=kwargs.get("predecessor", None), parameter_map=parameter_map )
+            parameters = node.combinations(execution=execution, predecessor=kwargs.get("predecessor", None),
+                                           parameter_map=parameter_map)
 
             if isinstance(parameters, HyperParameterSearch):
                 if parameters.branch:
                     for parameters in parameters.result:
                         # If the parameter map returns a generator or other iterable and should branch we have to
                         # execute for each item
-                        self._execute_pipeline_helper(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                        self._execute_pipeline_helper(node, data=data, parameters=parameters,
+                                                      parameter_map=parameter_map, execution=execution,
+                                                      predecessor=kwargs.get("predecessor", None))
                 else:
                     # If the parameter map returns a search with a single item without branch we can just use it
-                    self._execute_pipeline_helper(node, data=data, parameters=parameters.result, parameter_map=parameter_map, execution=execution, predecessor=kwargs.get("predecessor", None))
+                    self._execute_pipeline_helper(node, data=data, parameters=parameters.result,
+                                                  parameter_map=parameter_map, execution=execution,
+                                                  predecessor=kwargs.get("predecessor", None))
             else:
                 # Todo don't force the user to provide a hyper parameter search in a parameter_map?
                 raise NotImplementedError("A hyper parameter search has to be returned by the parameter_map")
-                #self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
+                # self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
         else:
             # If we don't need parameters we don't extract them from the map but only pass the map to the following components
             self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map, execution=execution,
                                           predecessor=kwargs.get("predecessor", None))
 
-    def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, **kwargs):
+    def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
+                                 execution: Execution, **kwargs):
         computation = node.execute(execution=execution, data=data,
                                    predecessor=kwargs.pop("predecessor", None), **kwargs)
         # TODO add metric calculation
@@ -92,10 +108,12 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
             run = Run.from_computation(computation)
             run.send_put()
 
-    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution, predecessor: Computation=None, **kwargs):
+    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution,
+                            predecessor: Computation = None, **kwargs):
         successors = self.successors(node)
         for successor in successors:
-            self._execute_pipeline(successor, data=data, execution=execution, predecessor=predecessor, parameter_map=parameter_map, **kwargs)
+            self._execute_pipeline(successor, data=data, execution=execution, predecessor=predecessor,
+                                   parameter_map=parameter_map, **kwargs)
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)
@@ -130,15 +148,13 @@ class DefaultPythonExperimentPipeline(Pipeline):
         self._splitter = SplitPythonComponent(code=splitting, predecessors=self._preprocessor, **attr)
         self.add_node(self._splitter)
 
-        self._estimator = EstimatorPythonComponent(code=estimator.execute if isinstance(estimator,
-                                                                                        EstimatorComponent) else estimator,
-                                                   predecessors=[self._splitter], **attr)
+        self._estimator = estimator if isinstance(estimator, EstimatorComponent) else EstimatorPythonComponent(
+            code=estimator, predecessors=[self._splitter], **attr)
+
         self.add_node(self._estimator)
 
-        self._evaluator = PythonCodeComponent(name="evaluator",
-                                              code=evaluator.execute if isinstance(evaluator,
-                                                                                   EvaluatorComponent) else evaluator,
-                                              predecessors=[self._estimator], **attr)
+        self._evaluator = evaluator if isinstance(evaluator, EvaluatorComponent) else EvaluatorPythonComponent(
+            code=evaluator, predecessors=[self._estimator], **attr)
         self.add_node(self._evaluator)
 
         # Build pipeline grap

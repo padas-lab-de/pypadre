@@ -31,11 +31,13 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
+                                                                 self.EXECUTION_ID: str(execution.id),
                                                                  self.PREDECESSOR_ID: predecessor.id if predecessor else None}}
 
         super().__init__(parent=execution, metadata=metadata, **kwargs)
         self._component = component
         self._result = result
+        # Todo add result schema (this has to be given by the component) At best a component can return directly a computation object
         # Todo allow for multiple predecessors
         self._predecessor = predecessor
         self._parameters = parameters

@@ -22,7 +22,7 @@ class DatasetApp(BaseChildApp):
         if dataset_loaders is None:
             dataset_loaders = {}
         self._loaders = {CSVLoader(), PandasLoader(), NumpyLoader(), NetworkXLoader(), SKLearnLoader(), SnapLoader(),
-                         KonectLoader(), OpenMlLoader()}.union(dataset_loaders)
+                         KonectLoader()}.union(dataset_loaders)
 
     @property
     def loaders(self):

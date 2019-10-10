@@ -1,10 +1,9 @@
-import uuid
+from pypadre.core.base import MetadataEntity, ChildEntity
+from pypadre.core.model.generic.i_model_mixins import IStoreable
+from pypadre.core.printing.tablefyable import Tablefyable
 
-from pypadre.core.events.events import signals
-from pypadre.core.model.computation.computation import Computation
 
-
-class Split(Computation):
+class Split(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
     """
     A split is a single part of a execution and the actual excution over parts of the dataset.
     According to the experiment setup the pipeline/workflow will be executed
@@ -24,14 +23,11 @@ class Split(Computation):
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {})}
-        super().__init__(schema_resource_name="split.json", result=self, metadata=metadata, execution=execution, **kwargs)
-
-        if self._id is None:
-            self._id = uuid.uuid4()
+        super().__init__(schema_resource_name="split.json", metadata=metadata, parent=execution, **kwargs)
 
     @property
     def execution(self):
-        return self._execution
+        return self.parent
 
     @property
     def number(self):

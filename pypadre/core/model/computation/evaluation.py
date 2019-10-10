@@ -18,7 +18,7 @@ class Evaluation(Computation):
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.TRAINING_ID: training.id}}
         self._training = training
-        super().__init__(schema_resource_name="evaluation.json", result=result, metadata=metadata, **kwargs)
+        super().__init__(schema_resource_name="evaluation.json", predecessor=training, result=result, metadata=metadata, **kwargs)
 
     @property
     def estimation(self):

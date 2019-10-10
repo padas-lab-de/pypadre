@@ -1,22 +1,19 @@
 from collections import Callable
-from copy import deepcopy
-from typing import cast, Optional, Union
+from typing import Union
 
 import numpy as np
 from padre.PaDREOntology import PaDREOntology
 from sklearn.pipeline import Pipeline
 
 from pypadre.binding.visitors.scikit import SciKitVisitor
-from pypadre.core.base import exp_events, phases
+from pypadre.core.base import phases
 from pypadre.core.model.code.code import Code
-from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
 from pypadre.core.model.pipeline import pipeline
-from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, \
     ParameterizedPipelineComponent
-from pypadre.core.model.split.split import Split
+from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
 
@@ -101,7 +98,7 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
         return self._pipeline
 
 
-class SKLearnEvaluator(EvaluatorComponent):
+class SKLearnEvaluator(EvaluatorComponent, ParameterizedPipelineComponent):
     """
     This class takes the output of an sklearn workflow which represents the fitted model along with the corresponding split,
     report and save all possible results that allows for common/custom metric computations.

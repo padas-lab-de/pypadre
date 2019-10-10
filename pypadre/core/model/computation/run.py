@@ -7,7 +7,7 @@ from pypadre.core.model.split.split import Split
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Run(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablefyable):
+class Run(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
 
     SPLIT_IDS = "split_ids"
 
