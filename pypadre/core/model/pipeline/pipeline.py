@@ -69,7 +69,7 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
                                                parameter_map=parameter_map)
 
             # branch if we have multiple parameter settings
-            for parameters in parameter_grid.iter_result().__next__():
+            for parameters in parameter_grid.iter_result():
                 # If the parameter map returns a generator or other iterable and should branch we have to
                 # execute for each item
                 self._execute_pipeline_helper(node, data=data, parameters=parameters,
