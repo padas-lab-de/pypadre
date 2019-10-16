@@ -49,3 +49,15 @@ def is_jsonable(x):
         return True
     except TypeError:
         return False
+
+
+def remove_cached(cache, id):
+    to_remove = []
+    for k, v in cache.items():
+        # Clear cache for item with id or if it is None because we don't know for which id the cache is.
+        # TODO use the key to look for clearing
+        if v is None or v.id == id:
+            to_remove.append(k)
+
+    for k in to_remove:
+        cache.pop(k)

@@ -1,21 +1,33 @@
+from typing import Optional
+
 import numpy as np
 
 from pypadre.core.metrics.metrics import MeasureMeter, Metric
+from pypadre.core.model.computation.computation import Computation
 
 
 class ConfusionMatrix(MeasureMeter):
-    def compute(self, *, truth, predicted, **kwargs):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def compute(self, *, computation: Computation, **kwargs) -> Optional[Metric]:
         # TODO extend
+        # :param predicted: The predicted values of the confusion matrix
+        # :param truth: The truth values of the confusion matrix
         """
                 This function computes the confusion matrix of a classification result.
                 This was done as a general purpose implementation of the confusion_matrix
-                :param predicted: The predicted values of the confusion matrix
-                :param truth: The truth values of the confusion matrix
+                :param computation: The computation which is the input for confusion matrix calculation. Has to hold truth and predicted values.
                 :return: The confusion matrix
                 """
         import copy
-        if predicted is None or truth is None or \
-                len(predicted) != len(truth):
+
+        predicted = computation.result.predicted
+        truth = computation.result.truth
+
+        if predicted is None or truth is None or len(predicted) != len(truth):
+            self.send_error("")
             return None
 
         # Get the number of labels from the predicted and truth set
@@ -37,7 +49,7 @@ class ConfusionMatrix(MeasureMeter):
             for idx in range(0, len(truth)):
                 confusion_matrix[int(truth[idx])][int(predicted[idx])] += 1
 
-        return copy.deepcopy(confusion_matrix.tolist())
+        return Metric(name="ConfusionMatrix", computation=computation, result=copy.deepcopy(confusion_matrix.tolist()))
 
 
 class RegressionMetrics(MeasureMeter):

@@ -217,7 +217,9 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         self.tearDown()
+
         self.app.datasets.load_defaults()
+
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
 
         def create_test_pipeline():

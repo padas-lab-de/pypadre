@@ -142,7 +142,7 @@ class ValidationErrorHandler:
             raise e
 
     def _default_handle(self, e):
-        print("Validation handler triggered: " + str(self))
+        print("Empty validation handler triggered: " + str(self))
         raise e
 
 

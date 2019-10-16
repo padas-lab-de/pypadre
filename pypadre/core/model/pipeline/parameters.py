@@ -90,7 +90,7 @@ class GridSearch(SourceCode):
         return HyperParameterGrid(component=component, execution=execution,
                                   parameters={},
                                   result=grid, parameter_names=params_list,
-                                  predecessor=predecessor, branch=False)
+                                  predecessor=predecessor, branch=True)
 
     def create_combinations(self, parameters: dict):
         """

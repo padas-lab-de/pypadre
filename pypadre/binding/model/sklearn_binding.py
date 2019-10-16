@@ -184,6 +184,8 @@ class SKLearnEvaluator(EvaluatorComponent, ParameterizedPipelineComponent):
         results['testing_sample_count'] = len(test_idx)
         results['split_num'] = split.number
 
+        # TODO results as object?
+
         return Evaluation(training=predecessor, result=results, **kwargs)
 
     @staticmethod

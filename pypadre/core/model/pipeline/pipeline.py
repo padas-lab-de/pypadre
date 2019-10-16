@@ -3,9 +3,11 @@ from typing import Callable, Optional, Union
 import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
+from pypadre.core.metrics.MeasureService import measure_service
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
+from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
@@ -64,27 +66,18 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         if isinstance(node, ParameterizedPipelineComponent):
             # extract all combinations of parameters we have to execute
             parameter_grid = node.combinations(execution=execution, predecessor=kwargs.get("predecessor", None),
-                                           parameter_map=parameter_map)
+                                               parameter_map=parameter_map)
 
-            if isinstance(parameter_grid, HyperParameterGrid):
-                if parameter_grid.branch:
-                    for parameters in parameter_grid.grid:
-                        # If the parameter map returns a generator or other iterable and should branch we have to
-                        # execute for each item
-                        self._execute_pipeline_helper(node, data=data, parameters=parameters,
-                                                      parameter_map=parameter_map, execution=execution,
-                                                      predecessor=kwargs.get("predecessor", None))
-                else:
-                    # If the parameter map returns a search with a single item without branch we can just use it
-                    self._execute_pipeline_helper(node, data=data, parameters=parameter_grid.grid.__next__(),
-                                                  parameter_map=parameter_map, execution=execution,
-                                                  predecessor=kwargs.get("predecessor", None))
-            else:
-                # Todo don't force the user to provide a hyper parameter search in a parameter_map?
-                raise NotImplementedError("A hyper parameter grid has to be returned by the parameter provider")
-                # self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, execution=execution)
+            # branch if we have multiple parameter settings
+            for parameters in parameter_grid.iter_result().__next__():
+                # If the parameter map returns a generator or other iterable and should branch we have to
+                # execute for each item
+                self._execute_pipeline_helper(node, data=data, parameters=parameters,
+                                              parameter_map=parameter_map, execution=execution,
+                                              predecessor=kwargs.get("predecessor", None))
         else:
-            # If we don't need parameters we don't extract them from the map but only pass the map to the following components
+            # If we don't need parameters we don't extract them from the map but only pass the map to the following
+            # components
             self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map, execution=execution,
                                           predecessor=kwargs.get("predecessor", None))
 
@@ -92,21 +85,21 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
                                  execution: Execution, **kwargs):
         computation = node.execute(execution=execution, data=data,
                                    predecessor=kwargs.pop("predecessor", None), **kwargs)
-        # TODO add metric calculation
-        if computation.branch:
-            for res in computation.result:
-                self._execute_successors(node, execution=execution, predecessor=computation,
-                                         parameter_map=parameter_map, data=res)
-        else:
-            self._execute_successors(node, execution=execution, predecessor=computation, parameter_map=parameter_map,
-                                     data=computation.result)
+
+        # calculate measures
+        metrics = measure_service.calculate_measures(computation, **kwargs)
+
+        # branch results now if needed (for example for splits)
+        for res in computation.iter_result():
+            self._execute_successors(node, execution=execution, predecessor=computation,
+                                     parameter_map=parameter_map, data=res)
 
         # Check if we are a end node
         if self.out_degree(node) == 0:
             print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
-            run = Run.from_computation(computation)
-            run.send_put()
+            output = PipelineOutput.from_computation(computation)
+            output.send_put()
 
     def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, execution: Execution,
                             predecessor: Computation = None, **kwargs):

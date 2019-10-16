@@ -3,10 +3,13 @@
 from abc import ABCMeta, abstractmethod
 
 from pypadre.core.model.computation.computation import Computation
+from pypadre.core.model.generic.i_model_mixins import ILoggable
 
 
-# Base class to hold the calculated metric
 class Metric(Computation):
+    """
+    Base class to hold the calculated metric
+    """
 
     COMPUTATION_ID = "computation_id"
 
@@ -25,9 +28,9 @@ class Metric(Computation):
         return self.name
 
 
-class MeasureMeter:
+class MeasureMeter(ILoggable):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def compute(self, **kwargs) -> Metric:
+    def compute(self, *, computation: Computation, **kwargs) -> Metric:
         pass

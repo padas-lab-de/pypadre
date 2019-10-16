@@ -1,7 +1,7 @@
 from types import GeneratorType
 
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.generic.lazy_loader import LazyObject
+from pypadre.core.model.generic.lazy_loader import SimpleLazyObject
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IRunRepository, IComputationRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
@@ -33,7 +33,7 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         component = execution.experiment.pipeline.get_component(metadata.get(Computation.COMPONENT_ID))
         predecessor = None
         if metadata.get(Computation.PREDECESSOR_ID) is not None:
-            predecessor = LazyObject(id=metadata.get(Computation.PREDECESSOR_ID), load_fn=lambda: self.get(metadata.get(Computation.PREDECESSOR_ID)))
+            predecessor = SimpleLazyObject(load_fn=lambda: self.get(metadata.get(Computation.PREDECESSOR_ID)), id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
 
         computation = Computation(metadata=metadata, result=result, execution=execution, component=component, predecessor=predecessor)
         return computation

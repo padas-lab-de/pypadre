@@ -21,7 +21,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         pass
 
     def __init__(self, *, component, execution: Execution, predecessor: Optional[Computation]=None, result,
-                 parameters=None, branch=False, **kwargs):
+                 parameters=None, branch=False, result_format=None, **kwargs):
         if parameters is None:
             parameters = {}
 
@@ -32,16 +32,17 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
                                                                  self.EXECUTION_ID: str(execution.id),
-                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor else None}}
+                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor is not None else None}}
 
         super().__init__(parent=execution, metadata=metadata, **kwargs)
         self._component = component
         self._result = result
         # Todo add result schema (this has to be given by the component) At best a component can return directly a computation object
-        # Todo allow for multiple predecessors
+        # Todo allow for multiple predecessors?
         self._predecessor = predecessor
         self._parameters = parameters
         self._branch = branch
+        self._result_format = result_format
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
@@ -49,6 +50,11 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     # TODO Overwrite for no schema validation for now
     def validate(self, **kwargs):
         pass
+
+    @property
+    def result_format(self):
+        # TODO Use Ontology here (Maybe even get this by looking at owlready2)
+        return self._result_format
 
     @property
     def execution(self):
@@ -81,3 +87,9 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     @result.setter
     def result(self, result):
         self._result = result
+
+    def iter_result(self):
+        if self.branch:
+            return self.result
+        else:
+            return [self.result]
