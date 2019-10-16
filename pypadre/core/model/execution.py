@@ -2,6 +2,7 @@ from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.model.computation.run import Run
 
 
 class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity, Tablefyable):
@@ -28,7 +29,8 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
 
     def _execute_helper(self, *args, **kwargs):
         self.send_put()
-        return self.experiment.pipeline.execute(data=self.experiment.dataset, execution=self, **kwargs)
+        run = Run(execution=self)
+        return run.execute(data=self.dataset, execution=self, **kwargs)
 
     @property
     def hash(self):
@@ -41,3 +43,11 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
     @property
     def experiment(self):
         return self.parent
+
+    @property
+    def dataset(self):
+        return self.experiment.dataset
+
+    @property
+    def pipeline(self):
+        return self.experiment.pipeline

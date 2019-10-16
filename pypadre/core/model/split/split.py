@@ -9,7 +9,7 @@ class Split(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
     According to the experiment setup the pipeline/workflow will be executed
     """
 
-    def __init__(self, execution, num, train_idx, val_idx, test_idx, **kwargs):
+    def __init__(self, run, num, train_idx, val_idx, test_idx, **kwargs):
         self._num = num
         self._train_idx = train_idx
         self._val_idx = val_idx
@@ -17,13 +17,13 @@ class Split(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
         self._keep_splits = kwargs.pop("keep_splits", False)
         self._splits = []
         self._id = kwargs.pop("split_id", None)
-        self._execution = execution
+        self._run = run
         # Add defaults
         defaults = {}
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {})}
-        super().__init__(schema_resource_name="split.json", metadata=metadata, parent=execution, **kwargs)
+        super().__init__(schema_resource_name="split.json", metadata=metadata, parent=run, **kwargs)
 
     @property
     def execution(self):

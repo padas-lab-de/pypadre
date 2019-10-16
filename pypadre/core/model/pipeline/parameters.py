@@ -31,7 +31,7 @@ class IParameterProvider:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def combinations(self, *, execution, component, predecessor, parameter_map: ParameterMap):
+    def combinations(self, *, run, component, predecessor, parameter_map: ParameterMap):
         raise NotImplementedError
 
 
@@ -44,9 +44,9 @@ class CodeParameterProvider(IParameterProvider):
     def code(self):
         return self._code
 
-    def combinations(self, *, execution, component, predecessor, parameter_map: ParameterMap) -> HyperParameterGrid:
+    def combinations(self, *, run, component, predecessor, parameter_map: ParameterMap) -> HyperParameterGrid:
         # The function call will return a hyperparametergrid object
-        return self._code.call(execution=execution, component=component,
+        return self._code.call(run=run, component=component,
                                predecessor=predecessor, parameter_map=parameter_map)
 
 
@@ -55,7 +55,7 @@ class GridSearch(SourceCode):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def call(self, *args, execution, component, predecessor, parameter_map: ParameterMap, **kwargs):
+    def call(self, *args, run, component, predecessor, parameter_map: ParameterMap, **kwargs):
         """
         # We need to either create multiple components
         # based on the number of elements in the grid or iterate of the grid
@@ -87,7 +87,7 @@ class GridSearch(SourceCode):
         # The params_list contains the names of the hyperparameters in the grid
         grid, params_list = self.create_combinations(hyperparameters)
 
-        return HyperParameterGrid(component=component, execution=execution,
+        return HyperParameterGrid(component=component, run=run,
                                   parameters={},
                                   result=grid, parameter_names=params_list,
                                   predecessor=predecessor, branch=False)

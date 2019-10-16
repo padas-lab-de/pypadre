@@ -8,7 +8,7 @@ from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.execution import Execution
+from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap, DefaultParameterProvider
 from pypadre.core.model.split.splitter import Splitter
@@ -37,15 +37,15 @@ class PipelineComponent(MetadataEntity, IExecuteable):
         """
         raise NotImplementedError
 
-    def _execute_helper(self, *, execution: Execution, data,
+    def _execute_helper(self, *, run: Run, data,
                         component=None, predecessor: Computation = None, branch=False, **kwargs):
 
         # TODO find the problem in the loop
         component = self
-        results = self._execute_component_code(data=data, execution=execution,
+        results = self._execute_component_code(data=data, run=run,
                                                predecessor=predecessor, component=component, **kwargs)
         if not isinstance(results, Computation):
-            results = Computation(component=self, execution=execution, predecessor=predecessor,
+            results = Computation(component=self, run=run, predecessor=predecessor,
                                   branch=branch, result=results)
 
         results.send_put()
@@ -79,17 +79,17 @@ class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters):
     def parameter_provider(self):
         return self._parameter_provider
 
-    def _execute_helper(self, *, execution: Execution, data, parameters=None, predecessor: Computation = None,
+    def _execute_helper(self, *, run: Run, data, parameters=None, predecessor: Computation = None,
                         branch=False,
                         **kwargs):
         if parameters is None:
             parameters = {}
         self._validate_parameters(parameters)
-        return super()._execute_helper(execution=execution, data=data, parameters=parameters, predecessor=predecessor,
+        return super()._execute_helper(run=run, data=data, parameters=parameters, predecessor=predecessor,
                                        branch=branch, **kwargs)
 
-    def combinations(self, *, execution, predecessor, parameter_map: ParameterMap):
-        combinations = self._parameter_provider.combinations(execution=execution, component=self,
+    def combinations(self, *, run, predecessor, parameter_map: ParameterMap):
+        combinations = self._parameter_provider.combinations(run=run, component=self,
                                                              predecessor=predecessor, parameter_map=parameter_map)
         combinations.send_put()
         return combinations

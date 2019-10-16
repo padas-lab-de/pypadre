@@ -3,8 +3,8 @@ from pypadre.core.model.computation.computation import Computation
 
 class HyperParameterGrid(Computation):
 
-    def __init__(self, *, component, execution, result, **kwargs):
-        super().__init__(component=component, execution=execution, result=result, **kwargs)
+    def __init__(self, *, component, run, result, **kwargs):
+        super().__init__(component=component, run=run, result=result, **kwargs)
         self._parameter_names = kwargs.pop('parameter_names', None)
 
     @property

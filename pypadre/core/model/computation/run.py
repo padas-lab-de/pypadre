@@ -1,13 +1,12 @@
 from typing import List
 
 from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
-from pypadre.core.model.split.split import Split
 from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 
 
-class Run(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
+class Run(IExecuteable, IStoreable, MetadataEntity, ChildEntity, Tablefyable):
 
     SPLIT_IDS = "split_ids"
 
@@ -15,38 +14,38 @@ class Run(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, execution, parameter_selection: dict, splits=List[Split], **kwargs):
+    def __init__(self, execution,  **kwargs):
         # Add defaults
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.SPLIT_IDS: [split.id for split in splits]}}
+        metadata = {**defaults, **kwargs.pop("metadata", {})}
         super().__init__(schema_resource_name="run.json", parent=execution, result=self, metadata=metadata, **kwargs)
-        self._parameter_selection = parameter_selection
 
-    @classmethod
-    def from_computation(cls, computation: Computation):
-        # Prepare parameter map for current computation
-        parameter_selection = {computation.component.id: computation.parameters}
+    def _execute_helper(self, *args, **kwargs):
 
-        # Prepare Set tracking all splits
-        splits = set()
+        # Send signal
+        self.send_put()
 
-        # Get all parameters by looking at predecessors
-        cur_computation = computation
-        while cur_computation.predecessor is not None:
-            cur_computation = cur_computation.predecessor
-            parameter_selection[cur_computation.component.id] = cur_computation.parameters
-
-            if isinstance(cur_computation, Split):
-                splits.add(cur_computation)
-
-        return cls(execution=computation.execution, parameter_selection=parameter_selection, splits=splits)
+        # Start execution of the pipeline
+        dataset = self.execution.experiment.dataset
+        return self.pipeline.execute(dataset=dataset, run=self, **kwargs)
 
     @property
     def execution(self):
         return self.parent
 
     @property
-    def parameter_selection(self):
-        return self._parameter_selection
+
+
+    @property
+    def dataset(self):
+        return self.execution.dataset
+
+    @property
+    def experiment(self):
+        return self.execution.experiment
+
+    @property
+    def pipeline(self):
+        return self.execution.pipeline
