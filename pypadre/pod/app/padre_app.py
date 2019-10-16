@@ -34,6 +34,7 @@ from pypadre.pod.app.project.split_app import SplitApp
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
 from pypadre.pod.backend.file import PadreFileBackend
+from pypadre.pod.backend.gitlab import PadreGitLabBackend
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 
 # logger = PadreLogger(app=None)
@@ -57,6 +58,9 @@ class PadreAppFactory:
                 # TODO check for validity
                 pass
                 # backends.append(PadreHttpBackend(b))
+            elif 'gitlab_url' in b:
+                #TODO check for validity
+                backends.append(PadreGitLabBackend(b))
             elif 'root_dir' in b:
                 # TODO check for validity
                 backends.append(PadreFileBackend(b))

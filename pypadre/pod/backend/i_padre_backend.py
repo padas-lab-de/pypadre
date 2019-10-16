@@ -27,6 +27,14 @@ class IPadreBackend(ILogRepository):
         return self._config.get("root_dir")
 
     @property
+    def url(self):
+        return self._config.get("gitlab_url")
+
+    @property
+    def token(self):
+        return self._config.get("token")
+
+    @property
     @abstractmethod
     def dataset(self) -> IDatasetRepository:
         pass

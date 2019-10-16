@@ -99,8 +99,11 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         # Create or overwrite folder
         if os.path.exists(directory):
             if not allow_overwrite:
-                raise ValueError("Object path %s already exists.".format(obj) +
-                                 "Overwriting not explicitly allowed. Set allow_overwrite=True")
+                # raise ValueError("Object path %s already exists.".format(obj) +
+                #                  "Overwriting not explicitly allowed. Set allow_overwrite=True")
+                print("Object path %s already exists.".format(obj) +
+                      "Overwriting not explicitly allowed. Set allow_overwrite=True")
+                return
             shutil.rmtree(directory)
         os.makedirs(directory)
 
@@ -145,7 +148,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         # TODO: Change the hardcoded 'id' to a key value to be searched
         dirs = self.get_dirs_by_search({'id': uid})
         if len(dirs) > 1:
-            raise RuntimeError("Found multiple directories for one ID. Data corrupted! " + str(directories))
+            raise RuntimeError("Found multiple directories for one ID. Data corrupted! " + str(dirs))
         return dirs.pop() if len(dirs) == 1 else None
 
     def has_dir(self, directory):

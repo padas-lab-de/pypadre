@@ -53,8 +53,8 @@ class LocalBackends(unittest.TestCase):
     def test_project(self):
         from pypadre.core.model.project import Project
 
-        project = Project(name='Test Project', description='Testing the functionalities of project backend')
-        self.app.projects.patch(project)
+        project = Project(name='Test Projectt', description='Testing the functionalities of project backend')
+        self.app.projects.put(project)
         name = 'Test Project'
         projects = self.app.projects.list({'name': name})
         for project in projects:
@@ -67,7 +67,7 @@ class LocalBackends(unittest.TestCase):
         from pypadre.core.model.project import Project
 
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
-        self.app.projects.put(project)
+        self.app.projects.put(project, allow_overwrite=True)
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
