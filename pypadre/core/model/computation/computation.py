@@ -32,8 +32,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
                                                                  self.RUN_ID: str(run.id),
-                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor
-                                                                 else None}}
+                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor is not None else None}}
 
         super().__init__(parent=run, metadata=metadata, **kwargs)
         self._component = component
@@ -43,7 +42,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         self._predecessor = predecessor
         self._parameters = parameters
         self._branch = branch
-        #self._result_format = result_format
+        # self._result_format = result_format
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
