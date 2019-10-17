@@ -46,5 +46,3 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         run = obj
         self.write_file(directory, META_FILE, run.metadata)
-        self.write_file(directory, RESULT_FILE, run.results)
-#        self.write_file(directory, WORKFLOW_FILE, run.workflow, "wb")

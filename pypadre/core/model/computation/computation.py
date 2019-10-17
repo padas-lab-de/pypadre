@@ -5,7 +5,7 @@ from types import GeneratorType
 from typing import Optional, Iterable, Callable, Union
 
 from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.model.execution import Execution
+from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_model_mixins import IProgressable, IStoreable
 from pypadre.core.printing.tablefyable import Tablefyable
 
@@ -13,15 +13,15 @@ from pypadre.core.printing.tablefyable import Tablefyable
 class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablefyable):
     COMPONENT_ID = "component_id"
     COMPONENT_CLASS = "component_class"
-    EXECUTION_ID = "execution_id"
+    RUN_ID = "run_id"
     PREDECESSOR_ID = "predecessor_computation_id"
 
     @classmethod
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, *, component, execution: Execution, predecessor: Optional[Computation]=None, result,
-                 parameters=None, branch=False, result_format=None, **kwargs):
+    def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result,
+                 parameters=None, branch=False, **kwargs):
         if parameters is None:
             parameters = {}
 
@@ -31,18 +31,19 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
-                                                                 self.EXECUTION_ID: str(execution.id),
-                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor is not None else None}}
+                                                                 self.RUN_ID: str(run.id),
+                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor
+                                                                 else None}}
 
-        super().__init__(parent=execution, metadata=metadata, **kwargs)
+        super().__init__(parent=run, metadata=metadata, **kwargs)
         self._component = component
         self._result = result
         # Todo add result schema (this has to be given by the component) At best a component can return directly a computation object
-        # Todo allow for multiple predecessors?
+        # Todo allow for multiple predecessors
         self._predecessor = predecessor
         self._parameters = parameters
         self._branch = branch
-        self._result_format = result_format
+        #self._result_format = result_format
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
@@ -57,7 +58,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         return self._result_format
 
     @property
-    def execution(self):
+    def run(self):
         return self.parent
 
     @property

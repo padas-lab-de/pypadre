@@ -15,13 +15,13 @@ class PipelineOutput(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, execution, parameter_selection: dict, splits: Set[Split]=None, results=None, **kwargs):
+    def __init__(self, run, parameter_selection: dict, splits: Set[Split]=None, results=None, **kwargs):
         # Add defaults
         defaults = {}
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.SPLIT_IDS: [split.id for split in splits]}}
-        super().__init__(schema_resource_name="run.json", parent=execution, result=self, metadata=metadata, **kwargs)
+        super().__init__(schema_resource_name="run.json", parent=run, result=self, metadata=metadata, **kwargs)
         self._parameter_selection = parameter_selection
         self._results = results
 
@@ -42,7 +42,8 @@ class PipelineOutput(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
             if isinstance(cur_computation, Split):
                 splits.add(cur_computation)
 
-        return cls(execution=computation.execution, parameter_selection=parameter_selection, splits=splits, results=computation.result)
+        return cls(run=computation.run, parameter_selection=parameter_selection, splits=splits,
+                   results=computation.result)
 
     @property
     def execution(self):

@@ -25,22 +25,6 @@ class ISourceRepository(IRepository, ISearchable, IStoreableRepository):
         super().__init__(parent=parent, backend=backend, **kwargs)
 
 
-class IResultRepository(IRepository, ISearchable, IStoreableRepository):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
-        super().__init__(parent=parent, backend=backend, **kwargs)
-
-
-class ISplitRepository(IRepository, ISearchable, IStoreableRepository, ILogRepository, IProgressableRepository):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
-        super().__init__(parent=parent, backend=backend, **kwargs)
-
-
 class IRunRepository(IRepository, ISearchable, IStoreableRepository, ILogRepository, IProgressableRepository):
     __metaclass__ = ABCMeta
 
@@ -93,3 +77,19 @@ class IComputationRepository(IRepository, ISearchable, IStoreableRepository):
     @abstractmethod
     def __init__(self, *, backend, **kwargs):
         super().__init__(backend=backend, **kwargs)
+
+
+class ISplitRepository(IRepository, ISearchable, IStoreableRepository, ILogRepository, IProgressableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
+        super().__init__(parent=parent, backend=backend, **kwargs)
+
+
+class IPipelineResultRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
+        super().__init__(parent=parent, backend=backend, **kwargs)

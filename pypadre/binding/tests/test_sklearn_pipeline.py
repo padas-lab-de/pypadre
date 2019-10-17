@@ -8,7 +8,7 @@ from pypadre.core.model.code.function import Function
 from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.model.project import Project
-from pypadre.core.tests.padre_test import PadreTest
+from pypadre.core.tests.base_test import PadreAppTest
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 
 
@@ -25,7 +25,7 @@ def create_test_pipeline():
     return Pipeline(estimators)
 
 
-class TestSKLearnPipeline(PadreTest):
+class TestSKLearnPipeline(PadreAppTest):
 
     def __init__(self, *args, **kwargs):
         super(TestSKLearnPipeline, self).__init__(*args, **kwargs)

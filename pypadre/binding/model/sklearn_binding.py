@@ -260,7 +260,7 @@ class SKLearnGridSearch(GridSearch):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def create_combinations(self, parameters: dict, module):
+    def create_combinations(self, parameters: dict):
         import itertools
 
         # Generate every possible combination of the provided hyper parameters.
@@ -269,6 +269,7 @@ class SKLearnGridSearch(GridSearch):
         for estimator in parameters:
             param_dict = parameters.get(estimator)
             # assert_condition(condition=isinstance(param_dict, dict),
+            #                  source=self,
             #                  source=self,
             #                  message='Parameter dictionary is not of type dictionary for estimator:' + estimator)
             for params in param_dict:

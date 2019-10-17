@@ -1,7 +1,9 @@
 from types import GeneratorType
 
 from pypadre.core.model.computation.computation import Computation
+from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.lazy_loader import SimpleLazyObject
+from pypadre.core.model.pipeline.components import PipelineComponent
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IRunRepository, IComputationRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
@@ -22,20 +24,20 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         return '{COMPUTATION_ID}'
 
     def __init__(self, backend: IPadreBackend):
-        super().__init__(parent=backend.execution, name=NAME, backend=backend)
+        super().__init__(parent=backend.run, name=NAME, backend=backend)
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         result = self.get_file(directory, RESULT_FILE)
 
         # TODO Computation
-        execution = self.backend.execution.get(metadata.get(Computation.EXECUTION_ID))
-        component = execution.experiment.pipeline.get_component(metadata.get(Computation.COMPONENT_ID))
+        run = self.backend.run.get(metadata.get(Computation.RUN_ID))
+        component = run.pipeline.get_component(metadata.get(Computation.COMPONENT_ID))
         predecessor = None
         if metadata.get(Computation.PREDECESSOR_ID) is not None:
             predecessor = SimpleLazyObject(load_fn=lambda: self.get(metadata.get(Computation.PREDECESSOR_ID)), id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
 
-        computation = Computation(metadata=metadata, result=result, execution=execution, component=component, predecessor=predecessor)
+        computation = Computation(metadata=metadata, result=result, run=run, component=component, predecessor=predecessor)
         return computation
 
     def put_progress(self, run, **kwargs):
