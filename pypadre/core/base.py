@@ -57,7 +57,7 @@ class MetadataEntity(Validateable, Tablefyable):
         cls.tablefy_register("id", "name", cls.CREATED_AT, cls.CREATED_BY, cls.UPDATED_AT, cls.LAST_MODIFIED_BY)
 
     @abstractmethod
-    def __init__(self, *, metadata: dict, **kwargs):
+    def __init__(self, *, metadata: dict, ontology_class=None, **kwargs):
 
         import time
 
@@ -73,6 +73,11 @@ class MetadataEntity(Validateable, Tablefyable):
         # options = {**{key: argspec.locals[key] for key in argspec.args if key is not "self"}, **kwargs}
 
         super().__init__(**{self.METADATA: self._metadata, **kwargs})
+
+        if ontology_class is not None:
+            # TODO validation json schema vs ontology itself?
+            self._ontology_object = ontology_class(name=ontology_class.__name__ + "#" + self.id, **metadata)
+
 
     @property
     def id(self):
