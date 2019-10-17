@@ -8,7 +8,7 @@ import click
 #################################
 ####### DATASETS FUNCTIONS ##########
 #################################
-from pypadre.app.dataset.dataset_app import DatasetApp
+from pypadre.pod.app.dataset.dataset_app import DatasetApp
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.printing.util.print_util import to_table
 

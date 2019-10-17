@@ -4,8 +4,8 @@ Command Line Interface for PADRE.
 """
 import click
 
-from pypadre.app import PadreConfig
-from pypadre.app.padre_app import PadreFactory
+from pypadre.pod.app import PadreConfig
+from pypadre.pod.app.padre_app import PadreAppFactory
 
 
 @click.group()
@@ -53,7 +53,7 @@ def set_config_param(ctx, param, section):
     _get_app(ctx).save()
 
     # Reinitialize app with changed configuration
-    ctx.obj['pypadre-app'] = PadreFactory.get(_get_app(ctx))
+    ctx.obj['pypadre-app'] = PadreAppFactory.get(_get_app(ctx))
 
 
 @config.command(name="list")

@@ -4,10 +4,12 @@ Module containing python classes for managing data sets
 - TODO allow group based management of binary files similar to hdF5
 
 """
+from typing import Callable
 
 import networkx as nx
 import numpy as np
 import pandas as pd
+from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.core.base import MetadataEntity
@@ -15,6 +17,7 @@ from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
+from pypadre.core.model.generic.i_model_mixins import IStoreable
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
 
@@ -29,7 +32,7 @@ class _Formats(_Const):
 formats = _Formats()
 
 
-class Dataset(MetadataEntity):
+class Dataset(IStoreable, MetadataEntity):
 
     def __init__(self, **kwargs):
         """
@@ -39,27 +42,23 @@ class Dataset(MetadataEntity):
         """
 
         # Add defaults
-        defaults = {"name": "", "version": "1.0", "description": "", "originalSource": "",
-                    "type": "", "published": False, "attributes": []}
-
-        # Merge all named parameters and kwargs together for validation
-        # argspec = inspect.getargvalues(inspect.currentframe())
-        # metadata = {**{key: argspec.locals[key] for key in argspec.args if key is not "self"}, **kwargs}
+        defaults = {"name": "default_name", "version": "1.0", "description": "", "originalSource": "",
+                    "type": PaDREOntology.SubClassesDataset.Multivariat.value, "published": False, "attributes": [], "targets": []}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs}
+        metadata = {**defaults, **kwargs.pop("metadata", {})}
 
         super().__init__(schema_resource_name='dataset.json', metadata=metadata, **kwargs)
 
         self._binaries = dict()
+        self._proxy_loaders = {}
+
+    def add_proxy_loader(self, fn: Callable):
+        self._proxy_loaders[fn.__hash__()] = lambda: self.set_data(data=fn())
 
     @property
-    def metadata(self):
-        """
-        returns the metadata object associated with this dataset
-        :return:
-        """
-        return self._metadata
+    def name(self):
+        return self.metadata["name"]
 
     @property
     def type(self):
@@ -85,6 +84,10 @@ class Dataset(MetadataEntity):
         # assert_condition(condition=options.get("type") is not None, source=self,
         #                  message="type attribute has to be set for a dataset")
 
+    def _execute_proxy_loaders(self):
+        for key in list(self._proxy_loaders.keys()):
+            self._proxy_loaders.pop(key)()
+
     def container(self, bin_format=None):
         """
         Gets the container holding the data with given format. If no format is given we just get the only container
@@ -93,6 +96,10 @@ class Dataset(MetadataEntity):
         # Try to get data of unknown binary format
         if bin_format is None:
             if len(self._binaries) == 0:
+                if self._proxy_loaders.__len__() > 0:
+                    self.send_info(message="Trying to load proxied object.")
+                    self._execute_proxy_loaders()
+                    return self.container(bin_format)
                 raise ValueError("No binary exists.")
             if len(self._binaries) > 1:
                 raise ValueError("More than one binary exists. Pass a format.")
@@ -134,6 +141,12 @@ class Dataset(MetadataEntity):
         """
         return self.container(bin_format).data
 
+    def set_attributes(self, attributes=None):
+        if self.attributes is None or len(self.attributes) == 0:
+            self._metadata['attributes'] = attributes
+        else:
+            pass
+
     def set_data(self, data):
         """
         Set new data. Container type can be derived automatically.
@@ -141,18 +154,30 @@ class Dataset(MetadataEntity):
         :return:
         """
 
-        if self.attributes is None:
-            pass
-            # TODO print warning and try to derive attributes. This should be done by the container while the attributes themselves should be held on the dataset.
-
-        if isinstance(data, pd.DataFrame):
-            container = PandasContainer(data, self.attributes)
-        elif isinstance(data, np.ndarray):
-            container = NumpyContainer(data, self.attributes)
-        elif isinstance(data, nx.Graph):
-            container = GraphContainer(data, self.attributes)
+        if self.attributes is None or len(self.attributes) == 0:
+            self.send_warn(message='Dataset has no attributes yet! Attempting to derive them from the binary using '
+                                   'targets metadata if exits')
+            if isinstance(data, pd.DataFrame):
+                attributes = PandasContainer.derive_attributes(data, targets=self.metadata.get("targets", None))
+                container = PandasContainer(data, attributes)
+            elif isinstance(data, np.ndarray):
+                attributes = NumpyContainer.derive_attributes(data, targets=self.metadata.get("targets", None))
+                container = NumpyContainer(data, attributes)
+            elif isinstance(data, nx.Graph):
+                attributes = GraphContainer.derive_attributes(data, targets=self.metadata.get("targets", None))
+                container = GraphContainer(data, attributes)
+            else:
+                raise ValueError("Unknown data format. Type %s not known." % (type(data)))
+            self.set_attributes(attributes)
         else:
-            raise ValueError("Unknown data format. Type %s not known." % (type(data)))
+            if isinstance(data, pd.DataFrame):
+                container = PandasContainer(data, self.attributes)
+            elif isinstance(data, np.ndarray):
+                container = NumpyContainer(data, self.attributes)
+            elif isinstance(data, nx.Graph):
+                container = GraphContainer(data, self.attributes)
+            else:
+                raise ValueError("Unknown data format. Type %s not known." % (type(data)))
 
         # Add the binary
         self.add_container(container)
@@ -269,7 +294,50 @@ class Dataset(MetadataEntity):
 
 class Transformation(Dataset):
 
-    def __init__(self, dataset, **metadata):
+    def __init__(self, dataset: Dataset, **kwargs):
+        """
+
+        :param dataset: The original dataset to transform/preprocess
+        :param kwargs: metadata like name, attributes, ...
+        """
+        # Add defaults
+        defaults = {"name": dataset.name, "version": "1.0", "description": dataset.metadata["description"],
+                    "originalSource": dataset.id,
+                    "type": dataset.type, "published": False, "attributes": dataset.attributes}
+
+        metadata = {**defaults,**kwargs}
         super().__init__(**metadata)
         self._dataset = dataset
-        # todo rework preprocessing
+        self._binaries = dict()
+
+    def update_attributes(self,attributes=None):
+        """
+        Update the attributes in case the transformation changes the attributes
+        :param attributes:
+        :return:
+        """
+        self._metadata["attributes"] = attributes
+
+    def set_data(self,data, attributes=None):
+        """
+        Set the transformed data and add its corresponding container
+        :param attributes: The new attributes in case they were changed
+        :param data: The preprocessed data binary
+        :return:
+        """
+
+        if attributes is not None:
+            self.update_attributes(attributes)
+            self.send_warn(message='Old attributes will be overwritten in the transformed dataset')
+
+        if isinstance(data, pd.DataFrame):
+            container = PandasContainer(data, self.attributes)
+        elif isinstance(data, np.ndarray):
+            container = NumpyContainer(data, self.attributes)
+        elif isinstance(data, nx.Graph):
+            container = GraphContainer(data, self.attributes)
+        else:
+            raise ValueError("Unknown data format. Type %s not known." % (type(data)))
+
+        self.add_container(container)
+

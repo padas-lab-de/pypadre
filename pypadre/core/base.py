@@ -1,9 +1,9 @@
-import sys
 import uuid
-from abc import ABCMeta, abstractmethod, ABC
+from abc import ABCMeta, abstractmethod
 
 from pypadre.core.printing.tablefyable import Tablefyable
-from pypadre.core.util.utils import _Const
+from pypadre.core.util.inheritance import SuperStop
+from pypadre.core.util.utils import _Const, is_jsonable
 from pypadre.core.validation.validation import Validateable
 
 
@@ -44,6 +44,7 @@ class MetadataEntity(Validateable, Tablefyable):
     The metadata should contain all necessary non-binary data to describe an entity.
     """
 
+    METADATA = "metadata"
     CREATED_AT = 'createdAt'
     UPDATED_AT = 'updatedAt'
     LAST_MODIFIED_BY = 'lastModifiedBy'
@@ -63,11 +64,20 @@ class MetadataEntity(Validateable, Tablefyable):
         self._metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
                           **metadata}
 
+        # TODO remove this. This is only put here to find invalid / unserializable metadata without explicitly calling serialize on it
+        if not is_jsonable(self._metadata):
+            raise ValueError(str(self) + " is not json serializable!")
+
         # Merge all named parameters and kwargs together for validation
         # argspec = inspect.getargvalues(inspect.currentframe())
         # options = {**{key: argspec.locals[key] for key in argspec.args if key is not "self"}, **kwargs}
 
-        super().__init__(**kwargs)
+        super().__init__(**{self.METADATA: self._metadata, **kwargs})
+
+        # if ontology_class is not None:
+        #     # TODO validation json schema vs ontology itself?
+        #     self._ontology_object = ontology_class(name=ontology_class.__name__ + "#" + self.id, **metadata)
+
 
     @property
     def id(self):
@@ -148,7 +158,7 @@ class MetadataEntity(Validateable, Tablefyable):
                 pass
 
 
-class ChildEntity:
+class ChildEntity(SuperStop):
     """ This is the abstract class being hierarchically nested in another class. This is relevant for app structure
     and the backend structure. For example the project backend is the parent of experiment backend """
     __metaclass__ = ABCMeta

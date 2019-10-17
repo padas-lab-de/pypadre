@@ -59,3 +59,16 @@ class IBaseContainer:
     @property
     def attributes(self):
         return self._attributes
+
+    @abstractmethod
+    def get_ontology(self):
+        pass
+
+    @abstractmethod
+    def derive_attributes(self, **args):
+        pass
+
+    @abstractmethod
+    def validate_attributes(self, **args):
+        pass
+

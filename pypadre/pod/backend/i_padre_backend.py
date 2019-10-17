@@ -1,14 +1,22 @@
 from abc import abstractmethod
 
+from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
+from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository
 
-class IPadreBackend:
+
+class IPadreBackend(ILogRepository):
     """ This is the base backend for padre. It contains subbackends like dataset and project."""
 
     from pypadre.pod.repository.i_repository import IProjectRepository, IDatasetRepository, IExperimentRepository, \
         ISplitRepository, IRunRepository, IExecutionRepository
 
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
+        super().__init__(**kwargs)
         self._config = config
+
+        # TODO Receiver?
+        def handle_put(sender, **kwargs):
+            pass
 
     @property
     def config(self):
@@ -46,4 +54,14 @@ class IPadreBackend:
     @property
     @abstractmethod
     def split(self) -> ISplitRepository:
+        pass
+
+    @property
+    @abstractmethod
+    def computation(self) -> IComputationRepository:
+        pass
+
+    @property
+    @abstractmethod
+    def metric(self) -> IMetricRepository:
         pass

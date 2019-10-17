@@ -1,15 +1,14 @@
-from pypadre.core import Run
+from pypadre.core.model.computation.run import Run
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.repository.i_repository import IRunRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
-from pypadre.pod.repository.i_repository import IRunRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
 
 NAME = "runs"
 
 META_FILE = File("metadata.json", JSonSerializer)
-HYPERPARAMETER_FILE = File("hyperparameter.json", JSonSerializer)
-WORKFLOW_FILE = File("workflow.json", PickleSerializer)
+RESULT_FILE = File("result.json", JSonSerializer)
 
 
 class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository):
@@ -23,12 +22,12 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
 
     def get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
-        hyperparameter = self.get_file(directory, HYPERPARAMETER_FILE)
-        workflow = self.get_file(directory, WORKFLOW_FILE)
+        #hyperparameter = self.get_file(directory, HYPERPARAMETER_FILE)
+        #workflow = self.get_file(directory, WORKFLOW_FILE)
 
         # TODO what to do with hyperparameters?
         execution = self.parent.get_by_dir(self.get_parent_dir(directory))
-        run = Run(execution=execution, workflow=workflow, **metadata)
+        run = Run(execution=execution, metadata=metadata)
         return run
 
     def put_progress(self, run, **kwargs):
@@ -47,5 +46,3 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         run = obj
         self.write_file(directory, META_FILE, run.metadata)
-        self.write_file(directory, HYPERPARAMETER_FILE, run.experiment.hyperparameters())
-        self.write_file(directory, WORKFLOW_FILE, run.workflow, "wb")

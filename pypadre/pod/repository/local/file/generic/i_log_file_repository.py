@@ -19,6 +19,7 @@ class ILogFileRepository(IFileRepository, ILogRepository):
         self._write(msg)
 
     def _write(self, message):
+        # TODO close file
         if self._file is None:
             self._file = open(os.path.join(self.root_dir, FILE_NAME), "a")
         self._file.write(message)

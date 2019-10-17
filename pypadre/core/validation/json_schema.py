@@ -1,7 +1,7 @@
 import re
 from typing import Sequence
 
-from pypadre.core.validation import ValidationErrorHandler
+from pypadre.core.validation.validation import ValidationErrorHandler
 
 
 class JsonSchemaRequiredHandler(ValidationErrorHandler):

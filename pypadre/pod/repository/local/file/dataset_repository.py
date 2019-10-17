@@ -1,13 +1,13 @@
 import os
 import re
 
-from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.local.file.generic.i_file_repository import File
-from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
-from pypadre.pod.repository.i_repository import IDatasetRepository
-from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.pod.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.repository.i_repository import IDatasetRepository
+from pypadre.pod.repository.local.file.generic.i_file_repository import File
+from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
+from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
 
 META_FILE = File("metadata.json", JSonSerializer)
 DATA_FILE = File("data.bin", PickleSerializer)
@@ -38,13 +38,16 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
 
         metadata = self.get_file(directory, META_FILE)
 
-        attributes = [Attribute(**a) for a in metadata.pop("attributes", {})]
+        attributes = [Attribute(**a) for a in metadata.get("attributes", {})]
+        metadata["attributes"] = attributes
 
-        ds = Dataset(attributes=attributes, **metadata)
+        ds = Dataset(metadata=metadata)
 
         if self.has_file(os.path.join(self.root_dir, directory), DATA_FILE):
             # TODO: Implement lazy loading of the dataset
-            ds.set_data(self.get_file(os.path.join(self.root_dir, directory), DATA_FILE))
+            def _load_data():
+                return self.get_file(os.path.join(self.root_dir, directory), DATA_FILE)
+            ds.add_proxy_loader(_load_data)
         return ds
 
     def to_folder_name(self, dataset):

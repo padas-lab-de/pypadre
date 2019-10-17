@@ -16,7 +16,7 @@
 # from requests_toolbelt import MultipartEncoder
 #
 # from pypadre.pod import experimentcreator
-# from pypadre.core import Experiment, Run, Split
+# from pypadre.core.model.experiment import Experiment, Run, Split
 # from pypadre.pod.backend.serialiser import PickleSerializer
 # from pypadre.core.events import trigger_event
 #

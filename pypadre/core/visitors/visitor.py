@@ -16,7 +16,7 @@ class Visitor(abc.ABC):
     For every value there will also be the access string of the item in the original object stored.
     """
 
-    def __init__(self, schema = None):
+    def __init__(self, schema=None):
         """
         Default implementation of constructor.
         :param schema: (optional) the expected schema of the extracted paramters
@@ -24,7 +24,7 @@ class Visitor(abc.ABC):
         super().__init__()
         self.schema = schema
 
-    def __call__(self, object, result = None, path = ""):
+    def __call__(self, object, result=None, path=""):
         """
         Make a visitor callable. Calls extract, but also verifies if the result fits the provided schema, if any.
         :param object: see extract
@@ -88,12 +88,12 @@ class Visitor(abc.ABC):
 
         return result
 
+
 class DictVisitor(Visitor):
     """
     A Visitor-implementation to inspect library-specific experiment setups and extract the setup information by using a template-dictionary.
     For each key in the dicitionary the corresponding value will be applied as visitor to a member of object by the same name as key.
     """
-
 
     def __init__(self, template, schema=None):
         """
@@ -133,17 +133,16 @@ class DictVisitor(Visitor):
 
         for k in template:
             Visitor.applyVisitor(getter(k), result, template[k], path + "." + k)
-                #print("Warning: Parameter '" + k + "' could not be found in object " + repr(object) + ".")
-
+            # print("Warning: Parameter '" + k + "' could not be found in object " + repr(object) + ".")
 
         return result
+
 
 class ListVisitor(Visitor):
     """
     A Visitor-implementation to inspect library-specific experiment setups and extract the setup information of a list by using a template on every object of the list.
     The template is represented by a dict, where a value can be of any of the types supported by ExperimentVisitor.applyVisitor.
     """
-
 
     def __init__(self, prefix, visitor, schema=None):
         """
@@ -168,7 +167,8 @@ class ListVisitor(Visitor):
             print("Warning: List '" + path + "." + self.prefix + "' extended by multiple runs.")
         else:
             result[self.prefix] = []
-        result[self.prefix].extend([self.applyVisitor(object[i], {}, self.visitor, path + "[" + str(i) + "]") for i in range(len(object))])
+        result[self.prefix].extend(
+            [self.applyVisitor(object[i], {}, self.visitor, path + "[" + str(i) + "]") for i in range(len(object))])
         return result
 
 
@@ -199,6 +199,7 @@ class TupleVisitor(Visitor):
         for i in range(min(len(object), len(self.visitors))):
             self.applyVisitor(object[i], result, self.visitors[i], path + "[" + str(i) + "]")
         return result
+
 
 class SelectVisitor(Visitor):
     """
@@ -234,6 +235,7 @@ class SelectVisitor(Visitor):
             raise TypeError("Unsupported object encountered: " + str(type(object)))
         return self.applyVisitor(object, result, visitor, path)
 
+
 class CombineVisitor(Visitor):
     """
     A Visitor-implementation to combine multiple visitor-objects.
@@ -259,6 +261,7 @@ class CombineVisitor(Visitor):
             self.applyVisitor(object, result, visitor, path)
         return result
 
+
 class ConstantVisitor(Visitor):
     """
     A Visitor-implementation that inserts a constant dict of values into the result-dict.
@@ -283,6 +286,7 @@ class ConstantVisitor(Visitor):
         for k in self.values:
             self.applyVisitor(self.values[k], result, k, path)
         return result
+
 
 class SubpathVisitor(Visitor):
     """
@@ -373,9 +377,8 @@ class AlgorithmVisitor(Visitor):
                 value = object.__dict__
                 for k in param[lib]['path'].split('.'):
                     value = value[k]
-                #resolve
-                param_list[param['name']] = Parameter(value, {"path": path + "." + param[lib]['path'], **{k : param[k] for k in self.param_info}})
-
+                # resolve
+                param_list[param['name']] = Parameter(value, {"path": path + "." + param[lib]['path'],
+                                                              **{k: param[k] for k in self.param_info}})
 
         return result
-

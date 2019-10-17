@@ -3,7 +3,7 @@ import itertools
 import pprint
 from functools import wraps
 
-from pypadre.core import Experiment
+from pypadre.core.model.experiment import Experiment
 
 _experiments = {}
 

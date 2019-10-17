@@ -1,7 +1,9 @@
-from abc import ABCMeta, abstractmethod, ABC
+from abc import ABCMeta, abstractmethod
+
+from pypadre.core.util.inheritance import SuperStop
 
 
-class IStoreable:
+class IStoreableRepository:
     """ This is the interface for all backends being able to store objects onto some kind of persistence storage."""
     __metaclass__ = ABCMeta
 
@@ -54,21 +56,21 @@ class ISearchable:
         return all([hasattr(obj, k) and getattr(obj, k) == v for k, v in search.items()])
 
 
-class IProgressable:
+class IProgressableRepository(SuperStop):
     """ This is the interface for all backends being able to progress the state of one of their
     currently running processes."""
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__()
 
     @abstractmethod
     def put_progress(self, obj, **kwargs):
         pass
 
 
-class ILogRepository:
+class ILogRepository(SuperStop):
     """ This is the interface for all backends which are able to log interactions into some kind of log store """
     __metaclass__ = ABCMeta
 
@@ -89,6 +91,7 @@ class IRepository:
     @abstractmethod
     def __init__(self, *, backend, **kwargs):
         self._backend = backend
+        super().__init__(**kwargs)
 
     @property
     def backend(self):

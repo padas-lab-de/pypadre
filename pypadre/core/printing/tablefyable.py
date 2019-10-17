@@ -1,17 +1,22 @@
 from abc import abstractmethod, ABCMeta
 from collections import OrderedDict
 
+from pypadre.core.util.inheritance import SuperStop
 from pypadre.pod.util.dict_util import get_dict_attr
 
 registry = OrderedDict()
 
 
-class Tablefyable:
+class Tablefyable(SuperStop):
     __metaclass__ = ABCMeta
     """
     Used to allow for table printing of the object. Fill the registry for printing by implementing the _register_columns
      function.
     """
+
+    @abstractmethod
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @classmethod
     @abstractmethod
