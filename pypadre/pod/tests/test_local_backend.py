@@ -247,6 +247,7 @@ class LocalBackends(unittest.TestCase):
         connect_base_signal("log", log)
         connect_base_signal(LOG_EVENT, log_event)
 
+        # Test push
         experiment.execute()
         self.app.computations.list()
         experiments = self.app.experiments.list()
