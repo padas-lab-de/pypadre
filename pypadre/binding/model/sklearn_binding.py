@@ -14,6 +14,7 @@ from pypadre.core.model.pipeline import pipeline
 from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, \
     ParameterizedPipelineComponent
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
+from pypadre.core.model.pipeline.parameters import CodeParameterProvider, GridSearch
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
 
@@ -44,20 +45,26 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
         # distingusish between training and fitting in classification.
         # TODO use default parameter provider if none is given
 
+        if parameter_provider is None:
+            parameter_provider = SKLearnParameterProvider()
+
         if not pipeline or not _is_sklearn_pipeline(pipeline):
             raise ValueError("SKLearnEstimator needs a delegate defined as sklearn.pipeline")
         self._pipeline = pipeline
 
-        super().__init__(name="SKLearnEstimator", **kwargs)
+        super().__init__(name="SKLearnEstimator", parameter_provider=parameter_provider, **kwargs)
 
     def _execute_component_code(self, *, data, **kwargs):
         split = data
+
+        self.set_parameter_values(parameters=kwargs.get('parameters'))
 
         self.send_start(phase='sklearn.' + phases.fitting)
         y = None
         if split.train_targets is not None:
             y = split.train_targets.reshape((len(split.train_targets),))
         else:
+
             # Create dummy target of zeros if target is not present.
             y = np.zeros(shape=(len(split.train_features, )))
         self._pipeline.fit(split.train_features, y)
@@ -96,6 +103,20 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
     @property
     def pipeline(self):
         return self._pipeline
+
+    def set_parameter_values(self, parameters):
+        from pypadre.core.visitors.mappings import alternate_name_mappings
+        for parameter in parameters:
+            split_params = parameter.split(sep='.')
+            estimator = self.pipeline.named_steps.get(split_params[0])
+            if estimator is None:
+                # Check if the estimator name is present int he alternate name mappings
+                estimator_name = alternate_name_mappings.get(split_params)
+                estimator = self.pipeline.named_steps.get(estimator_name)
+
+            assert(estimator is not None)
+
+            estimator.set_params(**{split_params[1]: parameters[parameter]})
 
 
 class SKLearnEvaluator(EvaluatorComponent, ParameterizedPipelineComponent):
@@ -227,3 +248,37 @@ class SKLearnPipelineV2(pipeline.Pipeline):
     def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline: Pipeline, **kwargs):
         super().__init__(**kwargs)
         # TODO for each pipeline element in sklearn create a pipeline component
+
+
+class SKLearnParameterProvider(CodeParameterProvider):
+    def __init__(self):
+        super().__init__(SKLearnGridSearch())
+
+
+class SKLearnGridSearch(GridSearch):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def create_combinations(self, parameters: dict, module):
+        import itertools
+
+        # Generate every possible combination of the provided hyper parameters.
+        master_list = []
+        params_list = []
+        for estimator in parameters:
+            param_dict = parameters.get(estimator)
+            # assert_condition(condition=isinstance(param_dict, dict),
+            #                  source=self,
+            #                  message='Parameter dictionary is not of type dictionary for estimator:' + estimator)
+            for params in param_dict:
+                # Append only the parameters to create a master list
+                master_list.append(param_dict.get(params))
+
+                # Append the estimator name followed by the parameter to create a ordered list.
+                # Ordering of estimator.parameter corresponds to the value in the resultant grid tuple
+                params_list.append(''.join([estimator, '.', params]))
+
+        grid = itertools.product(*master_list)
+        return grid, params_list
+

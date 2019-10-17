@@ -1,6 +1,5 @@
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
-from pypadre.core.ontology.ontology import padre_ontology
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
@@ -19,7 +18,7 @@ class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
 
-        super().__init__(schema_resource_name='project.json', ontology_class=padre_ontology.Project, metadata=metadata, **kwargs)
+        super().__init__(schema_resource_name='project.json', metadata=metadata, **kwargs)
 
         self._experiments = []
         self._sub_projects = []
