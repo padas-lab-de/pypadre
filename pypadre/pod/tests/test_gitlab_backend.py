@@ -56,7 +56,6 @@ class GitlabBackend(unittest.TestCase):
 
     def test_project(self):
         from pypadre.core.model.project import Project
-        from gitlab.v4.objects import ProjectManager
 
         project = Project(name='Test Project', description='Testing the functionalities of project backend')
         self.app.projects.put(project)

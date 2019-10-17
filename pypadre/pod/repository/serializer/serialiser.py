@@ -1,6 +1,6 @@
 import json
 import pickle
-
+import yaml
 import msgpack_numpy as mn
 
 # TODO : we should support faster / more sophisticated / cross-plattform serialisation. for example using pyarrow
@@ -41,6 +41,16 @@ class JSonSerializer(Serializer):
     @staticmethod
     def deserialize(buffer):
         return json.loads(buffer)
+
+class YamlSerializer(Serializer):
+
+    @staticmethod
+    def serialise(obj):
+        return yaml.dump(obj)
+
+    @staticmethod
+    def deserialize(buffer):
+        return yaml.load(buffer)
 
 
 class MsgPack(Serializer):

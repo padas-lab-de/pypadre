@@ -26,14 +26,25 @@ class GitLabRepository(IGitRepository):
     _repo = None
     _git = None
     _branch = "master"
-
+    _group = None
     @abstractmethod
-    def __init__(self, root_dir: str, gitlab_url:str, token:str,backend: IPadreBackend,**kwargs):
+    def __init__(self, root_dir: str, gitlab_url:str, token:str, group:str,backend: IPadreBackend,**kwargs):
         super().__init__(root_dir=root_dir,backend=backend,**kwargs)
-        self.authenticate(gitlab_url,token)
+        self._url = gitlab_url
+        self._token = token
+        self.authenticate()
 
-    def authenticate(self, url, private_token):
-        self._git = gitlab.Gitlab(url, private_token=private_token)
+    def authenticate(self):
+        self._git = gitlab.Gitlab(self._url, private_token=self._token)
+
+    def get_group(self,name):
+        if self.group_exists(name):
+            return self._git.groups.get(id=self._git.groups.list(search=name)[0].id)
+        else:
+            return self._git.groups.create({'name':name})
+
+    def group_exists(self,name):
+        return len(self._git.groups.list(search=name))>0
 
     def get_projects(self, search_term):
         return self._git.projects.list(search=search_term) if self._git is not None else None
@@ -41,17 +52,23 @@ class GitLabRepository(IGitRepository):
     def get_project_by_id(self, project_id, lazy=True):
         return self._git.projects.get(id=project_id, lazy=lazy) if self._git is not None else None
 
-    def create_repo(self, name):
-        if not self._repo_exists(name):
+    def create_repo(self, name="", id=""):
+        _name = "{}_{}".format(name,id)
+        if not self._repo_exists(_name):
             try:
-                self._repo = self._git.projects.create({'name': name})
+                if self._group:
+                    self._repo = self._group.projects.create({'name': _name})
+                else:
+                    self._repo = self._git.projects.create({'name': _name})
             except gitlab.GitlabCreateError as e:
                 #TODO handle different exception upon creation
                 pass
         else:
-            self._repo = self.get_projects(name)[0]
+            self._repo = self.get_project_by_id(self.get_projects(_name)[0].id)
 
     def _repo_exists(self, name):
+        if self._group is not None:
+            return len(self._group.projects.list(search=name))>0
         return len(self._git.projects.list(search=name))>0
 
     def get_repo_contents(self):
@@ -79,12 +96,14 @@ class GitLabRepository(IGitRepository):
     def get_remote_url(self, ssh=False):
         if self._repo is None:
             #TODO print warning
-            pass
+            raise ValueError("there is no remote repository. Create one")
         else:
             attributes = self._repo.attributes
             url= attributes.get("ssh_url_to_repo") if ssh else attributes.get("http_url_to_repo")
-            ### TODO resolve domain issue
-            return url.replace(DOMAIN,temp_DOMAIN)
+            url = url.replace(DOMAIN,temp_DOMAIN) # TODO resolve domain address when using local server
+            _url = url.split("//")
+            url = "".join([_url[0],"//","oauth2:{}@".format(self._token),_url[1]]) #To resolve the authentication https://stackoverflow.com/a/52154378
+            return url
 
     def add_remote(self,branch,url):
         try:
@@ -95,7 +114,9 @@ class GitLabRepository(IGitRepository):
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
         if self._repo is None:
-            self.create_repo(obj.metadata.get("name"))
+            self.create_repo(name=obj.name,id=obj.id)
+
+        #TODO
         self.local_repo = super().put(obj)
 
         remote_url = self.get_remote_url()
@@ -104,10 +125,10 @@ class GitLabRepository(IGitRepository):
 
         directory = self.to_directory(obj)
 
-        self._put(obj, *args, directory=directory, remote=self._remote, merge=merge,**kwargs)
+        self._put(obj, *args, directory=directory,  merge=merge,**kwargs)
 
     @abstractmethod
-    def _put(self, obj, *args, directory: str, remote=None, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str,  merge=False, **kwargs):
         """
         This function pushes the files to the given remote branch from the local git repo.
         :param obj:
@@ -119,6 +140,18 @@ class GitLabRepository(IGitRepository):
         :return:
         """
         pass
+
+    def list(self, search, offset=0, size=100):
+        """
+
+        :param search:
+        :param offset:
+        :param size:
+        :return:
+        """
+        #TODO look in the gitlab repos under self._group
+
+        return
 
     def update_file(self, file, content, branch, commit_message):
         # Update a file and if the file is binary, the calling function should serialize the content for modifying
