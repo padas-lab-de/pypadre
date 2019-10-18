@@ -90,12 +90,12 @@ class AppLocalBackends(PadreAppTest):
                               single_transformation=True)
         self.app.executions.patch(execution)
 
-        executions = self.app.executions.list({'name': codehash})
+        executions = self.app.executions.list({'hash': codehash})
         for execution_ in executions:
-            assert codehash in execution_.name
-
-        execution = self.app.executions.get(executions.__iter__().__next__().id)
-        assert execution[0].name == executions[0].name
+            assert codehash in execution_.hash
+        if len(executions) > 0:
+            execution = self.app.executions.get(executions.__iter__().__next__().id)
+            assert execution[0].name == executions[0].name
 
     def test_run(self):
         """
@@ -137,9 +137,9 @@ class AppLocalBackends(PadreAppTest):
                               single_transformation=True)
         self.app.executions.put(execution)
 
-        executions = self.app.executions.list({'name': codehash})
+        executions = self.app.executions.list({'hash': codehash})
         if len(executions) > 0:
-            run = Run(execution=executions[0], workflow=execution.experiment.workflow, keep_splits=True)
+            run = Run(execution=executions[0], workflow=execution.experiment.pipeline, keep_splits=True)
             self.app.runs.put(run)
 
         else:
@@ -178,14 +178,14 @@ class AppLocalBackends(PadreAppTest):
                               preparameters=None, single_run=True,
                               single_transformation=True)
 
-        run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
+        run = Run(execution=execution, workflow=execution.experiment.pipeline, keep_splits=True)
         split = Split(run=run, num=0, train_idx=list(range(1, 1000+1)), val_idx=None, test_idx=list(range(1000, 1100+1)), keep_splits=True)
         self.app.splits.put(split)
 
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
-        self.tearDown()
+
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
 
@@ -215,6 +215,38 @@ class AppLocalBackends(PadreAppTest):
         connect_base_signal(LOG_EVENT, log_event)
 
         experiment.execute()
+        self.app.computations.list()
+        experiments = self.app.experiments.list()
+
+    def test_custom_split_pipeline(self):
+
+        from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.core.model.code.function import Function
+
+        def custom_split(idx):
+            cutoff = int(len(idx) / 2)
+            return idx[:cutoff], idx[cutoff:], None
+
+        def create_test_pipeline():
+            from sklearn.pipeline import Pipeline
+            from sklearn.svm import SVC
+            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+            estimators = [('SVC', SVC(probability=True))]
+            return Pipeline(estimators)
+
+        # TODO please implement custom split function for this example
+        pipeline = SKLearnPipeline(splitting=Function(fn=custom_split), pipeline_fn=create_test_pipeline)
+
+        self.app.datasets.load_defaults()
+
+        id = '_iris_dataset'
+        dataset = self.app.datasets.list({'name': id})
+        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        experiment = Experiment(dataset=dataset.pop(), project=project, pipeline=pipeline)
+
+        experiment.execute()
+
         self.app.computations.list()
         experiments = self.app.experiments.list()
 

@@ -105,18 +105,61 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
         return self._pipeline
 
     def set_parameter_values(self, parameters):
-        from pypadre.core.visitors.mappings import alternate_name_mappings
+
         for parameter in parameters:
+            # split_params[0] will be the name of the estimator
+            # split_params[1] will be the name of the parameter
             split_params = parameter.split(sep='.')
-            estimator = self.pipeline.named_steps.get(split_params[0])
+            estimator_name = split_params[0]
+            parameter_name = split_params[1]
+
+            estimator = self.pipeline.named_steps.get(estimator_name)
             if estimator is None:
                 # Check if the estimator name is present int he alternate name mappings
-                estimator_name = alternate_name_mappings.get(split_params)
+                estimator_name = self.find_estimator_name_in_mapping(estimator_name)
                 estimator = self.pipeline.named_steps.get(estimator_name)
 
-            assert(estimator is not None)
+            # If the estimator is still not available throw an exception
+            assert (estimator is not None)
 
-            estimator.set_params(**{split_params[1]: parameters[parameter]})
+            # The hyperparameters should be set to the variable which is available in the path of the
+            # hyperparameter name in the mappings file
+            parameter_path = parameter_name
+            if not hasattr(estimator, parameter_name):
+                # Check if the estimator has such a parameter and get its path
+                # Get the actual estimator name which would correspond to the mappings.json
+                parameter_path = self.get_parameter_path(estimator_name=estimator_name, parameter_name=parameter_name)
+
+            assert (parameter_name is not None)
+
+            estimator.set_params(**{parameter_path: parameters[parameter]})
+
+    def find_estimator_name_in_mapping(self, name):
+        # This function is used to return the actual estimator name as specified in the mappings file
+        # Estimators might have alternate names and users might specify the estimators using the alternate names
+        # So to find the valid parameters, we need to find the estimator name as specified in the mappings file
+        from pypadre.core.visitors.mappings import alternate_name_mappings
+        return alternate_name_mappings.get(name.lower())
+
+    def get_parameter_path(self, estimator_name, parameter_name):
+        from pypadre.core.visitors.mappings import name_mappings
+
+        # If the alternate estimator name is given, convert the alternate estimator name
+        # to actual estimator name
+        if name_mappings.get(estimator_name, None) is None:
+            estimator = self.find_estimator_name_in_mapping(estimator_name)
+
+        else:
+            estimator = estimator_name
+
+        parameters = name_mappings.get(estimator).get('hyper_parameters').get('model_parameters')
+
+        # If the parameter name matches return the path of the parameter
+        for parameter in parameters:
+            if parameter.get('name') == parameter_name:
+                return parameter.get('scikit-learn').get('path')
+
+        return None
 
 
 class SKLearnEvaluator(EvaluatorComponent, ParameterizedPipelineComponent):

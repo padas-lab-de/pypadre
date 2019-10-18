@@ -20,7 +20,7 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
         super().__init__(parent=backend.experiment, name=NAME, backend=backend)
 
     def to_folder_name(self, execution):
-        return execution.name
+        return str(execution.hash)
 
     def get(self, uid):
         """
@@ -28,7 +28,7 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
         :param uid: Uid of the execution
         :return:
         """
-        # TODO might be changed. Execution get folder name or id by git commit hash?
+        # TODO: Execution folder name is the hash. Get by uid will require looking into the metadata
         return super().get(uid)
 
     def get_by_dir(self, directory):
