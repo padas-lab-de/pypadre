@@ -1,8 +1,8 @@
 import unittest
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.events.events import connect_base_signal, LOG_EVENT
 from pypadre.pod.tests.base_test import PadreAppTest
+from pypadre.pod.tests.util.util import create_sklearn_test_pipeline
 
 
 class AppLocalBackends(PadreAppTest):
@@ -20,43 +20,34 @@ class AppLocalBackends(PadreAppTest):
             assert id in dataset.name
 
     def test_project(self):
-        from pypadre.core.model.project import Project
 
-        project = Project(name='Test Project', description='Testing the functionalities of project backend')
-        self.app.projects.patch(project)
+        # FIXME christofer add create to the project app. The created project should also be put. This can be called by the user from the outside
+        project = self.create_project(name='Test Project', description='Testing the functionalities of project backend')
+        self.app.projects.put(project)
+
         name = 'Test Project'
         projects = self.app.projects.list({'name': name})
         for project in projects:
             assert name in project.name
 
     def test_experiment(self):
-        # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
 
-        from pypadre.core.model.experiment import Experiment
-        from pypadre.core.model.project import Project
-
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = self.create_project(name='Test Project 2', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
         self.app.datasets.load_defaults()
-        id = '_boston_dataset'
-        dataset = self.app.datasets.list({'name': id})
+        dataset = self.app.datasets.list({'name': '_boston_dataset'})
 
-        experiment = Experiment(dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline))
+        from sklearn.svm import SVC
+        experiment = self.create_experiment(dataset=dataset.pop(), project=project,
+                                pipeline=create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))]))
 
-        self.app.experiments.patch(experiment)
+        self.app.experiments.put(experiment)
         name = 'Test Experiment SVM'
         experiments = self.app.experiments.list({'name': name})
         for experiment in experiments:
             assert name in experiment.name
+        # FIXME Christofer put asserts here
 
     def test_execution(self):
 
@@ -96,6 +87,7 @@ class AppLocalBackends(PadreAppTest):
         if len(executions) > 0:
             execution = self.app.executions.get(executions.__iter__().__next__().id)
             assert execution[0].name == executions[0].name
+        # FIXME Christofer put asserts here
 
     def test_run(self):
         """
@@ -146,6 +138,7 @@ class AppLocalBackends(PadreAppTest):
             raise ValueError('Execution not listed for the same code has')
 
         runs = self.app.runs.list(None)
+        # FIXME Christofer put asserts here
 
     def test_split(self):
 
@@ -162,22 +155,23 @@ class AppLocalBackends(PadreAppTest):
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = self.app.experiments.service.create(name="Test Experiment SVM",
+        experiment = self.create_experiment(name="Test Experiment SVM",
                                                          description="Testing Support Vector Machines via SKLearn Pipeline",
                                                          dataset=dataset[0],
                                                          workflow=create_test_pipeline(), keep_splits=True,
                                                          strategy="random", project=project)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = self.app.executions.service.create(experiment, codehash=codehash, command=None, append_runs=True,
+        execution = self.create_execution(experiment, codehash=codehash, command=None, append_runs=True,
                                                        parameters=None,
                                                        preparameters=None, single_run=True,
                                                        single_transformation=True)
 
-        run = self.app.runs.service.create(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
-        split = self.app.splits.service.create(run=run, num=0, train_idx=list(range(1, 1000 + 1)), val_idx=None,
+        run = self.create_run(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
+        split = self.create_split(run=run, num=0, train_idx=list(range(1, 1000 + 1)), val_idx=None,
                       test_idx=list(range(1000, 1100 + 1)), keep_splits=True)
         self.app.splits.put(split)
+        # FIXME Christofer put asserts here
 
     def test_full_stack(self):
         from pypadre.core.model.project import Project
@@ -199,53 +193,32 @@ class AppLocalBackends(PadreAppTest):
         experiment = Experiment(dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline))
 
-        def log(sender, *, message, log_level="", **kwargs):
-            if log_level is "":
-                print(str(sender) + ": " + message)
-            else:
-                print(log_level.upper() + ": " + str(sender) + ": " + message)
-
-        def log_event(sender, *, signal, **kwargs):
-            log(sender, message="Triggered " + str(signal.name) + " with " + str(kwargs))
-
-        connect_base_signal("log", log)
-        connect_base_signal(LOG_EVENT, log_event)
-
         experiment.execute()
         self.app.computations.list()
         experiments = self.app.experiments.list()
+        # FIXME Christofer put asserts here
 
     def test_custom_split_pipeline(self):
-
-        from pypadre.core.model.project import Project
-        from pypadre.core.model.experiment import Experiment
-        from pypadre.core.model.code.function import Function
 
         def custom_split(idx):
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
-        # TODO please implement custom split function for this example
-        pipeline = SKLearnPipeline(splitting=Function(fn=custom_split), pipeline_fn=create_test_pipeline)
+        from sklearn.svm import SVC
+        pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))], splitting=custom_split)
 
         self.app.datasets.load_defaults()
-
-        id = '_iris_dataset'
-        dataset = self.app.datasets.list({'name': id})
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
-        experiment = Experiment(dataset=dataset.pop(), project=project, pipeline=pipeline)
+        # TODO investigate race condition? dataset seems to be sometimes null in the dataset
+        project = self.create_project(name='Test Project 2', description='Testing the functionalities of project backend')
+        dataset = self.app.datasets.list({'name': '_iris_dataset'})
+        print(dataset)
+        experiment = self.create_experiment(dataset=dataset.pop(), project=project, pipeline=pipeline)
 
         experiment.execute()
 
         self.app.computations.list()
         experiments = self.app.experiments.list()
+        # FIXME Christofer put asserts here
 
 
 if __name__ == '__main__':

@@ -1,5 +1,9 @@
+from typing import Union, Callable
+
 import numpy as np
 
+from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.function import Function
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.split.split import Split
 
@@ -34,13 +38,17 @@ class Splitter:
                                (train, validation, test) tuples (the form is similar to the indices parameter) as split
     """
 
-    def __init__(self, **options):
+    def __init__(self, code: Union[Code, Callable], **options):
 
         # TODO validation
         # self.validate_input_parameters(options)
 
         # self._dataset = ds
         # self._num_examples = ds.size[0]
+        if isinstance(code, Callable):
+            code = Function(fn=code)
+        self._splitting_code = code
+
         self._strategy = options.pop("strategy", "random")
         self._test_ratio = options.pop("test_ratio", 0.25)
         self._random_seed = options.pop("random_seed", None)
@@ -49,7 +57,6 @@ class Splitter:
         self._no_shuffle = options.pop("no_shuffle", False)
         self._stratified = options.pop("stratified", None)
         self._indices = options.pop("indices", None)
-        self._splitting_code = options.pop("code", None)
 
         self._index_list = options.pop('index', None)
 

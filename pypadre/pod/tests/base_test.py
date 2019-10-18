@@ -5,6 +5,7 @@ import unittest
 
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
+from pypadre.pod.tests.util.util import connect_log_to_stdout, connect_event_to_stdout
 
 
 class PadreAppTest(unittest.TestCase):
@@ -28,6 +29,23 @@ class PadreAppTest(unittest.TestCase):
             }
         ]))
         cls.app = PadreAppFactory.get(config)
+        connect_log_to_stdout()
+        connect_event_to_stdout()
+
+    def create_experiment(self, *args, **kwargs):
+        return self.app.experiments.service.create(*args, **kwargs)
+
+    def create_project(self, *args, **kwargs):
+        return self.app.projects.service.create(*args, **kwargs)
+
+    def create_execution(self, *args, **kwargs):
+        return self.app.executions.service.create(*args, **kwargs)
+
+    def create_run(self, *args, **kwargs):
+        return self.app.runs.service.create(*args, **kwargs)
+
+    def create_split(self, *args, **kwargs):
+        return self.app.splits.service.create(*args, **kwargs)
 
     def setUp(self):
         # clean up if last teardown wasn't called correctly

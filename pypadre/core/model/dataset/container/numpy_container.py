@@ -74,7 +74,7 @@ class NumpyContainer(IBaseContainer,ILoggable):
             attributes = self.derive_attributes(self.data)
 
         self.send_error(message="Incorrect number of attributes. Data has %d columns, provided attributes %d."
-                                % (self.shape[1], len(attributes)), condition=len(attributes) == self.shape[1])
+                                % (self.shape[1], len(attributes)), condition=len(attributes) != self.shape[1])
         return attributes
 
     @staticmethod
