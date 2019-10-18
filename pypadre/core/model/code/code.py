@@ -2,13 +2,24 @@ from _py_abc import ABCMeta
 from abc import abstractmethod
 
 from pypadre.core.base import MetadataEntity, _CodeTypes
+from pypadre.core.model.generic.i_model_mixins import IStoreable
 
 
-class Code(MetadataEntity):
+class Code(IStoreable, MetadataEntity):
     """ Custom code to execute. """
     __metaclass__ = ABCMeta
 
     CODE_TYPE = "code_type"
+    CODE_CLASS = "code_class"
+
+    def __init__(self, *, metadata: dict, **kwargs):
+        # TODO Add defaults
+        defaults = {}
+
+        # TODO Constants into ontology stuff
+        # Merge defaults TODO some file metadata extracted from the path
+        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.env, Code.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
+        super().__init__(metadata=metadata, **kwargs)
 
     @abstractmethod
     def call(self, *args, **kwargs):

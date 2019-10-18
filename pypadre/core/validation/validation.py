@@ -1,6 +1,5 @@
 import json
 import urllib.request
-import warnings
 from abc import ABCMeta
 from collections.__init__ import deque
 from importlib import resources
@@ -149,13 +148,13 @@ class ValidationErrorHandler:
 class ValidateableFactory:
 
     @staticmethod
-    def make(cls, handlers=List[ValidationErrorHandler], **options):
-        return ValidateableFactory._make(cls, handlers=handlers, history=[], **options)
+    def make(cls, *args, handlers=List[ValidationErrorHandler], **options):
+        return ValidateableFactory._make(cls, *args, handlers=handlers, history=[], **options)
 
     @staticmethod
-    def _make(cls, handlers=List[ValidationErrorHandler], history=None, **options):
+    def _make(cls, *args, handlers=List[ValidationErrorHandler], history=None, **options):
         try:
-            return cls(**options)
+            return cls(*args, **options)
         except ValidationError as e:
             # Raise error if we can't handle anything
             if handlers is None:

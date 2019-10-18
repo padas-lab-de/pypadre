@@ -2,10 +2,8 @@ import os
 import platform
 from abc import abstractmethod, ABCMeta
 
-from cachetools import cached, LRUCache
 from git import Repo
 
-from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.local.file.generic.i_file_repository import IFileRepository
 
 """
@@ -24,8 +22,8 @@ class IGitRepository(IFileRepository):
     _DEFAULT_GIT_MSG = 'Added file to git'
 
     @abstractmethod
-    def __init__(self, root_dir: str, backend: IPadreBackend, **kwargs):
-        super().__init__(root_dir=root_dir, backend=backend, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def _create_repo(self, path, bare=True):
         """

@@ -15,7 +15,7 @@ class AppLocalBackends(PadreAppTest):
 
         # Gets a dataset by name
         id = '_boston_dataset'
-        datasets = self.app.datasets.list({'name':id})
+        datasets = self.app.datasets.list({'name': id})
         for dataset in datasets:
             assert id in dataset.name
 
@@ -149,14 +149,8 @@ class AppLocalBackends(PadreAppTest):
 
     def test_split(self):
 
-        from pypadre.core.model.project import Project
-        from pypadre.core.model.experiment import Experiment
-        from pypadre.core.model.execution import Execution
-        from pypadre.core.model.computation.run import Run
-        from pypadre.core.model.split.split import Split
-
         self.app.datasets.load_defaults()
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = self.app.projects.service.create(name='Test Project 2', description='Testing the functionalities of project backend')
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -168,18 +162,21 @@ class AppLocalBackends(PadreAppTest):
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = Experiment(name="Test Experiment SVM",
-                                description="Testing Support Vector Machines via SKLearn Pipeline",
-                                dataset=dataset[0],
-                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+        experiment = self.app.experiments.service.create(name="Test Experiment SVM",
+                                                         description="Testing Support Vector Machines via SKLearn Pipeline",
+                                                         dataset=dataset[0],
+                                                         workflow=create_test_pipeline(), keep_splits=True,
+                                                         strategy="random", project=project)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
-                              preparameters=None, single_run=True,
-                              single_transformation=True)
+        execution = self.app.executions.service.create(experiment, codehash=codehash, command=None, append_runs=True,
+                                                       parameters=None,
+                                                       preparameters=None, single_run=True,
+                                                       single_transformation=True)
 
-        run = Run(execution=execution, workflow=execution.experiment.workflow, keep_splits=True)
-        split = Split(run=run, num=0, train_idx=list(range(1, 1000+1)), val_idx=None, test_idx=list(range(1000, 1100+1)), keep_splits=True)
+        run = self.app.runs.service.create(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
+        split = self.app.splits.service.create(run=run, num=0, train_idx=list(range(1, 1000 + 1)), val_idx=None,
+                      test_idx=list(range(1000, 1100 + 1)), keep_splits=True)
         self.app.splits.put(split)
 
     def test_full_stack(self):

@@ -1,7 +1,8 @@
 from _py_abc import ABCMeta
 from typing import List, Type, Callable
 
-from pypadre.core.events.events import init_class_signals, Signaler, connect
+from pypadre.core.events.events import Signaler
+from pypadre.core.validation.validation import ValidateableFactory, ValidationErrorHandler
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable
 
 
@@ -12,10 +13,20 @@ class BaseService:
     def __init__(self, backends, *, model_clz: Type[Signaler], **kwargs):
         b = backends if isinstance(backends, List) else [backends]
         self._backends = [] if backends is None else b
+        self._model_clz = model_clz
 
     @property
     def backends(self):
         return self._backends
+
+    @property
+    def model_clz(self):
+        return self._model_clz
+
+    def create(self, *args, handlers: List[ValidationErrorHandler]=None, **kwargs):
+        if handlers is None:
+            handlers = []
+        return ValidateableFactory.make(self.model_clz, *args, handlers=handlers, **kwargs)
 
     def list(self, search, offset=0, size=100) -> list:
         """

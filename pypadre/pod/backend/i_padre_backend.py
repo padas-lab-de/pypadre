@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
-from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository
+from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository, ICodeRepository
 
 
 class IPadreBackend(ILogRepository):
@@ -14,10 +14,6 @@ class IPadreBackend(ILogRepository):
         super().__init__(**kwargs)
         self._config = config
 
-        # TODO Receiver?
-        def handle_put(sender, **kwargs):
-            pass
-
     @property
     def config(self):
         return self._config
@@ -29,39 +25,44 @@ class IPadreBackend(ILogRepository):
     @property
     @abstractmethod
     def dataset(self) -> IDatasetRepository:
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def project(self) -> IProjectRepository:
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def experiment(self) -> IExperimentRepository:
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def execution(self) -> IExecutionRepository:
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def run(self) -> IRunRepository:
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def split(self) -> ISplitRepository:
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def computation(self) -> IComputationRepository:
-        pass
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def metric(self) -> IMetricRepository:
-        pass
+        raise NotImplementedError()
+
+    @property
+    def code(self) -> ICodeRepository:
+        raise NotImplementedError()
+

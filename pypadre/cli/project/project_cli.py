@@ -8,11 +8,9 @@ import click
 #################################
 from click_shell import make_click_shell
 
-from pypadre.pod.app.project.project_app import ProjectApp
 from pypadre.cli.experiment import experiment_cli
-from pypadre.core.model.project import Project
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
-from pypadre.core.validation.validation import ValidateableFactory
+from pypadre.pod.app.project.project_app import ProjectApp
 
 
 @click.group(name="project", invoke_without_command=True)
@@ -60,8 +58,9 @@ def create(ctx):
     def get_value(obj, e, options):
         return click.prompt(e.message + '. Please enter a value', type=str)
 
-    p = ValidateableFactory.make(Project, handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
-    _get_app(ctx).put(p)
+    app = _get_app(ctx)
+    p = app.service.create(handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+    app.put(p)
 
 
 @click.group(name="select", invoke_without_command=True)
