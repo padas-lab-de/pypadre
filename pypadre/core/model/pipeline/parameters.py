@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABCMeta
 
-from pypadre.core.model.code.code import Code, SourceCode
+from pypadre.core.model.code.code import Code, EnvCode
 from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
 
 
@@ -61,7 +61,7 @@ class CodeParameterProvider(IParameterProvider):
                                predecessor=predecessor, parameter_map=parameter_map)
 
 
-class GridSearch(SourceCode):
+class GridSearch(EnvCode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

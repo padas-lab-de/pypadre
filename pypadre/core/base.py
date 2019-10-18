@@ -20,6 +20,12 @@ class _Phases(_Const):
     inferencing = "inferencing/testing"
 
 
+class _CodeTypes(_Const):
+    env = "environment"
+    file = "file"
+    fn = "function"
+
+
 """
 Enum for the different phases of an experiment
 """

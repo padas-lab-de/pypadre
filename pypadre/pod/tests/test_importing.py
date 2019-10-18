@@ -1,10 +1,9 @@
 import networkx
-import pandas as pd
 import numpy as np
 from padre.PaDREOntology import PaDREOntology
 
-from pypadre.core.tests.base_test import PadreAppTest
 from pypadre.pod.importing.dataset.dataset_import import SnapLoader, KonectLoader, SKLearnLoader
+from pypadre.pod.tests.base_test import PadreAppTest
 
 
 class Test_loaders(PadreAppTest):

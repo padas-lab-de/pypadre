@@ -1,25 +1,43 @@
 from _py_abc import ABCMeta
 from abc import abstractmethod
 
-from pypadre.core.base import MetadataEntity
+from pypadre.core.base import MetadataEntity, _CodeTypes
 
 
 class Code(MetadataEntity):
     """ Custom code to execute. """
     __metaclass__ = ABCMeta
 
+    CODE_TYPE = "code_type"
+
     @abstractmethod
     def call(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def get_bin(self):
         raise NotImplementedError()
 
     def hash(self):
         return self.__hash__()
 
+    @property
+    def code_type(self):
+        return self.metadata.get(self.CODE_TYPE)
 
-class SourceCode(Code):
-    """ This code is provided in padre and doesn't have to be stored """
+# Code should be given by one of the following ways: A file (local, remote), a function to be persisted, a function
+# on the environment
+
+
+class EnvCode(Code):
+    """ This code is provided in environment and doesn't have to be stored """
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def __init__(self, **kwargs):
-        super().__init__(metadata={"scope": "provided", "ref": str(self.__class__)}, **kwargs)
+        # TODO Add defaults
+        defaults = {}
+
+        # TODO Constants into ontology stuff
+        # Merge defaults TODO some file metadata extracted from the path
+        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.env}, **kwargs.pop("metadata", {})}
+        super().__init__(metadata=metadata, **kwargs)

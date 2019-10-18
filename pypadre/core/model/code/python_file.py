@@ -1,7 +1,3 @@
-from _py_abc import ABCMeta
-from abc import abstractmethod
-
-from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.code_file import CodeFile
 
 
@@ -11,7 +7,8 @@ class PythonFile(CodeFile):
         # TODO Add defaults
         defaults = {}
 
-        # Merge defaults TODO some fn metadata extracted from the fn
+        # TODO Constants into ontology stuff
+        # Merge defaults TODO some file metadata extracted from the path
         metadata = {**defaults, **kwargs.pop("metadata", {})}
         self._path = kwargs.pop('path', None)
         self._function = kwargs.pop('function', None)

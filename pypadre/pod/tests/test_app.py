@@ -2,7 +2,7 @@ import unittest
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.events.events import connect_base_signal, LOG_EVENT
-from pypadre.core.tests.base_test import PadreAppTest
+from pypadre.pod.tests.base_test import PadreAppTest
 
 
 class AppLocalBackends(PadreAppTest):

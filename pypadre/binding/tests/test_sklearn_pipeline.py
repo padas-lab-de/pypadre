@@ -8,9 +8,8 @@ from pypadre.core.model.code.function import Function
 from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.model.project import Project
-from pypadre.core.tests.base_test import PadreAppTest
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
-
+from pypadre.pod.tests.base_test import PadreAppTest
 
 test_numpy_array = np.array([[1.0, "A", 2],
                              [2.0, "B", 2],

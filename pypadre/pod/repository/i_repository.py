@@ -93,3 +93,11 @@ class IPipelineResultRepository(IRepository, ISearchable, IStoreableRepository):
     @abstractmethod
     def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
         super().__init__(parent=parent, backend=backend, **kwargs)
+
+
+class ICodeRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, backend, **kwargs):
+        super().__init__(backend=backend, **kwargs)

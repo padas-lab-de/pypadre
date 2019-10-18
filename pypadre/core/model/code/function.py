@@ -1,5 +1,6 @@
 from typing import Callable
 
+from pypadre.core.base import _CodeTypes
 from pypadre.core.model.code.code import Code
 
 
@@ -10,8 +11,9 @@ class Function(Code):
         # TODO Add defaults
         defaults = {}
 
-        # Merge defaults TODO some fn metadata extracted from the fn
-        metadata = {**defaults, **kwargs.pop("metadata", {})}
+        # TODO Constants into ontology stuff
+        # Merge defaults TODO some file metadata extracted from the path
+        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.fn}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
         self._fn = fn
 
