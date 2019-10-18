@@ -88,6 +88,7 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
 
     PROJECT_ID = "project_id"
     DATASET_ID = "dataset_id"
+    NAME = "name"
 
     # TODO non-metadata input should be a parameter
     def __init__(self, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
@@ -95,8 +96,13 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.PROJECT_ID: project.id if project else None,
-                                                                 self.DATASET_ID: dataset.id if dataset else None}}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{
+            self.PROJECT_ID: project.id if project else None,
+            self.DATASET_ID: dataset.id if dataset else None
+        }}
+
+        if kwargs.get(self.NAME) is not None:
+            metadata[self.NAME] = kwargs.get(self.NAME)
 
         super().__init__(parent=project, schema_resource_name="experiment.json",
                          metadata=metadata, **kwargs)

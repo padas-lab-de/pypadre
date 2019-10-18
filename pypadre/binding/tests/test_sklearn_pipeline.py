@@ -97,6 +97,23 @@ class TestSKLearnPipeline(PadreAppTest):
 
         experiment.execute()
 
+    def test_hyperparameter_search(self):
+
+        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline)
+
+        loader = SKLearnLoader()
+        iris = loader.load("sklearn", utility="load_iris")
+        experiment = Experiment(name='Hyperparameter Search', project=self.project,
+                                dataset=iris, pipeline=pipeline)
+
+        params_svc = {'C': [0.5, 1.0, 1.5],
+                      'poly_degree': [1, 2, 3],
+                      'tolerance': [1, 3]}
+        params_dict = {'SVC': params_svc}
+        param = {'SKLearnEstimator': params_dict}
+        experiment.execute(parameters=param)
+        print(experiment)
+
 
 if __name__ == '__main__':
     unittest.main()

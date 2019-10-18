@@ -20,11 +20,13 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **{self.EXPERIMENT_ID: experiment.id}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.EXPERIMENT_ID: experiment.id}}
+
+        if codehash is not None:
+            metadata['hash'] = codehash
 
         super().__init__(parent=experiment, schema_resource_name="execution.json", metadata=metadata, **kwargs)
 
-        self._hash = codehash
         self._command = command
 
     def _execute_helper(self, *args, **kwargs):
@@ -34,7 +36,7 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
 
     @property
     def hash(self):
-        return self._hash
+        return self.metadata.get('hash', None)
 
     @property
     def command(self):
