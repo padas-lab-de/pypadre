@@ -36,7 +36,7 @@ class TestSKLearnPipeline(PadreAppTest):
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, pipeline=pipeline)
+        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline)
 
         experiment.execute()
         print(experiment)
@@ -93,7 +93,7 @@ class TestSKLearnPipeline(PadreAppTest):
         loader = SKLearnLoader()
         digits = loader.load("sklearn", utility="load_iris")
 
-        experiment = Experiment(name='Test Experiment', dataset=digits, pipeline=pipeline)
+        experiment = Experiment(name='Test Experiment', project=self.project, dataset=digits, pipeline=pipeline)
 
         experiment.execute()
 
