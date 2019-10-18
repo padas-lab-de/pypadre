@@ -128,7 +128,7 @@ class AppLocalBackends(PadreAppTest):
         experiment = Experiment(name="Test Experiment SVM",
                                 description="Testing Support Vector Machines via SKLearn Pipeline",
                                 dataset=dataset[0],
-                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+                                workflow=create_test_pipeline, keep_splits=True, strategy="random", project=project)
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
@@ -217,6 +217,7 @@ class AppLocalBackends(PadreAppTest):
         experiment.execute()
         self.app.computations.list()
         experiments = self.app.experiments.list()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -10,10 +10,10 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
-from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
+from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer, DillSerializer
 
 # CONFIG_FILE = File("experiment.json", JSonSerializer)
-WORKFLOW_FILE = File("workflow.pickle", PickleSerializer)
+WORKFLOW_FILE = File("workflow.pickle", DillSerializer)
 META_FILE = File("metadata.json", JSonSerializer)
 
 NAME = 'experiments'
