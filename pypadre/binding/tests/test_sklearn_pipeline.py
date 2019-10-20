@@ -4,10 +4,11 @@ import unittest
 import numpy as np
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.function import Function
 from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
+from pypadre.core.model.pipeline.components import CustomSplit
 from pypadre.core.model.project import Project
+from pypadre.core.util.utils import unpack
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 from pypadre.pod.tests.base_test import PadreAppTest
 
@@ -48,15 +49,14 @@ class TestSKLearnPipeline(PadreAppTest):
 
     def test_custom_split_sklearn_pipeline(self):
 
-        def custom_split(idx):
+        def custom_split(ctx, **kwargs):
+            (data,) = unpack(ctx, "data")
+            idx = np.arange(data.size[0])
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
 
-        # TODO please implement custom split function for this example
-        pipeline = SKLearnPipeline(splitting=Function(fn=custom_split), pipeline_fn=create_test_pipeline)
-
-        loader = SKLearnLoader()
-        iris = loader.load("sklearn", utility="load_iris")
+        pipeline = SKLearnPipeline(splitting=CustomSplit(fn=custom_split), pipeline_fn=create_test_pipeline)
+        iris = SKLearnLoader().load("sklearn", utility="load_iris")
         experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline)
 
         experiment.execute()
@@ -75,7 +75,8 @@ class TestSKLearnPipeline(PadreAppTest):
 
     def test_sklearn_pipeline_with_preprocessing(self):
 
-        def preprocessing(*, data, **kwargs):
+        def preprocessing(ctx, **kwargs):
+            (data,) = unpack(ctx, "data")
             from sklearn.preprocessing import StandardScaler
             from sklearn.decomposition import PCA
             PCA_ = PCA()
@@ -101,8 +102,7 @@ class TestSKLearnPipeline(PadreAppTest):
 
         pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline)
 
-        loader = SKLearnLoader()
-        iris = loader.load("sklearn", utility="load_iris")
+        iris = SKLearnLoader().load("sklearn", utility="load_iris")
         experiment = Experiment(name='Hyperparameter Search', project=self.project,
                                 dataset=iris, pipeline=pipeline)
 

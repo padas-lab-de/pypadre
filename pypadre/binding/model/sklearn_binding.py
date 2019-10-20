@@ -12,9 +12,10 @@ from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
 from pypadre.core.model.pipeline import pipeline
 from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, \
-    ParameterizedPipelineComponent
+    ParameterizedPipelineComponent, ProvidedComponent
+from pypadre.core.model.pipeline.parameters import GridSearch
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
-from pypadre.core.model.pipeline.parameters import CodeParameterProvider, GridSearch
+from pypadre.core.util.utils import unpack
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
 
@@ -28,7 +29,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
+class SKLearnEstimator(ProvidedComponent, EstimatorComponent, ParameterizedPipelineComponent):
     """
     This class encapsulates an sklearn workflow which allows to run sklearn pipelines or a list of sklearn components,
     report the results according to the outcome via the experiment logger.
@@ -46,7 +47,7 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
         # TODO use default parameter provider if none is given
 
         if parameter_provider is None:
-            parameter_provider = SKLearnParameterProvider()
+            parameter_provider = SKLearnGridSearch()
 
         if not pipeline or not _is_sklearn_pipeline(pipeline):
             raise ValueError("SKLearnEstimator needs a delegate defined as sklearn.pipeline")
@@ -54,10 +55,10 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
 
         super().__init__(name="SKLearnEstimator", parameter_provider=parameter_provider, **kwargs)
 
-    def _execute_component_code(self, *, data, **kwargs):
-        split = data
+    def _call(self, ctx, **kwargs):
+        (split, component, run) = unpack(ctx, "data", "component", "run")
 
-        self.set_parameter_values(parameters=kwargs.get('parameters'))
+        self.set_parameter_values(parameters=kwargs.get('parameters', {}))
 
         self.send_start(phase='sklearn.' + phases.fitting)
         y = None
@@ -82,7 +83,7 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
                 score = self._pipeline.score(split.val_features, y)
                 self.send_stop(phase='sklearn.scoring.valset')
                 self.send_log(keys=['validation score'], values=[score], message="Logging the validation score")
-        return Training(split=split, model=self._pipeline, **kwargs)
+        return Training(split=split, component=component, run=run, model=self._pipeline, **kwargs)
 
     def hash(self):
         # TODO hash should not change with training
@@ -162,7 +163,7 @@ class SKLearnEstimator(EstimatorComponent, ParameterizedPipelineComponent):
         return None
 
 
-class SKLearnEvaluator(EvaluatorComponent, ParameterizedPipelineComponent):
+class SKLearnEvaluator(ProvidedComponent, EvaluatorComponent, ParameterizedPipelineComponent):
     """
     This class takes the output of an sklearn workflow which represents the fitted model along with the corresponding split,
     report and save all possible results that allows for common/custom metric computations.
@@ -171,11 +172,8 @@ class SKLearnEvaluator(EvaluatorComponent, ParameterizedPipelineComponent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def hash(self):
-        # TODO
-        return self.__hash__()
-
-    def _execute_component_code(self, *, data, predecessor, **kwargs):
+    def _call(self, ctx, **kwargs):
+        data, predecessor, component, run = unpack(ctx, "data", ("predecessor", None), "component", "run")
         model = data["model"]
         split = data["split"]
 
@@ -250,7 +248,11 @@ class SKLearnEvaluator(EvaluatorComponent, ParameterizedPipelineComponent):
 
         # TODO results as object?
 
-        return Evaluation(training=predecessor, result=results, **kwargs)
+        return Evaluation(training=predecessor, result=results, component=component, run=run, **kwargs)
+
+    def hash(self):
+        # TODO
+        return self.__hash__()
 
     @staticmethod
     def is_inferencer(model=None):
@@ -293,17 +295,12 @@ class SKLearnPipelineV2(pipeline.Pipeline):
         # TODO for each pipeline element in sklearn create a pipeline component
 
 
-class SKLearnParameterProvider(CodeParameterProvider):
-    def __init__(self):
-        super().__init__(SKLearnGridSearch())
-
-
 class SKLearnGridSearch(GridSearch):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def create_combinations(self, parameters: dict):
+    def _create_combinations(self, parameters: dict):
         import itertools
 
         # Generate every possible combination of the provided hyper parameters.
@@ -325,4 +322,3 @@ class SKLearnGridSearch(GridSearch):
 
         grid = itertools.product(*master_list)
         return grid, params_list
-

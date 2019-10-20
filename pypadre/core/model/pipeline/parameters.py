@@ -1,7 +1,9 @@
 from abc import abstractmethod, ABCMeta
 
-from pypadre.core.model.code.code import Code, EnvCode
+from pypadre.core.model.code.code import ProvidedCode
 from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
+from pypadre.core.util.inheritance import SuperStop
+from pypadre.core.util.utils import unpack
 
 
 class ParameterMap:
@@ -38,72 +40,38 @@ class ParameterMap:
         return list(self.map.keys())
 
 
-class IParameterProvider:
+class IParameterProvider(SuperStop):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def combinations(self, *, run, component, predecessor, parameter_map: ParameterMap):
+    def call(self, *, run, component, predecessor, parameter_map: ParameterMap) -> HyperParameterGrid:
         raise NotImplementedError
 
 
-class CodeParameterProvider(IParameterProvider):
+# class CodeParameterProvider(IParameterProvider, IParameterProvider):
+#
+#     def __init__(self, code: Code):
+#         self._code = code
+#
+#     @property
+#     def code(self):
+#         return self._code
+#
+#     def combinations(self, *, run, component, predecessor, parameter_map: ParameterMap) -> HyperParameterGrid:
+#         # The function call will return a hyperparametergrid object
+#         return self._code.call(run=run, component=component,
+#                                predecessor=predecessor, parameter_map=parameter_map)
 
-    def __init__(self, code: Code):
-        self._code = code
 
-    @property
-    def code(self):
-        return self._code
-
-    def combinations(self, *, run, component, predecessor, parameter_map: ParameterMap) -> HyperParameterGrid:
-        # The function call will return a hyperparametergrid object
-        return self._code.call(run=run, component=component,
-                               predecessor=predecessor, parameter_map=parameter_map)
-
-
-class GridSearch(EnvCode):
+class GridSearch(ProvidedCode, IParameterProvider):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def call(self, *args, run, component, predecessor, parameter_map: ParameterMap, **kwargs):
-        """
-        # We need to either create multiple components
-        # based on the number of elements in the grid or iterate of the grid
-        for element in grid:
+    def _call(self, ctx, **kwargs):
+        return self._grid_search(ctx, **kwargs)
 
-            # Set the params to the component either via a dictionary all together or individually
-            execution_params = dict()
-            for param, idx in zip(params_list, range(0, len(params_list))):
-                execution_params[param] = element[idx]
-
-            # TODO set the parameters to the component
-            # yield Computation(component=component, execution=execution, parameters=execution_params, branch=False)
-            # TODO Decide whether the grid creation logic should be within the HyperParameter Search Component or not
-            yield HyperParameterSearch(component=component, execution=execution,
-                                       parameters=execution_params, predecessor=predecessor, branch=False)
-        """
-        parameters = parameter_map.get_for(component)
-
-        # TODO parameters could also be a generator function if this is the case just call it and
-        #  check if combinations are valid regarding the schema
-        # TODO look through the parameters and add combination if one of it is a iterable
-        #  instead of an expected parameter type
-        # TODO expected parameter types are to be given in the component schema FIXME Christofer
-
-        # If the parameters are returned within a function
-        hyperparameters = parameters() if callable(parameters) else parameters
-        assert (isinstance(hyperparameters, dict))
-
-        # The params_list contains the names of the hyperparameters in the grid
-        grid, params_list = self.create_combinations(hyperparameters)
-
-        return HyperParameterGrid(component=component, run=run,
-                                  parameters={},
-                                  result=grid, parameter_names=params_list,
-                                  predecessor=predecessor, branch=True)
-
-    def create_combinations(self, parameters: dict):
+    def _create_combinations(self, parameters: dict):
         """
         Creates all the possible combinations of hyper parameters passed
         :param parameters: Dictionary containing hyperparameter names and their possible values
@@ -134,8 +102,42 @@ class GridSearch(EnvCode):
 
         return grid, params_list
 
+    def _grid_search(self, ctx, **kwargs):
+        """
+           # We need to either create multiple components
+           # based on the number of elements in the grid or iterate of the grid
+           for element in grid:
 
-class DefaultParameterProvider(CodeParameterProvider):
+               # Set the params to the component either via a dictionary all together or individually
+               execution_params = dict()
+               for param, idx in zip(params_list, range(0, len(params_list))):
+                   execution_params[param] = element[idx]
 
-    def __init__(self):
-        super().__init__(GridSearch())
+               # TODO set the parameters to the component
+               # yield Computation(component=component, execution=execution, parameters=execution_params, branch=False)
+               # TODO Decide whether the grid creation logic should be within the HyperParameter Search Component or not
+               yield HyperParameterSearch(component=component, execution=execution,
+                                          parameters=execution_params, predecessor=predecessor, branch=False)
+           """
+        (run, component, predecessor, parameter_map) = \
+            unpack(ctx, "run", "component", ("predecssor", None), "parameter_map")
+        parameter_map: ParameterMap
+
+        parameters = parameter_map.get_for(component)
+
+        #  check if combinations are valid regarding the schema
+        # TODO look through the parameters and add combination if one of it is a iterable
+        #  instead of an expected parameter type
+        # TODO expected parameter types are to be given in the component schema FIXME Christofer
+
+        # If the parameters are returned within a function
+        hyperparameters = parameters() if callable(parameters) else parameters
+        assert (isinstance(hyperparameters, dict))
+
+        # The params_list contains the names of the hyperparameters in the grid
+        grid, params_list = self._create_combinations(hyperparameters)
+
+        return HyperParameterGrid(component=component, run=run,
+                                  parameters={},
+                                  result=grid, parameter_names=params_list,
+                                  predecessor=predecessor, branch=True)

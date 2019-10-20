@@ -58,6 +58,8 @@ class PadreAppTest(unittest.TestCase):
                 shutil.rmtree(self.workspace_path+"/datasets")
             if os.path.exists(os.path.join(self.workspace_path, "projects")):
                 shutil.rmtree(self.workspace_path+"/projects")
+            if os.path.exists(os.path.join(self.workspace_path, "code")):
+                shutil.rmtree(self.workspace_path+"/code")
         except FileNotFoundError:
             pass
 

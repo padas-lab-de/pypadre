@@ -129,6 +129,10 @@ class PadreApp(IBaseApp):
     def metrics(self):
         return self._metric_app
 
+    @property
+    def code(self):
+        return self._code_app
+
     def print(self, obj):
         if self.has_print():
             self.print_(obj)

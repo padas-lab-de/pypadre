@@ -6,24 +6,18 @@ from networkx import DiGraph, is_directed_acyclic_graph
 from pypadre.core.metrics.MeasureService import measure_service
 from pypadre.core.model.code.code import Code
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.generic.i_model_mixins import IProgressable
 from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
     EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent, \
     ParameterizedPipelineComponent, EvaluatorPythonComponent
 from pypadre.core.model.pipeline.parameters import ParameterMap
-from pypadre.core.model.split.split import Split
 from pypadre.core.validation.validation import Validateable
 
 
-class ParameterizedComponent(object):
-    pass
-
-
-class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
+class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
     def __init__(self, **attr):
         super().__init__(**attr)
 
@@ -124,6 +118,9 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def get_entries(self):
         return [node for node, out_degree in self.in_degree() if out_degree == 0]
 
+    def __getstate__(self):
+        state = dict(self.__dict__)
+        return state
 
 class DefaultPythonExperimentPipeline(Pipeline):
 

@@ -1,6 +1,11 @@
 import unittest
 
+import numpy as np
+
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.core.model.code.function import Function
+from pypadre.core.model.pipeline.components import CustomSplit
+from pypadre.core.util.utils import unpack
 from pypadre.pod.tests.base_test import PadreAppTest
 from pypadre.pod.tests.util.util import create_sklearn_test_pipeline
 
@@ -18,6 +23,18 @@ class AppLocalBackends(PadreAppTest):
         datasets = self.app.datasets.list({'name': id})
         for dataset in datasets:
             assert id in dataset.name
+
+    def test_code(self):
+        def foo(ctx):
+            return "foo"
+
+        foo_code = self.app.code.create(clz=Function, fn=foo)
+        self.app.code.put(foo_code)
+        code_list = self.app.code.list()
+        loaded_code = code_list.pop()
+
+        out = loaded_code.call()
+        assert out is "foo"
 
     def test_project(self):
 
@@ -200,12 +217,14 @@ class AppLocalBackends(PadreAppTest):
 
     def test_custom_split_pipeline(self):
 
-        def custom_split(idx):
+        def custom_split(ctx, **kwargs):
+            (data,) = unpack(ctx, "data")
+            idx = np.arange(data.size[0])
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
 
         from sklearn.svm import SVC
-        pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))], splitting=custom_split)
+        pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))], splitting=CustomSplit(fn=custom_split))
 
         self.app.datasets.load_defaults()
         # TODO investigate race condition? dataset seems to be sometimes null in the dataset

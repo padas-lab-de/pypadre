@@ -29,7 +29,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
 
         metadata = self.get_file(path, META_FILE)
 
-        if metadata.get(Code.CODE_CLASS) is str(Function.__class__):
+        if metadata.get(Code.CODE_CLASS) == str(Function):
             fn = self.get_file(path, CODE_FILE)
             return Function(fn=fn, metadata=metadata)
 

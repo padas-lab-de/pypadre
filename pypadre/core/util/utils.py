@@ -1,5 +1,6 @@
 import json
 import platform
+from typing import Tuple
 
 
 class _Const:
@@ -61,3 +62,27 @@ def remove_cached(cache, id):
 
     for k in to_remove:
         cache.pop(k)
+
+
+def unpack(kwargs_obj: dict, *args):
+    """
+    Unpacks a dict object into a tuple. You can pass tuples for setting default values.
+    :param kwargs_obj:
+    :param args:
+    :return:
+    """
+    empty = object()
+    arg_list = []
+    for entry in args:
+        if isinstance(entry, str):
+            arg_list.append(kwargs_obj.get(entry))
+        elif isinstance(entry, Tuple):
+            key, *rest = entry
+            default = empty if len(rest) == 0 else rest[0]
+            if default is empty:
+                arg_list.append(kwargs_obj.get(key))
+            else:
+                arg_list.append(kwargs_obj.get(key, default))
+        else:
+            raise ValueError("Pass a tuple or string not: " + str(entry))
+    return tuple(arg_list)

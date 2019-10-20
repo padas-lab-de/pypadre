@@ -12,7 +12,7 @@ class Code(IStoreable, MetadataEntity):
     CODE_TYPE = "code_type"
     CODE_CLASS = "code_class"
 
-    def __init__(self, *, metadata: dict, **kwargs):
+    def __init__(self, **kwargs):
         # TODO Add defaults
         defaults = {}
 
@@ -20,10 +20,16 @@ class Code(IStoreable, MetadataEntity):
         # Merge defaults TODO some file metadata extracted from the path
         metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.env, Code.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
+        self.send_put()
 
     @abstractmethod
-    def call(self, *args, **kwargs):
+    def _call(self, ctx, **kwargs):
         raise NotImplementedError()
+
+    def call(self, **kwargs):
+        parameters = kwargs.pop("parameters", {})
+        # kwargs are the padre context to be used
+        return self._call(kwargs, **parameters)
 
     def get_bin(self):
         raise NotImplementedError()
@@ -39,16 +45,13 @@ class Code(IStoreable, MetadataEntity):
 # on the environment
 
 
-class EnvCode(Code):
-    """ This code is provided in environment and doesn't have to be stored """
+class ProvidedCode(Code):
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def __init__(self, **kwargs):
-        # TODO Add defaults
         defaults = {}
-
-        # TODO Constants into ontology stuff
-        # Merge defaults TODO some file metadata extracted from the path
-        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.env}, **kwargs.pop("metadata", {})}
+        # TODO save data about runtime versions / libraries etc for reproducibility
+        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.provided},
+                    **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)

@@ -21,6 +21,7 @@ class _Phases(_Const):
 
 
 class _CodeTypes(_Const):
+    provided = "provided"
     env = "environment"
     file = "file"
     fn = "function"
