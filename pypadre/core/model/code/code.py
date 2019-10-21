@@ -31,9 +31,6 @@ class Code(IStoreable, MetadataEntity):
         # kwargs are the padre context to be used
         return self._call(kwargs, **parameters)
 
-    def get_bin(self):
-        raise NotImplementedError()
-
     def hash(self):
         return self.__hash__()
 

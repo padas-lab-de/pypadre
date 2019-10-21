@@ -91,6 +91,7 @@ class PadreApp(IBaseApp):
         self._computation_app = ComputationApp(self, [backend.computation for backend in backends] if backends is not None else None)
         self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
         self._code_app = CodeApp(self, [backend.code for backend in backends] if backends is not None else None)
+        self._project_code_app = CodeApp(self, [backend.code for backend in backends] if backends is not None else None)
 
 
     @property

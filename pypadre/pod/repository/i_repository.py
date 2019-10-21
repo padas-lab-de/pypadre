@@ -101,3 +101,11 @@ class ICodeRepository(IRepository, ISearchable, IStoreableRepository):
     @abstractmethod
     def __init__(self, *, backend, **kwargs):
         super().__init__(backend=backend, **kwargs)
+
+
+class IProjectCodeRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, backend, **kwargs):
+        super().__init__(backend=backend, **kwargs)

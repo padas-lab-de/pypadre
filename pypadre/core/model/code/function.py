@@ -10,6 +10,9 @@ from pypadre.core.pickling.pickle_base import Pickleable
 class Function(Code):
     """ Function to execute."""
 
+    def hash(self):
+        return self.fn.__hash__()
+
     def __init__(self, *, fn: Callable, **kwargs):
         # TODO Add defaults
         defaults = {}
@@ -20,9 +23,12 @@ class Function(Code):
         super().__init__(metadata=metadata, **kwargs)
         self._fn = fn
 
+    # TODO don't dill the function but use a function-store which can be initialized by the backends. The store
+    # itself sends a request for init and then tries to load the fn by a hash value identifier?
+
     @property
     def fn(self):
-        # TODO serialize https://medium.com/@emlynoregan/serialising-all-the-functions-in-python-cd880a63b591 or write the maximum of possible information and warn the user about no possibility to reload
+        # TODO we could dill this serialize https://medium.com/@emlynoregan/serialising-all-the-functions-in-python-cd880a63b591 or write the maximum of possible information and warn the user about no possibility to reload
         return self._fn
 
     def _call(self, ctx, **kwargs):
