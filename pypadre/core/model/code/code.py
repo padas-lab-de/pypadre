@@ -20,7 +20,9 @@ class Code(IStoreable, MetadataEntity):
         # Merge defaults TODO some file metadata extracted from the path
         metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.env, Code.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
-        self.send_put()
+        # Should the send_put be called here. Crash is caused when the
+        # function class calls super.__init__() before the self._fn is set
+        # self.send_put()
 
     @abstractmethod
     def _call(self, ctx, **kwargs):
