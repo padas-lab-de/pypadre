@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Optional, Union, Iterable
+from typing import Callable, Optional, Union, Iterable, Type
 
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.code import Code, ProvidedCode
 from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.run import Run
+from pypadre.core.model.generic.custom_code import CustomCodeSupport
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap, \
     GridSearch
@@ -123,20 +124,13 @@ class ProvidedComponent(PipelineComponent, ProvidedCode):
         return self.call(component=self, **kwargs)
 
 
-class PythonCodeComponent(PipelineComponent):
+class CodeComponent(CustomCodeSupport, PipelineComponent):
 
     def hash(self):
         return hash(self.code)
 
-    def __init__(self, code: Union[Code, Callable], **kwargs):
-        if isinstance(code, Callable):
-            code = Function(fn=code)
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._code = code
-
-    @property
-    def code(self):
-        return self._code
 
     def _execute_component_code(self, **kwargs):
         return self.code.call(component=self, **kwargs)
@@ -193,8 +187,8 @@ class EvaluatorComponent(PipelineComponent):
     #     return _unpack_computation(Evaluation, super()._execute(data=data, **kwargs))
 
 
-class SplitPythonComponent(SplitComponent, PythonCodeComponent):
-    def __init__(self, *, code: Optional[Union[Code, Callable]]=None, **kwargs):
+class SplitPythonComponent(SplitComponent, CodeComponent):
+    def __init__(self, *, code: Optional[Union[Type[Code], Callable]]=None, **kwargs):
         if code is None:
             code = Splitter()
         if code is Callable:
@@ -202,12 +196,12 @@ class SplitPythonComponent(SplitComponent, PythonCodeComponent):
         super().__init__(code=code, **kwargs)
 
 
-class EstimatorPythonComponent(EstimatorComponent, PythonCodeComponent):
+class EstimatorPythonComponent(EstimatorComponent, CodeComponent):
     def __init__(self, *, code: Union[Code, Callable], **kwargs):
         super().__init__(code=code, **kwargs)
 
 
-class EvaluatorPythonComponent(EvaluatorComponent, PythonCodeComponent):
+class EvaluatorPythonComponent(EvaluatorComponent, CodeComponent):
     def __init__(self, *, code: Union[Code, Callable], **kwargs):
         super().__init__(code=code, **kwargs)
 

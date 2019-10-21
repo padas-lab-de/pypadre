@@ -1,11 +1,11 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
 
 from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.events.events import signals
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
+from pypadre.core.model.generic.custom_code import CustomCodeSupport
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.pipeline.pipeline import Pipeline
 from pypadre.core.model.project import Project
 
@@ -29,7 +29,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
+class Experiment(CustomCodeSupport, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -91,46 +91,24 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
     NAME = "name"
 
     # TODO non-metadata input should be a parameter
-    def __init__(self, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
-        # Add defaults
-        defaults = {}
+    def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
 
+        # Add defaults
+        defaults = {"name": "default experiment name", "description": "This is the default experiment."}
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
             self.PROJECT_ID: project.id if project else None,
-            self.DATASET_ID: dataset.id if dataset else None
+            self.DATASET_ID: dataset.id if dataset else None,
+            "name": name,
+            "description": description
         }}
 
-        if kwargs.get(self.NAME) is not None:
-            metadata[self.NAME] = kwargs.get(self.NAME)
-
-        super().__init__(parent=project, schema_resource_name="experiment.json",
+        super().__init__(code_name="p_"+project.name, parent=project, schema_resource_name="experiment.json",
                          metadata=metadata, **kwargs)
         # Variables
         self._dataset = dataset
         self._pipeline = pipeline
-
         self._executions = []
-
-        # self._runs = []
-        # self._results = []
-        # self._metrics = []
-
-        # Configuration
-        # self._keep_runs = keep_runs or keep_splits
-        # self._keep_splits = keep_splits
-        # self._hyperparameters = []
-        # self._experiment_configuration = None
-
-        # Additional
-        # self._last_run = None
-
-        # TODO what is this?
-        # split_obj.function_pointer = options.pop('function', None)
-        # TODO System info should be part of the execution
-        # self._fill_sys_info()
-
-        # self.workflow()
 
     @property
     def project(self):
@@ -155,6 +133,6 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
             raise ValueError("Dataset has to be defined to run an experiment")
         # TODO command
         # TODO check pipeline_parameters mapping to components?
-        execution = Execution(experiment=self, codehash=self.pipeline.hash(), command=kwargs.pop("cmd", "default"))
+        execution = Execution(experiment=self, codehash=self.code.hash(), command=kwargs.pop("cmd", "default"))
         self._executions.append(execution)
         return execution.execute(**kwargs)

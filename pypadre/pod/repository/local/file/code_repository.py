@@ -1,13 +1,29 @@
+import errno
 import glob
 import os
+import re
+import shutil
 
 from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.code.function import Function
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
+
+
+def copy(src, dest):
+    try:
+        shutil.copytree(src, dest)
+    except OSError as e:
+        # If the error was caused because the source wasn't a directory
+        if e.errno == errno.ENOTDIR:
+            shutil.copy(src, dest)
+        else:
+            print('Directory not copied. Error: %s' % e)
+
 
 NAME = "code"
 
@@ -29,17 +45,43 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
 
         metadata = self.get_file(path, META_FILE)
 
+        # TODO what about inherited classes
         if metadata.get(Code.CODE_CLASS) == str(Function):
             fn = self.get_file(path, CODE_FILE)
-            return Function(fn=fn, metadata=metadata)
+            code = Function(fn=fn, metadata=metadata)
 
-        # TODO implement repository for other code types
+        elif metadata.get(Code.CODE_CLASS) == str(CodeFile):
+            code = CodeFile(path=metadata.path, cmd=metadata.cmd, file=metadata.get("file", None))
+
+        else:
+            raise NotImplementedError()
+
+        return code
+
+    def to_folder_name(self, code):
+        # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
+        return code.name
+
+    def get_by_name(self, name):
+        """
+        Shortcut because we know name is the folder name. We don't have to search in metadata.json
+        :param name: Name of the dataset
+        :return:
+        """
+        return self.list({'folder': re.escape(name)})
 
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         code = obj
         self.write_file(directory, META_FILE, code.metadata)
 
-        if code.__class__ is Function:
+        if isinstance(code, Function):
             self.write_file(directory, CODE_FILE, code.fn, mode="wb")
 
-        # TODO implement repository for other code types
+        if isinstance(code, CodeFile):
+            code_dir = os.path.join(directory, "code")
+            if code.file is not None:
+                if not os.path.exists(code_dir):
+                    os.mkdir(code_dir)
+                copy(os.path.join(code.path, code.file), os.path.join(directory, "code", code.file))
+            else:
+                copy(code.path, code_dir)

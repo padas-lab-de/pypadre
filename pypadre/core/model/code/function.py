@@ -15,7 +15,7 @@ class Function(Code):
 
     def __init__(self, *, fn: Callable, **kwargs):
         # TODO Add defaults
-        defaults = {}
+        defaults = {"name": fn.__name__}
 
         # TODO Constants into ontology stuff
         # Merge defaults TODO some file metadata extracted from the path

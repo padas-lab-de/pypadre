@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Union, Type
 
 import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
@@ -10,7 +10,7 @@ from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IProgressable
-from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
+from pypadre.core.model.pipeline.components import CodeComponent, SplitPythonComponent, \
     EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent, \
     ParameterizedPipelineComponent, EvaluatorPythonComponent
 from pypadre.core.model.pipeline.parameters import ParameterMap
@@ -122,11 +122,12 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
         state = dict(self.__dict__)
         return state
 
+
 class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
     def __init__(self, *, preprocessing_fn: Optional[Union[Code, Callable]] = None,
-                 splitting: Optional[Union[Code, Callable]],
+                 splitting: Optional[Union[Type[Code], Callable]],
                  estimator: Union[Callable, EstimatorComponent],
                  evaluator: Union[Callable, EvaluatorComponent], **attr):
         super().__init__(**attr)
@@ -134,8 +135,8 @@ class DefaultPythonExperimentPipeline(Pipeline):
             # TODO attrs could include some network initialization for the components
             raise NotImplementedError("Preinitializing a pipeline is not implemented.")
 
-        self._preprocessor = PythonCodeComponent(name="preprocessor", code=preprocessing_fn,
-                                                 **attr) if preprocessing_fn else None
+        self._preprocessor = CodeComponent(name="preprocessor", code=preprocessing_fn,
+                                           **attr) if preprocessing_fn else None
 
         self._splitter = SplitPythonComponent(code=splitting, predecessors=self._preprocessor, **attr)
         self.add_node(self._splitter)

@@ -1,5 +1,5 @@
 from collections import Callable
-from typing import Union
+from typing import Union, Type
 
 import numpy as np
 from padre.PaDREOntology import PaDREOntology
@@ -268,7 +268,7 @@ class SKLearnEvaluator(ProvidedComponent, EvaluatorComponent, ParameterizedPipel
 
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
-    def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline_fn: Callable, **kwargs):
+    def __init__(self, *, splitting: Union[Type[Code], Callable] = None, pipeline_fn: Callable, **kwargs):
         """
 
         :param splitting:

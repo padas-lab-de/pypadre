@@ -202,7 +202,7 @@ class IGitRepository(IFileRepository):
 
     # Abstract method which would create a repo based on the requirements
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
-        super().put(obj)
+        super().put(obj, *args, merge=merge, allow_overwrite=allow_overwrite, **kwargs)
 
         # Init repo if not already existing
         directory = self.to_directory(obj)
@@ -210,6 +210,7 @@ class IGitRepository(IFileRepository):
             repo = Repo.init(path=directory, **kwargs.pop("repo_kwargs", {}))
         else:
             repo = self.get_repo(path=directory, **kwargs.pop("repo_kwargs", {}))
+        # TODO add_and_commit if we have changes and put some commit message. Where can I define the message??? Is there a possibility to git status?
         return repo
 
     def get(self, uid):

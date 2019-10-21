@@ -42,7 +42,7 @@ class AppLocalBackends(PadreAppTest):
         self.app.projects.put(project)
 
         project2 = self.app.projects.create(name='Test Project2', description='Testing Project')
-        assert(isinstance(project, Project))
+        assert (isinstance(project, Project))
 
         name = 'Test Project'
         projects = self.app.projects.list({'name': name})
@@ -51,7 +51,8 @@ class AppLocalBackends(PadreAppTest):
 
     def test_experiment(self):
         from pypadre.core.model.experiment import Experiment
-        project = self.create_project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = self.create_project(name='Test Project 2',
+                                      description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
         self.app.datasets.load_defaults()
@@ -59,14 +60,15 @@ class AppLocalBackends(PadreAppTest):
 
         from sklearn.svm import SVC
         experiment = self.create_experiment(dataset=dataset.pop(), project=project,
-                                pipeline=create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))]))
+                                            pipeline=create_sklearn_test_pipeline(
+                                                estimators=[('SVC', SVC(probability=True))]))
 
         self.app.experiments.put(experiment)
         name = 'Test Experiment SVM'
         experiments = self.app.experiments.list({'name': name})
-        assert(isinstance(experiments, list))
+        assert (isinstance(experiments, list))
         for experiment in experiments:
-            assert(isinstance(experiment, Experiment))
+            assert (isinstance(experiment, Experiment))
             assert name in experiment.name
 
     def test_execution(self):
@@ -159,14 +161,15 @@ class AppLocalBackends(PadreAppTest):
 
         runs = self.app.runs.list(None)
 
-        assert(isinstance(runs, list))
+        assert (isinstance(runs, list))
         for run in runs:
-            assert(isinstance(run, Run))
+            assert (isinstance(run, Run))
 
     def test_split(self):
 
         self.app.datasets.load_defaults()
-        project = self.app.projects.service.create(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = self.app.projects.service.create(name='Test Project 2',
+                                                   description='Testing the functionalities of project backend')
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -179,20 +182,20 @@ class AppLocalBackends(PadreAppTest):
         dataset = self.app.datasets.list({'name': id})
 
         experiment = self.create_experiment(name="Test Experiment SVM",
-                                                         description="Testing Support Vector Machines via SKLearn Pipeline",
-                                                         dataset=dataset[0],
-                                                         workflow=create_test_pipeline(), keep_splits=True,
-                                                         strategy="random", project=project)
+                                            description="Testing Support Vector Machines via SKLearn Pipeline",
+                                            dataset=dataset[0],
+                                            workflow=create_test_pipeline(), keep_splits=True,
+                                            strategy="random", project=project)
 
         codehash = 'abdauoasg45qyh34t'
         execution = self.create_execution(experiment, codehash=codehash, command=None, append_runs=True,
-                                                       parameters=None,
-                                                       preparameters=None, single_run=True,
-                                                       single_transformation=True)
+                                          parameters=None,
+                                          preparameters=None, single_run=True,
+                                          single_transformation=True)
 
         run = self.create_run(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
         split = self.create_split(run=run, num=0, train_idx=list(range(1, 1000 + 1)), val_idx=None,
-                      test_idx=list(range(1000, 1100 + 1)), keep_splits=True)
+                                  test_idx=list(range(1000, 1100 + 1)), keep_splits=True)
         self.app.splits.put(split)
         # FIXME Christofer put asserts here
 
@@ -230,14 +233,17 @@ class AppLocalBackends(PadreAppTest):
             return idx[:cutoff], idx[cutoff:], None
 
         from sklearn.svm import SVC
-        pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))], splitting=CustomSplit(fn=custom_split))
+        pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+                                                splitting=CustomSplit(fn=custom_split))
 
         self.app.datasets.load_defaults()
         # TODO investigate race condition? dataset seems to be sometimes null in the dataset
-        project = self.create_project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = self.create_project(name='Test Project Custom Split', description='Testing custom splits',
+                                      store_code=True, code=__file__)
         dataset = self.app.datasets.list({'name': '_iris_dataset'})
-        print(dataset)
-        experiment = self.create_experiment(dataset=dataset.pop(), project=project, pipeline=pipeline)
+        experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
+                                            dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
+                                            code=__file__)
 
         experiment.execute()
 

@@ -4,13 +4,12 @@ import re
 from cachetools import LRUCache, cached
 
 from pypadre.core.model.experiment import Experiment
-from pypadre.core.model.project import Project
 from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
-from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer, DillSerializer
+from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
 
 # CONFIG_FILE = File("experiment.json", JSonSerializer)
 WORKFLOW_FILE = File("workflow.pickle", DillSerializer)
@@ -65,7 +64,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
 
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
 
-        ex = Experiment(project=project, dataset=dataset, metadata=metadata, pipeline=pipeline)
+        ex = Experiment(name=metadata.get("name"), description=metadata.get("description"), project=project, dataset=dataset, metadata=metadata, pipeline=pipeline)
         return ex
 
     def put_progress(self, experiment, **kwargs):

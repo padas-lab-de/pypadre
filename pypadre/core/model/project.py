@@ -1,9 +1,10 @@
 from pypadre.core.base import MetadataEntity
+from pypadre.core.model.generic.custom_code import CustomCodeSupport
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
+class Project(CustomCodeSupport, IStoreable, IProgressable, MetadataEntity, Tablefyable):
     """ A project should group experiments """
 
     @classmethod
@@ -13,12 +14,12 @@ class Project(IStoreable, IProgressable, MetadataEntity, Tablefyable):
 
     def __init__(self, name, description, **kwargs):
         # Add defaults
-        defaults = {"name": "default", "description": "This is the default project."}
+        defaults = {"name": "default project name", "description": "This is the default project."}
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
 
-        super().__init__(schema_resource_name='project.json', metadata=metadata, **kwargs)
+        super().__init__(code_name="p_"+name, schema_resource_name='project.json', metadata=metadata, **kwargs)
 
         self._experiments = []
         self._sub_projects = []
