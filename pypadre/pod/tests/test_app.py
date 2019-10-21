@@ -37,10 +37,12 @@ class AppLocalBackends(PadreAppTest):
         assert out is "foo"
 
     def test_project(self):
-
-        # FIXME christofer add create to the project app. The created project should also be put. This can be called by the user from the outside
+        from pypadre.core.model.project import Project
         project = self.create_project(name='Test Project', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
+
+        project2 = self.app.projects.create(name='Test Project2', description='Testing Project')
+        assert(isinstance(project, Project))
 
         name = 'Test Project'
         projects = self.app.projects.list({'name': name})
@@ -48,7 +50,7 @@ class AppLocalBackends(PadreAppTest):
             assert name in project.name
 
     def test_experiment(self):
-
+        from pypadre.core.model.experiment import Experiment
         project = self.create_project(name='Test Project 2', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
@@ -62,9 +64,10 @@ class AppLocalBackends(PadreAppTest):
         self.app.experiments.put(experiment)
         name = 'Test Experiment SVM'
         experiments = self.app.experiments.list({'name': name})
+        assert(isinstance(experiments, list))
         for experiment in experiments:
+            assert(isinstance(experiment, Experiment))
             assert name in experiment.name
-        # FIXME Christofer put asserts here
 
     def test_execution(self):
 
@@ -155,7 +158,10 @@ class AppLocalBackends(PadreAppTest):
             raise ValueError('Execution not listed for the same code has')
 
         runs = self.app.runs.list(None)
-        # FIXME Christofer put asserts here
+
+        assert(isinstance(runs, list))
+        for run in runs:
+            assert(isinstance(run, Run))
 
     def test_split(self):
 
