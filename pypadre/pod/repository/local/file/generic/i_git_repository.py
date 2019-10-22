@@ -33,6 +33,17 @@ class IGitRepository(IFileRepository):
         """
         return Repo.init(path, bare)
 
+    def _open_existing_repo(self, path:str, search_parents=True):
+        import os
+        if os.path.exists(path=path):
+            if self.repo_exists(dir_path=path):
+                return Repo(path=path, search_parent_directories=search_parents)
+
+            elif search_parents is True:
+                return Repo(path=path, search_parent_directories=search_parents)
+
+        return None
+
     def _create_remote(self, repo, remote_name, url=''):
         """
         :param repo: The repo object that has to be passed
@@ -279,3 +290,27 @@ class IGitRepository(IFileRepository):
         repo = self.get_repo(path=directory)
         self._add_untracked_files(repo=repo)
         self._commit(repo, message=self._DEFAULT_GIT_MSG)
+
+    def get_repo_hash(self, path:str):
+        # The current path given might be of a file which is within the working tree.
+        # We need to search parent directories until we find the root git directory
+
+        # If the passed path is a file, then get its containing directory
+        if os.path.isfile(path=path):
+            dir_path = os.path.dirname(path)
+
+        elif os.path.isdir(path=path):
+            dir_path = path
+
+        else:
+            # This shouldn't occur
+            pass
+
+        repo = self._open_existing_repo(dir_path, search_parents=True)
+
+        if repo is not None:
+            return repo.head.object.hexsha
+
+        return None
+
+

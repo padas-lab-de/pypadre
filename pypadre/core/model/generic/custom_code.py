@@ -47,6 +47,8 @@ class IGitManagedObject:
             creator = ICustomCodeSupport(store_code=store_creator, code_name=creator_name, code=creator_code)
         self._creator = creator
 
+        super().__init__(*args, **kwargs)
+
     @property
     def creator(self):
         return self._creator

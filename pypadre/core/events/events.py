@@ -39,6 +39,7 @@ class CommonSignals:
     START = SignalSchema("start", False)
     STOP = SignalSchema("stop", False)
     LOG = SignalSchema("log", True)
+    HASH = SignalSchema("hash", False)
 
 
 class PointAccessNamespace(Namespace):

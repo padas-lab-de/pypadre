@@ -64,7 +64,8 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
 
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
 
-        ex = Experiment(name=metadata.get("name"), description=metadata.get("description"), project=project, dataset=dataset, metadata=metadata, pipeline=pipeline)
+        ex = Experiment(name=metadata.get("name"), description=metadata.get("description"), project=project,
+                        dataset=dataset, metadata=metadata, pipeline=pipeline)
         return ex
 
     def put_progress(self, experiment, **kwargs):
@@ -83,3 +84,22 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
         self.write_file(directory, META_FILE, experiment.metadata)
         self.write_file(directory, WORKFLOW_FILE, experiment.pipeline, 'wb')
         remove_cached(cache, experiment.id)
+
+    def get_hash(self, experiment:Experiment, **kwargs):
+        path = kwargs.get('path', None)
+
+        hash = self.get_repo_hash(path=path)
+
+        if hash is None and kwargs.get('create_repo', False) is True:
+            # if there is no repository present in the path, but the user wants to create a repo then
+            # Create a repo
+            # Add any untracked files and commit those files
+            # Get the hash of the repo
+            self._create_repo(path=path)
+            self.add_and_commit(experiment)
+            hash = self.get_repo_hash(path=path)
+
+        experiment._codehash = hash
+
+
+

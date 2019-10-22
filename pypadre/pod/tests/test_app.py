@@ -60,7 +60,8 @@ class AppLocalBackends(PadreAppTest):
         dataset = self.app.datasets.list({'name': '_boston_dataset'})
 
         from sklearn.svm import SVC
-        experiment = self.create_experiment(dataset=dataset.pop(), project=project,
+        experiment = self.create_experiment(name='Test Experiment SVM', description='Testing experiment using SVM',
+                                            dataset=dataset.pop(), project=project,
                                             pipeline=create_sklearn_test_pipeline(
                                                 estimators=[('SVC', SVC(probability=True))]))
 
@@ -110,7 +111,6 @@ class AppLocalBackends(PadreAppTest):
         if len(executions) > 0:
             execution = self.app.executions.get(executions.__iter__().__next__().id)
             assert execution[0].name == executions[0].name
-        # FIXME Christofer put asserts here
 
     def test_run(self):
         """
@@ -167,6 +167,7 @@ class AppLocalBackends(PadreAppTest):
             assert (isinstance(run, Run))
 
     def test_split(self):
+        from pypadre.core.model.split.split import Split
 
         self.app.datasets.load_defaults()
         project = self.app.projects.service.create(name='Test Project 2',
@@ -195,14 +196,20 @@ class AppLocalBackends(PadreAppTest):
                                           single_transformation=True)
 
         run = self.create_run(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
-        split = self.create_split(run=run, num=0, train_idx=list(range(1, 1000 + 1)), val_idx=None,
-                                  test_idx=list(range(1000, 1100 + 1)), keep_splits=True)
+        train_range = list(range(1,1000+1))
+        test_range = list(range(1000, 1100 + 1))
+        split = self.create_split(run=run, num=0, train_idx=train_range, val_idx=None,
+                                  test_idx= test_range, keep_splits=True)
+        assert(isinstance(split, Split))
+        assert(split.test_idx==test_range)
+        assert(split.train_idx==train_range)
         self.app.splits.put(split)
         # FIXME Christofer put asserts here
 
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
+        import os
 
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
@@ -217,13 +224,19 @@ class AppLocalBackends(PadreAppTest):
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = Experiment(dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline))
+        experiment = Experiment(name='Test Experiment', description='Test Experiment',
+                                dataset=dataset.pop(), project=project,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
+                                code_path=__file__)
 
         experiment.execute()
-        self.app.computations.list()
+        assert(experiment.executions is not None)
+        computations = self.app.computations.list()
+        assert(isinstance(computations, list))
+        assert(len(computations)>0)
         experiments = self.app.experiments.list()
-        # FIXME Christofer put asserts here
+        assert(isinstance(experiments, list))
+        assert(len(experiments)>0)
 
     def test_custom_split_pipeline(self):
 
@@ -232,6 +245,7 @@ class AppLocalBackends(PadreAppTest):
             idx = np.arange(data.size[0])
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
+
 
         from sklearn.svm import SVC
         pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
@@ -244,7 +258,8 @@ class AppLocalBackends(PadreAppTest):
         dataset = self.app.datasets.list({'name': '_iris_dataset'})
         experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
                                             dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
-                                            creator_name="f_" + os.path.basename(__file__), creator_code=__file__)
+                                            creator_name="f_" + os.path.basename(__file__), creator_code=__file__,
+                                            code_path=__file__)
 
         experiment.execute()
 

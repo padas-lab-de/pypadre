@@ -1,6 +1,7 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
 
 from pypadre.core.base import MetadataEntity, ChildEntity
+from pypadre.core.events.events import CommonSignals, signals
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.custom_code import IGitManagedObject
@@ -28,7 +29,7 @@ def _is_sklearn_pipeline(pipeline):
     # we do checks via strings, not isinstance in order to avoid a dependency on sklearn
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
-
+@signals(CommonSignals.HASH)
 class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
@@ -89,18 +90,23 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
     PROJECT_ID = "project_id"
     DATASET_ID = "dataset_id"
     NAME = "name"
+    DESCRIPTION = "description"
+    CODE_PATH = 'code_path' # variable to store the path of the source code which is used to run the experiment
 
     # TODO non-metadata input should be a parameter
     def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
-
+        import os
+        import sys
         # Add defaults
         defaults = {"name": "default experiment name", "description": "This is the default experiment."}
+        codepath = kwargs.pop('code_path', os.path.realpath(sys.argv[0]))
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
             self.PROJECT_ID: project.id if project else None,
             self.DATASET_ID: dataset.id if dataset else None,
-            "name": name,
-            "description": description
+            self.CODE_PATH: codepath,
+            self.NAME: name,
+            self.DESCRIPTION: description
         }}
 
         super().__init__(parent=project, schema_resource_name="experiment.json",
@@ -109,6 +115,7 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
         self._dataset = dataset
         self._pipeline = pipeline
         self._executions = []
+        self._codehash = None
 
     @property
     def project(self):
@@ -127,12 +134,21 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
         return self._executions
 
     def _execute_helper(self, *args, **kwargs):
+
         if self.pipeline is None:
             raise ValueError("Pipeline has to be defined to run an experiment")
         if self.dataset is None:
             raise ValueError("Dataset has to be defined to run an experiment")
         # TODO command
         # TODO check pipeline_parameters mapping to components?
-        execution = Execution(experiment=self, codehash=self.code.hash(), command=kwargs.pop("cmd", "default"))
+
+        dict_object = {'path': self.metadata.get(self.CODE_PATH),
+                       'create_repo': False}
+        self.send_signal(CommonSignals.HASH, self, **dict_object)
+
+        # Should we simply warn the user that there is no repository for the code
+        assert (self._codehash is not None)
+
+        execution = Execution(experiment=self, codehash=self._codehash, command=kwargs.pop("cmd", "default"))
         self._executions.append(execution)
         return execution.execute(**kwargs)
