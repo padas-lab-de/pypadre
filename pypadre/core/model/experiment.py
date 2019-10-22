@@ -3,7 +3,7 @@
 from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.custom_code import CustomCodeSupport
+from pypadre.core.model.generic.custom_code import IGitManagedObject
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.pipeline.pipeline import Pipeline
@@ -29,7 +29,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class Experiment(CustomCodeSupport, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
+class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -103,7 +103,7 @@ class Experiment(CustomCodeSupport, IStoreable, IProgressable, IExecuteable, Met
             "description": description
         }}
 
-        super().__init__(code_name="p_"+project.name, parent=project, schema_resource_name="experiment.json",
+        super().__init__(parent=project, schema_resource_name="experiment.json",
                          metadata=metadata, **kwargs)
         # Variables
         self._dataset = dataset

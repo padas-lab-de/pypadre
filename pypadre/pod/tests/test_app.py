@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import numpy as np
@@ -239,11 +240,11 @@ class AppLocalBackends(PadreAppTest):
         self.app.datasets.load_defaults()
         # TODO investigate race condition? dataset seems to be sometimes null in the dataset
         project = self.create_project(name='Test Project Custom Split', description='Testing custom splits',
-                                      store_code=True, code=__file__)
+                                      store_code=True, creator_name="f_" + os.path.basename(__file__), creator_code=__file__)
         dataset = self.app.datasets.list({'name': '_iris_dataset'})
         experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
                                             dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
-                                            code=__file__)
+                                            creator_name="f_" + os.path.basename(__file__), creator_code=__file__)
 
         experiment.execute()
 

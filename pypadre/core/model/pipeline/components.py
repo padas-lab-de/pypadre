@@ -9,7 +9,7 @@ from pypadre.core.model.code.code import Code, ProvidedCode
 from pypadre.core.model.code.function import Function
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.custom_code import CustomCodeSupport
+from pypadre.core.model.generic.custom_code import ICustomCodeSupport
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap, \
     GridSearch
@@ -102,7 +102,7 @@ class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters, Pick
                                        branch=branch, **kwargs)
 
     def combinations(self, *, run, predecessor, parameter_map: ParameterMap):
-        combinations = self._parameter_provider.call(run=run, component=self,
+        combinations = self._parameter_provider.execute(run=run, component=self,
                                                              predecessor=predecessor, parameter_map=parameter_map)
         combinations.send_put()
         return combinations
@@ -124,7 +124,7 @@ class ProvidedComponent(PipelineComponent, ProvidedCode):
         return self.call(component=self, **kwargs)
 
 
-class CodeComponent(CustomCodeSupport, PipelineComponent):
+class CodeComponent(ICustomCodeSupport, PipelineComponent):
 
     def hash(self):
         return hash(self.code)

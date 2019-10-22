@@ -3,6 +3,8 @@
 from abc import ABCMeta, abstractmethod
 
 from pypadre.core.model.computation.computation import Computation
+from pypadre.core.model.generic.custom_code import IGitManagedObject, ICustomCodeSupport
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import ILoggable
 
 
@@ -28,9 +30,12 @@ class Metric(Computation):
         return self.name
 
 
-class MeasureMeter(ILoggable):
+class MeasureMeter(IGitManagedObject, ICustomCodeSupport, IExecuteable, ILoggable):
     __metaclass__ = ABCMeta
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @abstractmethod
-    def compute(self, *, computation: Computation, **kwargs) -> Metric:
-        pass
+    def _execute_helper(self, *args, computation: Computation, **kwargs) -> Metric:
+        raise NotImplementedError()

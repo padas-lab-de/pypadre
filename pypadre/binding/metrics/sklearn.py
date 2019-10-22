@@ -11,7 +11,7 @@ class ConfusionMatrix(MeasureMeter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def compute(self, *, computation: Computation, **kwargs) -> Optional[Metric]:
+    def _execute_helper(self, *, computation: Computation, **kwargs) -> Optional[Metric]:
         # TODO extend
         # :param predicted: The predicted values of the confusion matrix
         # :param truth: The truth values of the confusion matrix
@@ -53,7 +53,7 @@ class ConfusionMatrix(MeasureMeter):
 
 
 class RegressionMetrics(MeasureMeter):
-    def compute(self, *, truth, predicted, **kwargs):
+    def _execute_helper(self, *, truth, predicted, **kwargs):
         """
         The function computes the regression metrics of results
 
@@ -75,7 +75,7 @@ class RegressionMetrics(MeasureMeter):
 
 class ClassificationMetrics(MeasureMeter):
     # TODO extend
-    def compute(self, *, confusion_matrix=None, option='macro', **kwargs):
+    def _execute_helper(self, *, confusion_matrix=None, option='macro', **kwargs):
         """
         This function calculates the classification metrics like precision,
         recall, f-measure, accuracy etc

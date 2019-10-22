@@ -1,10 +1,11 @@
 from pypadre.core.base import MetadataEntity
-from pypadre.core.model.generic.custom_code import CustomCodeSupport
+from pypadre.core.model.generic.custom_code import IGitManagedObject
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Project(CustomCodeSupport, IStoreable, IProgressable, MetadataEntity, Tablefyable):
+class Project(IGitManagedObject, IStoreable, IExecuteable, IProgressable, MetadataEntity, Tablefyable):
     """ A project should group experiments """
 
     @classmethod
@@ -19,7 +20,7 @@ class Project(CustomCodeSupport, IStoreable, IProgressable, MetadataEntity, Tabl
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
 
-        super().__init__(code_name="p_"+name, schema_resource_name='project.json', metadata=metadata, **kwargs)
+        super().__init__(schema_resource_name='project.json', metadata=metadata, **kwargs)
 
         self._experiments = []
         self._sub_projects = []
@@ -34,7 +35,7 @@ class Project(CustomCodeSupport, IStoreable, IProgressable, MetadataEntity, Tabl
         else:
             return self.__dict__.get(key, None)
 
-    def execute(self, experiment_pipeline_parameters: dict, **kwargs):
+    def _execute_helper(self, experiment_pipeline_parameters: dict, **kwargs):
         return {
             experiment: experiment.execute(pipeline_parameters=experiment_pipeline_parameters.get(experiment.id),
                                            **kwargs)
