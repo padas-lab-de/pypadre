@@ -115,3 +115,85 @@ def open_existing_repo(path: str, search_parents=True):
             return Repo(path=path, search_parent_directories=search_parents)
 
     return None
+
+
+def has_uncommitted_files(repo):
+    # True if there are files with differences
+    return True if len([item.a_path for item in repo.index.diff(None)]) > 0 else False
+
+
+def add_untracked_files(repo):
+    if has_untracked_files(repo=repo):
+        untracked_files = get_untracked_files(repo=repo)
+        add_files(repo=repo, file_path=untracked_files)
+
+
+def delete_tags(repo, tag_name):
+    tags = repo.tags
+    if tag_name in tags:
+        repo.delete_tag(tag_name)
+
+    else:
+        # Raise warning/error that tag is not present
+        pass
+
+
+def add_files(repo, file_path):
+    """
+    Adds the untracked files to the git
+    :param file_path: An array containing the file paths to be added to git
+    :return:
+    """
+    if isinstance(file_path, str):
+        repo.index.add([file_path])
+    else:
+        repo.index.add(file_path)
+
+
+def archive_repo(repo, path):
+    with open(path, 'wb') as fp:
+        repo.archive(fp)
+
+
+def has_untracked_files(repo):
+    return get_untracked_files(repo=repo) is not None
+
+
+def check_git_directory(repo, path):
+    return repo.git_dir.startswith(path)
+
+
+def get_head(repo):
+    return repo.head
+
+
+def get_heads(repo):
+    return repo.heads
+
+
+def is_head_valid(repo):
+    return repo.head.is_valid()
+
+
+def is_head_remote(repo):
+    return repo.head.is_remote()
+
+
+def get_git_path(repo):
+    return repo.git_dir
+
+
+def get_working_directory(repo):
+    return repo.working_dir
+
+
+def get_working_tree_directory(repo):
+    return repo.working_tree_dir
+
+
+def get_tags(repo):
+    return repo.tags
+
+
+def get_untracked_files(repo):
+    return repo.untracked_files

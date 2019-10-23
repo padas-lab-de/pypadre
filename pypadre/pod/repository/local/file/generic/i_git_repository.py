@@ -5,7 +5,7 @@ from abc import abstractmethod, ABCMeta
 from git import Repo
 
 from pypadre.pod.repository.local.file.generic.i_file_repository import IFileRepository
-from pypadre.pod.util.git_util import repo_exists, commit, create_repo
+from pypadre.pod.util.git_util import repo_exists, commit, create_repo, add_untracked_files, add_files
 
 """
 For datasets, experiments and projects there would be separate repositories.
@@ -37,75 +37,6 @@ class IGitRepository(IFileRepository):
         """
         if self.repo is not None:
             repo.clone_from(url, path, branch)
-
-    def _add_files(self, repo, file_path):
-        """
-        Adds the untracked files to the git
-        :param file_path: An array containing the file paths to be added to git
-        :return:
-        """
-        if self.is_backend_valid():
-            if isinstance(file_path, str):
-                repo.index.add([file_path])
-            else:
-                repo.index.add(file_path)
-
-    def _get_untracked_files(self, repo):
-        return repo.untracked_files if self.is_backend_valid() else None
-
-    def _get_tags(self, repo):
-        return repo.tags if self.is_backend_valid() else None
-
-    def _get_working_tree_directory(self, repo):
-        return repo.working_tree_dir if self.is_backend_valid() else None
-
-    def _get_working_directory(self, repo):
-        return repo.working_dir if self.is_backend_valid() else None
-
-    def _get_git_path(self, repo):
-        return repo.git_dir if self.is_backend_valid() else None
-
-    def _is_head_remote(self, repo):
-        return repo.head.is_remote() if self.is_backend_valid() else None
-
-    def _is_head_valid(self, repo):
-        return repo.head.is_valid() if self.is_backend_valid() else None
-
-    def _get_heads(self, repo):
-        return repo.heads if self.is_backend_valid() else None
-
-    def _check_git_directory(self, repo, path):
-        return repo.git_dir.startswith(path) if self.is_backend_valid() else None
-
-    def _get_head(self, repo):
-        return repo.head if self.is_backend_valid() else None
-
-    def _has_untracked_files(self, repo):
-        return True if self._get_untracked_files(repo=repo) is not None else False
-
-    def _add_untracked_files(self, repo):
-        if self._has_untracked_files(repo=repo):
-            untracked_files = self._get_untracked_files(repo=repo)
-            self._add_files(repo=repo, file_path=untracked_files)
-
-    def _delete_tags(self, repo, tag_name):
-        if not self.is_backend_valid():
-            return
-
-        tags = repo.tags
-        if tag_name in tags:
-            repo.delete_tag(tag_name)
-
-        else:
-            # Raise warning/error that tag is not present
-            pass
-
-    def _archive_repo(self, repo, path):
-        if not self.is_backend_valid():
-            return
-
-        with open(path, 'wb') as fp:
-            repo.archive(fp)
 
     def _push(self, repo):
         if self._remote is None:
@@ -181,7 +112,8 @@ class IGitRepository(IFileRepository):
 
     def has_remote_backend(self):
         # TODO Validate the remote_url
-        return True if self.remote_url is not None else False
+
+        return self.remote_url is not None
 
     def add_git_lfs_attribute_file(self, directory, file_extension):
         # Get os version and write content to file
@@ -195,20 +127,15 @@ class IGitRepository(IFileRepository):
         with open(path, "w") as f:
             f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
         repo = create_repo(path=directory, bare=False)
-        self._add_files(repo, file_path=path)
+        add_files(repo, file_path=path)
         commit(repo=repo, message='Added .gitattributes file for Git LFS')
 
         # Add all untracked files
-        self._add_untracked_files(repo=repo)
+        add_untracked_files(repo=repo)
         commit(repo, message=self._DEFAULT_GIT_MSG)
 
     def add_and_commit(self, obj):
         directory = self.to_directory(obj)
         repo = self.get_repo(path=directory)
-        self._add_untracked_files(repo=repo)
+        add_untracked_files(repo=repo)
         commit(repo, message=self._DEFAULT_GIT_MSG)
-
-
-def _has_uncommitted_files(repo):
-    # True if there are files with differences
-    return True if len([item.a_path for item in repo.index.diff(None)]) > 0 else False
