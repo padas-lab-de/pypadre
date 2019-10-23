@@ -8,6 +8,7 @@ from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
+from pypadre.pod.util.git_util import add_git_lfs_attribute_file
 
 META_FILE = File("metadata.json", JSonSerializer)
 DATA_FILE = File("data.bin", PickleSerializer)
@@ -30,7 +31,7 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
 
         self.write_file(directory, META_FILE, dataset.metadata)
         self.write_file(directory, DATA_FILE, dataset.data(), 'wb')
-        self.add_git_lfs_attribute_file(directory, "*.bin")
+        add_git_lfs_attribute_file(directory, "*.bin")
 
     def get_by_dir(self, directory):
         if len(directory) == 0:

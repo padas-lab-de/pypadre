@@ -4,14 +4,14 @@ import re
 from cachetools import LRUCache, cached
 
 from pypadre.core.model.experiment import Experiment
-from pypadre.core.util.utils import remove_cached, git_hash
+from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
 # CONFIG_FILE = File("experiment.json", JSonSerializer)
-from pypadre.pod.util.git_util import create_repo
+from pypadre.pod.util.git_util import create_repo, add_and_commit, git_hash
 
 WORKFLOW_FILE = File("workflow.pickle", DillSerializer)
 META_FILE = File("metadata.json", JSonSerializer)
@@ -96,7 +96,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
             # Get the code_hash of the repo
             # TODO give git an id and hold some reference in workspace???
             create_repo(path=path)
-            self.add_and_commit(experiment)
+            add_and_commit(experiment)
             code_hash = git_hash(path=path)
 
         experiment.code_hash = code_hash

@@ -1,6 +1,10 @@
 import os
+import platform
 
 from git import Repo
+
+GIT_ATTRIBUTES = '.gitattributes.'
+DEFAULT_GIT_MSG = 'Added file to git'
 
 
 def git_hash(self, path: str):
@@ -155,6 +159,49 @@ def archive_repo(repo, path):
         repo.archive(fp)
 
 
+def clone(repo, url, path, branch='master'):
+    """
+    Clone a remote repo
+    :param repo: Repo object of the repository
+    :param url: URL of the remote remo
+    :param path: Path to clone the remote repo
+    :param branch: Branch to pull from the remote repo
+    :return: None
+    """
+    return repo.clone_from(url, path, branch)
+
+
+def push(repo, remote_name, remote_url):
+
+    # origin = bare_repo.create_remote('origin', url=cloned_repo.working_tree_dir)
+    remote = repo.create_remote(remote_name, remote_url)
+
+    # Push to the master branch from current master branch
+    # https://gitpython.readthedocs.io/en/stable/reference.html#git.remote.Remote.push
+    # https://stackoverflow.com/questions/41429525/how-to-push-to-remote-repo-with-gitpython
+    remote.push(refspec='{}:{}'.format('master', 'master'))
+
+
+def add_git_lfs_attribute_file(directory, file_extension):
+    # Get os version and write content to file
+    path = None
+    # TODO: Verify path in Windows
+    if platform.system() == 'Windows':
+        path = os.path.join(directory, GIT_ATTRIBUTES)
+    else:
+        path = os.path.join(directory, GIT_ATTRIBUTES)
+
+    with open(path, "w") as f:
+        f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
+    repo = create_repo(path=directory, bare=False)
+    add_files(repo, file_path=path)
+    commit(repo=repo, message='Added .gitattributes file for Git LFS')
+
+    # Add all untracked files
+    add_untracked_files(repo=repo)
+    commit(repo, message=DEFAULT_GIT_MSG)
+
+
 def has_untracked_files(repo):
     return get_untracked_files(repo=repo) is not None
 
@@ -197,3 +244,25 @@ def get_tags(repo):
 
 def get_untracked_files(repo):
     return repo.untracked_files
+
+
+def get_repo(path=None, url=None, **kwargs):
+    """
+    Pull a repository from remote
+    :param repo_name: Name of the repo to be cloned
+    :param path: Path to be cloned
+    :param url: Path to the remote repository to be cloned
+    :return:
+    """
+    if path is not None and url is not None:
+        return Repo.clone_from(url=url, to_path=path)
+
+    elif url is None and path is not None:
+        # Open the local repository
+        return Repo(path)
+
+
+def add_and_commit(dir_path, message=DEFAULT_GIT_MSG):
+    repo = get_repo(path=dir_path)
+    add_untracked_files(repo=repo)
+    commit(repo, message=message)
