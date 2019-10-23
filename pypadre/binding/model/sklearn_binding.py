@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 
 from pypadre.binding.visitors.scikit import SciKitVisitor
 from pypadre.core.base import phases
-from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.icode import ICode
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
 from pypadre.core.model.pipeline import pipeline
@@ -268,7 +268,7 @@ class SKLearnEvaluator(ProvidedComponent, EvaluatorComponent, ParameterizedPipel
 
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
-    def __init__(self, *, splitting: Union[Type[Code], Callable] = None, pipeline_fn: Callable, **kwargs):
+    def __init__(self, *, splitting: Union[Type[ICode], Callable] = None, pipeline_fn: Callable, **kwargs):
         """
 
         :param splitting:
@@ -290,7 +290,7 @@ class SKLearnPipeline(DefaultPythonExperimentPipeline):
 
 
 class SKLearnPipelineV2(pipeline.Pipeline):
-    def __init__(self, *, splitting: Union[Code, Callable] = None, pipeline: Pipeline, **kwargs):
+    def __init__(self, *, splitting: Union[ICode, Callable] = None, pipeline: Pipeline, **kwargs):
         super().__init__(**kwargs)
         # TODO for each pipeline element in sklearn create a pipeline component
 

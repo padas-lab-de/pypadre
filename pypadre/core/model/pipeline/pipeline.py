@@ -4,7 +4,7 @@ import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.metrics.MeasureService import measure_service
-from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.icode import ICode
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
@@ -126,8 +126,8 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
 class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
-    def __init__(self, *, preprocessing_fn: Optional[Union[Code, Callable]] = None,
-                 splitting: Optional[Union[Type[Code], Callable]],
+    def __init__(self, *, preprocessing_fn: Optional[Union[ICode, Callable]] = None,
+                 splitting: Optional[Union[Type[ICode], Callable]],
                  estimator: Union[Callable, EstimatorComponent],
                  evaluator: Union[Callable, EvaluatorComponent], **attr):
         super().__init__(**attr)

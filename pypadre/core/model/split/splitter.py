@@ -1,12 +1,12 @@
 import numpy as np
 
-from pypadre.core.model.code.code import ProvidedCode
+from pypadre.core.model.code.icode import IProvidedCode
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.split.split import Split
 from pypadre.core.util.utils import unpack
 
 
-class Splitter(ProvidedCode):
+class Splitter(IProvidedCode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

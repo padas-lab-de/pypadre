@@ -2,21 +2,20 @@ from abc import ABCMeta, abstractmethod
 from typing import Callable, Type, Union
 
 from pypadre.core.events.events import Signaler
-from pypadre.core.model.code.code import Code, ProvidedCode
 from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.code.function import Function
+from pypadre.core.model.code.icode import ICode, IProvidedCode
+from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 
 
-class ICustomCodeSupport(Signaler):
+class ICustomCodeSupport(IExecuteable, Signaler):
     """ This is a class being created by a managed code file. The code file has to be stored in a git repository and
     versioned. """
-    __metaclass__ = ABCMeta
 
-    @abstractmethod
-    def __init__(self, *args, code_name: str = None, code: Union[str, Callable, Type[Code]]=None, **kwargs):
+    def __init__(self, *args, code_name: str = None, code: Union[str, Callable, Type[ICode]]=None, **kwargs):
         if code is None:
             if code_name is not None:
-                code = Code.send_get(self, name=code_name)
+                code = ICode.send_get(self, name=code_name)
             super().__init__(*args, **kwargs)
         else:
             metadata = {"name": code_name}
@@ -26,7 +25,7 @@ class ICustomCodeSupport(Signaler):
                 code = CodeFile(file_path=code, metadata=metadata)
             super().__init__(*args, **kwargs)
 
-            if not isinstance(code, ProvidedCode):
+            if not isinstance(code, IProvidedCode):
                 # TODO move put somewhere else?
                 code.send_put(allow_overwrite=True)
 
@@ -35,18 +34,25 @@ class ICustomCodeSupport(Signaler):
                              "external code.")
         self._code = code
 
+    def _execute_helper(self, *args, **kwargs):
+        return self.code.call(**kwargs)
+
     @property
     def code(self):
         return self._code
 
+    @property
+    def hash(self):
+        return self.code.hash()
 
-class IGitManagedObject:
+
+class ICodeManagedObject:
     """ Class of objects which are derived from a user supplied code block. The code should be versioned and stored
     in a repository. """
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *args, creator: ICustomCodeSupport=None, creator_name: str = None, creator_code: Union[str, Callable, Type[Code]]=None, **kwargs):
+    def __init__(self, *args, creator: ICustomCodeSupport=None, creator_name: str = None, creator_code: Union[str, Callable, Type[ICode]]=None, **kwargs):
         if creator is None:
             creator = ICustomCodeSupport(code_name=creator_name, code=creator_code)
         self._creator = creator
@@ -56,3 +62,7 @@ class IGitManagedObject:
     @property
     def creator(self):
         return self._creator
+
+    @property
+    def creator_hash(self):
+        return self.creator.hash()

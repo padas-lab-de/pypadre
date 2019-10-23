@@ -2,10 +2,10 @@ import os
 from _py_abc import ABCMeta
 
 from pypadre.core.base import _CodeTypes
-from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.icode import ICode
 
 
-class CodeFile(Code):
+class CodeFile(ICode):
     """ Interface for a code file or folder (script etc.) which can be executed from python."""
     __metaclass__ = ABCMeta
 
@@ -26,7 +26,7 @@ class CodeFile(Code):
 
         defaults = {}
 
-        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.file, self.CODE_PATH: path}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.file, self.CODE_PATH: path}, **kwargs.pop("metadata", {})}
         if file is not None:
             metadata["file"] = file
         if cmd is not None:

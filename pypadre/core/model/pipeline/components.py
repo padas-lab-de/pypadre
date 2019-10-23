@@ -5,8 +5,8 @@ from abc import ABCMeta, abstractmethod
 from typing import Callable, Optional, Union, Iterable, Type
 
 from pypadre.core.base import MetadataEntity
-from pypadre.core.model.code.code import Code, ProvidedCode
 from pypadre.core.model.code.function import Function
+from pypadre.core.model.code.icode import ICode, IProvidedCode
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.custom_code import ICustomCodeSupport
@@ -108,7 +108,7 @@ class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters, Pick
         return combinations
 
 
-class ProvidedComponent(PipelineComponent, ProvidedCode):
+class ProvidedComponent(PipelineComponent, IProvidedCode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -188,7 +188,7 @@ class EvaluatorComponent(PipelineComponent):
 
 
 class SplitPythonComponent(SplitComponent, CodeComponent):
-    def __init__(self, *, code: Optional[Union[Type[Code], Callable]]=None, **kwargs):
+    def __init__(self, *, code: Optional[Union[Type[ICode], Callable]]=None, **kwargs):
         if code is None:
             code = Splitter()
         if code is Callable:
@@ -197,12 +197,12 @@ class SplitPythonComponent(SplitComponent, CodeComponent):
 
 
 class EstimatorPythonComponent(EstimatorComponent, CodeComponent):
-    def __init__(self, *, code: Union[Code, Callable], **kwargs):
+    def __init__(self, *, code: Union[ICode, Callable], **kwargs):
         super().__init__(code=code, **kwargs)
 
 
 class EvaluatorPythonComponent(EvaluatorComponent, CodeComponent):
-    def __init__(self, *, code: Union[Code, Callable], **kwargs):
+    def __init__(self, *, code: Union[ICode, Callable], **kwargs):
         super().__init__(code=code, **kwargs)
 
 

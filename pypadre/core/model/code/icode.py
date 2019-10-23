@@ -5,7 +5,7 @@ from pypadre.core.base import MetadataEntity, _CodeTypes
 from pypadre.core.model.generic.i_model_mixins import IStoreable
 
 
-class Code(IStoreable, MetadataEntity):
+class ICode(IStoreable, MetadataEntity):
     """ Custom code to execute. """
     __metaclass__ = ABCMeta
 
@@ -18,11 +18,8 @@ class Code(IStoreable, MetadataEntity):
 
         # TODO Constants into ontology stuff
         # Merge defaults TODO some file metadata extracted from the path
-        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.env, Code.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.env, ICode.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
-        # Should the send_put be called here. Crash is caused when the
-        # function class calls super.__init__() before the self._fn is set
-        # self.send_put()
 
     @abstractmethod
     def _call(self, ctx, **kwargs):
@@ -44,13 +41,13 @@ class Code(IStoreable, MetadataEntity):
 # on the environment
 
 
-class ProvidedCode(Code):
+class IProvidedCode(ICode):
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def __init__(self, **kwargs):
         defaults = {}
         # TODO save data about runtime versions / libraries etc for reproducibility
-        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.provided},
+        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.provided},
                     **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)

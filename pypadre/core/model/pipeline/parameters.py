@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABCMeta
 
-from pypadre.core.model.code.code import ProvidedCode
+from pypadre.core.model.code.icode import IProvidedCode
 from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.util.inheritance import SuperStop
@@ -64,7 +64,7 @@ class IParameterProvider(IExecuteable, SuperStop):
 #                                predecessor=predecessor, parameter_map=parameter_map)
 
 
-class GridSearch(ProvidedCode, IParameterProvider):
+class GridSearch(IProvidedCode, IParameterProvider):
 
     def _execute_helper(self, *args, **kwargs):
         return self.call(**kwargs)

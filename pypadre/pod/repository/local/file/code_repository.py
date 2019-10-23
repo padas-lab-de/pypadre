@@ -4,9 +4,9 @@ import os
 import re
 import shutil
 
-from pypadre.core.model.code.code import Code
 from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.code.function import Function
+from pypadre.core.model.code.icode import ICode
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
@@ -46,11 +46,11 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
         metadata = self.get_file(path, META_FILE)
 
         # TODO what about inherited classes
-        if metadata.get(Code.CODE_CLASS) == str(Function):
+        if metadata.get(ICode.CODE_CLASS) == str(Function):
             fn = self.get_file(path, CODE_FILE)
             code = Function(fn=fn, metadata=metadata)
 
-        elif metadata.get(Code.CODE_CLASS) == str(CodeFile):
+        elif metadata.get(ICode.CODE_CLASS) == str(CodeFile):
             code = CodeFile(path=metadata.path, cmd=metadata.cmd, file=metadata.get("file", None))
 
         else:

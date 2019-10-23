@@ -3,11 +3,11 @@ from abc import abstractmethod
 from typing import Callable
 
 from pypadre.core.base import _CodeTypes
-from pypadre.core.model.code.code import Code
+from pypadre.core.model.code.icode import ICode
 from pypadre.core.pickling.pickle_base import Pickleable
 
 
-class Function(Code):
+class Function(ICode):
     """ Function to execute."""
 
     def hash(self):
@@ -19,7 +19,7 @@ class Function(Code):
 
         # TODO Constants into ontology stuff
         # Merge defaults TODO some file metadata extracted from the path
-        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.fn}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.fn}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
         self._fn = fn
 
@@ -51,7 +51,7 @@ class EnvCode(Function, Pickleable):
 
         defaults = {}
         # TODO Constants into ontology stuff
-        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.env, self.PACKAGE: package, self.FUNCTION_NAME: fn_name}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.env, self.PACKAGE: package, self.FUNCTION_NAME: fn_name}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, fn=fn, **kwargs)
 
     def transient_fields(self):

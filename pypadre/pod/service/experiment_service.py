@@ -24,12 +24,12 @@ class ExperimentService(BaseService):
             self.delete(obj)
         self.save_signal_fn(delete)
 
-        @connect(Experiment)
-        def hash(obj, **kwargs):
-            for b in backends:
-                if hasattr(b, 'get_repo_hash'):
-                    b.get_hash(obj, **kwargs)
-        self.save_signal_fn(hash)
+        # @connect(Experiment)
+        # def hash(obj, **kwargs):
+        #     for b in backends:
+        #         if hasattr(b, 'get_repo_hash'):
+        #             b.get_hash(obj, **kwargs)
+        # self.save_signal_fn(hash)
 
     def execute(self, id):
         experiment = self.get(id)

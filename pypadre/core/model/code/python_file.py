@@ -7,6 +7,7 @@ class PythonFile(CodeFile):
         # TODO Add defaults
         defaults = {}
 
+        # TODO overwrite with imports?
         # TODO Constants into ontology stuff
         # Merge defaults TODO some file metadata extracted from the path
         metadata = {**defaults, **kwargs.pop("metadata", {})}

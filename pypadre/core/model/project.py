@@ -1,11 +1,11 @@
 from pypadre.core.base import MetadataEntity
-from pypadre.core.model.generic.custom_code import IGitManagedObject
+from pypadre.core.model.generic.custom_code import ICodeManagedObject
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Project(IGitManagedObject, IStoreable, IExecuteable, IProgressable, MetadataEntity, Tablefyable):
+class Project(ICodeManagedObject, IStoreable, IExecuteable, IProgressable, MetadataEntity, Tablefyable):
     """ A project should group experiments """
 
     @classmethod
