@@ -6,8 +6,10 @@ from pypadre.core.model.code.code import Code
 
 
 class CodeFile(Code):
-    """ Interface for a code file (script etc.) which can be executed from python."""
+    """ Interface for a code file or folder (script etc.) which can be executed from python."""
     __metaclass__ = ABCMeta
+
+    CODE_PATH = "path"
 
     def __init__(self, *, path=None, cmd=None, file_path=None, file=None, **kwargs):
         # TODO Add defaults
@@ -24,15 +26,13 @@ class CodeFile(Code):
 
         defaults = {}
 
-        # TODO Constants into ontology stuff
-        # Merge defaults TODO some file metadata extracted from the path
-        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.file}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{Code.CODE_TYPE: _CodeTypes.file, self.CODE_PATH: path}, **kwargs.pop("metadata", {})}
         if file is not None:
             metadata["file"] = file
+        if cmd is not None:
+            metadata["cmd"] = cmd
 
         super().__init__(metadata=metadata, **kwargs)
-        self._path = path
-        self._cmd = cmd
 
     @property
     def file(self):
@@ -40,11 +40,11 @@ class CodeFile(Code):
 
     @property
     def path(self):
-        return self._path
+        return self.metadata.get("path", None)
 
     @property
     def cmd(self):
-        return self._cmd
+        return self.metadata.get("cmd", None)
 
     def _call(self, ctx, **kwargs):
         return os.system(self.cmd)

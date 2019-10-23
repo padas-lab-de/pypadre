@@ -63,16 +63,16 @@ class BaseService:
             backend: IStoreableRepository = b
             backend.put(obj, allow_overwrite=True, merge=True)
 
-    def get(self, id):
+    def get(self, uid):
         """
         Get the entity by id
-        :param id: Id of the entity to get
+        :param uid: Id of the entity to get
         :return: Entity
         """
         obj_list = []
         for b in self.backends:
             backend: IStoreableRepository = b
-            obj = backend.get(id)
+            obj = backend.get(uid)
             if obj is not None:
                 obj_list.append(obj)
         return obj_list
@@ -87,15 +87,15 @@ class BaseService:
             backend: IStoreableRepository = b
             backend.delete(obj)
 
-    def delete_by_id(self, id):
+    def delete_by_id(self, uid):
         """
         Delete the entity by id
-        :param id: Id of the entity to delete
+        :param uid: Id of the entity to delete
         :return: Entity
         """
         for b in self.backends:
             backend: IStoreableRepository = b
-            backend.delete_by_id(id)
+            backend.delete_by_id(uid)
 
     def save_signal_fn(self, fn: Callable):
         setattr(self, "_signal_" + str(hash(fn)), fn)
