@@ -13,25 +13,25 @@ class ICustomCodeSupport(IExecuteable, Signaler):
     versioned. """
 
     def __init__(self, *args, code_name: str = None, code: Union[str, Callable, Type[ICode]]=None, **kwargs):
-        if code is None:
-            if code_name is not None:
-                code = ICode.send_get(self, name=code_name)
-            super().__init__(*args, **kwargs)
-        else:
+
+        if code_name is not None:
+            code_obj = ICode.send_get(self, name=code_name)
+
+        if code_obj is None:
             metadata = {"name": code_name}
             if isinstance(code, Callable):
                 code = Function(fn=code, metadata=metadata)
             elif isinstance(code, str):
                 code = CodeFile(file_path=code, metadata=metadata)
-            super().__init__(*args, **kwargs)
-
-            if not isinstance(code, IProvidedCode):
-                # TODO move put somewhere else?
-                code.send_put(allow_overwrite=True)
 
         if code is None:
-            raise ValueError("ICustomCodeSupport needs a code object to reference. This can be provided code but also "
-                             "external code.")
+            raise ValueError("ICustomCodeSupport needs a code object to reference. This can be provided code but also external code.")
+
+        if not isinstance(code, IProvidedCode):
+            # TODO move put somewhere else?
+            code.send_put(allow_overwrite=True)
+
+        super().__init__(*args, **kwargs)
         self._code = code
 
     def _execute_helper(self, *args, **kwargs):
