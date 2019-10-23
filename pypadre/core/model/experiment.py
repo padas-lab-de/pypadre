@@ -29,6 +29,7 @@ def _is_sklearn_pipeline(pipeline):
     # we do checks via strings, not isinstance in order to avoid a dependency on sklearn
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
+
 @signals(CommonSignals.HASH)
 class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
     """
@@ -91,7 +92,8 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
     DATASET_ID = "dataset_id"
     NAME = "name"
     DESCRIPTION = "description"
-    CODE_PATH = 'code_path' # variable to store the path of the source code which is used to run the experiment
+    # variable to store the path of the source code which is used to run the experiment
+    CODE_PATH = 'code_path'
 
     # TODO non-metadata input should be a parameter
     def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
@@ -99,12 +101,15 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
         import sys
         # Add defaults
         defaults = {"name": "default experiment name", "description": "This is the default experiment."}
-        codepath = kwargs.pop('code_path', os.path.realpath(sys.argv[0]))
+
+        # Either get given path or look up the path of the calling file
+        code_path = kwargs.pop('code_path', os.path.realpath(sys.argv[0]))
+
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
             self.PROJECT_ID: project.id if project else None,
             self.DATASET_ID: dataset.id if dataset else None,
-            self.CODE_PATH: codepath,
+            self.CODE_PATH: code_path,
             self.NAME: name,
             self.DESCRIPTION: description
         }}
@@ -115,7 +120,7 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
         self._dataset = dataset
         self._pipeline = pipeline
         self._executions = []
-        self._codehash = None
+        self._code_hash = None
 
     @property
     def project(self):
@@ -133,6 +138,14 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
     def executions(self):
         return self._executions
 
+    @property
+    def code_hash(self):
+        return self._code_hash
+
+    @code_hash.setter
+    def code_hash(self, code_hash):
+        self._code_hash = code_hash
+
     def _execute_helper(self, *args, **kwargs):
 
         if self.pipeline is None:
@@ -144,11 +157,16 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
 
         dict_object = {'path': self.metadata.get(self.CODE_PATH),
                        'create_repo': False}
+
+        # Get hash from the outside if possible
         self.send_signal(CommonSignals.HASH, self, **dict_object)
 
-        # Should we simply warn the user that there is no repository for the code
-        assert (self._codehash is not None)
+        code_hash = kwargs.get("code_hash", self._code_hash)
 
-        execution = Execution(experiment=self, codehash=self._codehash, command=kwargs.pop("cmd", "default"))
+        # Should we simply warn the user that there is no repository for the code
+        if code_hash is None:
+            raise ValueError("An execution has to reference a code hash to be valid.")
+
+        execution = Execution(experiment=self, codehash=code_hash, command=kwargs.pop("cmd", "default"))
         self._executions.append(execution)
         return execution.execute(**kwargs)

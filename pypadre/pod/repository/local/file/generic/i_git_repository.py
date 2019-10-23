@@ -5,6 +5,7 @@ from abc import abstractmethod, ABCMeta
 from git import Repo
 
 from pypadre.pod.repository.local.file.generic.i_file_repository import IFileRepository
+from pypadre.pod.util.git_util import repo_exists, commit, create_repo
 
 """
 For datasets, experiments and projects there would be separate repositories.
@@ -25,68 +26,6 @@ class IGitRepository(IFileRepository):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def _create_repo(self, path, bare=True):
-        """
-        Creates a local repository
-        :param bare: Creates a bare git repository
-        :return: Repo object
-        """
-        return Repo.init(path, bare)
-
-    def _open_existing_repo(self, path:str, search_parents=True):
-        import os
-        if os.path.exists(path=path):
-            if self.repo_exists(dir_path=path):
-                return Repo(path=path, search_parent_directories=search_parents)
-
-            elif search_parents is True:
-                return Repo(path=path, search_parent_directories=search_parents)
-
-        return None
-
-    def _create_remote(self, repo, remote_name, url=''):
-        """
-        :param repo: The repo object that has to be passed
-        :param remote_name: Name of the remote repository
-        :param url: URL to the remote repository
-        :return:
-        """
-        return repo.create_remote(name=remote_name, url=url)
-
-    def _create_head(self, repo, name):
-        """
-        Creates a new branch
-        :param name: Name of the new branch
-        :return: Object to the new branch
-        """
-        new_branch = repo.create_head(name)
-        assert (repo.active_branch != new_branch)
-        return new_branch
-
-    def _create_tag(self, repo, tag_name, ref_branch, message):
-        """
-        Creates a new tag for the branch
-        :param repo: Repo object where the tag has to be created
-        :param tag_name: Name for the tag
-        :param ref_branch: Branch where the tag is to be created
-        :param message: Message for the tag
-        :return:
-        """
-        tag = repo.create_tag(tag_name, ref=ref_branch, message=message)
-        tag.commit()
-
-    def _create_sub_module(self, repo, sub_repo_name, path_to_sub_repo, url, branch='master'):
-        """
-        Creating a submodule
-        :param repo: Repo object where the submodule has to be created
-        :param sub_repo_name: Name for the sub module
-        :param path_to_sub_repo: Path to the submodule
-        :param url: URL of the remote repo
-        :param branch:
-        :return:
-        """
-        repo.create_submodule(sub_repo_name, path_to_sub_repo, url, branch)
-
     def _clone(self, repo, url, path, branch='master'):
         """
         Clone a remote repo
@@ -99,15 +38,6 @@ class IGitRepository(IFileRepository):
         if self.repo is not None:
             repo.clone_from(url, path, branch)
 
-    def _commit(self, repo, message):
-        """
-        Commit a repository
-        :param repo: Repo object
-        :param message: Message when committing
-        :return:
-        """
-        repo.git.commit(message=message)
-
     def _add_files(self, repo, file_path):
         """
         Adds the untracked files to the git
@@ -119,12 +49,6 @@ class IGitRepository(IFileRepository):
                 repo.index.add([file_path])
             else:
                 repo.index.add(file_path)
-
-    def repo_exists(self, dir_path):
-        if os.path.exists(os.path.join(dir_path, '.git')):
-            return True
-        else:
-            return False
 
     def _get_untracked_files(self, repo):
         return repo.untracked_files if self.is_backend_valid() else None
@@ -156,10 +80,6 @@ class IGitRepository(IFileRepository):
     def _get_head(self, repo):
         return repo.head if self.is_backend_valid() else None
 
-    def _has_uncommitted_files(self, repo):
-        # True if there are files with differences
-        return True if len([item.a_path for item in repo.index.diff(None)]) > 0 else False
-
     def _has_untracked_files(self, repo):
         return True if self._get_untracked_files(repo=repo) is not None else False
 
@@ -187,10 +107,6 @@ class IGitRepository(IFileRepository):
         with open(path, 'wb') as fp:
             repo.archive(fp)
 
-    def _pull(self, repo, name=None):
-        origin = repo.remote(name=name)
-        origin.pull()
-
     def _push(self, repo):
         if self._remote is None:
             self._remote = repo.create_remote(self._remote_name, self._remote_url)
@@ -217,7 +133,7 @@ class IGitRepository(IFileRepository):
 
         # Init repo if not already existing
         directory = self.to_directory(obj)
-        if not self.repo_exists(directory):
+        if not repo_exists(directory):
             repo = Repo.init(path=directory, **kwargs.pop("repo_kwargs", {}))
         else:
             repo = self.get_repo(path=directory, **kwargs.pop("repo_kwargs", {}))
@@ -228,7 +144,7 @@ class IGitRepository(IFileRepository):
         # Call the File backend get function
         return super().get(uid=uid)
 
-    def get_repo(self, path=None, url=None,  **kwargs):
+    def get_repo(self, path=None, url=None, **kwargs):
         """
         Pull a repository from remote
         :param repo_name: Name of the repo to be cloned
@@ -254,7 +170,8 @@ class IGitRepository(IFileRepository):
         # TODO: User will have to remove the remote repository by themselves
         super().delete(id)
 
-    def is_backend_valid(self):
+    @staticmethod
+    def is_backend_valid():
         """
         Check if repo is instantiated
         :return: True if valid, False otherwise
@@ -277,40 +194,21 @@ class IGitRepository(IFileRepository):
 
         with open(path, "w") as f:
             f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
-        repo = self._create_repo(path=directory, bare=False)
+        repo = create_repo(path=directory, bare=False)
         self._add_files(repo, file_path=path)
-        self._commit(repo=repo, message='Added .gitattributes file for Git LFS')
+        commit(repo=repo, message='Added .gitattributes file for Git LFS')
 
         # Add all untracked files
         self._add_untracked_files(repo=repo)
-        self._commit(repo, message=self._DEFAULT_GIT_MSG)
+        commit(repo, message=self._DEFAULT_GIT_MSG)
 
     def add_and_commit(self, obj):
         directory = self.to_directory(obj)
         repo = self.get_repo(path=directory)
         self._add_untracked_files(repo=repo)
-        self._commit(repo, message=self._DEFAULT_GIT_MSG)
-
-    def get_repo_hash(self, path:str):
-        # The current path given might be of a file which is within the working tree.
-        # We need to search parent directories until we find the root git directory
-
-        # If the passed path is a file, then get its containing directory
-        if os.path.isfile(path=path):
-            dir_path = os.path.dirname(path)
-
-        elif os.path.isdir(path=path):
-            dir_path = path
-
-        else:
-            # This shouldn't occur
-            pass
-
-        repo = self._open_existing_repo(dir_path, search_parents=True)
-
-        if repo is not None:
-            return repo.head.object.hexsha
-
-        return None
+        commit(repo, message=self._DEFAULT_GIT_MSG)
 
 
+def _has_uncommitted_files(repo):
+    # True if there are files with differences
+    return True if len([item.a_path for item in repo.index.diff(None)]) > 0 else False

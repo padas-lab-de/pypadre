@@ -4,7 +4,7 @@ import re
 from cachetools import LRUCache, cached
 
 from pypadre.core.model.experiment import Experiment
-from pypadre.core.util.utils import remove_cached
+from pypadre.core.util.utils import remove_cached, git_hash
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
@@ -85,21 +85,16 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
         self.write_file(directory, WORKFLOW_FILE, experiment.pipeline, 'wb')
         remove_cached(cache, experiment.id)
 
-    def get_hash(self, experiment:Experiment, **kwargs):
-        path = kwargs.get('path', None)
+    def get_code_hash(self, experiment: Experiment, path, create_repo=False, **kwargs):
+        code_hash = git_hash(path=path)
 
-        hash = self.get_repo_hash(path=path)
-
-        if hash is None and kwargs.get('create_repo', False) is True:
+        if code_hash is None and create_repo is True:
             # if there is no repository present in the path, but the user wants to create a repo then
             # Create a repo
             # Add any untracked files and commit those files
-            # Get the hash of the repo
-            self._create_repo(path=path)
+            # Get the code_hash of the repo
+            _create_repo(path=path)
             self.add_and_commit(experiment)
-            hash = self.get_repo_hash(path=path)
+            code_hash = git_hash(path=path)
 
-        experiment._codehash = hash
-
-
-
+        experiment.code_hash = code_hash

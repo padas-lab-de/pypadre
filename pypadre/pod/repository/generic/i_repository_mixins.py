@@ -83,6 +83,18 @@ class ILogRepository(SuperStop):
         pass
 
 
+class IHashProvidingRepository(SuperStop):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @abstractmethod
+    def get_hash(self):
+        pass
+
+
 class IRepository:
     """ This is the simple entry implementation of a backend. We define a hierarchical structure
     to the other backends here. """
