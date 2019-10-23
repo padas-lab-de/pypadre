@@ -5,8 +5,7 @@ import re
 import shutil
 
 from pypadre.core.model.code.code_file import CodeFile
-from pypadre.core.model.code.function import Function
-from pypadre.core.model.code.icode import ICode
+from pypadre.core.model.code.icode import ICode, Function
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File

@@ -10,9 +10,8 @@ from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IProgressable
-from pypadre.core.model.pipeline.components import CodeComponent, SplitPythonComponent, \
-    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent, \
-    ParameterizedPipelineComponent, EvaluatorPythonComponent
+from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, PipelineComponent, \
+    ParameterizedPipelineComponent, SplitComponent
 from pypadre.core.model.pipeline.parameters import ParameterMap
 from pypadre.core.validation.validation import Validateable
 
@@ -135,18 +134,18 @@ class DefaultPythonExperimentPipeline(Pipeline):
             # TODO attrs could include some network initialization for the components
             raise NotImplementedError("Preinitializing a pipeline is not implemented.")
 
-        self._preprocessor = CodeComponent(name="preprocessor", code=preprocessing_fn,
+        self._preprocessor = PipelineComponent(name="preprocessor", code=preprocessing_fn,
                                            **attr) if preprocessing_fn else None
 
-        self._splitter = SplitPythonComponent(code=splitting, predecessors=self._preprocessor, **attr)
+        self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
         self.add_node(self._splitter)
 
-        self._estimator = estimator if isinstance(estimator, EstimatorComponent) else EstimatorPythonComponent(
+        self._estimator = estimator if isinstance(estimator, EstimatorComponent) else EstimatorComponent(
             code=estimator, predecessors=[self._splitter], **attr)
 
         self.add_node(self._estimator)
 
-        self._evaluator = evaluator if isinstance(evaluator, EvaluatorComponent) else EvaluatorPythonComponent(
+        self._evaluator = evaluator if isinstance(evaluator, EvaluatorComponent) else EvaluatorComponent(
             code=evaluator, predecessors=[self._estimator], **attr)
         self.add_node(self._evaluator)
 

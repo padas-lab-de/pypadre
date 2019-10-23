@@ -215,7 +215,7 @@ class Signaler(SuperStop):
     """
 
     @classmethod
-    def send_signal(cls, signal: SignalSchema, condition=None, *sender, **kwargs):
+    def send_cls_signal(cls, signal: SignalSchema, condition=None, *sender, **kwargs):
         if condition is None or condition:
             if len(sender) == 0:
                 sender = [cls]
@@ -224,7 +224,18 @@ class Signaler(SuperStop):
                 init_class_signals(cls)
                 if signal.name not in cls.signals():
                     raise ValueError("Signal is not existing on " + str(cls))
-            cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
+                cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
+
+    def send_signal(self, signal: SignalSchema, condition=None, *sender, **kwargs):
+        if condition is None or condition:
+            if len(sender) == 0:
+                sender = [self]
+            if signal.name not in self.signals():
+                # Try to add missing signals
+                init_class_signals(self.__class__)
+                if signal.name not in self.signals():
+                    raise ValueError("Signal is not existing on " + str(self.__class__))
+            self.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
 
     @classmethod
     def signals(cls):

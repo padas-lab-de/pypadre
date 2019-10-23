@@ -23,7 +23,7 @@ class IStoreable(Signaler):
     @classmethod
     def send_get(cls, *sender, uid=None, **kwargs):
         callback = {cls.RETURN_VAL: {}, "uid": uid}
-        cls.send_signal(CommonSignals.DELETE, *sender, **{**callback, **kwargs})
+        cls.send_cls_signal(CommonSignals.DELETE, *sender, **{**callback, **kwargs})
         return callback.get(cls.RETURN_VAL, {cls.RETURN_VAL: None})
 
 

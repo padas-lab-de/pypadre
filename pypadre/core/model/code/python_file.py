@@ -32,5 +32,6 @@ class PythonFile(CodeFile):
         package_name = str(os.path.basename(self.path)).split(sep='.')[0]
         func = getattr(__import__(package_name), self._function)
 
+        # TODO finish me
         # Call function with passed arguments and return result
         return func(args)

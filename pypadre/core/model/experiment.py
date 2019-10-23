@@ -1,7 +1,6 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
 
 from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.events.events import CommonSignals
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.custom_code import ICodeManagedObject
@@ -154,9 +153,7 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
                        'create_repo': False}
 
         # Get hash from the outside if possible
-        self.send_signal(CommonSignals.HASH, self, **dict_object)
-
-        code_hash = kwargs.get("code_hash", self._code_hash)
+        code_hash = self.creator.hash()
 
         # Should we simply warn the user that there is no repository for the code
         if code_hash is None:

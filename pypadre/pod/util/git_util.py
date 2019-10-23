@@ -265,5 +265,5 @@ def get_repo(path=None, url=None, **kwargs):
 def add_and_commit(dir_path, message=DEFAULT_GIT_MSG):
     repo = get_repo(path=dir_path)
     add_untracked_files(repo=repo)
-    if len(repo.index.diff(repo.head.commit)) > 0:
+    if len(repo.index.diff(None)) > 0:
         commit(repo, message=message)

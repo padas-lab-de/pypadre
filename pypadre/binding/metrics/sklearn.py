@@ -2,11 +2,12 @@ from typing import Optional
 
 import numpy as np
 
-from pypadre.core.metrics.metrics import MeasureMeter, Metric
+from pypadre.core.metrics.metrics import IMetricProvider, Metric
 from pypadre.core.model.computation.computation import Computation
+from pypadre.core.model.generic.custom_code import IProvidedCode
 
 
-class ConfusionMatrix(MeasureMeter):
+class ConfusionMatrix(IProvidedCode, IMetricProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,7 +53,7 @@ class ConfusionMatrix(MeasureMeter):
         return Metric(name="ConfusionMatrix", computation=computation, result=copy.deepcopy(confusion_matrix.tolist()))
 
 
-class RegressionMetrics(MeasureMeter):
+class RegressionMetrics(IProvidedCode, IMetricProvider):
     def _execute_helper(self, *, truth, predicted, **kwargs):
         """
         The function computes the regression metrics of results
@@ -73,7 +74,7 @@ class RegressionMetrics(MeasureMeter):
         return metrics
 
 
-class ClassificationMetrics(MeasureMeter):
+class ClassificationMetrics(IProvidedCode, IMetricProvider):
     # TODO extend
     def _execute_helper(self, *, confusion_matrix=None, option='macro', **kwargs):
         """

@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.function import Function
+from pypadre.core.model.code.icode import Function
 from pypadre.core.model.pipeline.components import CustomSplit
 from pypadre.core.util.utils import unpack
 from pypadre.pod.tests.base_test import PadreAppTest
@@ -209,10 +209,11 @@ class AppLocalBackends(PadreAppTest):
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
-        import os
 
         self.app.datasets.load_defaults()
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = Project(name='Test Project 2',
+                          description='Testing the functionalities of project backend',
+                          creator=Function(fn=self.test_full_stack))
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -227,7 +228,7 @@ class AppLocalBackends(PadreAppTest):
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                code_path=__file__)
+                                creator=Function(fn=self.test_full_stack))
 
         experiment.execute()
         assert(experiment.executions is not None)

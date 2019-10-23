@@ -2,17 +2,16 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Optional, Union, Iterable, Type
+from typing import Callable, Optional, Iterable
 
 from pypadre.core.base import MetadataEntity
-from pypadre.core.model.code.function import Function
-from pypadre.core.model.code.icode import ICode, IProvidedCode
+from pypadre.core.model.code.icode import Function
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.custom_code import ICustomCodeSupport
+from pypadre.core.model.generic.custom_code import CustomCodeHolder, IProvidedCode
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap, \
-    GridSearch
+from pypadre.core.model.pipeline.gridsearch import GridSearch
+from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap
 from pypadre.core.model.split.split import Split
 from pypadre.core.model.split.splitter import Splitter
 from pypadre.core.pickling.pickle_base import Pickleable
@@ -20,7 +19,7 @@ from pypadre.core.util.utils import unpack
 from pypadre.core.validation.validation import ValidateParameters
 
 
-class PipelineComponent(MetadataEntity, IExecuteable):
+class PipelineComponent(CustomCodeHolder, IExecuteable, MetadataEntity):
     __metaclass__ = ABCMeta
 
     def __init__(self, *, name: str, metadata: Optional[dict] = None, **kwargs):
@@ -61,14 +60,8 @@ class PipelineComponent(MetadataEntity, IExecuteable):
     #     # kwargs are the padre context to be used
     #     return self._execute_component_code_help(ctx, **parameters)
 
-    @abstractmethod
     def _execute_component_code(self, **kwargs):
-        # Black box execution
-        raise NotImplementedError
-
-    # TODO Overwrite for no schema validation for now
-    def validate(self, **kwargs):
-        pass
+        return self.code.call(component=self, **kwargs)
 
 
 class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters, Pickleable):
@@ -108,32 +101,29 @@ class ParameterizedPipelineComponent(PipelineComponent, ValidateParameters, Pick
         return combinations
 
 
-class ProvidedComponent(PipelineComponent, IProvidedCode):
+class IProvidedComponent(IProvidedCode, PipelineComponent):
 
+    @abstractmethod
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def hash(self):
         return hash(self.__class__)
 
-    @abstractmethod
-    def _call(self, ctx, **kwargs):
-        raise NotImplementedError()
-
     def _execute_component_code(self, **kwargs):
         return self.call(component=self, **kwargs)
 
 
-class CodeComponent(ICustomCodeSupport, PipelineComponent):
-
-    def hash(self):
-        return hash(self.code)
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def _execute_component_code(self, **kwargs):
-        return self.code.call(component=self, **kwargs)
+# class CodeComponent(CustomCodeHolder, PipelineComponent):
+#
+#     def hash(self):
+#         return hash(self.code)
+#
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#
+#     def _execute_component_code(self, **kwargs):
+#         return self.code.call(component=self, **kwargs)
 
 
 # def _unpack_computation(cls, computation: Computation):
@@ -159,8 +149,12 @@ class SplitComponent(PipelineComponent):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, name="splitter", **kwargs):
-        super().__init__(name=name, **kwargs)
+    def __init__(self, name="splitter", code=None, **kwargs):
+        if code is None:
+            code = Splitter()
+        if code is Callable:
+            code = Function(fn=code)
+        super().__init__(name=name, code=code, **kwargs)
 
     def _execute_helper(self, *, data, branch=True, **kwargs):
         return super()._execute_helper(data=data, branch=branch, **kwargs)
@@ -185,25 +179,6 @@ class EvaluatorComponent(PipelineComponent):
 
     # def _execute(self, *, data, **kwargs):
     #     return _unpack_computation(Evaluation, super()._execute(data=data, **kwargs))
-
-
-class SplitPythonComponent(SplitComponent, CodeComponent):
-    def __init__(self, *, code: Optional[Union[Type[ICode], Callable]]=None, **kwargs):
-        if code is None:
-            code = Splitter()
-        if code is Callable:
-            code = Function(fn=code)
-        super().__init__(code=code, **kwargs)
-
-
-class EstimatorPythonComponent(EstimatorComponent, CodeComponent):
-    def __init__(self, *, code: Union[ICode, Callable], **kwargs):
-        super().__init__(code=code, **kwargs)
-
-
-class EvaluatorPythonComponent(EvaluatorComponent, CodeComponent):
-    def __init__(self, *, code: Union[ICode, Callable], **kwargs):
-        super().__init__(code=code, **kwargs)
 
 
 class CustomSplit(Function):
