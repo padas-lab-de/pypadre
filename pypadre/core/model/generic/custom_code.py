@@ -1,23 +1,22 @@
 from abc import ABCMeta, abstractmethod
 from typing import Callable, Type, Union
 
+from pypadre.core.events.events import Signaler
 from pypadre.core.model.code.code import Code, ProvidedCode
 from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.code.function import Function
 
 
-class ICustomCodeSupport:
+class ICustomCodeSupport(Signaler):
     """ This is a class being created by a managed code file. The code file has to be stored in a git repository and
     versioned. """
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *args, store_code: bool=False, code_name: str = None, code: Union[str, Callable, Type[Code]]=None, **kwargs):
+    def __init__(self, *args, code_name: str = None, code: Union[str, Callable, Type[Code]]=None, **kwargs):
         if code is None:
             if code_name is not None:
-                # TODO load code object from store. Fail if we didn't find it.
-                pass
-            pass
+                code = Code.send_get(self, name=code_name)
             super().__init__(*args, **kwargs)
         else:
             metadata = {"name": code_name}
@@ -25,11 +24,16 @@ class ICustomCodeSupport:
                 code = Function(fn=code, metadata=metadata)
             elif isinstance(code, str):
                 code = CodeFile(file_path=code, metadata=metadata)
-            self._code = code
             super().__init__(*args, **kwargs)
 
-            if not isinstance(code, ProvidedCode) and store_code:
+            if not isinstance(code, ProvidedCode):
+                # TODO move put somewhere else?
                 code.send_put(allow_overwrite=True)
+
+        if code is None:
+            raise ValueError("ICustomCodeSupport needs a code object to reference. This can be provided code but also "
+                             "external code.")
+        self._code = code
 
     @property
     def code(self):
@@ -42,9 +46,9 @@ class IGitManagedObject:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *args, creator: ICustomCodeSupport=None, store_creator: bool=False, creator_name: str = None, creator_code: Union[str, Callable, Type[Code]]=None, **kwargs):
+    def __init__(self, *args, creator: ICustomCodeSupport=None, creator_name: str = None, creator_code: Union[str, Callable, Type[Code]]=None, **kwargs):
         if creator is None:
-            creator = ICustomCodeSupport(store_code=store_creator, code_name=creator_name, code=creator_code)
+            creator = ICustomCodeSupport(code_name=creator_name, code=creator_code)
         self._creator = creator
 
         super().__init__(*args, **kwargs)

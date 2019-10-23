@@ -39,7 +39,9 @@ class CommonSignals:
     START = SignalSchema("start", False)
     STOP = SignalSchema("stop", False)
     LOG = SignalSchema("log", True)
-    HASH = SignalSchema("hash", False)
+    # HASH = SignalSchema("hash", False)
+    LOAD = SignalSchema("load", False)
+    GET = SignalSchema("get", False)
 
 
 class PointAccessNamespace(Namespace):
@@ -212,16 +214,17 @@ class Signaler(SuperStop):
     Base class of a class being able to send signals.
     """
 
-    def send_signal(self, signal: SignalSchema, condition=None, *sender, **kwargs):
+    @classmethod
+    def send_signal(cls, signal: SignalSchema, condition=None, *sender, **kwargs):
         if condition is None or condition:
             if len(sender) == 0:
-                sender = [self]
-            if signal.name not in self.signals():
+                sender = [cls]
+            if signal.name not in cls.signals():
                 # Try to add missing signals
-                init_class_signals(self.__class__)
-                if signal.name not in self.signals():
-                    raise ValueError("Signal is not existing on " + str(self.__class__))
-            self.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
+                init_class_signals(cls)
+                if signal.name not in cls.signals():
+                    raise ValueError("Signal is not existing on " + str(cls))
+            cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
 
     @classmethod
     def signals(cls):

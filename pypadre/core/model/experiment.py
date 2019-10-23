@@ -1,7 +1,7 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
 
 from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.events.events import CommonSignals, signals
+from pypadre.core.events.events import CommonSignals
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.custom_code import IGitManagedObject
@@ -30,7 +30,6 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-@signals(CommonSignals.HASH)
 class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
@@ -97,19 +96,15 @@ class Experiment(IGitManagedObject, IStoreable, IProgressable, IExecuteable, Met
 
     # TODO non-metadata input should be a parameter
     def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
-        import os
-        import sys
         # Add defaults
         defaults = {"name": "default experiment name", "description": "This is the default experiment."}
 
         # Either get given path or look up the path of the calling file
-        code_path = kwargs.pop('code_path', os.path.realpath(sys.argv[0]))
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
             self.PROJECT_ID: project.id if project else None,
             self.DATASET_ID: dataset.id if dataset else None,
-            self.CODE_PATH: code_path,
             self.NAME: name,
             self.DESCRIPTION: description
         }}

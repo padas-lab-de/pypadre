@@ -70,18 +70,19 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
         """
         return self.list({'folder': re.escape(name)})
 
-    def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, store_code=False, **kwargs):
         code = obj
         self.write_file(directory, META_FILE, code.metadata)
 
-        if isinstance(code, Function):
-            self.write_file(directory, CODE_FILE, code.fn, mode="wb")
+        if store_code:
+            if isinstance(code, Function):
+                self.write_file(directory, CODE_FILE, code.fn, mode="wb")
 
-        if isinstance(code, CodeFile):
-            code_dir = os.path.join(directory, "code")
-            if code.file is not None:
-                if not os.path.exists(code_dir):
-                    os.mkdir(code_dir)
-                copy(os.path.join(code.path, code.file), os.path.join(directory, "code", code.file))
-            else:
-                copy(code.path, code_dir)
+            if isinstance(code, CodeFile):
+                code_dir = os.path.join(directory, "code")
+                if code.file is not None:
+                    if not os.path.exists(code_dir):
+                        os.mkdir(code_dir)
+                    copy(os.path.join(code.path, code.file), os.path.join(directory, "code", code.file))
+                else:
+                    copy(code.path, code_dir)
