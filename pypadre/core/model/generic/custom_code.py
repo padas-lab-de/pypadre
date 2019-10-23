@@ -1,10 +1,7 @@
-import os
-import sys
 from abc import ABCMeta, abstractmethod
 from typing import Type
 
 from pypadre.core.events.events import Signaler
-from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.code.icode import ICode, EnvCode
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 
@@ -55,9 +52,9 @@ class ICodeManagedObject:
 
     @abstractmethod
     def __init__(self, *args, creator: Type[ICode] = None, **kwargs):
-        if creator is None:
-            file_path = os.path.realpath(sys.argv[0])
-            creator = CodeFile(file_path=file_path)
+        # if creator is None:
+        #     file_path = os.path.realpath(sys.argv[0])
+        #     creator = CodeFile(file_path=file_path)
 
         self._creator = creator
 
