@@ -11,6 +11,7 @@ from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
+from pypadre.pod.util.git_util import git_hash, create_repo, add_and_commit
 
 
 def copy(src, dest):
@@ -85,3 +86,20 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
                     copy(os.path.join(code.path, code.file), os.path.join(directory, "code", code.file))
                 else:
                     copy(code.path, code_dir)
+
+    def get_code_hash(self, obj=None, path=None, init_repo=False, **kwargs):
+
+        code_hash = git_hash(path=path)
+        if code_hash is None and init_repo is True:
+            # if there is no repository present in the path, but the user wants to create a repo then
+            # Create a repo
+            # Add any untracked files and commit those files
+            # Get the code_hash of the repo
+            # TODO give git an id and hold some reference in workspace???
+            dir_path = os.path.dirname(path)
+            create_repo(dir_path)
+            add_and_commit(dir_path)
+            code_hash = git_hash(path=dir_path)
+
+        if obj is not None:
+            obj.set_hash(code_hash)

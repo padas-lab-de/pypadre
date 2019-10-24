@@ -228,8 +228,7 @@ class AppLocalBackends(PadreAppTest):
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                creator=Function(fn=self.test_full_stack))
-
+                                creator=self.test_full_stack)
         experiment.execute()
         assert(experiment.executions is not None)
         computations = self.app.computations.list()

@@ -1,6 +1,6 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
-
 from pypadre.core.base import MetadataEntity, ChildEntity
+from pypadre.core.model.code.icode import ICode
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.custom_code import ICodeManagedObject
@@ -8,6 +8,7 @@ from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.pipeline.pipeline import Pipeline
 from pypadre.core.model.project import Project
+from typing import Callable, Union, Optional, Type
 
 
 ####################################################################################################################
@@ -94,7 +95,9 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
     CODE_PATH = 'code_path'
 
     # TODO non-metadata input should be a parameter
-    def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
+    def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None,
+                 creator: Optional[Union[Type[ICode], Callable]] = None,
+                 **kwargs):
         # Add defaults
         defaults = {"name": "default experiment name", "description": "This is the default experiment."}
 
@@ -108,7 +111,7 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
             self.DESCRIPTION: description
         }}
 
-        super().__init__(parent=project, schema_resource_name="experiment.json",
+        super().__init__(parent=project, schema_resource_name="experiment.json",  creator=creator,
                          metadata=metadata, **kwargs)
         # Variables
         self._dataset = dataset

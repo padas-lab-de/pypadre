@@ -39,7 +39,7 @@ class CommonSignals:
     START = SignalSchema("start", False)
     STOP = SignalSchema("stop", False)
     LOG = SignalSchema("log", True)
-    # HASH = SignalSchema("hash", False)
+    HASH = SignalSchema("hash", False)
     LOAD = SignalSchema("load", False)
     GET = SignalSchema("get", False)
 
