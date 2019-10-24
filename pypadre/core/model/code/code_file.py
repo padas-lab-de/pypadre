@@ -10,9 +10,6 @@ from pypadre.core.model.code.icode import ICode
 class CodeFile(ICode):
     """ Interface for a code file or folder (script etc.) which can be executed from python."""
 
-    def hash(self):
-        return super().hash()
-
     __metaclass__ = ABCMeta
 
     CODE_PATH = "path"
