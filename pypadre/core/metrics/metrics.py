@@ -39,3 +39,13 @@ class IMetricProvider(ICodeManagedObject, CustomCodeHolder, IExecuteable, ILogga
     @abstractmethod
     def _execute_helper(self, *args, computation: Computation, **kwargs) -> Metric:
         raise NotImplementedError()
+
+    @property
+    def returns(self) -> str:
+        # TODO link with owl semantic
+        return str(self.__class__)
+
+    @property
+    def consumes(self) -> str:
+        # TODO link with owl semantic
+        raise NotImplementedError()

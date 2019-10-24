@@ -11,6 +11,7 @@ from pypadre.pod.repository.local.file.generic.i_file_repository import File, IC
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
 # CONFIG_FILE = File("experiment.json", JSonSerializer)
+from pypadre.pod.util.git_util import create_repo, add_and_commit, git_hash
 
 WORKFLOW_FILE = File("workflow.pickle", DillSerializer)
 META_FILE = File("metadata.json", JSonSerializer)

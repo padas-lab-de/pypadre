@@ -117,7 +117,6 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
         self._dataset = dataset
         self._pipeline = pipeline
         self._executions = []
-        self._code_hash = None
 
     @property
     def project(self):
@@ -135,14 +134,6 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
     def executions(self):
         return self._executions
 
-    @property
-    def code_hash(self):
-        return self._code_hash
-
-    @code_hash.setter
-    def code_hash(self, code_hash):
-        self._code_hash = code_hash
-
     def _execute_helper(self, *args, **kwargs):
 
         if self.pipeline is None:
@@ -152,11 +143,11 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
         # TODO command
         # TODO check pipeline_parameters mapping to components?
 
-        dict_object = {'path': self.metadata.get(self.CODE_PATH),
-                       'create_repo': False}
+        # dict_object = {'path': self.metadata.get(self.CODE_PATH),
+        #                'create_repo': False}
 
         # Get hash from the outside if possible
-        code_hash = self.creator.hash()
+        code_hash = self.creator_hash()
 
         # Should we simply warn the user that there is no repository for the code
         if code_hash is None:

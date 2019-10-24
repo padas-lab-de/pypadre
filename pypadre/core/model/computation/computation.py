@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from types import GeneratorType
-from typing import Optional, Iterable, Callable, Union
+from typing import Optional, Iterable
 
 from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.model.computation.run import Run
@@ -47,12 +47,13 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
 
-    # TODO Overwrite for no schema validation for now
-    def validate(self, **kwargs):
-        pass
+    @property
+    def type(self):
+        # TODO this should be done via ontology
+        return str(self.__class__)
 
     @property
-    def result_format(self):
+    def format(self):
         # TODO Use Ontology here (Maybe even get this by looking at owlready2)
         return self._result_format
 
