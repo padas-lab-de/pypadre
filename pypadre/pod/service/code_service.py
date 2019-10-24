@@ -34,10 +34,10 @@ class CodeService(BaseService):
         self.save_signal_fn(get)
 
         @connect(CodeFile)
-        def hash(obj, **sended_kwargs):
+        def codehash(obj, **sended_kwargs):
             for b in backends:
                 if hasattr(b, 'get_code_hash'):
                     b.get_code_hash(obj=obj, **sended_kwargs)
 
-        self.save_signal_fn(hash)
+        self.save_signal_fn(codehash)
 

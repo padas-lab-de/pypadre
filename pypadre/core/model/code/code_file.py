@@ -6,7 +6,7 @@ from pypadre.core.events.events import CommonSignals, signals
 from pypadre.core.model.code.icode import ICode
 
 
-@signals(CommonSignals.HASH)
+@signals(CommonSignals.CODEHASH)
 class CodeFile(ICode):
     """ Interface for a code file or folder (script etc.) which can be executed from python."""
 
@@ -62,8 +62,8 @@ class CodeFile(ICode):
             # Send a signal and ask for the code hash
             dict_object = {'path': self.metadata.get(self.CODE_PATH),
                            'init_repo': False, 'hash_value': None}
-            self.send_signal(CommonSignals.HASH, self, **dict_object)
-            if self._hash is  None:
+            self.send_signal(CommonSignals.CODEHASH, self, **dict_object)
+            if self._hash is None:
                 self._hash = super.__hash__()
 
         return self._hash
