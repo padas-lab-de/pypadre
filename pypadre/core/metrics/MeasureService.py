@@ -9,16 +9,29 @@ class MeasureService(ILoggable):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    measures = {}
+    providers = {}
+    providers_by_consumption = {}
 
-    def add_measure(self, measure_meter: IMetricProvider):
-        if measure_meter.name in self.measures.keys():
-            self.send_warn("Measure already defined. Omitted adding it to the measure service: " + str(measure_meter))
+    def add_measure(self, provider: IMetricProvider):
+        if provider.name in self.providers.keys():
+            self.send_warn("Measure already defined. Omitted adding it to the measure service: " + str(provider))
         else:
-            self.measures[measure_meter.name] = measure_meter
+            self.providers[provider.name] = provider
+            if not hasattr(self.providers_by_consumption, provider.consumes):
+                self.providers_by_consumption[provider.consumes] = [provider]
+            else:
+                self.providers_by_consumption[provider.consumes].append(provider)
 
     def available_measures(self, computation: Computation) -> List[IMetricProvider]:
-        # TODO work with trees
+        measures = set()
+        available_formats = set(computation.format)
+
+        for data_format in available_formats:
+            if hasattr(self.providers_by_consumption, data_format):
+                for provider in self.providers_by_consumption[data_format]:
+                    measures.add(provider)
+
+
         pass
 
     def calculate_measures(self, computation: Computation, **kwargs) -> List[Metric]:

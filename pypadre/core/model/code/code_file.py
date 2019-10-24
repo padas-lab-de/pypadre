@@ -7,11 +7,15 @@ from pypadre.core.model.code.icode import ICode
 
 class CodeFile(ICode):
     """ Interface for a code file or folder (script etc.) which can be executed from python."""
+
+    def hash(self):
+        return super().hash()
+
     __metaclass__ = ABCMeta
 
     CODE_PATH = "path"
 
-    def __init__(self, *, path=None, cmd=None, file_path=None, file=None, **kwargs):
+    def __init__(self, *, path=None, cmd=None, file_path=None, file=None, hash=None, **kwargs):
         # TODO Add defaults
 
         if file_path:
@@ -31,8 +35,12 @@ class CodeFile(ICode):
             metadata["file"] = file
         if cmd is not None:
             metadata["cmd"] = cmd
-
+        if hash is not None:
+            metadata["hash"] = hash
         super().__init__(metadata=metadata, **kwargs)
+
+        # Set hash. This can be provided by a git repository for example
+        self._hash = hash
 
     @property
     def file(self):

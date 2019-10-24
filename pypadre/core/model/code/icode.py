@@ -33,8 +33,9 @@ class ICode(IStoreable, MetadataEntity):
         # kwargs are the padre context to be used
         return self._call(kwargs, **parameters)
 
+    @abstractmethod
     def hash(self):
-        return self.__hash__()
+        raise NotImplementedError()
 
     @property
     def code_type(self):

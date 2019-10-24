@@ -10,8 +10,8 @@ from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
+
 # CONFIG_FILE = File("experiment.json", JSonSerializer)
-from pypadre.pod.util.git_util import create_repo, add_and_commit, git_hash
 
 WORKFLOW_FILE = File("workflow.pickle", DillSerializer)
 META_FILE = File("metadata.json", JSonSerializer)
@@ -86,17 +86,17 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
         self.write_file(directory, WORKFLOW_FILE, experiment.pipeline, 'wb')
         remove_cached(cache, experiment.id)
 
-    def get_code_hash(self, experiment: Experiment, path, init_repo=False, **kwargs):
-        code_hash = git_hash(path=path)
-
-        if code_hash is None and init_repo is True:
-            # if there is no repository present in the path, but the user wants to create a repo then
-            # Create a repo
-            # Add any untracked files and commit those files
-            # Get the code_hash of the repo
-            # TODO give git an id and hold some reference in workspace???
-            create_repo(path=path)
-            add_and_commit(experiment)
-            code_hash = git_hash(path=path)
-
-        experiment.code_hash = code_hash
+    # def get_code_hash(self, experiment: Experiment, path, init_repo=False, **kwargs):
+    #     code_hash = git_hash(path=path)
+    #
+    #     if code_hash is None and init_repo is True:
+    #         # if there is no repository present in the path, but the user wants to create a repo then
+    #         # Create a repo
+    #         # Add any untracked files and commit those files
+    #         # Get the code_hash of the repo
+    #         # TODO give git an id and hold some reference in workspace???
+    #         create_repo(path=path)
+    #         add_and_commit(experiment)
+    #         code_hash = git_hash(path=path)
+    #
+    #     experiment.code_hash = code_hash

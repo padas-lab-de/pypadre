@@ -83,6 +83,8 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
 
         # calculate measures
         metrics = measure_service.calculate_measures(computation, **kwargs)
+        for metric in metrics:
+            metric.send_put()
 
         # branch results now if needed (for example for splits)
         for res in computation.iter_result():
