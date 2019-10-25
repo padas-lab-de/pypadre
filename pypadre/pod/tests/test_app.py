@@ -30,7 +30,7 @@ class AppLocalBackends(PadreAppTest):
             return "foo"
 
         foo_code = self.app.code.create(clz=Function, fn=foo)
-        self.app.code.put(foo_code)
+        self.app.code.put(foo_code, store_code=True)
         code_list = self.app.code.list()
         loaded_code = code_list.pop()
 
@@ -196,7 +196,7 @@ class AppLocalBackends(PadreAppTest):
                                           single_transformation=True)
 
         run = self.create_run(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
-        train_range = list(range(1,1000+1))
+        train_range = list(range(1, 1000+1))
         test_range = list(range(1000, 1100 + 1))
         split = self.create_split(run=run, num=0, train_idx=train_range, val_idx=None,
                                   test_idx= test_range, keep_splits=True)
@@ -260,7 +260,7 @@ class AppLocalBackends(PadreAppTest):
         experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
                                             dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
                                             creator_name="f_" + os.path.basename(__file__), creator_code=__file__,
-                                            code_path=__file__)
+                                           creator=self.test_custom_split_pipeline)
 
         experiment.execute()
 

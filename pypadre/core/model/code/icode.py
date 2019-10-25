@@ -22,7 +22,6 @@ class ICode(IStoreable, MetadataEntity):
         # Merge defaults TODO some file metadata extracted from the path
         metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.env, ICode.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
-        self.send_put(allow_overwrite=True)
 
     @abstractmethod
     def _call(self, ctx, **kwargs):

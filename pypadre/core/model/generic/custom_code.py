@@ -28,14 +28,15 @@ class CustomCodeHolder(IExecuteable, Signaler):
             raise ValueError(
                 "ICustomCodeSupport needs a code object to reference. This can be provided code but also external code.")
 
-        if not isinstance(code, EnvCode):
-            # TODO move put somewhere else?
-            code.send_put(allow_overwrite=True)
+        # if not isinstance(code, EnvCode):
+        #     # TODO move put somewhere else?
+        #     code.send_put(allow_overwrite=True)
 
         super().__init__(*args, **kwargs)
         self._code = code
 
     def _execute_helper(self, *args, **kwargs):
+        self.send_put(allow_overwrite=True)
         return self.code.call(**kwargs)
 
     @property
