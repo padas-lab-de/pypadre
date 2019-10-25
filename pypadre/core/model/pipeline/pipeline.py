@@ -10,6 +10,7 @@ from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IProgressable
+from pypadre.core.model.pipeline.WriteResultMetricsMap import WriteResultMetricsMap
 from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, PipelineComponent, \
     ParameterizedPipelineComponent, SplitComponent
 from pypadre.core.model.pipeline.parameters import ParameterMap
@@ -33,12 +34,15 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
         return None
 
     def _execute_helper(self, *, pipeline_parameters: Union[ParameterMap, dict] = None,
+                        write_parameters: dict,
                         parameter_map: ParameterMap = None, run: Run, data, **kwargs):
         if parameter_map is None:
             if pipeline_parameters is None:
                 parameter_map = ParameterMap({})
             if not isinstance(pipeline_parameters, ParameterMap):
                 parameter_map = ParameterMap(pipeline_parameters)
+
+        write_parameters_map = WriteResultMetricsMap(write_parameters)
 
         # TODO currently we don't allow for merging in a pipeline again.
         #  To solve this a successor can only execute as soon as it gets all data from all predecessors
@@ -52,9 +56,11 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
         entries = self.get_entries()
 
         for entry in entries:
-            self._execute_pipeline(entry, parameter_map=parameter_map, run=run, data=data, **kwargs)
+            self._execute_pipeline(entry, parameter_map=parameter_map, write_parameters_map=write_parameters_map,
+                                   run=run, data=data, **kwargs)
 
-    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, run: Run,
+    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
+                          write_parameters_map: WriteResultMetricsMap, run: Run,
                           **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
@@ -69,31 +75,43 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
                 # If the parameter map returns a generator or other iterable and should branch we have to
                 # execute for each item
                 self._execute_pipeline_helper(node, data=data, parameters=parameters,
-                                              parameter_map=parameter_map, run=run,
+                                              parameter_map=parameter_map,
+                                              write_parameters_map=write_parameters_map, run=run,
                                               predecessor=kwargs.get("predecessor", None))
         else:
             # If we don't need parameters we don't extract them from the map but only pass the map to the following
             # components
-            self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map, run=run,
-                                          predecessor=kwargs.get("predecessor", None))
+            self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map,
+                                          write_parameters_map=write_parameters_map, run=run,
+                                          predecessor=kwargs.get("predecessor", None), **kwargs)
 
     def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
+                                 write_parameters_map: WriteResultMetricsMap,
                                  run: Run, **kwargs):
         computation = node.execute(run=run, data=data,
                                    predecessor=kwargs.pop("predecessor", None), **kwargs)
 
         self.send_log(message="Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
 
+        write_parameters = write_parameters_map.get_for(node)
+
+        allow_metrics = True if len(write_parameters.get('allow_metrics', [])) > 0 else self.allow_metrics
+
         # calculate measures
-        if self.allow_metrics:
+        if allow_metrics:
             metrics = metric_registry.calculate_measures(computation, run=run, node=node, **kwargs)
             for metric in metrics:
                 metric.send_put()
 
+        if write_parameters.get('write_results', False):
+            # TODO Write code to dump results
+            pass
+
         # branch results now if needed (for example for splits)
         for res in computation.iter_result():
             self._execute_successors(node, run=run, predecessor=computation,
-                                     parameter_map=parameter_map, data=res)
+                                     parameter_map=parameter_map, write_parameters_map=write_parameters_map,
+                                     data=res, **kwargs)
 
         # Check if we are a end node
         if self.out_degree(node) == 0:

@@ -230,11 +230,11 @@ class AppLocalBackends(PadreAppTest):
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
                                 creator=self.test_full_stack)
-        experiment.execute()
+        experiment.execute(parameters={'SKLearnEstimator': {'write_results': False}})
         assert(experiment.executions is not None)
         computations = self.app.computations.list()
         assert(isinstance(computations, list))
-        assert(len(computations)>0)
+        assert(len(computations) > 0)
         experiments = self.app.experiments.list()
         assert(isinstance(experiments, list))
         assert(len(experiments)>0)

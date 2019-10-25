@@ -47,7 +47,7 @@ def grid_search(ctx, **kwargs):
                                       parameters=execution_params, predecessor=predecessor, branch=False)
        """
     (run, component, predecessor, parameter_map) = \
-        unpack(ctx, "run", "component", ("predecssor", None), "parameter_map")
+        unpack(ctx, "run", "component", ("predecessor", None), "parameter_map")
     parameter_map: ParameterMap
 
     parameters = parameter_map.get_for(component)
