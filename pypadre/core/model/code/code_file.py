@@ -2,18 +2,18 @@ import os
 from _py_abc import ABCMeta
 
 from pypadre.core.base import _CodeTypes
+from pypadre.core.events.events import CommonSignals, signals
 from pypadre.core.model.code.icode import ICode
 
 
+@signals(CommonSignals.CODEHASH)
 class CodeFile(ICode):
     """ Interface for a code file or folder (script etc.) which can be executed from python."""
-
-    def hash(self):
-        return super().hash()
 
     __metaclass__ = ABCMeta
 
     CODE_PATH = "path"
+    _hash = None
 
     def __init__(self, *, path=None, cmd=None, file_path=None, file=None, hash=None, **kwargs):
         # TODO Add defaults
@@ -56,6 +56,25 @@ class CodeFile(ICode):
 
     def _call(self, ctx, **kwargs):
         return os.system(self.cmd)
+
+    def hash(self):
+        if self._hash is None:
+            # Send a signal and ask for the code hash
+            dict_object = {'path': self.metadata.get(self.CODE_PATH),
+                           'init_repo': False, 'hash_value': None}
+            self.send_signal(CommonSignals.CODEHASH, self, **dict_object)
+            if self._hash is None:
+                self._hash = super.__hash__()
+
+        return self._hash
+
+    def set_hash(self, hash_value:str):
+        self._hash = hash_value
+
+
+
+
+
 
 #
 # class CodeFolder(CodeFile):

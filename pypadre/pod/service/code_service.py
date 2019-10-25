@@ -1,7 +1,8 @@
 from typing import List
 
-from pypadre.core.events.events import connect_subclasses
+from pypadre.core.events.events import connect_subclasses, connect
 from pypadre.core.model.code.icode import ICode
+from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.generic.i_model_mixins import IStoreable
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.service.base_service import BaseService
@@ -31,3 +32,12 @@ class CodeService(BaseService):
             name = sended_kwargs.get("name")
             setattr(return_val, IStoreable.RETURN_VAL, self.get(name))
         self.save_signal_fn(get)
+
+        @connect(CodeFile)
+        def codehash(obj, **sended_kwargs):
+            for b in backends:
+                if hasattr(b, 'get_code_hash'):
+                    b.get_code_hash(obj=obj, **sended_kwargs)
+
+        self.save_signal_fn(codehash)
+

@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
-from typing import Type
+from typing import Type, Optional, Union, Callable, Dict
+import os
+import sys
 
 from pypadre.core.events.events import Signaler
 from pypadre.core.model.code.icode import ICode, EnvCode
@@ -45,18 +47,28 @@ class CustomCodeHolder(IExecuteable, Signaler):
         return self.code.hash()
 
 
+def _convert_path_to_code_object(path: str, cmd=None):
+    from pypadre.core.model.code.code_file import CodeFile
+    return CodeFile(file_path=path, cmd=cmd)
+
+
+def _convert_function_to_code_object(fn):
+    from pypadre.core.model.code.icode import Function
+    return Function(fn=fn)
+
+
 class ICodeManagedObject:
     """ Class of objects which are derived from a user supplied code block. The code should be versioned and stored
     in a repository. """
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *args, creator: Type[ICode] = None, **kwargs):
+    def __init__(self, *args, creator: Optional[Union[Type[ICode], Callable, Dict, str]] = None, **kwargs):
         # if creator is None:
         #     file_path = os.path.realpath(sys.argv[0])
         #     creator = CodeFile(file_path=file_path)
 
-        self._creator = creator
+        self._creator = self.resolve_to_code_object(creator)
 
         super().__init__(*args, **kwargs)
 
@@ -67,6 +79,33 @@ class ICodeManagedObject:
     @property
     def creator_hash(self):
         return self.creator.hash()
+
+    def resolve_to_code_object(self, creator):
+        # If the user has not specified a creator, get the file that was initially executed
+        if creator is None:
+            file_ = os.path.realpath(sys.argv[0])
+            return _convert_path_to_code_object(path=file_)
+
+        # If the user has specified
+        elif callable(creator):
+            return _convert_function_to_code_object(fn=creator)
+
+        elif isinstance(creator, str) and os.path.exists(creator):
+            # cmd is set as the __main__ function as default for a file
+            return _convert_path_to_code_object(path=creator, cmd='__main__')
+
+        elif isinstance(creator, Dict):
+            # TODO: Support for dictionary and command to be introduced
+            # The dictionary can contain the path to a package or a file
+            raise ValueError('Dictionary is currently not supported in Custom Code Object')
+
+        elif isinstance(creator, ICode):
+            return creator
+
+        else:
+            raise ValueError('Parameter not supported')
+
+        return None
 
 
 class IProvidedCode(CustomCodeHolder, EnvCode):

@@ -7,15 +7,15 @@ GIT_ATTRIBUTES = '.gitattributes.'
 DEFAULT_GIT_MSG = 'Added file to git'
 
 
-def git_hash(self, path: str):
+def git_hash(path: str):
     # The current path given might be of a file which is within the working tree.
     # We need to search parent directories until we find the root git directory
 
     # If the passed path is a file, then get its containing directory
-    if os.path.isfile(path=path):
+    if os.path.isfile(path):
         dir_path = os.path.dirname(path)
 
-    elif os.path.isdir(path=path):
+    elif os.path.isdir(path):
         dir_path = path
 
     else:
@@ -203,7 +203,8 @@ def add_git_lfs_attribute_file(directory, file_extension):
 
 
 def has_untracked_files(repo):
-    return get_untracked_files(repo=repo) is not None
+    untracked_files = get_untracked_files(repo=repo)
+    return untracked_files is not None and len(untracked_files) > 0
 
 
 def check_git_directory(repo, path):
