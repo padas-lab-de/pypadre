@@ -144,7 +144,7 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
         #                'create_repo': False}
 
         # Get hash from the outside if possible
-        code_hash = self.creator_hash()
+        code_hash = self.creator_hash
 
         # Should we simply warn the user that there is no repository for the code
         if code_hash is None:

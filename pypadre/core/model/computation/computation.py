@@ -20,7 +20,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result,
+    def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result_format=None, result,
                  parameters=None, branch=False, **kwargs):
         if parameters is None:
             parameters = {}
@@ -42,7 +42,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         self._predecessor = predecessor
         self._parameters = parameters
         self._branch = branch
-        # self._result_format = result_format
+        self._format = result_format
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
@@ -55,7 +55,7 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     @property
     def format(self):
         # TODO Use Ontology here (Maybe even get this by looking at owlready2)
-        return self._result_format
+        return self._format if self._format is not None else str(self.__class__)
 
     @property
     def run(self):

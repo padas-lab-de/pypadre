@@ -30,10 +30,6 @@ class MetricFileRepository(IChildFileRepository, ILogFileRepository, IMetricRepo
         metric = Metric(metadata=metadata, result=result)
         return metric
 
-    def put_progress(self, run, **kwargs):
-        self.log(
-            "RUN COMPUTATION: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
-
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         metric = obj
         self.write_file(directory, META_FILE, metric.metadata)

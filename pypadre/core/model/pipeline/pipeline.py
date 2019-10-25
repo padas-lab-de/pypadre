@@ -3,7 +3,7 @@ from typing import Callable, Optional, Union, Type
 import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
-from pypadre.core.metrics.MeasureService import measure_service
+from pypadre.core.metrics.MetricRegistry import metric_registry
 from pypadre.core.model.code.icode import ICode
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
@@ -17,7 +17,8 @@ from pypadre.core.validation.validation import Validateable
 
 
 class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
-    def __init__(self, **attr):
+    def __init__(self, allow_metrics = True, **attr):
+        self._allow_metrics = allow_metrics
         super().__init__(**attr)
 
     def hash(self):
@@ -81,10 +82,13 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
         computation = node.execute(run=run, data=data,
                                    predecessor=kwargs.pop("predecessor", None), **kwargs)
 
+        self.send_log(message="Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
+
         # calculate measures
-        metrics = measure_service.calculate_measures(computation, **kwargs)
-        for metric in metrics:
-            metric.send_put()
+        if self.allow_metrics:
+            metrics = metric_registry.calculate_measures(computation, run=run, node=node, **kwargs)
+            for metric in metrics:
+                metric.send_put()
 
         # branch results now if needed (for example for splits)
         for res in computation.iter_result():
@@ -122,6 +126,10 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
     def __getstate__(self):
         state = dict(self.__dict__)
         return state
+
+    @property
+    def allow_metrics(self):
+        return self._allow_metrics
 
 
 class DefaultPythonExperimentPipeline(Pipeline):

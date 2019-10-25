@@ -1,8 +1,7 @@
 from typing import List
 
-from pypadre.core.events.events import connect
-from pypadre.core.metrics.metrics import IMetricProvider
-from pypadre.core.model.computation.computation import Computation
+from pypadre.core.events.events import connect_subclasses
+from pypadre.core.metrics.metrics import IMetricProvider, Metric
 from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IMetricRepository
 from pypadre.pod.service.base_service import BaseService
@@ -17,10 +16,10 @@ class MetricService(BaseService):
         super().__init__(model_clz=Split, backends=backends, **kwargs)
         self._measure_meters = measure_meters
 
-        @connect(Computation, name="put")
-        def metrics(obj, **kwargs):
-            print("Calcuate metrics! " + str(obj))
-        self.save_signal_fn(metrics)
+        @connect_subclasses(Metric)
+        def put(obj, **kwargs):
+            self.put(obj)
+        self.save_signal_fn(put)
 
     @property
     def measure_meters(self):

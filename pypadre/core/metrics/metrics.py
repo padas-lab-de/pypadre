@@ -1,11 +1,13 @@
 
 # Class to calculate some kind of metric on a component result or dataset
 from abc import ABCMeta, abstractmethod
+from typing import List
 
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.generic.custom_code import ICodeManagedObject, CustomCodeHolder
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import ILoggable
+from pypadre.core.model.pipeline.components import IConsumer, IProvider
 
 
 class Metric(Computation):
@@ -27,25 +29,17 @@ class Metric(Computation):
 
     @property
     def name(self):
-        return self.name
+        return self._name
 
 
-class IMetricProvider(ICodeManagedObject, CustomCodeHolder, IExecuteable, ILoggable):
+class IMetricProvider(ICodeManagedObject, IConsumer, IProvider, CustomCodeHolder, IExecuteable, ILoggable):
     __metaclass__ = ABCMeta
 
+    @abstractmethod
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @abstractmethod
-    def _execute_helper(self, *args, computation: Computation, **kwargs) -> Metric:
-        raise NotImplementedError()
-
     @property
-    def returns(self) -> str:
+    def provides(self) -> List[str]:
         # TODO link with owl semantic
-        return str(self.__class__)
-
-    @property
-    def consumes(self) -> str:
-        # TODO link with owl semantic
-        raise NotImplementedError()
+        return [str(self.__class__)]

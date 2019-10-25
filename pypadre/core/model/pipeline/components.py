@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Optional, Iterable
+from typing import Callable, Optional, Iterable, List
 
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.code.icode import Function
@@ -15,11 +15,32 @@ from pypadre.core.model.pipeline.parameters import IParameterProvider, Parameter
 from pypadre.core.model.split.split import Split
 from pypadre.core.model.split.splitter import Splitter
 from pypadre.core.pickling.pickle_base import Pickleable
+from pypadre.core.util.inheritance import SuperStop
 from pypadre.core.util.utils import unpack
 from pypadre.core.validation.validation import ValidateParameters
 
 
-class PipelineComponent(CustomCodeHolder, IExecuteable, MetadataEntity):
+class IConsumer(SuperStop):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @property
+    def consumes(self) -> str:
+        raise NotImplementedError()
+
+
+class IProvider(SuperStop):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @property
+    def provides(self) -> List[str]:
+        raise NotImplementedError()
+
+
+class PipelineComponent(CustomCodeHolder, IConsumer, IProvider, IExecuteable, MetadataEntity):
     __metaclass__ = ABCMeta
 
     def __init__(self, *, name: str, metadata: Optional[dict] = None, **kwargs):

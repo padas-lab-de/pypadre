@@ -209,6 +209,7 @@ class AppLocalBackends(PadreAppTest):
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
+        # TODO plugin system
 
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2',
