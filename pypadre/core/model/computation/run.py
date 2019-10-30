@@ -5,10 +5,14 @@ from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 
+WRITE_RESULTS = "write_results"
+WRITE_METRICS = "write_metrics"
+
 
 class Run(IExecuteable, IStoreable, MetadataEntity, ChildEntity, Tablefyable):
 
     EXECUTION_ID = "experiment_id"
+
 
     @classmethod
     def _tablefy_register_columns(cls):
@@ -28,8 +32,11 @@ class Run(IExecuteable, IStoreable, MetadataEntity, ChildEntity, Tablefyable):
         self.send_put()
 
         # Start execution of the pipeline
-        pipeline_parameters = kwargs.get('parameters', None)
+        # pipeline_parameters = kwargs.get('parameters', None)
+        pipeline_parameters, write_parameters = \
+            self.separate_hyperparameters_and_component_parameters(kwargs.pop('parameters', None))
         return self.pipeline.execute(dataset=self.dataset, run=self, pipeline_parameters=pipeline_parameters,
+                                     write_parameters=write_parameters,
                                      *args, **kwargs)
 
     @property
@@ -47,3 +54,29 @@ class Run(IExecuteable, IStoreable, MetadataEntity, ChildEntity, Tablefyable):
     @property
     def pipeline(self):
         return self.execution.pipeline
+
+    def separate_hyperparameters_and_component_parameters(self, parameters:dict):
+
+        parameter_dict = dict()
+        write_result_metric_dict = dict()
+
+        # Iterate through every parameter
+        for component_name in parameters:
+            params = parameters.get(component_name)
+            # Save the hyperparamters in a separate dictionary
+            if params.get('parameters', None) is not None:
+                parameter_dict[component_name] = params.get('parameters')
+
+            # If the user wants to dump the results of the component, set the Flag
+            write_results = params.get(WRITE_RESULTS, False)
+
+            # The user can specify multiple metrics if needed, so it is a list
+            write_metrics = params.get(WRITE_METRICS, None)
+
+            write_result_metric_dict[component_name] = {WRITE_RESULTS: write_results,
+                                                        WRITE_METRICS: write_metrics}
+        if not parameter_dict:
+            parameter_dict = None
+
+        return parameter_dict, write_result_metric_dict
+

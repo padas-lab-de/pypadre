@@ -15,3 +15,6 @@ class CodeApp(BaseChildApp):
         if handlers is None:
             handlers = []
         return ValidateableFactory.make(clz, *args, handlers=handlers, **kwargs)
+
+    def put(self, obj, **kwargs):
+        return self.service.put(obj, **kwargs)

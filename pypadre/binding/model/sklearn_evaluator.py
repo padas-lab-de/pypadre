@@ -9,6 +9,19 @@ from pypadre.core.model.pipeline.components import IProvidedComponent, Evaluator
 from pypadre.core.util.utils import unpack
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
+# Constant strings that are used in creating the results dictionary
+DATASET_NAME = 'dataset'
+PREDICTIONS = "predictions"
+SPLIT_NUM = "split_num"
+TRAINING_SAMPLES = "training_samples"
+TESTING_SAMPLES = "testing_samples"
+TRUTH = "truth"
+PREDICTED = "predicted"
+PROBABILITIES = "probabilities"
+TRAINING_IDX = "training_indices"
+TESTING_IDX = "testing_indices"
+TYPE = "type"
+
 
 def evaluate(ctx, **kwargs):
     (component,) = unpack(ctx, "component")
@@ -47,11 +60,6 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
         y_predicted = np.asarray(model.predict(split.test_features))
         self.send_stop(phase='sklearn.' + phases.inferencing)
 
-        results = {'predicted': y_predicted.tolist(),
-                   'truth': y.tolist()}
-
-        modified_results = dict()
-
         self.send_log(mode='probability', pred=y_predicted, truth=y,
                       message="Checking if the workflow supports probability computation or not.")
 
@@ -70,20 +78,21 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
         else:
             final_estimator_type = name_mappings.get(model.steps[-1][0]).get('type')
 
+        y_predicted_probabilities = None
+
         self.send_error(condition=final_estimator_type is None,
                         message='Final estimator could not be found in names or alternate names')
 
         if final_estimator_type == 'Classification' or \
                 (final_estimator_type == 'Neural Network' and np.all(np.mod(y_predicted, 1)) == 0):
-            results['type'] = PaDREOntology.SubClassesExperiment.Classification.value
+            type_ = PaDREOntology.SubClassesExperiment.Classification.value
 
             if compute_probabilities:
                 y_predicted_probabilities = model.predict_proba(split.test_features)
                 self.send_log(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
                               message="Computing and saving the prediction probabilities")
-                results['probabilities'] = y_predicted_probabilities.tolist()
         else:
-            results['type'] = PaDREOntology.SubClassesExperiment.Regression.value
+            type_ = PaDREOntology.SubClassesExperiment.Regression.value
 
         if self.is_scorer(model):
             self.send_start(phase=f"sklearn.scoring.testset")
@@ -91,12 +100,11 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
             self.send_stop(phase=f"sklearn.scoring.testset")
             self.send_log(keys=["test score"], values=[score], message="Logging the testing score")
 
-        results['dataset'] = split.dataset.name
-        results['train_idx'] = train_idx
-        results['test_idx'] = test_idx
-        results['training_sample_count'] = len(train_idx)
-        results['testing_sample_count'] = len(test_idx)
-        results['split_num'] = split.number
+        results = self.create_results_dictionary(split_num=split.number, train_idx=train_idx, test_idx=test_idx,
+                                                 dataset=split.dataset.name,
+                                                 truth=y.tolist(), predicted=y_predicted.tolist(), type_= type_,
+                                                 probabilities=y_predicted_probabilities.tolist())
+
 
         # TODO results as object?
 
@@ -117,3 +125,41 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
     @staticmethod
     def is_transformer(model=None):
         return getattr(model, 'transform', None)
+
+    @staticmethod
+    def create_results_dictionary(*, split_num:int, train_idx:list, test_idx:list, dataset:str, type_:str,
+                                  truth:list, predicted:list, probabilities:list):
+
+        results = dict()
+        results[DATASET_NAME] = dataset
+        results[TRAINING_SAMPLES] = len(train_idx)
+        results[TESTING_SAMPLES] = len(test_idx)
+        results[SPLIT_NUM] = split_num
+        results[TRAINING_IDX] = train_idx
+        results[TESTING_IDX] = test_idx
+        results[TYPE] = type_
+
+        # Whether the probabilities of predictions should be written
+        write_probabilites = True
+        if probabilities is None or len(probabilities) != len(truth):
+            write_probabilites = False
+
+        # Predictions are a dictionary
+        predictions = dict()
+        for idx, test_row_index in enumerate(test_idx):
+            # Each prediction is a dictionary with the row id as the key. This key would point to the exact
+            # row that was tested
+            # The dictionary contains the truth value, the predicted value and if there are probabilities,
+            # the probabilities of the classes
+            curr_row_dict = dict()
+            curr_row_dict[TRUTH] = truth[idx]
+            curr_row_dict[PREDICTED] = predicted[idx]
+            curr_row_dict[PROBABILITIES] = probabilities[idx] if write_probabilites is True else []
+            predictions[test_row_index] = curr_row_dict
+
+        # Add the predictions to the results dictionary
+        results[PREDICTIONS] = predictions
+
+        return results
+
+
