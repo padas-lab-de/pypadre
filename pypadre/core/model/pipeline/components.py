@@ -194,6 +194,10 @@ class EstimatorComponent(PipelineComponent):
 
 class EvaluatorComponent(PipelineComponent):
     __metaclass__ = ABCMeta
+    TRUTH = "truth"
+    PREDICTED = "predicted"
+    PROBABILITIES = "probabilities"
+    PREDICTIONS = "predictions"
 
     @abstractmethod
     def __init__(self, name="evaluator", **kwargs):
