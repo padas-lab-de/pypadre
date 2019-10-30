@@ -300,11 +300,11 @@ class AppLocalBackends(PadreAppTest):
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
                                 creator=self.test_full_stack)
-        run = experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
+        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
 
-        t = find('results.bin',os.path.expanduser('~/.pypadre-test/projects/Test Project 2/exp'
-                                                  'eriments/Test Experiment/executions'))
-        assert(t is not None)
+        files_found = find('results.bin', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
+                                                             'experiments/Test Experiment/executions'))
+        assert(files_found is not None)
 
 
 if __name__ == '__main__':
