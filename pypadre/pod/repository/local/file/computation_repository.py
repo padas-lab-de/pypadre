@@ -8,13 +8,13 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IRunRepository, IComputationRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
-from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
+from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer, DillSerializer
 
 NAME = "computations"
 
 META_FILE = File("metadata.json", JSonSerializer)
 PARAMETER_FILE = File("parameters.json", JSonSerializer)
-RESULT_FILE = File("results.bin", PickleSerializer)
+RESULT_FILE = File("results.bin", DillSerializer)
 
 
 class ComputationFileRepository(IChildFileRepository, ILogFileRepository, IComputationRepository):

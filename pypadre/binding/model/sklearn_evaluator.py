@@ -31,7 +31,8 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
     """
 
     def __init__(self, **kwargs):
-        super().__init__(package=__name__, fn_name="evaluate",  requirement=_name.__name__, version=_version.__version__, **kwargs)
+        super().__init__(package=__name__, fn_name="evaluate",  requirement=_name.__name__,
+                         version=_version.__version__, name='SKLearnEvaluator', **kwargs)
 
     def evaluate(self, ctx, **kwargs):
         data, predecessor, component, run = unpack(ctx, "data", ("predecessor", None), "component", "run")

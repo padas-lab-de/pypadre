@@ -232,7 +232,7 @@ class AppLocalBackends(PadreAppTest):
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
                                 creator=self.test_full_stack)
-        experiment.execute(parameters={'SKLearnEstimator': {'write_results': False}})
+        experiment.execute()
         assert(experiment.executions is not None)
         computations = self.app.computations.list()
         assert(isinstance(computations, list))
@@ -269,6 +269,35 @@ class AppLocalBackends(PadreAppTest):
         self.app.computations.list()
         experiments = self.app.experiments.list()
         # FIXME Christofer put asserts here
+
+    def test_dumping_intermediate_results(self):
+        from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.binding.metrics import sklearn_metrics
+        print(sklearn_metrics)
+        # TODO plugin system
+
+        self.app.datasets.load_defaults()
+        project = Project(name='Test Project 2',
+                          description='Testing the functionalities of project backend',
+                          creator=Function(fn=self.test_full_stack))
+
+        def create_test_pipeline():
+            from sklearn.pipeline import Pipeline
+            from sklearn.svm import SVC
+            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+            estimators = [('SVC', SVC(probability=True))]
+            return Pipeline(estimators)
+
+        id = '_iris_dataset'
+        dataset = self.app.datasets.list({'name': id})
+
+        experiment = Experiment(name='Test Experiment', description='Test Experiment',
+                                dataset=dataset.pop(), project=project,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
+                                creator=self.test_full_stack)
+        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
+        assert(experiment is not None)
 
 
 if __name__ == '__main__':
