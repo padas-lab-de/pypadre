@@ -20,12 +20,12 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
             :return: The confusion matrix
             """
     import copy
-    # import the constant strings that are the dictionary keys from the sklearn evaluator
-    from pypadre.binding.model.sklearn_evaluator import PREDICTED, TRUTH, PREDICTIONS
+    # import the constant strings that are the dictionary keys from the evaluator component
+    from pypadre.core.model.pipeline.components import EvaluatorComponent
     (computation,) = unpack(ctx, "computation")
 
     # create the predicted values and the truth values array from the computation results
-    predictions = computation.result[PREDICTIONS]
+    predictions = computation.result[EvaluatorComponent.PREDICTIONS]
 
     predicted = []
     truth = []
@@ -34,8 +34,8 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
     # dictionary contains the truth value, predicted value and probabilities
     for row_idx in predictions:
         prediction_results = predictions.get(row_idx)
-        predicted.append(prediction_results.get(PREDICTED))
-        truth.append(prediction_results.get(TRUTH))
+        predicted.append(prediction_results.get(EvaluatorComponent.PREDICTED))
+        truth.append(prediction_results.get(EvaluatorComponent.TRUTH))
 
     if predicted is None or truth is None or len(predicted) != len(truth):
         computation.send_error("")
