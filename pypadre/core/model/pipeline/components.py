@@ -63,7 +63,7 @@ class PipelineComponent(CustomCodeHolder, IConsumer, IProvider, IExecuteable, Me
         raise NotImplementedError
 
     def _execute_helper(self, *, run: Run, data,
-                        predecessor: Computation = None, branch=False, **kwargs):
+                        predecessor: Computation = None, branch=False, intermediate_results=True, **kwargs):
 
         # TODO find the problem in the loop
         results = self._execute_component_code(data=data, run=run, predecessor=predecessor, **kwargs)
@@ -71,7 +71,8 @@ class PipelineComponent(CustomCodeHolder, IConsumer, IProvider, IExecuteable, Me
             results = Computation(component=self, run=run, predecessor=predecessor,
                                   branch=branch, result=results)
 
-        results.send_put()
+        if intermediate_results:
+            results.send_put()
         # TODO Trigger component result event for metrics and visualization
         return results
 

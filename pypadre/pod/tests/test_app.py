@@ -209,6 +209,8 @@ class AppLocalBackends(PadreAppTest):
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
+        from pypadre.binding.metrics import sklearn_metrics
+        print(sklearn_metrics)
         # TODO plugin system
 
         self.app.datasets.load_defaults()

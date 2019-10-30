@@ -5,12 +5,12 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IMetricRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
-from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
+from pypadre.pod.repository.serializer.serialiser import JSonSerializer
 
 NAME = "metrics"
 
 META_FILE = File("metadata.json", JSonSerializer)
-RESULT_FILE = File("results.bin", PickleSerializer)
+RESULT_FILE = File("results.json", JSonSerializer)
 
 
 class MetricFileRepository(IChildFileRepository, ILogFileRepository, IMetricRepository):
@@ -34,4 +34,4 @@ class MetricFileRepository(IChildFileRepository, ILogFileRepository, IMetricRepo
         metric = obj
         self.write_file(directory, META_FILE, metric.metadata)
         if not isinstance(metric.result, GeneratorType):
-            self.write_file(directory, RESULT_FILE, metric.result, mode='wb')
+            self.write_file(directory, RESULT_FILE, metric.result)

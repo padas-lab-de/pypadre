@@ -1,6 +1,6 @@
 from typing import List
 
-from pypadre.core.events.events import connect_subclasses
+from pypadre.core.events.events import connect_subclasses, connect
 from pypadre.core.metrics.metrics import IMetricProvider, Metric
 from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IMetricRepository
@@ -16,6 +16,7 @@ class MetricService(BaseService):
         super().__init__(model_clz=Split, backends=backends, **kwargs)
         self._measure_meters = measure_meters
 
+        @connect(Metric)
         @connect_subclasses(Metric)
         def put(obj, **kwargs):
             self.put(obj)
@@ -24,6 +25,15 @@ class MetricService(BaseService):
     @property
     def measure_meters(self):
         return self._measure_meters
+
+    def get_for_run(self, run):
+        return self.list({Metric.RUN_ID: run.id})
+
+    def gather_for_run(self, run):
+        return self.list({Metric.RUN_ID: run.id})
+
+    def gather_for_computation(self, computation):
+        return computation
 
     # TODO look up which measure meters are applicable (This should be done by owl ontology, format, etc)
     # TODO we want also to allow for measure meter chains here. For example computing confusion matrix and

@@ -15,13 +15,14 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"
     PREDECESSOR_ID = "predecessor_computation_id"
+    METRICS_IDS = "metrics_ids"
 
     @classmethod
     def _tablefy_register_columns(cls):
         pass
 
     def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result_format=None, result,
-                 parameters=None, branch=False, **kwargs):
+                 parameters=None, branch=False, metrics=None, **kwargs):
         if parameters is None:
             parameters = {}
 
@@ -31,8 +32,15 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
-                                                                 self.RUN_ID: str(run.id),
-                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor is not None else None}}
+                                                                 self.RUN_ID: str(run.id)
+                                                                 }}
+        if predecessor is not None:
+            metadata[self.PREDECESSOR_ID] = predecessor.id
+        if metrics is not None and len(metrics > 0):
+            metadata[self.METRICS_IDS] = [m.id for m in metrics]
+            self._metrics = {m.name: m.result for m in metrics}
+        else:
+            self._metrics = None
 
         super().__init__(parent=run, metadata=metadata, **kwargs)
         self._component = component
@@ -80,6 +88,14 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     @property
     def branch(self):
         return self._branch
+
+    @property
+    def metrics(self):
+        return self._metrics
+
+    @metrics.setter
+    def metrics(self, metrics):
+        self._metrics = metrics
 
     @property
     def result(self):

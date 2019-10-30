@@ -87,6 +87,7 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
         # calculate measures
         if self.allow_metrics:
             metrics = metric_registry.calculate_measures(computation, run=run, node=node, **kwargs)
+            computation.metrics = metrics
             for metric in metrics:
                 metric.send_put()
 

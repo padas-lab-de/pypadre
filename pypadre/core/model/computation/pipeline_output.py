@@ -1,8 +1,8 @@
-from typing import List, Set
+from typing import Set
 
 from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
+from pypadre.core.model.generic.i_model_mixins import IStoreable
 from pypadre.core.model.split.split import Split
 from pypadre.core.printing.tablefyable import Tablefyable
 
@@ -15,7 +15,7 @@ class PipelineOutput(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, run, parameter_selection: dict, splits: Set[Split]=None, results=None, **kwargs):
+    def __init__(self, run, parameter_selection: dict, metrics: dict, splits: Set[Split]=None, results=None, **kwargs):
         # Add defaults
         defaults = {}
 
@@ -23,12 +23,14 @@ class PipelineOutput(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.SPLIT_IDS: [split.id for split in splits]}}
         super().__init__(schema_resource_name="run.json", parent=run, result=self, metadata=metadata, **kwargs)
         self._parameter_selection = parameter_selection
+        self._metrics = metrics
         self._results = results
 
     @classmethod
     def from_computation(cls, computation: Computation):
         # Prepare parameter map for current computation
         parameter_selection = {computation.component.id: computation.parameters}
+        metrics = {computation.component.id: [m.result for m in computation.metrics]}
 
         # Prepare Set tracking all splits
         splits = set()
@@ -38,11 +40,12 @@ class PipelineOutput(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
         while cur_computation.predecessor is not None:
             cur_computation = cur_computation.predecessor
             parameter_selection[cur_computation.component.id] = cur_computation.parameters
+            metrics[cur_computation.component.id] = cur_computation.metrics
 
             if isinstance(cur_computation, Split):
                 splits.add(cur_computation)
 
-        return cls(run=computation.run, parameter_selection=parameter_selection, splits=splits,
+        return cls(run=computation.run, parameter_selection=parameter_selection, metrics=metrics, splits=splits,
                    results=computation.result)
 
     @property
@@ -56,3 +59,7 @@ class PipelineOutput(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
     @property
     def parameter_selection(self):
         return self._parameter_selection
+
+    @property
+    def metrics(self):
+        return self._metrics
