@@ -20,11 +20,22 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
             :return: The confusion matrix
             """
     import copy
-
+    # import the constant strings that are the dictionary keys from the sklearn evaluator
+    from pypadre.binding.model.sklearn_evaluator import PREDICTED, TRUTH, PREDICTIONS
     (computation,) = unpack(ctx, "computation")
 
-    predicted = computation.result["predicted"]
-    truth = computation.result["truth"]
+    # create the predicted values and the truth values array from the computation results
+    predictions = computation.result[PREDICTIONS]
+
+    predicted = []
+    truth = []
+
+    # The predictions dictionary contains as the key the testing row index, and the value is a dictionary. The
+    # dictionary contains the truth value, predicted value and probabilities
+    for row_idx in predictions:
+        prediction_results = predictions.get(row_idx)
+        predicted.append(prediction_results.get(PREDICTED))
+        truth.append(prediction_results.get(TRUTH))
 
     if predicted is None or truth is None or len(predicted) != len(truth):
         computation.send_error("")
