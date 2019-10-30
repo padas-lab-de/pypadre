@@ -87,7 +87,7 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
 
     def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
                                  write_parameters_map: WriteResultMetricsMap,
-                                 run: Run, **kwargs):
+                                 run: Run, aggregate_results=True, **kwargs):
         computation = node.execute(run=run, data=data,
                                    predecessor=kwargs.pop("predecessor", None), **kwargs)
 
@@ -115,7 +115,7 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
                                      data=res, **kwargs)
 
         # Check if we are a end node
-        if self.out_degree(node) == 0:
+        if self.out_degree(node) == 0 and aggregate_results:
             print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
             output = PipelineOutput.from_computation(computation)

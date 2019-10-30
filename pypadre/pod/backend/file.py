@@ -1,13 +1,15 @@
 import os
 
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository, ICodeRepository
+from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository, ICodeRepository, \
+    IPipelineOutputRepository
 from pypadre.pod.repository.local.file.code_repository import CodeFileRepository
 from pypadre.pod.repository.local.file.computation_repository import ComputationFileRepository
 from pypadre.pod.repository.local.file.dataset_repository import DatasetFileRepository
 from pypadre.pod.repository.local.file.execution_repository import ExecutionFileRepository
 from pypadre.pod.repository.local.file.experiment_repository import ExperimentFileRepository
 from pypadre.pod.repository.local.file.metric_repository import MetricFileRepository
+from pypadre.pod.repository.local.file.pipeline_output_repository import PipelineOutputFileRepository
 from pypadre.pod.repository.local.file.project_repository import ProjectFileRepository
 from pypadre.pod.repository.local.file.run_repository import RunFileRepository
 from pypadre.pod.repository.local.file.split_repository import SplitFileRepository
@@ -47,6 +49,7 @@ class PadreFileBackend(IPadreBackend):
         self._computation = ComputationFileRepository(self)
         self._metric = MetricFileRepository(self)
         self._code = CodeFileRepository(self)
+        self._pipeline_output = PipelineOutputFileRepository(self)
 
         # logging
         self._file = None
@@ -86,3 +89,7 @@ class PadreFileBackend(IPadreBackend):
     @property
     def code(self) -> ICodeRepository:
         return self._code
+
+    @property
+    def pipeline_output(self) -> IPipelineOutputRepository:
+        return self._pipeline_output

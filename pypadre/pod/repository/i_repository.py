@@ -79,6 +79,14 @@ class IComputationRepository(IRepository, ISearchable, IStoreableRepository):
         super().__init__(backend=backend, **kwargs)
 
 
+class IPipelineOutputRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, backend, **kwargs):
+        super().__init__(backend=backend, **kwargs)
+
+
 class ISplitRepository(IRepository, ISearchable, IStoreableRepository, ILogRepository, IProgressableRepository):
     __metaclass__ = ABCMeta
 

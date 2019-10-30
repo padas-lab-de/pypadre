@@ -14,6 +14,9 @@ class MetricRegistry(ILoggable):
     registered_providers = DiGraph()
     providers_by_consumption = {}
 
+    def get_provider_by_name(self, name):
+        pass
+
     def add_providers(self, *providers):
         for provider in providers:
             self.add_provider(provider)

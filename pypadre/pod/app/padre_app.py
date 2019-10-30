@@ -31,6 +31,7 @@ from pypadre.pod.app.metric_app import MetricApp
 from pypadre.pod.app.project.computation_app import ComputationApp
 from pypadre.pod.app.project.execution_app import ExecutionApp
 from pypadre.pod.app.project.experiment_app import ExperimentApp
+from pypadre.pod.app.project.pipeline_output_app import PipelineOutputApp
 from pypadre.pod.app.project.project_app import ProjectApp
 from pypadre.pod.app.project.run_app import RunApp
 from pypadre.pod.app.project.split_app import SplitApp
@@ -91,7 +92,7 @@ class PadreApp(IBaseApp):
         self._computation_app = ComputationApp(self, [backend.computation for backend in backends] if backends is not None else None)
         self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
         self._code_app = CodeApp(self, [backend.code for backend in backends] if backends is not None else None)
-        self._project_code_app = CodeApp(self, [backend.code for backend in backends] if backends is not None else None)
+        self._pipeline_output_app = PipelineOutputApp(self, [backend.pipeline_output for backend in backends] if backends is not None else None)
 
 
     @property

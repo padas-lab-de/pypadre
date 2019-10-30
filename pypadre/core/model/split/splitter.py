@@ -8,7 +8,7 @@ from pypadre.core.util.utils import unpack
 
 
 def split(ctx, strategy="random", test_ratio=0.25, random_seed=None, val_ratio=0,
-          n_folds=3, shuffle=False, stratified=None, indices=None, index=None):
+          n_folds=3, shuffle=True, stratified=None, indices=None, index=None):
     (data, run, component, predecessor) = unpack(ctx, "data", "run", "component", ("predecessor", None))
     """
         The splitter creates index arrays into the dataset for different splitting startegies. It provides an iterator
