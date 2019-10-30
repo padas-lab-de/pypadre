@@ -249,7 +249,6 @@ class AppLocalBackends(PadreAppTest):
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
 
-
         from sklearn.svm import SVC
         pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
                                                 splitting=CustomSplit(fn=custom_split))
@@ -262,7 +261,7 @@ class AppLocalBackends(PadreAppTest):
         experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
                                             dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
                                             creator_name="f_" + os.path.basename(__file__), creator_code=__file__,
-                                           creator=self.test_custom_split_pipeline)
+                                            creator=self.test_custom_split_pipeline)
 
         experiment.execute()
 
@@ -289,6 +288,11 @@ class AppLocalBackends(PadreAppTest):
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
+        def find(name, path):
+            for root, dirs, files in os.walk(path):
+                if name in files:
+                    return os.path.join(root, name)
+
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
@@ -296,8 +300,11 @@ class AppLocalBackends(PadreAppTest):
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
                                 creator=self.test_full_stack)
-        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
-        assert(experiment is not None)
+        run = experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
+
+        t = find('results.bin',os.path.expanduser('~/.pypadre-test/projects/Test Project 2/exp'
+                                                  'eriments/Test Experiment/executions'))
+        assert(t is not None)
 
 
 if __name__ == '__main__':

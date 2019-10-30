@@ -10,6 +10,7 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
 
     EXPERIMENT_ID = "experiment_id"
 
+    _runs = []
     @classmethod
     def _tablefy_register_columns(cls):
         # Add entries for tablefyable
@@ -32,6 +33,7 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
     def _execute_helper(self, *args, **kwargs):
         self.send_put()
         run = Run(execution=self)
+        self._runs.append(run)
         return run.execute(data=self.dataset, execution=self, **kwargs)
 
     @property
@@ -53,3 +55,7 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
     @property
     def pipeline(self):
         return self.experiment.pipeline
+
+    @property
+    def run(self):
+        return self._runs
