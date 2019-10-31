@@ -88,14 +88,15 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
     def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
                                  write_parameters_map: WriteResultMetricsMap,
                                  run: Run, aggregate_results=True, **kwargs):
-        computation = node.execute(run=run, data=data,
-                                   predecessor=kwargs.pop("predecessor", None), **kwargs)
-
-        self.send_log(message="Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
 
         write_parameters = write_parameters_map.get_for(node)
 
         allow_metrics = True if len(write_parameters.get('allow_metrics', [])) > 0 else self.allow_metrics
+        store_results = write_parameters.get('write_results', False)
+        computation = node.execute(run=run, data=data,
+                                   predecessor=kwargs.pop("predecessor", None), store_results=store_results,  **kwargs)
+
+        self.send_log(message="Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
 
         # calculate measures
         if allow_metrics:
@@ -103,10 +104,6 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
             computation.metrics = metrics
             for metric in metrics:
                 metric.send_put()
-
-        if write_parameters.get('write_results', False):
-            # TODO Write code to dump results
-            pass
 
         # branch results now if needed (for example for splits)
         for res in computation.iter_result():

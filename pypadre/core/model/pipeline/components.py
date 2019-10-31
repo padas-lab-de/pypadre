@@ -72,7 +72,7 @@ class PipelineComponent(CustomCodeHolder, IConsumer, IProvider, IExecuteable, Me
                                   branch=branch, result=results, parameters=parameters)
 
         if intermediate_results:
-            results.send_put()
+            results.send_put(store_results=store_results)
         # TODO Trigger component result event for metrics and visualization
         return results
 
