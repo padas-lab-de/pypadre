@@ -1,28 +1,25 @@
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Union, Type
 
 import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
-from pypadre.core.model.code.code import Code
+from pypadre.core.metrics.MetricRegistry import metric_registry
+from pypadre.core.model.code.icode import ICode
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
+from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.pipeline.components import PythonCodeComponent, SplitPythonComponent, \
-    EstimatorPythonComponent, EstimatorComponent, EvaluatorComponent, PipelineComponent, \
-    ParameterizedPipelineComponent, EvaluatorPythonComponent
+from pypadre.core.model.generic.i_model_mixins import IProgressable
+from pypadre.core.model.pipeline.WriteResultMetricsMap import WriteResultMetricsMap
+from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, PipelineComponent, \
+    ParameterizedPipelineComponent, SplitComponent
 from pypadre.core.model.pipeline.parameters import ParameterMap
-from pypadre.core.model.split.split import Split
 from pypadre.core.validation.validation import Validateable
 
 
-class ParameterizedComponent(object):
-    pass
-
-
-class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
-    def __init__(self, **attr):
+class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
+    def __init__(self, allow_metrics = True, **attr):
+        self._allow_metrics = allow_metrics
         super().__init__(**attr)
 
     def hash(self):
@@ -37,12 +34,15 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         return None
 
     def _execute_helper(self, *, pipeline_parameters: Union[ParameterMap, dict] = None,
+                        write_parameters: dict,
                         parameter_map: ParameterMap = None, run: Run, data, **kwargs):
         if parameter_map is None:
             if pipeline_parameters is None:
                 parameter_map = ParameterMap({})
             if not isinstance(pipeline_parameters, ParameterMap):
                 parameter_map = ParameterMap(pipeline_parameters)
+
+        write_parameters_map = WriteResultMetricsMap(write_parameters)
 
         # TODO currently we don't allow for merging in a pipeline again.
         #  To solve this a successor can only execute as soon as it gets all data from all predecessors
@@ -56,9 +56,11 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
         entries = self.get_entries()
 
         for entry in entries:
-            self._execute_pipeline(entry, parameter_map=parameter_map, run=run, data=data, **kwargs)
+            self._execute_pipeline(entry, parameter_map=parameter_map, write_parameters_map=write_parameters_map,
+                                   run=run, data=data, **kwargs)
 
-    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, run: Run,
+    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
+                          write_parameters_map: WriteResultMetricsMap, run: Run,
                           **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
@@ -68,48 +70,53 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
             parameter_grid = node.combinations(run=run, predecessor=kwargs.get("predecessor", None),
                                                parameter_map=parameter_map)
 
-            if isinstance(parameter_grid, HyperParameterGrid):
-                if parameter_grid.branch:
-                    for parameters in parameter_grid.grid:
-                        # If the parameter map returns a generator or other iterable and should branch we have to
-                        # execute for each item
-                        self._execute_pipeline_helper(node, data=data, parameters=parameters,
-                                                      parameter_map=parameter_map, run=run,
-                                                      predecessor=kwargs.get("predecessor", None))
-                else:
-                    # If the parameter map returns a search with a single item without branch we can just use it
-                    self._execute_pipeline_helper(node, data=data, parameters=parameter_grid.grid.__next__(),
-                                                  parameter_map=parameter_map, run=run,
-                                                  predecessor=kwargs.get("predecessor", None))
-            else:
-                # Todo don't force the user to provide a hyper parameter search in a parameter_map?
-                raise NotImplementedError("A hyper parameter grid has to be returned by the parameter provider")
-                # self._execute__(node, data=data, parameters=parameters, parameter_map=parameter_map, run=run)
+            # branch if we have multiple parameter settings
+            for parameters in parameter_grid.iter_result():
+                # If the parameter map returns a generator or other iterable and should branch we have to
+                # execute for each item
+                self._execute_pipeline_helper(node, data=data, parameters=parameters,
+                                              parameter_map=parameter_map,
+                                              write_parameters_map=write_parameters_map, run=run,
+                                              predecessor=kwargs.get("predecessor", None))
         else:
-            # If we don't need parameters we don't extract them from the map but only pass the map to the following components
-            self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map, run=run,
-                                          predecessor=kwargs.get("predecessor", None))
+            # If we don't need parameters we don't extract them from the map but only pass the map to the following
+            # components
+            self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map,
+                                          write_parameters_map=write_parameters_map, run=run,
+                                          predecessor=kwargs.get("predecessor", None), **kwargs)
 
     def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
-                                 run: Run, **kwargs):
+                                 write_parameters_map: WriteResultMetricsMap,
+                                 run: Run, aggregate_results=True, **kwargs):
+
+        write_parameters = write_parameters_map.get_for(node)
+
+        allow_metrics = True if len(write_parameters.get('allow_metrics', [])) > 0 else self.allow_metrics
+        store_results = write_parameters.get('write_results', False)
         computation = node.execute(run=run, data=data,
-                                   predecessor=kwargs.pop("predecessor", None), **kwargs)
-        # TODO add metric calculation
-        if computation.branch:
-            for res in computation.result:
-                self._execute_successors(node, run=run, predecessor=computation,
-                                         parameter_map=parameter_map, data=res)
-        else:
-            self._execute_successors(node, run=run, predecessor=computation, parameter_map=parameter_map,
-                                     data=computation.result)
+                                   predecessor=kwargs.pop("predecessor", None), store_results=store_results,  **kwargs)
+
+        self.send_log(message="Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
+
+        # calculate measures
+        if allow_metrics:
+            metrics = metric_registry.calculate_measures(computation, run=run, node=node, **kwargs)
+            computation.metrics = metrics
+            for metric in metrics:
+                metric.send_put()
+
+        # branch results now if needed (for example for splits)
+        for res in computation.iter_result():
+            self._execute_successors(node, run=run, predecessor=computation,
+                                     parameter_map=parameter_map, write_parameters_map=write_parameters_map,
+                                     data=res, **kwargs)
 
         # Check if we are a end node
-        if self.out_degree(node) == 0:
+        if self.out_degree(node) == 0 and aggregate_results:
             print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
-            #run = Run.from_computation(computation)
-            #run.send_put()
-            pass
+            output = PipelineOutput.from_computation(computation)
+            output.send_put()
 
     def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, run: Run,
                             predecessor: Computation = None, **kwargs):
@@ -132,12 +139,20 @@ class Pipeline(IStoreable, IProgressable, IExecuteable, DiGraph, Validateable):
     def get_entries(self):
         return [node for node, out_degree in self.in_degree() if out_degree == 0]
 
+    def __getstate__(self):
+        state = dict(self.__dict__)
+        return state
+
+    @property
+    def allow_metrics(self):
+        return self._allow_metrics
+
 
 class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
-    def __init__(self, *, preprocessing_fn: Optional[Union[Code, Callable]] = None,
-                 splitting: Optional[Union[Code, Callable]],
+    def __init__(self, *, preprocessing_fn: Optional[Union[ICode, Callable]] = None,
+                 splitting: Optional[Union[Type[ICode], Callable]],
                  estimator: Union[Callable, EstimatorComponent],
                  evaluator: Union[Callable, EvaluatorComponent], **attr):
         super().__init__(**attr)
@@ -145,18 +160,18 @@ class DefaultPythonExperimentPipeline(Pipeline):
             # TODO attrs could include some network initialization for the components
             raise NotImplementedError("Preinitializing a pipeline is not implemented.")
 
-        self._preprocessor = PythonCodeComponent(name="preprocessor", code=preprocessing_fn,
-                                                 **attr) if preprocessing_fn else None
+        self._preprocessor = PipelineComponent(name="preprocessor", code=preprocessing_fn,
+                                           **attr) if preprocessing_fn else None
 
-        self._splitter = SplitPythonComponent(code=splitting, predecessors=self._preprocessor, **attr)
+        self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
         self.add_node(self._splitter)
 
-        self._estimator = estimator if isinstance(estimator, EstimatorComponent) else EstimatorPythonComponent(
+        self._estimator = estimator if isinstance(estimator, EstimatorComponent) else EstimatorComponent(
             code=estimator, predecessors=[self._splitter], **attr)
 
         self.add_node(self._estimator)
 
-        self._evaluator = evaluator if isinstance(evaluator, EvaluatorComponent) else EvaluatorPythonComponent(
+        self._evaluator = evaluator if isinstance(evaluator, EvaluatorComponent) else EvaluatorComponent(
             code=evaluator, predecessors=[self._estimator], **attr)
         self.add_node(self._evaluator)
 
@@ -178,6 +193,6 @@ class DefaultPythonExperimentPipeline(Pipeline):
     def estimator(self):
         return self._estimator
 
-    # @property
-    # def evaluator(self):
-    #     return self._evaluator
+    @property
+    def evaluator(self):
+        return self._evaluator

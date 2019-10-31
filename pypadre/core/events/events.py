@@ -39,6 +39,9 @@ class CommonSignals:
     START = SignalSchema("start", False)
     STOP = SignalSchema("stop", False)
     LOG = SignalSchema("log", True)
+    CODEHASH = SignalSchema("codehash", False)
+    LOAD = SignalSchema("load", False)
+    GET = SignalSchema("get", False)
 
 
 class PointAccessNamespace(Namespace):
@@ -112,9 +115,28 @@ def connect_class_signal(clz, name, fn):
     return signal.connect(fn)
 
 
-def connect(clz=None, name=None):
+def connect(*classes, name=None):
     """
-    Decorator used to decorate methods which are to connect to signals.
+    Decorator used to decorate methods which are to connect to signals of the given classes.
+    :param name:
+    :param classes:
+    :return:
+    """
+
+    def connect_decorator(fn):
+        signal_name = name if name is not None else fn.__name__
+        if len(classes) is 0:
+            connect_base_signal(signal_name, fn)
+        else:
+            for clz in classes:
+                connect_class_signal(clz, signal_name, fn)
+        return fn
+    return connect_decorator
+
+
+def connect_subclasses(*classes, name=None):
+    """
+    Decorator used to decorate methods which are to connect to signals of the subclasses of given classes.
     :param name:
     :param clz:
     :return:
@@ -122,10 +144,14 @@ def connect(clz=None, name=None):
 
     def connect_decorator(fn):
         signal_name = name if name is not None else fn.__name__
-        if clz is None:
-            connect_base_signal(signal_name, fn)
+        if len(classes) is 0:
+            raise ValueError("You need to provide a class to find subclasses to connect to.")
         else:
-            connect_class_signal(clz, signal_name, fn)
+            subclasses = set()
+            for clz in classes:
+                subclasses.update(clz.__subclasses__())
+            for subclass in subclasses:
+                connect_class_signal(subclass, signal_name, fn)
         return fn
     return connect_decorator
 
@@ -187,6 +213,18 @@ class Signaler(SuperStop):
     """
     Base class of a class being able to send signals.
     """
+
+    @classmethod
+    def send_cls_signal(cls, signal: SignalSchema, condition=None, *sender, **kwargs):
+        if condition is None or condition:
+            if len(sender) == 0:
+                sender = [cls]
+            if signal.name not in cls.signals():
+                # Try to add missing signals
+                init_class_signals(cls)
+                if signal.name not in cls.signals():
+                    raise ValueError("Signal is not existing on " + str(cls))
+                cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
 
     def send_signal(self, signal: SignalSchema, condition=None, *sender, **kwargs):
         if condition is None or condition:

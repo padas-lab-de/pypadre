@@ -1,13 +1,14 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
-
 from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.events.events import signals
+from pypadre.core.model.code.icode import ICode
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
+from pypadre.core.model.generic.custom_code import ICodeManagedObject
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.model.pipeline.pipeline import Pipeline
 from pypadre.core.model.project import Project
+from typing import Callable, Union, Optional, Type
 
 
 ####################################################################################################################
@@ -29,7 +30,7 @@ def _is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
+class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -88,43 +89,34 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
 
     PROJECT_ID = "project_id"
     DATASET_ID = "dataset_id"
+    NAME = "name"
+    DESCRIPTION = "description"
+    # variable to store the path of the source code which is used to run the experiment
+    CODE_PATH = 'code_path'
 
     # TODO non-metadata input should be a parameter
-    def __init__(self, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None, **kwargs):
+    def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None,
+                 creator: Optional[Union[Type[ICode], Callable]] = None,
+                 **kwargs):
         # Add defaults
-        defaults = {}
+        defaults = {"name": "default experiment name", "description": "This is the default experiment."}
+
+        # Either get given path or look up the path of the calling file
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.PROJECT_ID: project.id if project else None,
-                                                                 self.DATASET_ID: dataset.id if dataset else None}}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{
+            self.PROJECT_ID: project.id if project else None,
+            self.DATASET_ID: dataset.id if dataset else None,
+            self.NAME: name,
+            self.DESCRIPTION: description
+        }}
 
-        super().__init__(parent=project, schema_resource_name="experiment.json",
+        super().__init__(parent=project, schema_resource_name="experiment.json",  creator=creator,
                          metadata=metadata, **kwargs)
         # Variables
         self._dataset = dataset
         self._pipeline = pipeline
-
         self._executions = []
-
-        # self._runs = []
-        # self._results = []
-        # self._metrics = []
-
-        # Configuration
-        # self._keep_runs = keep_runs or keep_splits
-        # self._keep_splits = keep_splits
-        # self._hyperparameters = []
-        # self._experiment_configuration = None
-
-        # Additional
-        # self._last_run = None
-
-        # TODO what is this?
-        # split_obj.function_pointer = options.pop('function', None)
-        # TODO System info should be part of the execution
-        # self._fill_sys_info()
-
-        # self.workflow()
 
     @property
     def project(self):
@@ -143,12 +135,24 @@ class Experiment(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildE
         return self._executions
 
     def _execute_helper(self, *args, **kwargs):
+
         if self.pipeline is None:
             raise ValueError("Pipeline has to be defined to run an experiment")
         if self.dataset is None:
             raise ValueError("Dataset has to be defined to run an experiment")
         # TODO command
         # TODO check pipeline_parameters mapping to components?
-        execution = Execution(experiment=self, codehash=self.pipeline.hash(), command=kwargs.pop("cmd", "default"))
+
+        # dict_object = {'path': self.metadata.get(self.CODE_PATH),
+        #                'create_repo': False}
+
+        # Get hash from the outside if possible
+        code_hash = self.creator_hash
+
+        # Should we simply warn the user that there is no repository for the code
+        if code_hash is None:
+            raise ValueError("An execution has to reference a code hash to be valid.")
+
+        execution = Execution(experiment=self, codehash=code_hash, command=kwargs.pop("cmd", "default"))
         self._executions.append(execution)
         return execution.execute(**kwargs)

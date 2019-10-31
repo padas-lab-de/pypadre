@@ -3,10 +3,12 @@ from abc import ABCMeta, abstractmethod
 from pypadre.core.events.events import Signaler, CommonSignals, signals
 
 
-@signals(CommonSignals.PUT, CommonSignals.DELETE)
+@signals(CommonSignals.PUT, CommonSignals.DELETE, CommonSignals.GET)
 class IStoreable(Signaler):
     """ This is the interface for all entities being able to signal they are to be persisted, deleted etc."""
     __metaclass__ = ABCMeta
+
+    RETURN_VAL = "return_val"
 
     @abstractmethod
     def __init__(self, *args, **kwargs):
@@ -17,6 +19,12 @@ class IStoreable(Signaler):
 
     def send_delete(self, **kwargs):
         self.send_signal(CommonSignals.DELETE, self, **kwargs)
+
+    @classmethod
+    def send_get(cls, *sender, uid=None, **kwargs):
+        callback = {cls.RETURN_VAL: {}, "uid": uid}
+        cls.send_cls_signal(CommonSignals.DELETE, *sender, **{**callback, **kwargs})
+        return callback.get(cls.RETURN_VAL, {cls.RETURN_VAL: None})
 
 
 @signals(CommonSignals.PROGRESS)

@@ -20,6 +20,12 @@ class _Phases(_Const):
     inferencing = "inferencing/testing"
 
 
+class _CodeTypes(_Const):
+    env = "environment"
+    file = "file"
+    fn = "function"
+
+
 """
 Enum for the different phases of an experiment
 """
@@ -73,6 +79,11 @@ class MetadataEntity(Validateable, Tablefyable):
         # options = {**{key: argspec.locals[key] for key in argspec.args if key is not "self"}, **kwargs}
 
         super().__init__(**{self.METADATA: self._metadata, **kwargs})
+
+        # if ontology_class is not None:
+        #     # TODO validation json schema vs ontology itself?
+        #     self._ontology_object = ontology_class(name=ontology_class.__name__ + "#" + self.id, **metadata)
+
 
     @property
     def id(self):

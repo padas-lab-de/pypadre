@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from types import GeneratorType
-from typing import Optional, Iterable, Callable, Union
+from typing import Optional, Iterable
 
 from pypadre.core.base import MetadataEntity, ChildEntity
 from pypadre.core.model.computation.run import Run
@@ -15,13 +15,14 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"
     PREDECESSOR_ID = "predecessor_computation_id"
+    METRICS_IDS = "metrics_ids"
 
     @classmethod
     def _tablefy_register_columns(cls):
         pass
 
-    def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result,
-                 parameters=None, branch=False, **kwargs):
+    def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result_format=None, result,
+                 parameters=None, branch=False, metrics=None, **kwargs):
         if parameters is None:
             parameters = {}
 
@@ -31,9 +32,15 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
-                                                                 self.RUN_ID: str(run.id),
-                                                                 self.PREDECESSOR_ID: predecessor.id if predecessor
-                                                                 else None}}
+                                                                 self.RUN_ID: str(run.id)
+                                                                 }}
+        if predecessor is not None:
+            metadata[self.PREDECESSOR_ID] = predecessor.id
+        if metrics is not None and len(metrics > 0):
+            metadata[self.METRICS_IDS] = [m.id for m in metrics]
+            self._metrics = {m.name: m.result for m in metrics}
+        else:
+            self._metrics = None
 
         super().__init__(parent=run, metadata=metadata, **kwargs)
         self._component = component
@@ -43,13 +50,20 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         self._predecessor = predecessor
         self._parameters = parameters
         self._branch = branch
+        self._format = result_format
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")
 
-    # TODO Overwrite for no schema validation for now
-    def validate(self, **kwargs):
-        pass
+    @property
+    def type(self):
+        # TODO this should be done via ontology
+        return str(self.__class__)
+
+    @property
+    def format(self):
+        # TODO Use Ontology here (Maybe even get this by looking at owlready2)
+        return self._format if self._format is not None else str(self.__class__)
 
     @property
     def run(self):
@@ -76,9 +90,23 @@ class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablef
         return self._branch
 
     @property
+    def metrics(self):
+        return self._metrics
+
+    @metrics.setter
+    def metrics(self, metrics):
+        self._metrics = metrics
+
+    @property
     def result(self):
         return self._result
 
     @result.setter
     def result(self, result):
         self._result = result
+
+    def iter_result(self):
+        if self.branch:
+            return self.result
+        else:
+            return [self.result]

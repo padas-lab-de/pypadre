@@ -1,5 +1,7 @@
 import json
 import pickle
+import dill
+
 import yaml
 import msgpack_numpy as mn
 
@@ -30,6 +32,30 @@ class PickleSerializer(Serializer):
         :return:
         """
         return pickle.loads(buffer)
+
+
+class DillSerializer(Serializer):
+    """
+    Serialiser using pythons pickle.
+    """
+
+    @staticmethod
+    def serialise(obj):
+        """
+        serializes the object and returns a byte object
+        :param obj: object to serialise
+        :return: byte object (TODO: Specify more precise)
+        """
+        return dill.dumps(obj)
+
+    @staticmethod
+    def deserialize(buffer):
+        """
+        Deserialize a object
+        :param buffer:
+        :return:
+        """
+        return dill.loads(buffer)
 
 
 class JSonSerializer(Serializer):

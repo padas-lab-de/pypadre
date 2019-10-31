@@ -8,6 +8,7 @@ from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleS
 NAME = "runs"
 
 META_FILE = File("metadata.json", JSonSerializer)
+RESULT_FILE = File("result.json", JSonSerializer)
 
 
 class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository):
@@ -45,5 +46,3 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         run = obj
         self.write_file(directory, META_FILE, run.metadata)
-#        self.write_file(directory, HYPERPARAMETER_FILE, run.experiment.hyperparameters())
-#        self.write_file(directory, WORKFLOW_FILE, run.workflow, "wb")

@@ -1,10 +1,9 @@
 from typing import List
 
-from pypadre.core.events.events import connect
-from pypadre.core.metrics.metrics import MeasureMeter
-from pypadre.core.model.computation.computation import Computation
+from pypadre.core.events.events import connect_subclasses, connect
+from pypadre.core.metrics.metrics import IMetricProvider, Metric
 from pypadre.core.model.split.split import Split
-from pypadre.pod.repository.i_repository import ISplitRepository, IComputationRepository, IMetricRepository
+from pypadre.pod.repository.i_repository import IMetricRepository
 from pypadre.pod.service.base_service import BaseService
 
 
@@ -13,18 +12,28 @@ class MetricService(BaseService):
     Class providing commands for managing datasets.
     """
 
-    def __init__(self, measure_meters: List[MeasureMeter], backends: List[IMetricRepository], **kwargs):
+    def __init__(self, measure_meters: List[IMetricProvider], backends: List[IMetricRepository], **kwargs):
         super().__init__(model_clz=Split, backends=backends, **kwargs)
         self._measure_meters = measure_meters
 
-        @connect(Computation, name="put")
-        def metrics(obj, **kwargs):
-            print("Calcuate metrics! " + str(obj))
-        self.save_signal_fn(metrics)
+        @connect(Metric)
+        @connect_subclasses(Metric)
+        def put(obj, **kwargs):
+            self.put(obj)
+        self.save_signal_fn(put)
 
     @property
     def measure_meters(self):
         return self._measure_meters
+
+    def get_for_run(self, run):
+        return self.list({Metric.RUN_ID: run.id})
+
+    def gather_for_run(self, run):
+        return self.list({Metric.RUN_ID: run.id})
+
+    def gather_for_computation(self, computation):
+        return computation
 
     # TODO look up which measure meters are applicable (This should be done by owl ontology, format, etc)
     # TODO we want also to allow for measure meter chains here. For example computing confusion matrix and

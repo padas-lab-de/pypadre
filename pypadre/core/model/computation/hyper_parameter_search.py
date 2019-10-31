@@ -7,9 +7,7 @@ class HyperParameterGrid(Computation):
         super().__init__(component=component, run=run, result=result, **kwargs)
         self._parameter_names = kwargs.pop('parameter_names', None)
 
-    @property
-    def grid(self):
-        # FIXME CHRISTOFER
+    def iter_result(self):
         for element in self._result:
             execution_params = dict()
             for param, idx in zip(self._parameter_names, range(0, len(self._parameter_names))):

@@ -3,6 +3,8 @@ import re
 import shutil
 from abc import abstractmethod, ABCMeta
 
+from cachetools import LRUCache, cached
+
 from pypadre.core.base import ChildEntity
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable, IRepository

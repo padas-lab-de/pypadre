@@ -14,31 +14,15 @@ class IMetricRepository(IRepository, ISearchable, IStoreableRepository):
         super().__init__(parent=parent, backend=backend, **kwargs)
 
 
-class ISourceRepository(IRepository, ISearchable, IStoreableRepository):
-    """ This is the interface of the execution backend. All data should be stored in a local file system. Currently
-    we only store metadata. We store executions here. Executions are to be differentiated on code version (as well as
-    dataset version???) and their call command (cluster, local???). These information are to be extracted from parent"""
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
-        super().__init__(parent=parent, backend=backend, **kwargs)
-
-
-class IResultRepository(IRepository, ISearchable, IStoreableRepository):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
-        super().__init__(parent=parent, backend=backend, **kwargs)
-
-
-class ISplitRepository(IRepository, ISearchable, IStoreableRepository, ILogRepository, IProgressableRepository):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
-        super().__init__(parent=parent, backend=backend, **kwargs)
+# class ISourceRepository(IRepository, ISearchable, IStoreableRepository):
+#     """ This is the interface of the execution backend. All data should be stored in a local file system. Currently
+#     we only store metadata. We store executions here. Executions are to be differentiated on code version (as well as
+#     dataset version???) and their call command (cluster, local???). These information are to be extracted from parent"""
+#     __metaclass__ = ABCMeta
+#
+#     @abstractmethod
+#     def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
+#         super().__init__(parent=parent, backend=backend, **kwargs)
 
 
 class IRunRepository(IRepository, ISearchable, IStoreableRepository, ILogRepository, IProgressableRepository):
@@ -88,6 +72,46 @@ class IDatasetRepository(IRepository, ISearchable, IStoreableRepository):
 
 
 class IComputationRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, backend, **kwargs):
+        super().__init__(backend=backend, **kwargs)
+
+
+class IPipelineOutputRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, backend, **kwargs):
+        super().__init__(backend=backend, **kwargs)
+
+
+class ISplitRepository(IRepository, ISearchable, IStoreableRepository, ILogRepository, IProgressableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
+        super().__init__(parent=parent, backend=backend, **kwargs)
+
+
+class IPipelineResultRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, parent: IStoreableRepository, backend, **kwargs):
+        super().__init__(parent=parent, backend=backend, **kwargs)
+
+
+class ICodeRepository(IRepository, ISearchable, IStoreableRepository):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, *, backend, **kwargs):
+        super().__init__(backend=backend, **kwargs)
+
+
+class IProjectCodeRepository(IRepository, ISearchable, IStoreableRepository):
     __metaclass__ = ABCMeta
 
     @abstractmethod
