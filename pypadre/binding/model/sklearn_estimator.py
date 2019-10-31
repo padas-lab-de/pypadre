@@ -54,7 +54,7 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
     def estimate(self, ctx, **kwargs):
         (split, component, run) = unpack(ctx, "data", "component", "run")
 
-        self.set_parameter_values(parameters=kwargs.get('parameters', {}))
+        self.set_parameter_values(parameters=kwargs)
 
         self.send_start(phase='sklearn.' + phases.fitting)
         y = None

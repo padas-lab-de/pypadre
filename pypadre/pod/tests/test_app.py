@@ -270,6 +270,7 @@ class AppLocalBackends(PadreAppTest):
         # FIXME Christofer put asserts here
 
     def test_dumping_intermediate_results(self):
+
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.binding.metrics import sklearn_metrics
@@ -300,11 +301,53 @@ class AppLocalBackends(PadreAppTest):
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
                                 creator=self.test_full_stack)
+
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
 
         files_found = find('results.bin', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
                                                              'experiments/Test Experiment/executions'))
         assert(files_found is not None)
+
+    def test_all_functionalities(self):
+
+        from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.binding.metrics import sklearn_metrics
+        print(sklearn_metrics)
+        # TODO plugin system
+
+        self.app.datasets.load_defaults()
+        project = Project(name='Test Project 2',
+                          description='Testing the functionalities of project backend',
+                          creator=Function(fn=self.test_full_stack))
+
+        def create_test_pipeline():
+            from sklearn.pipeline import Pipeline
+            from sklearn.svm import SVC
+            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+            estimators = [('SVC', SVC(probability=True))]
+            return Pipeline(estimators)
+
+        def find(name, path):
+            for root, dirs, files in os.walk(path):
+                if name in files:
+                    return os.path.join(root, name)
+
+        id = '_iris_dataset'
+        dataset = self.app.datasets.list({'name': id})
+
+        experiment = Experiment(name='Test Experiment', description='Test Experiment',
+                                dataset=dataset.pop(), project=project,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
+                                creator=self.test_full_stack)
+        parameter_dict = {'SVC': {'C':[0.1,0.2]}}
+        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
+                                       'SKLearnEstimator': {'parameters': parameter_dict}
+                                       })
+
+        files_found = find('results.bin', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
+                                                             'experiments/Test Experiment/executions'))
+        assert (files_found is not None)
 
 
 if __name__ == '__main__':
