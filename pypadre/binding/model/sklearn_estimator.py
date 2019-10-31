@@ -79,7 +79,7 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
                 score = self._pipeline.score(split.val_features, y)
                 self.send_stop(phase='sklearn.scoring.valset')
                 self.send_log(keys=['validation score'], values=[score], message="Logging the validation score")
-        return Training(split=split, component=component, run=run, model=self._pipeline, **kwargs)
+        return Training(split=split, component=component, run=run, model=self._pipeline, parameters=kwargs)
 
     def hash(self):
         # TODO hash should not change with training

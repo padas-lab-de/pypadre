@@ -105,7 +105,7 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
 
         # TODO results as object?
 
-        return Evaluation(training=predecessor, result_format="classification", result=results, component=component, run=run, **kwargs)
+        return Evaluation(training=predecessor, result_format="classification", result=results, component=component, run=run, parameters=kwargs)
 
     def hash(self):
         # TODO
