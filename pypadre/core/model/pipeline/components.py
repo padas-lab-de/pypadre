@@ -63,13 +63,13 @@ class PipelineComponent(CustomCodeHolder, IConsumer, IProvider, IExecuteable, Me
         raise NotImplementedError
 
     def _execute_helper(self, *, run: Run, data,
-                        predecessor: Computation = None, branch=False, intermediate_results=True, **kwargs):
+                        predecessor: Computation = None, branch=False, intermediate_results=True, parameters, **kwargs):
 
         # TODO find the problem in the loop
-        results = self._execute_component_code(data=data, run=run, predecessor=predecessor, **kwargs)
+        results = self._execute_component_code(data=data, run=run, predecessor=predecessor, parameters=parameters, **kwargs)
         if not isinstance(results, Computation):
             results = Computation(component=self, run=run, predecessor=predecessor,
-                                  branch=branch, result=results)
+                                  branch=branch, result=results, parameters=parameters)
 
         if intermediate_results:
             results.send_put()
