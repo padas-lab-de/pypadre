@@ -63,16 +63,16 @@ class PipelineComponent(CustomCodeHolder, IConsumer, IProvider, IExecuteable, Me
         raise NotImplementedError
 
     def _execute_helper(self, *, run: Run, data,
-                        predecessor: Computation = None, branch=False, intermediate_results=True, parameters, **kwargs):
+                        predecessor: Computation = None, branch=False, intermediate_results=True, store_results=False, **kwargs):
 
         # TODO find the problem in the loop
-        results = self._execute_component_code(data=data, run=run, predecessor=predecessor, parameters=parameters, **kwargs)
+        results = self._execute_component_code(data=data, run=run, predecessor=predecessor, **kwargs)
         if not isinstance(results, Computation):
             results = Computation(component=self, run=run, predecessor=predecessor,
-                                  branch=branch, result=results, parameters=parameters)
+                                  branch=branch, result=results, parameters=kwargs.get("parameters", {}))
 
         if intermediate_results:
-            results.send_put(store_results=store_results)
+            results.send_put()
         # TODO Trigger component result event for metrics and visualization
         return results
 
