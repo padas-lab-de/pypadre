@@ -29,5 +29,5 @@
       }
     }
   },
-  "required": ["name", "description", "sub_project_ids", "experiment_ids"]
+  "required": ["name", "description"]
 }

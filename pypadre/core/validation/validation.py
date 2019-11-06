@@ -1,5 +1,6 @@
 import json
 import urllib.request
+import warnings
 from abc import ABCMeta
 from collections.__init__ import deque
 from importlib import resources
@@ -7,9 +8,29 @@ from typing import List
 
 from jsonschema import validate, ValidationError, validators
 from padre.PaDREOntology import PaDREOntology
-
 # noinspection PyUnusedLocal,PyShadowingNames,PyProtectedMember
+from warlock import model_factory
+
 from pypadre.core.model.generic.i_model_mixins import ILoggable
+
+
+def extend_with_default(validator_class):
+    # see https://python-jsonschema.readthedocs.io/en/stable/faq/
+    validate_properties = validator_class.VALIDATORS["properties"]
+
+    def set_defaults(validator, properties, instance, schema):
+        for property, subschema in properties.items():
+            if "default" in subschema:
+                instance.setdefault(property, subschema["default"])
+
+        for error in validate_properties(
+                validator, properties, instance, schema,
+        ):
+            yield error
+
+    return validators.extend(
+        validator_class, {"properties": set_defaults},
+    )
 
 
 def padre_enum(validator, padre_enum, instance, schema):
@@ -30,7 +51,41 @@ def padre_enum(validator, padre_enum, instance, schema):
                 yield ValidationError("%r is not a valid value entry of padre enum %r" % (instance, padre_enum))
 
 
-schema_validator = validators.extend(validators.Draft7Validator, validators={"padre_enum": padre_enum}, version="1.0")
+padre_schema_validator = extend_with_default(
+    validators.extend(validators.Draft7Validator, validators={"padre_enum": padre_enum}, version="1.0"))
+
+
+def make_model(schema=None, schema_path=None, schema_url=None,
+               schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None,
+               schema_validator=padre_schema_validator):
+    if schema is None:
+        try:
+            if schema_url is not None:
+                with urllib.request.urlopen(schema_url) as url:
+                    schema = json.loads(url.read().decode())
+        except:
+            warnings.warn(message='Failed on loading schema file from url ' + schema_url)
+
+    # Load schema from file
+    if schema is None:
+        try:
+            if schema_path is not None:
+                with open(schema_path, 'r') as f:
+                    schema_data = f.read()
+                schema = json.loads(schema_data)
+        except:
+            warnings.warn(message='Failed on loading schema file from disk ' + schema_path)
+
+    if schema is None:
+        try:
+            if schema_resource_name is not None and schema_resource_package is not None:
+                with resources.open_text(schema_resource_package, schema_resource_name) as f:
+                    schema_data = f.read()
+                schema = json.loads(schema_data)
+        except:
+            warnings.warn(message='Failed on loading schema file from resources ' + schema_resource_package + '.'
+                                  + schema_resource_name)
+    return model_factory(schema, schema_validator)
 
 
 class Validateable(ILoggable):
@@ -38,39 +93,11 @@ class Validateable(ILoggable):
     """ This class implements basic logic for validating the state of it's input parameters """
 
     # noinspection PyBroadException
-    def __init__(self,  *args, schema=None, schema_path=None, schema_url=None,
-                 schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None, metadata=None, validate=True, **kwargs):
-        if metadata is None:
+    def __init__(self, *args, model, validate=True, **kwargs):
+        if model is None:
             metadata = {}
         # Load schema externally
         super().__init__(*args, **kwargs)
-        if schema is None:
-            try:
-                if schema_url is not None:
-                    with urllib.request.urlopen(schema_url) as url:
-                        schema = json.loads(url.read().decode())
-            except:
-                self.send_warn(message='Failed on loading schema file from url ' + schema_url)
-
-        # Load schema from file
-        if schema is None:
-            try:
-                if schema_path is not None:
-                    with open(schema_path, 'r') as f:
-                        schema_data = f.read()
-                    schema = json.loads(schema_data)
-            except:
-                self.send_warn(message='Failed on loading schema file from disk ' + schema_path)
-
-        if schema is None:
-            try:
-                if schema_resource_name is not None and schema_resource_package is not None:
-                    with resources.open_text(schema_resource_package, schema_resource_name) as f:
-                        schema_data = f.read()
-                    schema = json.loads(schema_data)
-            except:
-                self.send_warn(message='Failed on loading schema file from resources ' + schema_resource_package + '.'
-                                       + schema_resource_name)
 
         self._schema = schema
         # Fail if no schema is provided
@@ -90,9 +117,10 @@ class Validateable(ILoggable):
             # TODO make this an error as soon as all validateables are implemented
             self.send_warn(message="A validateable object needs a schema to validate to: " + str(self))
             # warnings.warn("A validateable object needs a schema to validate to: " + str(self), FutureWarning)
-            #raise ValueError("A validateable object needs a schema to validate to.")
+            # raise ValueError("A validateable object needs a schema to validate to.")
         else:
-            validate(metadata, self._schema, cls=schema_validator)
+
+            validate(metadata, self._schema, cls=padre_schema_validator)
 
 
 class ValidateParameters(ILoggable):
