@@ -40,15 +40,24 @@ class IGitRepository(IFileRepository):
         directory = self.to_directory(obj)
         if not repo_exists(directory):
             repo = Repo.init(path=directory, **kwargs.pop("repo_kwargs", {}))
+            add_and_commit(directory, message=kwargs.pop('message', 'Initial Commit of Repository'), init=True)
         else:
             repo = get_repo(path=directory, **kwargs.pop("repo_kwargs", {}))
+            add_and_commit(directory, message=kwargs.pop('message', 'commiting existing changes'))
 
-        add_and_commit(directory, message=kwargs.pop('message', 'Initial Commit of Repository'))
         return repo
 
     def get(self, uid):
         # Call the File backend get function
         return super().get(uid=uid)
+
+    def get_by_repo(self,repo):
+        """
+        Gets an object for a given repository.
+        :param directory: repository object to load the object from
+        :return: Object which should be deserialized
+        """
+        pass
 
     def delete(self, id_):
         """

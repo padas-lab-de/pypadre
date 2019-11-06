@@ -15,7 +15,9 @@ import gitlab
 from git import GitCommandError
 
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
+from pypadre.pod.util.git_util import repo_exists, open_existing_repo, get_repo, add_and_commit
 
 DOMAIN = "gitlab-web"
 temp_DOMAIN = "localhost:8080"
@@ -24,11 +26,13 @@ class GitLabRepository(IGitRepository):
     """ This is the abstract class extending the basic git backend with gitlab remote server functionality"""
     __metaclass__ = ABCMeta
     _repo = None
+    _local_repo = None
+    _remote = None
     _git = None
     _branch = "master"
     _group = None
     @abstractmethod
-    def __init__(self, root_dir: str, gitlab_url:str, token:str, group:str,backend: IPadreBackend,**kwargs):
+    def __init__(self, root_dir: str, gitlab_url:str, token:str ,backend: IPadreBackend,**kwargs):
         super().__init__(root_dir=root_dir,backend=backend,**kwargs)
         self._url = gitlab_url
         self._token = token
@@ -41,7 +45,7 @@ class GitLabRepository(IGitRepository):
         if self.group_exists(name):
             return self._git.groups.get(id=self._git.groups.list(search=name)[0].id)
         else:
-            return self._git.groups.create({'name':name})
+            return self._git.groups.create({'name':name,'path':name})
 
     def group_exists(self,name):
         return len(self._git.groups.list(search=name))>0
@@ -49,22 +53,21 @@ class GitLabRepository(IGitRepository):
     def get_projects(self, search_term):
         return self._git.projects.list(search=search_term) if self._git is not None else None
 
-    def get_project_by_id(self, project_id, lazy=True):
+    def get_project_by_id(self, project_id, lazy=False):
         return self._git.projects.get(id=project_id, lazy=lazy) if self._git is not None else None
 
-    def create_repo(self, name="", id=""):
-        _name = "{}_{}".format(name,id)
-        if not self._repo_exists(_name):
+    def create_repo(self, name=""):
+        if not self._repo_exists(name):
             try:
                 if self._group:
-                    self._repo = self._group.projects.create({'name': _name})
+                    self._repo = self._git.projects.create({'name': name,'namespace_id':self._group.id})
                 else:
-                    self._repo = self._git.projects.create({'name': _name})
+                    self._repo = self._git.projects.create({'name': name})
             except gitlab.GitlabCreateError as e:
                 #TODO handle different exception upon creation
                 pass
         else:
-            self._repo = self.get_project_by_id(self.get_projects(_name)[0].id)
+            self._repo = self.get_project_by_id(self.get_projects(name)[0].id)
 
     def _repo_exists(self, name):
         if self._group is not None:
@@ -107,25 +110,36 @@ class GitLabRepository(IGitRepository):
 
     def add_remote(self,branch,url):
         try:
-            self._remote = self.local_repo.create_remote(branch, url)
+            self._remote = self._local_repo.create_remote(branch, url)
         except GitCommandError as e:
             if "already exists" in e.stderr:
-                self._remote = self.local_repo.remote(branch)
+                self._remote = self._local_repo.remote(branch)
+
+    def get(self,uid):
+        """
+        Gets the objects via uid. This might have to scan the metadatas on the remote repositories
+        :param uid: uid to search for
+        :return:
+        """
+        #TODO should we get the object from remote?
+        super().get(uid=uid)
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
-        if self._repo is None:
-            self.create_repo(name=obj.name,id=obj.id)
+
+        self.create_repo(name=obj.name)
 
         #TODO
-        self.local_repo = super().put(obj)
+        self._local_repo = super().put(obj)
 
         remote_url = self.get_remote_url()
 
-        self.add_remote("master",remote_url)
+        self.add_remote(self._branch,remote_url)
 
         directory = self.to_directory(obj)
 
         self._put(obj, *args, directory=directory,  merge=merge,**kwargs)
+
+        self.reset()
 
     @abstractmethod
     def _put(self, obj, *args, directory: str,  merge=False, **kwargs):
@@ -149,9 +163,27 @@ class GitLabRepository(IGitRepository):
         :param size:
         :return:
         """
-        #TODO look in the gitlab repos under self._group
+        repos = []
+        if self._group is None:
+            return super().list(search)
+        else:
+            for repo in self._group.projects.list(search=search):
+                repos.append(self._git.projects.get(repo.id,lazy=False))
+        return self.filter([self.get_by_repo(repo) for repo in repos],search)
 
-        return
+    def get_file(self, repo, file: File):
+        """
+        Get a file in a repository by using a serializer name combination defined in a File object
+        :param repo: Gitlab Repository object
+        :param file: File object
+        :return: Loaded file
+        """
+        try:
+            f = repo.files.get(file_path=file.name, ref='master')
+            data = file.serializer.deserialize(f.decode())
+            return data
+        except gitlab.GitlabGetError as e:
+            return super().get_file(repo,file)
 
     def update_file(self, file, content, branch, commit_message):
         # Update a file and if the file is binary, the calling function should serialize the content for modifying
@@ -188,6 +220,16 @@ class GitLabRepository(IGitRepository):
         """
         commit = self._repo.commits.create(options)
         return commit
+
+    def push_changes(self):
+        try:
+            self._remote.pull(refspec=self._branch)
+            self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))  # TODO commit/push schedule?
+        except Exception as e:
+            if "Couldn't find remote ref" in e.stderr:
+                self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))
+            else:
+                return
 
     def upload_file(self, filename, path):
         if self._repo is not None:
@@ -335,3 +377,15 @@ class GitLabRepository(IGitRepository):
 
         created_file = self.create_file(filename, self._branch, content, None, self._user,
                                         'text', comment)
+    def reset(self):
+        self._repo = None
+        self._remote = None
+        self._local_repo = None
+
+    @property
+    def remote(self):
+        return self._remote
+
+    def __del__(self):
+        #close the gitlab session
+        self._git.__exit__()

@@ -182,7 +182,7 @@ def push(repo, remote_name, remote_url):
     remote.push(refspec='{}:{}'.format('master', 'master'))
 
 
-def add_git_lfs_attribute_file(directory, file_extension):
+def add_git_lfs_attribute_file(directory, file_extension, init=False):
     # Get os version and write content to file
     path = None
     # TODO: Verify path in Windows
@@ -191,9 +191,10 @@ def add_git_lfs_attribute_file(directory, file_extension):
     else:
         path = os.path.join(directory, GIT_ATTRIBUTES)
 
+    repo = create_repo(path=directory, bare=False) if not repo_exists(directory) else get_repo(path=directory)
+
     with open(path, "w") as f:
         f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
-    repo = create_repo(path=directory, bare=False)
     add_files(repo, file_path=path)
     commit(repo=repo, message='Added .gitattributes file for Git LFS')
 
@@ -263,8 +264,8 @@ def get_repo(path=None, url=None, **kwargs):
         return Repo(path)
 
 
-def add_and_commit(dir_path, message=DEFAULT_GIT_MSG):
+def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,init=False):
     repo = get_repo(path=dir_path)
     add_untracked_files(repo=repo)
-    if len(repo.index.diff(None)) > 0:
+    if len(repo.index.diff(None)) > 0 or init:
         commit(repo, message=message)

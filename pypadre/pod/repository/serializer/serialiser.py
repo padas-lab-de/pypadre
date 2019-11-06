@@ -78,6 +78,15 @@ class YamlSerializer(Serializer):
     def deserialize(buffer):
         return yaml.load(buffer)
 
+class TextSerializer(Serializer):
+
+    @staticmethod
+    def serialise(obj):
+        return obj
+    @staticmethod
+    def deserialize(buffer):
+        return buffer
+
 
 class MsgPack(Serializer):
 
