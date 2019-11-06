@@ -15,7 +15,7 @@ NAME = "computations"
 META_FILE = File("metadata.json", JSonSerializer)
 PARAMETER_FILE = File("parameters.json", JSonSerializer)
 RESULT_FILE = File("results.bin", DillSerializer)
-INITIAL_HYPERPARAMETERS = File("initial_hyperparameters", JSonSerializer)
+INITIAL_HYPERPARAMETERS = File("initial_hyperparameters.json", JSonSerializer)
 
 
 class ComputationFileRepository(IChildFileRepository, ILogFileRepository, IComputationRepository):

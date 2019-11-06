@@ -350,6 +350,15 @@ class AppLocalBackends(PadreAppTest):
                                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
+        files_found = find('initial_hyperparameters.json', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
+                                                             'experiments/Test Experiment/executions'))
+        assert (files_found is not None)
+
+        files_found = find('parameters.json', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
+                                                                         'experiments/Test Experiment/executions'))
+        assert (files_found is not None)
+
+
 
 if __name__ == '__main__':
     unittest.main()
