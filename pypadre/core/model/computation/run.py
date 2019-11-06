@@ -12,9 +12,11 @@ run_model = make_model(schema_resource_name='run.json')
 
 
 class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin, Tablefyable):
-
-    EXECUTION_ID = "experiment_id"
-
+    """
+    A run is an execution of the pipeline on a specific dataset. Each time an experiment is executed a new run is
+    created.
+    """
+    EXECUTION_ID = "execution_id"
 
     @classmethod
     def _tablefy_register_columns(cls):
@@ -36,7 +38,7 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
         # Start execution of the pipeline
         # pipeline_parameters = kwargs.get('parameters', None)
         pipeline_parameters, write_parameters = \
-            self.separate_hyperparameters_and_component_parameters(kwargs.pop('parameters', None))
+            self.separate_hyperparameters_and_component_parameters(kwargs.pop('parameters', {}))
         return self.pipeline.execute(dataset=self.dataset, run=self, pipeline_parameters=pipeline_parameters,
                                      write_parameters=write_parameters,
                                      *args, **kwargs)

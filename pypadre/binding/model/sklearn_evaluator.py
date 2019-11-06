@@ -88,6 +88,7 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
                 y_predicted_probabilities = model.predict_proba(split.test_features)
                 self.send_log(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
                               message="Computing and saving the prediction probabilities")
+                y_predicted_probabilities = y_predicted_probabilities.tolist()
         else:
             type_ = PaDREOntology.SubClassesExperiment.Regression.value
 
@@ -100,12 +101,13 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
         results = self.create_results_dictionary(split_num=split.number, train_idx=train_idx, test_idx=test_idx,
                                                  dataset=split.dataset.name,
                                                  truth=y.tolist(), predicted=y_predicted.tolist(), type_= type_,
-                                                 probabilities=y_predicted_probabilities.tolist())
+                                                 probabilities=y_predicted_probabilities)
 
 
         # TODO results as object?
 
-        return Evaluation(training=predecessor, result_format="classification", result=results, component=component, run=run, parameters=kwargs)
+        return Evaluation(training=predecessor, result_format=type_, result=results, component=component, run=run,
+                          parameters=kwargs)
 
     def hash(self):
         # TODO
@@ -124,8 +126,8 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
         return getattr(model, 'transform', None)
 
     @staticmethod
-    def create_results_dictionary(*, split_num:int, train_idx:list, test_idx:list, dataset:str, type_:str,
-                                  truth:list, predicted:list, probabilities:list):
+    def create_results_dictionary(*, split_num: int, train_idx: list, test_idx: list, dataset: str, type_: str,
+                                  truth: list, predicted: list, probabilities: list):
         from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin
         results = dict()
         results[DATASET_NAME] = dataset
@@ -158,5 +160,5 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
         results[EvaluatorComponentMixin.PREDICTIONS] = predictions
 
         return results
-
+5
 

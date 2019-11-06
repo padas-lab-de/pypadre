@@ -22,7 +22,7 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, 
         pass
 
     def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result_format=None, result,
-                 parameters=None, branch=False, metrics=None, **kwargs):
+                 parameters=None, initial_hyperparameters=None, branch=False, metrics=None, **kwargs):
         if parameters is None:
             parameters = {}
 
@@ -49,6 +49,7 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, 
         # Todo allow for multiple predecessors
         self._predecessor = predecessor
         self._parameters = parameters
+        self._initial_hyperparameters = initial_hyperparameters
         self._branch = branch
         self._format = result_format
 
@@ -80,6 +81,10 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, 
     @property
     def parameters(self):
         return self._parameters
+
+    @property
+    def initial_hyperparameters(self):
+        return self._initial_hyperparameters
 
     @property
     def run(self):

@@ -9,8 +9,11 @@ execution_model = make_model(schema_resource_name='execution.json')
 
 
 class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin, Tablefyable):
-    """ A execution should save data about the running env and the version of the code on which it was run """
-
+    """
+    A execution should save data about the running env and the version of the code on which it was run .
+    An execution is linked to the version of the code being executed. The execution directory is the hash of the commit
+    of the source code file.
+    """
     EXPERIMENT_ID = "experiment_id"
 
     _runs = []
