@@ -12,6 +12,7 @@ from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
+
     def __init__(self, *, splitting: Union[Type[CodeMixin], Callable] = None, pipeline_fn: Callable, **kwargs):
         """
 

@@ -9,6 +9,7 @@ from pypadre.core.model.code.codemixin import CodeMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.pipeline.components.component_mixins import EstimatorComponentMixin, EvaluatorComponentMixin, \
@@ -19,7 +20,7 @@ from pypadre.core.model.pipeline.parameter_providers.parameters import Parameter
 from pypadre.core.validation.validation import ValidateableMixin
 
 
-class Pipeline(ProgressableMixin, ExecuteableMixin, DiGraph, ValidateableMixin):
+class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, ValidateableMixin):
     def __init__(self, allow_metrics=True, **attr):
         self._allow_metrics = allow_metrics
         super().__init__(**attr)
@@ -134,6 +135,9 @@ class Pipeline(ProgressableMixin, ExecuteableMixin, DiGraph, ValidateableMixin):
     def validate(self, **kwargs):
         if not self.is_acyclic():
             raise ValueError("Pipelines need to be acyclic")
+
+    def dirty(self):
+        return False
 
     def get_exits(self):
         return [node for node, out_degree in self.out_degree() if out_degree == 0]

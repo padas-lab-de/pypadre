@@ -71,7 +71,7 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
         metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
                           **metadata}
 
-        super().__init__(**{"model": metadata, **kwargs})
+        super().__init__(**{"metadata": metadata, **kwargs})
 
 
     @property
@@ -98,40 +98,40 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
         exist, the id is returned
         :return:
         """
-        if self._val_model and "name" in self._val_model:
-            return self._val_model["name"]
+        if self.metadata and "name" in self.metadata:
+            return self.metadata["name"]
         else:
             return str(self.id)
 
     @name.setter
     def name(self, name):
-        self._val_model["name"] = name
+        self.metadata["name"] = name
 
     @property
-    def createdAt(self):
-        if self.CREATED_AT in self._val_model:
-            return self._val_model[self.CREATED_AT]
+    def created_at(self):
+        if self.CREATED_AT in self.metadata:
+            return self.metadata[self.CREATED_AT]
         else:
             return None
 
     @property
-    def updatedAt(self):
-        if self.UPDATED_AT in self._val_model:
-            return self._val_model[self.UPDATED_AT]
+    def updated_at(self):
+        if self.UPDATED_AT in self.metadata:
+            return self.metadata[self.UPDATED_AT]
         else:
             return None
 
     @property
-    def lastModifiedBy(self):
-        if self.LAST_MODIFIED_BY in self._val_model:
-            return self._val_model[self.LAST_MODIFIED_BY]
+    def last_modified_by(self):
+        if self.LAST_MODIFIED_BY in self.metadata:
+            return self.metadata[self.LAST_MODIFIED_BY]
         else:
             return None
 
     @property
-    def createdBy(self):
-        if self.CREATED_BY in self._val_model:
-            return self._val_model[self.CREATED_BY]
+    def created_by(self):
+        if self.CREATED_BY in self.metadata:
+            return self.metadata[self.CREATED_BY]
         else:
             return None
 

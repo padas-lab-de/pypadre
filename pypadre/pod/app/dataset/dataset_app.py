@@ -101,3 +101,9 @@ class DatasetApp(BaseChildApp):
         loader = self.loader(source)
         data_set = cast(DataSetLoaderMixin, loader).load(source=source, **kwargs)
         return self.put(data_set)
+
+    def get_by_name(self, name):
+        found = self.service.list({"name": name})
+        if found:
+            return found.pop()
+        return None

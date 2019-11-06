@@ -157,4 +157,4 @@ class EvaluatorComponentMixin(PipelineComponentMixin):
     @property
     def provides(self) -> List[str]:
         # TODO types from rdf
-        return ["result"]
+        return ["classification", "regression"]

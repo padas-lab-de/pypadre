@@ -62,13 +62,12 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
         # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
         return code.name
 
-    def get_by_name(self, name):
-        """
-        Shortcut because we know name is the folder name. We don't have to search in metadata.json
-        :param name: Name of the dataset
-        :return:
-        """
-        return self.list({'folder': re.escape(name)})
+    def list(self, search, offset=0, size=100):
+        if hasattr(search, "name"):
+            # Shortcut because we know name is the folder name. We don't have to search in metadata.json
+            name = search.pop("name")
+            search['folder'] = re.escape(name)
+        return super().list(search, offset, size)
 
     def _put(self, obj, *args, directory: str, store_code=False, **kwargs):
         code = obj

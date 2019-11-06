@@ -15,12 +15,16 @@ Architecture of the module
 
 """
 
-
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
-from typing import List
+import inspect
+from functools import wraps
+from typing import List, Union
 
 from jsonschema import ValidationError
 
+from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.generic.custom_code import _convert_path_to_code_object
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
 from pypadre.pod.app.base_app import IBaseApp
@@ -83,17 +87,22 @@ class PadreApp(IBaseApp):
         self._backends = backends
 
         # TODO Should each subApp really hold each backend? This may be convenient to code like this.
-        self._dataset_app = DatasetApp(self, [backend.dataset for backend in backends] if backends is not None else None)
-        self._project_app = ProjectApp(self, [backend.project for backend in backends] if backends is not None else None)
-        self._experiment_app = ExperimentApp(self, [backend.experiment for backend in backends] if backends is not None else None)
-        self._execution_app = ExecutionApp(self, [backend.execution for backend in backends] if backends is not None else None)
+        self._dataset_app = DatasetApp(self,
+                                       [backend.dataset for backend in backends] if backends is not None else None)
+        self._project_app = ProjectApp(self,
+                                       [backend.project for backend in backends] if backends is not None else None)
+        self._experiment_app = ExperimentApp(self, [backend.experiment for backend in
+                                                    backends] if backends is not None else None)
+        self._execution_app = ExecutionApp(self, [backend.execution for backend in
+                                                  backends] if backends is not None else None)
         self._run_app = RunApp(self, [backend.run for backend in backends] if backends is not None else None)
         self._split_app = SplitApp(self, [backend.split for backend in backends] if backends is not None else None)
-        self._computation_app = ComputationApp(self, [backend.computation for backend in backends] if backends is not None else None)
+        self._computation_app = ComputationApp(self, [backend.computation for backend in
+                                                      backends] if backends is not None else None)
         self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
         self._code_app = CodeApp(self, [backend.code for backend in backends] if backends is not None else None)
-        self._pipeline_output_app = PipelineOutputApp(self, [backend.pipeline_output for backend in backends] if backends is not None else None)
-
+        self._pipeline_output_app = PipelineOutputApp(self, [backend.pipeline_output for backend in
+                                                             backends] if backends is not None else None)
 
     @property
     def backends(self):
@@ -134,6 +143,55 @@ class PadreApp(IBaseApp):
     @property
     def code(self):
         return self._code_app
+
+    def workflow(self, *args, dataset: Union[Dataset, str], project_name=None, experiment_name=None,
+                 project_description=None,
+                 experiment_description=None, auto_main=True, **kwargs):
+        """
+        Decroator for functions that return a single workflow to be executed in an experiment with name exp_name
+        :param exp_name: name of the experiment
+        :param args: additional positional parameters to an experiment (replaces other positional parameters if longer)
+        :param kwargs: kwarguments for experiments
+        :return:
+        """
+
+        def workflow_decorator(f_create_workflow):
+            @wraps(f_create_workflow)
+            def wrap_workflow(*args, **kwargs):
+                # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
+                return f_create_workflow(*args, **kwargs)
+
+            (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
+            creator = _convert_path_to_code_object(filename, function_name)
+
+            pipeline = SKLearnPipeline(pipeline_fn=wrap_workflow, creator=creator)
+            project = self.projects.get_by_name(project_name)
+            if project is None:
+                project = self.projects.create(name=project_name, description=project_description, creator=creator)
+
+            d = dataset if isinstance(dataset, Dataset) else self.datasets.get_by_name(dataset)
+            experiment = self.experiments.create(name=experiment_name, description=experiment_description,
+                                                 project=project,
+                                                 pipeline=pipeline, dataset=d, creator=creator)
+            if auto_main:
+                return experiment.execute()
+            else:
+                return experiment
+
+        return workflow_decorator
+
+    def dataset(self, *args, name=None, **kwargs):
+        def dataset_decorator(f_create_dataset):
+            @wraps(f_create_dataset)
+            def wrap_dataset(*args, **kwargs):
+                # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
+                return f_create_dataset(*args, **kwargs)
+
+            if name is None:
+                return self.datasets.load(f_create_dataset())
+            return self.datasets.load(f_create_dataset(), name=name)
+
+        return dataset_decorator
 
     def print(self, obj):
         if self.has_print():

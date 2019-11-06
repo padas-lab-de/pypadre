@@ -20,6 +20,7 @@ from pypadre.core.model.dataset.container.pandas_container import PandasContaine
 from pypadre.core.model.generic.i_model_mixins import StoreableMixin
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
+from pypadre.core.validation.json_validation import make_model
 
 
 class _Formats(_Const):
@@ -30,6 +31,8 @@ class _Formats(_Const):
 
 
 formats = _Formats()
+
+dataset_model = make_model(schema_resource_name='dataset.json')
 
 
 class Dataset(StoreableMixin, MetadataMixin):
@@ -48,7 +51,7 @@ class Dataset(StoreableMixin, MetadataMixin):
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {})}
 
-        super().__init__(schema_resource_name='dataset.json', metadata=metadata, **kwargs)
+        super().__init__(model_clz=dataset_model, metadata=metadata, **kwargs)
 
         self._binaries = dict()
         self._proxy_loaders = {}
@@ -71,18 +74,6 @@ class Dataset(StoreableMixin, MetadataMixin):
     @property
     def attributes(self):
         return self.metadata.get("attributes")
-
-    def validate(self, **kwargs):
-        super().validate(**kwargs)
-        # TODO Schema is validated with jsonschema we could check for things which can't be checked in jsonschema here
-        # assert_condition(condition=options.get("name") is not None, source=self,
-        #                  message="name attribute has to be set for a dataset")
-        # assert_condition(condition=options.get("version") is not None, source=self,
-        #                  message="version attribute has to be set for a dataset")
-        # assert_condition(condition=options.get("originalSource") is not None, source=self,
-        #                  message="originalSource attribute has to be set for a dataset")
-        # assert_condition(condition=options.get("type") is not None, source=self,
-        #                  message="type attribute has to be set for a dataset")
 
     def _execute_proxy_loaders(self):
         for key in list(self._proxy_loaders.keys()):
@@ -310,7 +301,7 @@ class Transformation(Dataset):
         self._dataset = dataset
         self._binaries = dict()
 
-    def update_attributes(self,attributes=None):
+    def update_attributes(self, attributes=None):
         """
         Update the attributes in case the transformation changes the attributes
         :param attributes:
@@ -318,7 +309,7 @@ class Transformation(Dataset):
         """
         self._metadata["attributes"] = attributes
 
-    def set_data(self,data, attributes=None):
+    def set_data(self, data, attributes=None):
         """
         Set the transformed data and add its corresponding container
         :param attributes: The new attributes in case they were changed

@@ -12,6 +12,8 @@ from pypadre.core.validation.warlock.core import model_factory
 def make_model(schema=None, schema_path=None, schema_url=None,
                schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None,
                schema_validator=padre_schema_validator):
+    """ This function creates a validation model from a jsonschema file. This model can be instantiated and performe
+    self validation. """
     if schema is None:
         try:
             if schema_url is not None:
@@ -49,14 +51,14 @@ class ModelHolderMixin(ValidateableMixin):
     """ This class implements basic logic for validating the state of it's input parameters """
 
     # noinspection PyBroadException
-    def __init__(self, *args, model_clz=None, model, **kwargs):
-        if model is None:
-            model = {}
+    def __init__(self, *args, model_clz=None, metadata, **kwargs):
+        if metadata is None:
+            metadata = {}
 
-        self._val_model = model
+        self._val_model = metadata
         self._model_clz = model_clz
 
-        super().__init__(*args, metadata=model, **kwargs)
+        super().__init__(*args, metadata=metadata, **kwargs)
 
     def validate(self, **kwargs):
         """

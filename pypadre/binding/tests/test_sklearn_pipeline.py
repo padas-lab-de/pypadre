@@ -66,7 +66,7 @@ class TestSKLearnPipeline(PadreAppTest):
         assert(isinstance(experiment.project, Project))
 
         assert(experiment.parent is not None)
-        assert(experiment.createdAt is not None)
+        assert(experiment.created_at is not None)
 
         assert(len(experiment.executions) > 0)
         assert(experiment.executions is not None and isinstance(experiment.executions, list))

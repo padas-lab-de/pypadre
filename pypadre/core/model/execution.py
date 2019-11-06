@@ -5,7 +5,7 @@ from pypadre.core.model.generic.i_model_mixins import StoreableMixin, Progressab
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.validation.json_validation import make_model
 
-experiment_model = make_model(schema_resource_name='execution.json')
+execution_model = make_model(schema_resource_name='execution.json')
 
 
 class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin, Tablefyable):
@@ -29,7 +29,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         if codehash is not None:
             metadata['hash'] = codehash
 
-        super().__init__(parent=experiment, model_clz=experiment_model, metadata=metadata, **kwargs)
+        super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
         self._command = command
 
