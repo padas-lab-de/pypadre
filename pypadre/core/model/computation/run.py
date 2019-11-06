@@ -34,7 +34,7 @@ class Run(IExecuteable, IStoreable, MetadataEntity, ChildEntity, Tablefyable):
         # Start execution of the pipeline
         # pipeline_parameters = kwargs.get('parameters', None)
         pipeline_parameters, write_parameters = \
-            self.separate_hyperparameters_and_component_parameters(kwargs.pop('parameters', None))
+            self.separate_hyperparameters_and_component_parameters(kwargs.pop('parameters', {}))
         return self.pipeline.execute(dataset=self.dataset, run=self, pipeline_parameters=pipeline_parameters,
                                      write_parameters=write_parameters,
                                      *args, **kwargs)

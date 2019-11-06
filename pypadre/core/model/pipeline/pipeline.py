@@ -93,10 +93,20 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
 
         allow_metrics = True if len(write_parameters.get('allow_metrics', [])) > 0 else self.allow_metrics
         store_results = write_parameters.get('write_results', False)
-        computation = node.execute(run=run, data=data,
-                                   predecessor=kwargs.pop("predecessor", None), store_results=store_results,  **kwargs)
 
-        self.send_log(message="Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
+        # If the node has the functionality get the hyperparameters
+        initial_hyperparameters = None
+        if hasattr(node, 'get_initial_hyperparameters'):
+            initial_hyperparameters = node.get_initial_hyperparameters()
+
+        computation = node.execute(run=run, data=data,
+                                   predecessor=kwargs.pop("predecessor", None), store_results=store_results,
+                                   initial_hyperparameters = initial_hyperparameters,
+                                   **kwargs)
+
+        self.send_log(message="Following metrics would be available for " +
+                              str(computation)
+                              + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
 
         # calculate measures
         if allow_metrics:

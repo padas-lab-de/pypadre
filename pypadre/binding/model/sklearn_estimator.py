@@ -52,7 +52,8 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
         super().__init__(package=__name__, fn_name="estimate",  requirement=_name.__name__, version=_version.__version__, name="SKLearnEstimator", parameter_provider=parameter_provider, **kwargs)
 
     def estimate(self, ctx, **kwargs):
-        (split, component, run) = unpack(ctx, "data", "component", "run")
+        (split, component, run, initial_hyperparameters) = unpack(ctx, "data", "component", "run",
+                                                                  "initial_hyperparameters")
 
         self.set_parameter_values(parameters=kwargs)
 
@@ -79,7 +80,8 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
                 score = self._pipeline.score(split.val_features, y)
                 self.send_stop(phase='sklearn.scoring.valset')
                 self.send_log(keys=['validation score'], values=[score], message="Logging the validation score")
-        return Training(split=split, component=component, run=run, model=self._pipeline, parameters=kwargs)
+        return Training(split=split, component=component, run=run, model=self._pipeline, parameters=kwargs,
+                        initial_hyperparameters=initial_hyperparameters)
 
     def hash(self):
         # TODO hash should not change with training
@@ -157,3 +159,35 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
                 return parameter.get('scikit-learn').get('path')
 
         return None
+
+    def get_initial_hyperparameters(self):
+        from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
+        from copy import deepcopy
+
+        hyperparameter_dict = dict()
+
+        for estimator_name in self.pipeline.named_steps:
+            # Find all the hyperparameters of the estimator from the mappings file
+            # Get the values of the hyperparameter from the object
+            actual_estimator_name = None
+            component_hyperparameter_dict = dict()
+
+            if name_mappings.get(estimator_name, None) is None:
+                actual_estimator_name = self.find_estimator_name_in_mapping(estimator_name)
+            else:
+                actual_estimator_name = estimator_name
+
+            if actual_estimator_name is None:
+                raise ValueError('Estimator {name} is not present in the mappings file.'.format(name=estimator_name))
+            parameters = name_mappings.get(actual_estimator_name).get('hyper_parameters').get('model_parameters')
+            estimator_obj_dict = self.pipeline.named_steps.get(estimator_name).__dict__
+            for parameter_dict in parameters:
+                # Find the variable name of each parameter
+                parameter_path = self.get_parameter_path(actual_estimator_name, parameter_dict.get('name'))
+                # Assign the value of the parameter to the name of the parameter
+                component_hyperparameter_dict[parameter_dict.get('name')] = estimator_obj_dict.get(parameter_path)
+
+            hyperparameter_dict[actual_estimator_name] = component_hyperparameter_dict
+
+        return {'sklearn': hyperparameter_dict}
+

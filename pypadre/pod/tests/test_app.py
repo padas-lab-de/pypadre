@@ -250,7 +250,8 @@ class AppLocalBackends(PadreAppTest):
             return idx[:cutoff], idx[cutoff:], None
 
         from sklearn.svm import SVC
-        pipeline = create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+        from sklearn.decomposition import PCA
+        pipeline = create_sklearn_test_pipeline(estimators=[('PCA', PCA()),('SVC', SVC(probability=True))],
                                                 splitting=CustomSplit(fn=custom_split))
 
         self.app.datasets.load_defaults()
