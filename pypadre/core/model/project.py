@@ -10,9 +10,9 @@ project_model = make_model(schema_resource_name='project.json')
 class Project(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin):
     """ A project should group experiments """
 
-    def __init__(self, name, description, experiments=None, sub_projects=None, **kwargs):
+    def __init__(self, name="Default project", description="Default project description", experiments=None, sub_projects=None, **kwargs):
         # Add defaults
-        defaults = {"name": "default project name", "description": "This is the default project."}
+        defaults = {}
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}

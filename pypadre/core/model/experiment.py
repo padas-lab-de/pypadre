@@ -84,11 +84,11 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
     CODE_PATH = 'code_path'
 
     # TODO non-metadata input should be a parameter
-    def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None,
+    def __init__(self, name="Default experiment", description="Default experiment description", project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None,
                  creator: Optional[Union[Type[CodeMixin], Callable]] = None,
                  **kwargs):
         # Add defaults
-        defaults = {"name": "default experiment name", "description": "This is the default experiment."}
+        defaults = {}
 
         # Either get given path or look up the path of the calling file
 

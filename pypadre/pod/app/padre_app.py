@@ -22,11 +22,11 @@ from typing import List, Union
 
 from jsonschema import ValidationError
 
-from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.generic.custom_code import _convert_path_to_code_object
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
+from pypadre.core.util.utils import filter_nones
 from pypadre.pod.app.base_app import IBaseApp
 from pypadre.pod.app.code_app import CodeApp
 from pypadre.pod.app.config.padre_config import PadreConfig
@@ -144,7 +144,7 @@ class PadreApp(IBaseApp):
     def code(self):
         return self._code_app
 
-    def workflow(self, *args, dataset: Union[Dataset, str], project_name=None, experiment_name=None,
+    def workflow(self, *args, ptype, dataset: Union[Dataset, str], project_name=None, experiment_name=None,
                  project_description=None,
                  experiment_description=None, auto_main=True, **kwargs):
         """
@@ -164,15 +164,21 @@ class PadreApp(IBaseApp):
             (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
             creator = _convert_path_to_code_object(filename, function_name)
 
-            pipeline = SKLearnPipeline(pipeline_fn=wrap_workflow, creator=creator)
+            if ptype is None:
+                # TODO look up the class by parsing the mapping / looking at the return value of the function or something similar
+                raise NotImplementedError()
+
+            pipeline = ptype(pipeline_fn=wrap_workflow, creator=creator)
             project = self.projects.get_by_name(project_name)
             if project is None:
-                project = self.projects.create(name=project_name, description=project_description, creator=creator)
+                project = self.projects.create(
+                    **filter_nones({"name": project_name, "description": project_description}), creator=creator)
 
             d = dataset if isinstance(dataset, Dataset) else self.datasets.get_by_name(dataset)
-            experiment = self.experiments.create(name=experiment_name, description=experiment_description,
-                                                 project=project,
-                                                 pipeline=pipeline, dataset=d, creator=creator)
+            experiment = self.experiments.create(
+                **filter_nones({"name": experiment_name, "description": experiment_description}),
+                project=project,
+                pipeline=pipeline, dataset=d, creator=creator)
             if auto_main:
                 return experiment.execute()
             else:
@@ -189,7 +195,7 @@ class PadreApp(IBaseApp):
 
             if name is None:
                 return self.datasets.load(f_create_dataset())
-            return self.datasets.load(f_create_dataset(), name=name)
+            return self.datasets.load(f_create_dataset(), name=name, **kwargs)
 
         return dataset_decorator
 

@@ -85,7 +85,9 @@ class CSVLoader(DataSetLoaderMixin):
 
     @staticmethod
     def mapping(source):
-        return str.startswith("/") or str.startswith(".") and str.endswith(".csv")
+        if not isinstance(source, str):
+            return False
+        return str.startswith(source, "/") or str.startswith(source, ".") and str.endswith(source, ".csv")
 
     def load(self, source, **kwargs):
         """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
@@ -257,7 +259,9 @@ class SKLearnLoader(ICollectionDataSetLoader):
 
     @staticmethod
     def mapping(source):
-        return source.__eq__("sklearn")
+        if not isinstance(source, str):
+            return False
+        return source == "sklearn"
 
     def load(self, source, utility: str = None, **kwargs):
 
@@ -328,7 +332,9 @@ class SnapLoader(ICollectionDataSetLoader):
 
     @staticmethod
     def mapping(source):
-        return source.__eq__("snap")
+        if not isinstance(source, str):
+            return False
+        return source == "snap"
 
     def load(self, source, url="", link_num=0, **kwargs):
         """Takes the graph of the Snap website and puts it into a pypadre.dataset.
@@ -362,7 +368,9 @@ class KonectLoader(ICollectionDataSetLoader):
 
     @staticmethod
     def mapping(source):
-        return source.__eq__("konect")
+        if not isinstance(source, str):
+            return False
+        return source == "konect"
 
     def load(self, source, url="", zero_based=False, **kwargs):
         graph, meta = create_from_konect(url=url, zero_based=zero_based)
@@ -390,7 +398,9 @@ class KonectLoader(ICollectionDataSetLoader):
 #
 #     @staticmethod
 #     def mapping(source):
-#         return source.__eq__("openml")
+#         if not isinstance(source, str):
+#             return False
+#         return source == "openml"
 #
 #     def load(self, source, url="",**kwargs):
 #         """

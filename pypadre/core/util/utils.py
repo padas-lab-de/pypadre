@@ -86,3 +86,7 @@ def unpack(kwargs_obj: dict, *args):
         else:
             raise ValueError("Pass a tuple or string not: " + str(entry))
     return tuple(arg_list)
+
+
+def filter_nones(d: dict):
+    return {key: val for key, val in d.items() if val is not None}
