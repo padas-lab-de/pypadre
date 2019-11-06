@@ -33,10 +33,10 @@ class PadreAppTest(unittest.TestCase):
         connect_event_to_stdout()
 
     def create_experiment(self, *args, **kwargs):
-        return self.app.experiments.service.create(*args, **kwargs)
+        return self.app.experiments.create(*args, **kwargs)
 
     def create_project(self, *args, **kwargs):
-        return self.app.projects.service.create(*args, **kwargs)
+        return self.app.projects.create(*args, **kwargs)
 
     def create_execution(self, *args, **kwargs):
         return self.app.executions.service.create(*args, **kwargs)

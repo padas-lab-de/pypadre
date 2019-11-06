@@ -15,6 +15,10 @@ class ExperimentApp(BaseChildApp):
     def execute(self, id):
         self.service.execute(id)
 
+    def create(self, *args, **kwargs):
+        experiment = self.service.create(*args, **kwargs)
+        self.put(experiment)
+        return experiment
 
     # def delete_experiments(self, search):
     #     """

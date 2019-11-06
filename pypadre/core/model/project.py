@@ -1,8 +1,18 @@
+from importlib import resources
+
+import warlock
+from jsonpickle import json
+
 from pypadre.core.base import MetadataEntity
 from pypadre.core.model.generic.custom_code import ICodeManagedObject
 from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
 from pypadre.core.printing.tablefyable import Tablefyable
+
+with resources.open_text("pypadre.core.resources.schema", "project.json") as f:
+    schema_data = f.read()
+schema = json.loads(schema_data)
+ProjectSchema = warlock.model_factory(schema)
 
 
 class Project(ICodeManagedObject, IStoreable, IExecuteable, IProgressable, MetadataEntity, Tablefyable):

@@ -3,7 +3,7 @@ from typing import Callable, Optional, Union, Type
 import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
-from pypadre.core.metrics.MetricRegistry import metric_registry
+from pypadre.core.metrics.metric_registry import metric_registry
 from pypadre.core.model.code.icode import ICode
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput

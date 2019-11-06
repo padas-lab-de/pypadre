@@ -3,7 +3,7 @@ from typing import Optional, List
 import numpy as np
 
 from pypadre import _name, _version
-from pypadre.core.metrics.MetricRegistry import metric_registry
+from pypadre.core.metrics.metric_registry import metric_registry
 from pypadre.core.metrics.metrics import IMetricProvider, Metric
 from pypadre.core.model.generic.custom_code import IProvidedCode
 from pypadre.core.util.utils import unpack

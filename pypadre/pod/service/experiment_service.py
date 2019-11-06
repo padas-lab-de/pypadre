@@ -34,6 +34,3 @@ class ExperimentService(BaseService):
     def execute(self, id):
         experiment = self.get(id)
         return experiment.execute()
-
-
-

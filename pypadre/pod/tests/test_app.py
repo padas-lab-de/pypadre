@@ -339,8 +339,8 @@ class AppLocalBackends(PadreAppTest):
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                creator=self.test_full_stack)
-        parameter_dict = {'SVC': {'C':[0.1,0.2]}}
+                                creator=self.test_all_functionalities)
+        parameter_dict = {'SVC': {'C': [0.1, 0.2]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
                                        })

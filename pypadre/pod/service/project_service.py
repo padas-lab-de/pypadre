@@ -23,3 +23,7 @@ class ProjectService(BaseService):
         def delete(obj, **kwargs):
             self.delete(obj)
         self.save_signal_fn(delete)
+
+    def execute(self, id):
+        project = self.get(id)
+        return project.execute()

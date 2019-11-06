@@ -103,3 +103,6 @@ class BaseChildApp(ChildEntity, BaseEntityApp):
         parent: IBaseApp = self.parent
         return parent.print_(output, **kwargs)
 
+    def _add_clz_decorators(self, clz, obj):
+        obj.decorators = clz(self.parent, obj)
+        return obj

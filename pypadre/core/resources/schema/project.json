@@ -9,7 +9,25 @@
     "description": {
       "type": "string",
       "description": "The project's description."
+    },
+    "sub_project_ids": {
+      "type": "array",
+      "description": "The ids of sub projects.",
+      "items": {
+        "type": "string",
+        "description": "An id of a sub project",
+        "default": []
+      }
+    },
+    "experiment_ids": {
+      "type": "array",
+      "description": "The ids of related experiments.",
+      "items": {
+        "type": "string",
+        "description": "The ids of related experiments",
+        "default": []
+      }
     }
   },
-  "required": ["name", "description"]
+  "required": ["name", "description", "sub_project_ids", "experiment_ids"]
 }

@@ -1,5 +1,8 @@
 from functools import wraps
 
+from pypadre.core.model.experiment import Experiment
+from pypadre.core.model.project import Project
+
 _experiments = {}
 
 
@@ -15,19 +18,47 @@ def component(*args, **kwargs):
 def parameter_provider(*args, **kwargs):
     def parameter_provider_decorator(f_pprovider):
         @wraps(f_pprovider)
-        def wrap_componet(*args, **kwargs):
+        def wrap_pprovider(*args, **kwargs):
             return f_pprovider(*args, **kwargs)
     return parameter_provider_decorator
 
 
 def metric_provider(*args, **kwargs):
-    def metric_provider_decorator(f_pprovider):
-        @wraps(f_pprovider)
-        def wrap_componet(*args, **kwargs):
+    def metric_provider_decorator(f_mprovider):
+        @wraps(f_mprovider)
+        def wrap_mprovider(*args, **kwargs):
             # Register component
-            return f_pprovider(*args, **kwargs)
+            return f_mprovider(*args, **kwargs)
     return metric_provider_decorator
 
+
+def experiment(*args, **kwargs):
+    def experiment_decorator(f_experiment):
+        @wraps(f_experiment)
+        def wrap_experiment(*args, **kwargs):
+            return Experiment(*args, creator=f_experiment, **kwargs)
+        return wrap_experiment()
+    return experiment_decorator
+
+
+def project(*, name, description, **kwargs):
+    def project_decorator(f_project):
+        @wraps(f_project)
+        def wrap_project(*args, **kwargs):
+            p = Project(name=name, description=description, **kwargs)
+            p = f_project(*args, **kwargs)
+            p.send_put()
+            return p
+    return project_decorator
+
+
+def dataset(*args, **kwargs):
+    def dataset_decorator(f_dataset):
+        @wraps(f_dataset)
+        def wrap_dataset(*args, **kwargs):
+            # Register component
+            return f_dataset(*args, **kwargs)
+    return dataset_decorator
 
 # def merge_args(exp_name, args, kwargs):
 #     if len(_experiments[exp_name]["args"]) < len(args):

@@ -38,8 +38,8 @@ class Validateable(ILoggable):
     """ This class implements basic logic for validating the state of it's input parameters """
 
     # noinspection PyBroadException
-    def __init__(self, schema=None, schema_path=None, schema_url=None,
-                 schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None, metadata=None, *args, **kwargs):
+    def __init__(self,  *args, schema=None, schema_path=None, schema_url=None,
+                 schema_resource_package='pypadre.core.resources.schema', schema_resource_name=None, metadata=None, validate=True, **kwargs):
         if metadata is None:
             metadata = {}
         # Load schema externally
@@ -74,7 +74,8 @@ class Validateable(ILoggable):
 
         self._schema = schema
         # Fail if no schema is provided
-        self.validate(metadata=metadata, **kwargs)
+        if validate:
+            self.validate(metadata=metadata, **kwargs)
 
     def validate(self, **kwargs):
         """
