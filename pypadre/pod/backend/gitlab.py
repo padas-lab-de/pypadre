@@ -29,9 +29,10 @@ class PadreGitLabBackend(IPadreBackend):
         self.log(message="ERROR: " + message, **kwargs)
 
     def log(self, message, **kwargs):
-        if self._file is None:
-            self._file = open(os.path.join(self.root_dir, "padre.log"), "a")
-        self._file.write(message)
+        # if self._file is None:
+        #     self._file = open(os.path.join(self.root_dir, "padre.log"), "a")
+        # self._file.write(message)
+        pass
 
     def __init__(self, config):
         super().__init__(config)

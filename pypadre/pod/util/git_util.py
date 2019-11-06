@@ -265,7 +265,7 @@ def get_repo(path=None, url=None, **kwargs):
 
 
 def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,init=False):
-    repo = get_repo(path=dir_path)
+    repo = create_repo(path=dir_path, bare=False) if not repo_exists(dir_path) else get_repo(path=dir_path)
     add_untracked_files(repo=repo)
     if len(repo.index.diff(None)) > 0 or init:
         commit(repo, message=message)

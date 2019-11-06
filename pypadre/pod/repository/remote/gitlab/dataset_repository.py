@@ -1,8 +1,9 @@
 import os
 import re
 
-from pypadre import Dataset
+
 from pypadre.core.model.dataset.attribute import Attribute
+from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File

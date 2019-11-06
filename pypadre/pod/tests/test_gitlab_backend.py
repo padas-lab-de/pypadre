@@ -29,9 +29,9 @@ class PadreGitTest(unittest.TestCase):
         config.set("backends", str([
                     {
                         "root_dir": cls.workspace_path,
-                        "gitlab_url": 'http://localhost:8080/',
+                        "gitlab_url": 'http://gitlab.padre.backend:30080/',
                         "user" : "root",
-                        "token" : "e8mbtk4suozvmPw5c5Fo"
+                        "token" : "LvVzAaNyFyS6iiJNzTFf"
                     }
                 ]))
         cls.app = PadreAppFactory.get(config)
@@ -165,4 +165,3 @@ class GitlabBackend(PadreGitTest):
         experiments = self.app.experiments.list({'name': name})
 
         assert (isinstance(experiments, list))
-        pass

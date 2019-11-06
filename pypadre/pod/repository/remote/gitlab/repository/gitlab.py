@@ -19,8 +19,6 @@ from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
 from pypadre.pod.util.git_util import repo_exists, open_existing_repo, get_repo, add_and_commit
 
-DOMAIN = "gitlab-web"
-temp_DOMAIN = "localhost:8080"
 
 class GitLabRepository(IGitRepository):
     """ This is the abstract class extending the basic git backend with gitlab remote server functionality"""
@@ -103,7 +101,6 @@ class GitLabRepository(IGitRepository):
         else:
             attributes = self._repo.attributes
             url= attributes.get("ssh_url_to_repo") if ssh else attributes.get("http_url_to_repo")
-            url = url.replace(DOMAIN,temp_DOMAIN) # TODO resolve domain address when using local server
             _url = url.split("//")
             url = "".join([_url[0],"//","oauth2:{}@".format(self._token),_url[1]]) #To resolve the authentication https://stackoverflow.com/a/52154378
             return url
@@ -167,7 +164,7 @@ class GitLabRepository(IGitRepository):
         if self._group is None:
             return super().list(search)
         else:
-            for repo in self._group.projects.list(search=search):
+            for repo in self._group.projects.list(search=search.get("name")):
                 repos.append(self._git.projects.get(repo.id,lazy=False))
         return self.filter([self.get_by_repo(repo) for repo in repos],search)
 
