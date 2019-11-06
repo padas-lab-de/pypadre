@@ -4,13 +4,13 @@ from __future__ import annotations
 from types import GeneratorType
 from typing import Optional, Iterable
 
-from pypadre.core.base import MetadataEntity, ChildEntity
+from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.i_model_mixins import IProgressable, IStoreable
+from pypadre.core.model.generic.i_model_mixins import ProgressableMixin, StoreableMixin
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Computation(IStoreable, IProgressable, MetadataEntity, ChildEntity, Tablefyable):
+class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, Tablefyable):
     COMPONENT_ID = "component_id"
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"

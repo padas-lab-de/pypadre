@@ -29,25 +29,15 @@ class Model(dict):
         # we overload setattr so set this manually
         d = dict(*args, **kwargs)
 
-        try:
-            self.validate(d)
-        except exceptions.ValidationError as exc:
-            raise ValueError(str(exc))
-        else:
-            dict.__init__(self, d)
-
+        dict.__init__(self, d)
+        self._dirty = True
         self.__dict__["changes"] = {}
         self.__dict__["__original__"] = copy.deepcopy(d)
 
     def __setitem__(self, key, value):
         mutation = dict(self.items())
         mutation[key] = value
-        try:
-            self.validate(mutation)
-        except exceptions.ValidationError as exc:
-            msg = "Unable to set '%s' to %r. Reason: %s" % (key, value, str(exc))
-            raise exceptions.InvalidOperation(msg)
-
+        self._dirty = True
         dict.__setitem__(self, key, value)
 
         self.__dict__["changes"][key] = value
@@ -55,22 +45,23 @@ class Model(dict):
     def __delitem__(self, key):
         mutation = dict(self.items())
         del mutation[key]
-        try:
-            self.validate(mutation)
-        except exceptions.ValidationError as exc:
-            msg = "Unable to delete attribute '%s'. Reason: %s" % (key, str(exc))
-            raise exceptions.InvalidOperation(msg)
-
+        self._dirty = True
         dict.__delitem__(self, key)
 
     def __getattr__(self, key):
-        try:
-            return self.__getitem__(key)
-        except KeyError:
-            raise AttributeError(key)
+        if key is not "_dirty":
+            try:
+                return self.__getitem__(key)
+            except KeyError:
+                raise AttributeError(key)
+        else:
+            super().__getattribute__(key)
 
     def __setattr__(self, key, value):
-        self.__setitem__(key, value)
+        if key is not "_dirty":
+            self.__setitem__(key, value)
+        else:
+            super().__setattr__(key, value)
 
     def __delattr__(self, key):
         self.__delitem__(key)
@@ -98,10 +89,7 @@ class Model(dict):
     def update(self, other):
         mutation = dict(self.items())
         mutation.update(other)
-        try:
-            self.validate(mutation)
-        except exceptions.ValidationError as exc:
-            raise exceptions.InvalidOperation(str(exc))
+        self._dirty = True
         dict.update(self, other)
 
     def iteritems(self):
@@ -131,12 +119,15 @@ class Model(dict):
         warnings.warn(deprecation_msg, DeprecationWarning, stacklevel=2)
         return copy.deepcopy(self.__dict__["changes"])
 
-    def validate(self, obj):
+    @property
+    def dirty(self):
+        return self._dirty
+
+    def validate(self):
         """Apply a JSON schema to an object"""
-        try:
-            if self.resolver is not None:
-                jsonschema.validate(obj, self.schema, cls=self.validator, resolver=self.resolver)
-            else:
-                jsonschema.validate(obj, self.schema, cls=self.validator)
-        except jsonschema.ValidationError as exc:
-            raise exceptions.ValidationError(str(exc))
+        if self.resolver is not None:
+            jsonschema.validate(self, self.schema, cls=self.validator, resolver=self.resolver)
+            self._dirty = False
+        else:
+            jsonschema.validate(self, self.schema, cls=self.validator)
+            self._dirty = False

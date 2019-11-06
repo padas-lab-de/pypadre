@@ -1,7 +1,7 @@
 import unittest
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.icode import Function
+from pypadre.core.model.code.codemixin import Function
 from pypadre.pod.tests.base_test import PadreAppTest
 
 

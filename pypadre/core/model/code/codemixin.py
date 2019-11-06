@@ -2,12 +2,12 @@ from _py_abc import ABCMeta
 from abc import abstractmethod
 from typing import Callable
 
-from pypadre.core.base import MetadataEntity, _CodeTypes
-from pypadre.core.model.generic.i_model_mixins import IStoreable
+from pypadre.core.base import MetadataMixin, _CodeTypes
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin
 from pypadre.core.pickling.pickle_base import Pickleable
 
 
-class ICode(IStoreable, MetadataEntity):
+class CodeMixin(StoreableMixin, MetadataMixin):
     """ Custom code to execute. """
     __metaclass__ = ABCMeta
 
@@ -20,7 +20,7 @@ class ICode(IStoreable, MetadataEntity):
 
         # TODO Constants into ontology stuff
         # Merge defaults TODO some file metadata extracted from the path
-        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.env, ICode.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{CodeMixin.CODE_TYPE: _CodeTypes.env, CodeMixin.CODE_CLASS: str(self.__class__)}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
 
     @abstractmethod
@@ -44,7 +44,7 @@ class ICode(IStoreable, MetadataEntity):
 # on the environment
 
 
-class Function(ICode):
+class Function(CodeMixin):
     """ Function to execute."""
 
     def hash(self):
@@ -56,7 +56,7 @@ class Function(ICode):
 
         # TODO Constants into ontology stuff
         # Merge defaults TODO some file metadata extracted from the path
-        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.fn}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{CodeMixin.CODE_TYPE: _CodeTypes.fn}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
         self._fn = fn
 
@@ -91,7 +91,7 @@ class EnvCode(Function, Pickleable):
 
         defaults = {}
         # TODO Constants into ontology stuff
-        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.env, self.PACKAGE: package, self.FUNCTION_NAME: fn_name}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{CodeMixin.CODE_TYPE: _CodeTypes.env, self.PACKAGE: package, self.FUNCTION_NAME: fn_name}, **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, fn=fn, **kwargs)
 
     @property

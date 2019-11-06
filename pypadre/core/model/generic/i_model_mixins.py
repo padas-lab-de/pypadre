@@ -4,7 +4,7 @@ from pypadre.core.events.events import Signaler, CommonSignals, signals
 
 
 @signals(CommonSignals.PUT, CommonSignals.DELETE, CommonSignals.GET)
-class IStoreable(Signaler):
+class StoreableMixin(Signaler):
     """ This is the interface for all entities being able to signal they are to be persisted, deleted etc."""
     __metaclass__ = ABCMeta
 
@@ -28,7 +28,7 @@ class IStoreable(Signaler):
 
 
 @signals(CommonSignals.PROGRESS)
-class IProgressable(Signaler):
+class ProgressableMixin(Signaler):
     """ This is the interface for all entities being able to signal a progress of their state."""
     __metaclass__ = ABCMeta
 
@@ -41,7 +41,7 @@ class IProgressable(Signaler):
 
 
 @signals(CommonSignals.LOG)
-class ILoggable(Signaler):
+class LoggableMixin(Signaler):
     """ This is the interface for all entities being able to signal a progress of their state."""
     __metaclass__ = ABCMeta
 

@@ -12,12 +12,12 @@ import pandas as pd
 from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
-from pypadre.core.base import MetadataEntity
+from pypadre.core.base import MetadataMixin
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.generic.i_model_mixins import IStoreable
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
 
@@ -32,7 +32,7 @@ class _Formats(_Const):
 formats = _Formats()
 
 
-class Dataset(IStoreable, MetadataEntity):
+class Dataset(StoreableMixin, MetadataMixin):
 
     def __init__(self, **kwargs):
         """
@@ -66,11 +66,11 @@ class Dataset(IStoreable, MetadataEntity):
         returns the type of the dataset.
         :return: multivariate, matrix, graph, media
         """
-        return self._metadata.get("type")
+        return self.metadata.get("type")
 
     @property
     def attributes(self):
-        return self._metadata.get("attributes")
+        return self.metadata.get("attributes")
 
     def validate(self, **kwargs):
         super().validate(**kwargs)

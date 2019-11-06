@@ -4,8 +4,8 @@ import numpy as np
 
 from pypadre import _name, _version
 from pypadre.core.metrics.metric_registry import metric_registry
-from pypadre.core.metrics.metrics import IMetricProvider, Metric
-from pypadre.core.model.generic.custom_code import IProvidedCode
+from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
+from pypadre.core.model.generic.custom_code import ProvidedCodeMixin
 from pypadre.core.util.utils import unpack
 
 
@@ -21,11 +21,11 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
             """
     import copy
     # import the constant strings that are the dictionary keys from the evaluator component
-    from pypadre.core.model.pipeline.components import EvaluatorComponent
+    from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin
     (computation,) = unpack(ctx, "computation")
 
     # create the predicted values and the truth values array from the computation results
-    predictions = computation.result[EvaluatorComponent.PREDICTIONS]
+    predictions = computation.result[EvaluatorComponentMixin.PREDICTIONS]
 
     predicted = []
     truth = []
@@ -34,8 +34,8 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
     # dictionary contains the truth value, predicted value and probabilities
     for row_idx in predictions:
         prediction_results = predictions.get(row_idx)
-        predicted.append(prediction_results.get(EvaluatorComponent.PREDICTED))
-        truth.append(prediction_results.get(EvaluatorComponent.TRUTH))
+        predicted.append(prediction_results.get(EvaluatorComponentMixin.PREDICTED))
+        truth.append(prediction_results.get(EvaluatorComponentMixin.TRUTH))
 
     if predicted is None or truth is None or len(predicted) != len(truth):
         computation.send_error("")
@@ -63,7 +63,7 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
     return Metric(name="ConfusionMatrix", computation=computation, result=copy.deepcopy(confusion_matrix.tolist()))
 
 
-class ConfusionMatrix(IProvidedCode, IMetricProvider):
+class ConfusionMatrix(ProvidedCodeMixin, MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(package=__name__, fn_name="matrix", requirement=_name.__name__,
@@ -98,7 +98,7 @@ def regression(ctx, **kwargs) -> Optional[List[Metric]]:
     return metrics
 
 
-class RegressionMetrics(IProvidedCode, IMetricProvider):
+class RegressionMetrics(ProvidedCodeMixin, MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(package=__name__, fn_name="regression", requirement=_name.__name__,
@@ -167,7 +167,7 @@ def classification(ctx, option='macro', **kwargs):
     return Metric(name="classification_metrics", computation=computation, result=copy.deepcopy(classification_metrics))
 
 
-class ClassificationMetrics(IProvidedCode, IMetricProvider):
+class ClassificationMetrics(ProvidedCodeMixin, MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(package=__name__, fn_name="classification", requirement=_name.__name__,

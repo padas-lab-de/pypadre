@@ -2,12 +2,12 @@ from typing import List, Set
 
 from networkx import DiGraph, descendants
 
-from pypadre.core.metrics.metrics import IMetricProvider, Metric
+from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.generic.i_model_mixins import ILoggable
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 
 
-class MetricRegistry(ILoggable):
+class MetricRegistry(LoggableMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -21,7 +21,7 @@ class MetricRegistry(ILoggable):
         for provider in providers:
             self.add_provider(provider)
 
-    def add_provider(self, provider: IMetricProvider):
+    def add_provider(self, provider: MetricProviderMixin):
         if provider in self.registered_providers.nodes:
             self.send_warn("Measure already defined. Omitted adding it to the measure service: " + str(provider))
         else:
@@ -44,7 +44,7 @@ class MetricRegistry(ILoggable):
                 entries.append(node)
         return entries
 
-    def available_providers(self, computation: Computation) -> Set[IMetricProvider]:
+    def available_providers(self, computation: Computation) -> Set[MetricProviderMixin]:
         metric_providers = set()
         for node in self.initial_providers(computation):
             metric_providers.add(node)

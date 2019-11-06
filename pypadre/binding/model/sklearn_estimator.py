@@ -5,8 +5,8 @@ from pypadre.binding.model.sklearn_gridsearch import SKLearnGridSearch
 from pypadre.binding.visitors.scikit import SciKitVisitor
 from pypadre.core.base import phases
 from pypadre.core.model.computation.training import Training
-from pypadre.core.model.pipeline.components import IProvidedComponent, EstimatorComponent, \
-    ParameterizedPipelineComponent
+from pypadre.core.model.pipeline.components.component_mixins import ProvidedComponentMixin, EstimatorComponentMixin, \
+    ParameterizedPipelineComponentMixin
 from pypadre.core.util.utils import unpack
 
 
@@ -25,7 +25,7 @@ def estimate(ctx, **kwargs):
     return component.estimate(ctx, **kwargs)
 
 
-class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipelineComponent):
+class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, ParameterizedPipelineComponentMixin):
     """
     This class encapsulates an sklearn workflow which allows to run sklearn pipelines or a list of sklearn components,
     report the results according to the outcome via the experiment logger.

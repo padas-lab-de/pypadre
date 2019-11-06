@@ -10,10 +10,10 @@ from pypadre.core.model.dataset import dataset
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.generic.i_model_mixins import ILoggable
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 
 
-class NumpyContainer(IBaseContainer,ILoggable):
+class NumpyContainer(IBaseContainer, LoggableMixin):
 
     def __init__(self, data, attributes: List[Attribute]=None):
         # todo rework binary data into delegate pattern.

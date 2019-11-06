@@ -1,23 +1,21 @@
 import inspect
 import os
 import re
-import tempfile
-import uuid
 from abc import abstractmethod, ABCMeta
 
-import arff
 import networkx as nx
 import numpy as np
 import pandas as pd
 import sklearn.datasets as ds
 from padre.PaDREOntology import PaDREOntology
+
 # import openml as oml
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.model.generic.i_model_mixins import ILoggable
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 from pypadre.core.util.utils import _Const
 from pypadre.pod.importing.dataset.graph_import import create_from_snap, create_from_konect
-from openml import exceptions
+
 
 class _Sources(_Const):
     file = "file"
@@ -28,7 +26,7 @@ class _Sources(_Const):
 sources = _Sources()
 
 
-class IDataSetLoader(ILoggable):
+class DataSetLoaderMixin(LoggableMixin):
     """
     Class used to load external datasets
     """
@@ -61,7 +59,7 @@ class IDataSetLoader(ILoggable):
         return dataset
 
 
-class ICollectionDataSetLoader(IDataSetLoader):
+class ICollectionDataSetLoader(DataSetLoaderMixin):
     @abstractmethod
     def list(self, **kwargs):
         """
@@ -77,7 +75,7 @@ class ICollectionDataSetLoader(IDataSetLoader):
         pass
 
 
-class CSVLoader(IDataSetLoader):
+class CSVLoader(DataSetLoaderMixin):
 
     def __hash__(self):
         return hash(self.__class__)
@@ -126,7 +124,7 @@ class CSVLoader(IDataSetLoader):
         return data_set
 
 
-class PandasLoader(IDataSetLoader):
+class PandasLoader(DataSetLoaderMixin):
 
     @staticmethod
     def mapping(source):
@@ -155,7 +153,7 @@ class PandasLoader(IDataSetLoader):
         return data_set
 
 
-class NumpyLoader(IDataSetLoader):
+class NumpyLoader(DataSetLoaderMixin):
 
     @staticmethod
     def mapping(source):
@@ -188,7 +186,7 @@ class NumpyLoader(IDataSetLoader):
         return data_set
 
 
-class NetworkXLoader(IDataSetLoader):
+class NetworkXLoader(DataSetLoaderMixin):
 
     @staticmethod
     def mapping(source):

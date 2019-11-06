@@ -4,21 +4,23 @@ import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.metrics.metric_registry import metric_registry
-from pypadre.core.model.code.icode import ICode
+from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap
+from pypadre.core.model.code.codemixin import CodeMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.generic.i_model_mixins import IProgressable
-from pypadre.core.model.pipeline.WriteResultMetricsMap import WriteResultMetricsMap
-from pypadre.core.model.pipeline.components import EstimatorComponent, EvaluatorComponent, PipelineComponent, \
-    ParameterizedPipelineComponent, SplitComponent
-from pypadre.core.model.pipeline.parameters import ParameterMap
-from pypadre.core.validation.validation import Validateable
+from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
+from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.pipeline.components.component_mixins import EstimatorComponentMixin, EvaluatorComponentMixin, \
+    PipelineComponentMixin, \
+    ParameterizedPipelineComponentMixin
+from pypadre.core.model.pipeline.components.components import SplitComponent, PipelineComponent
+from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterMap
+from pypadre.core.validation.validation import ValidateableMixin
 
 
-class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
-    def __init__(self, allow_metrics = True, **attr):
+class Pipeline(ProgressableMixin, ExecuteableMixin, DiGraph, ValidateableMixin):
+    def __init__(self, allow_metrics=True, **attr):
         self._allow_metrics = allow_metrics
         super().__init__(**attr)
 
@@ -59,13 +61,13 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
             self._execute_pipeline(entry, parameter_map=parameter_map, write_parameters_map=write_parameters_map,
                                    run=run, data=data, **kwargs)
 
-    def _execute_pipeline(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
+    def _execute_pipeline(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
                           write_parameters_map: WriteResultMetricsMap, run: Run,
                           **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
 
-        if isinstance(node, ParameterizedPipelineComponent):
+        if isinstance(node, ParameterizedPipelineComponentMixin):
             # extract all combinations of parameters we have to execute
             parameter_grid = node.combinations(run=run, predecessor=kwargs.get("predecessor", None),
                                                parameter_map=parameter_map)
@@ -85,7 +87,7 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
                                           write_parameters_map=write_parameters_map, run=run,
                                           predecessor=kwargs.get("predecessor", None), **kwargs)
 
-    def _execute_pipeline_helper(self, node: PipelineComponent, *, data, parameter_map: ParameterMap,
+    def _execute_pipeline_helper(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
                                  write_parameters_map: WriteResultMetricsMap,
                                  run: Run, aggregate_results=True, **kwargs):
 
@@ -118,7 +120,7 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
             output = PipelineOutput.from_computation(computation)
             output.send_put()
 
-    def _execute_successors(self, node: PipelineComponent, *, data, parameter_map: ParameterMap, run: Run,
+    def _execute_successors(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap, run: Run,
                             predecessor: Computation = None, **kwargs):
         successors = self.successors(node)
         for successor in successors:
@@ -151,27 +153,27 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
 class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
-    def __init__(self, *, preprocessing_fn: Optional[Union[ICode, Callable]] = None,
-                 splitting: Optional[Union[Type[ICode], Callable]],
-                 estimator: Union[Callable, EstimatorComponent],
-                 evaluator: Union[Callable, EvaluatorComponent], **attr):
+    def __init__(self, *, preprocessing_fn: Optional[Union[CodeMixin, Callable]] = None,
+                 splitting: Optional[Union[Type[CodeMixin], Callable]],
+                 estimator: Union[Callable, EstimatorComponentMixin],
+                 evaluator: Union[Callable, EvaluatorComponentMixin], **attr):
         super().__init__(**attr)
         if not networkx.is_empty(self):
             # TODO attrs could include some network initialization for the components
             raise NotImplementedError("Preinitializing a pipeline is not implemented.")
 
-        self._preprocessor = PipelineComponent(name="preprocessor", code=preprocessing_fn,
-                                           **attr) if preprocessing_fn else None
+        self._preprocessor = PipelineComponent(name="preprocessor", provides=["dataset"], code=preprocessing_fn,
+                                                    **attr) if preprocessing_fn else None
 
         self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
         self.add_node(self._splitter)
 
-        self._estimator = estimator if isinstance(estimator, EstimatorComponent) else EstimatorComponent(
+        self._estimator = estimator if isinstance(estimator, EstimatorComponentMixin) else EstimatorComponentMixin(
             code=estimator, predecessors=[self._splitter], **attr)
 
         self.add_node(self._estimator)
 
-        self._evaluator = evaluator if isinstance(evaluator, EvaluatorComponent) else EvaluatorComponent(
+        self._evaluator = evaluator if isinstance(evaluator, EvaluatorComponentMixin) else EvaluatorComponentMixin(
             code=evaluator, predecessors=[self._estimator], **attr)
         self.add_node(self._evaluator)
 

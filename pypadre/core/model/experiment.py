@@ -1,36 +1,25 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
-from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.model.code.icode import ICode
-from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.model.execution import Execution
-from pypadre.core.model.generic.custom_code import ICodeManagedObject
-from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
-from pypadre.core.model.pipeline.pipeline import Pipeline
-from pypadre.core.model.project import Project
 from typing import Callable, Union, Optional, Type
 
-
+from pypadre.core.base import ChildMixin, MetadataMixin
+from pypadre.core.model.code.codemixin import CodeMixin
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.execution import Execution
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
+from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin, ProgressableMixin
+from pypadre.core.model.pipeline.pipeline import Pipeline
+from pypadre.core.model.project import Project
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
+from pypadre.core.validation.json_validation import make_model
+
+experiment_model = make_model(schema_resource_name='experiment.json')
 
 
-def _sklearn_runner():
-    pass
-
-
-def _is_sklearn_pipeline(pipeline):
-    """
-    checks whether pipeline is a sklearn pipeline
-    :param pipeline:
-    :return:
-    """
-    # we do checks via strings, not isinstance in order to avoid a dependency on sklearn
-    return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
-
-
-class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity):
+class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin,
+                 ChildMixin):
     """
     Experiment class covering functionality for executing and evaluating machine learning experiments.
     It is determined by a pipeline which is evaluated over a dataset with several configuration.
@@ -96,7 +85,7 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
 
     # TODO non-metadata input should be a parameter
     def __init__(self, name, description, project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None,
-                 creator: Optional[Union[Type[ICode], Callable]] = None,
+                 creator: Optional[Union[Type[CodeMixin], Callable]] = None,
                  **kwargs):
         # Add defaults
         defaults = {"name": "default experiment name", "description": "This is the default experiment."}
@@ -111,7 +100,7 @@ class Experiment(ICodeManagedObject, IStoreable, IProgressable, IExecuteable, Me
             self.DESCRIPTION: description
         }}
 
-        super().__init__(parent=project, schema_resource_name="experiment.json",  creator=creator,
+        super().__init__(parent=project, model_clz=experiment_model, creator=creator,
                          metadata=metadata, **kwargs)
         # Variables
         self._dataset = dataset

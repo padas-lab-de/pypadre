@@ -1,7 +1,7 @@
 import numpy as np
 
 from pypadre import _version, _name
-from pypadre.core.model.code.icode import EnvCode
+from pypadre.core.model.code.codemixin import EnvCode
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.split.split import Split
 from pypadre.core.util.utils import unpack

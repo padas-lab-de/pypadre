@@ -4,10 +4,10 @@ from abc import ABCMeta, abstractmethod
 from typing import List
 
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.generic.custom_code import ICodeManagedObject, CustomCodeHolder
-from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.generic.i_model_mixins import ILoggable
-from pypadre.core.model.pipeline.components import IConsumer, IProvider
+from pypadre.core.model.generic.custom_code import CodeManagedMixin, CustomCodeHolder
+from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
+from pypadre.core.model.pipeline.components.component_interfaces import IConsumer, IProvider
 
 
 class Metric(Computation):
@@ -33,7 +33,7 @@ class Metric(Computation):
         return self._name
 
 
-class IMetricProvider(ICodeManagedObject, IConsumer, IProvider, CustomCodeHolder, IExecuteable, ILoggable):
+class MetricProviderMixin(CodeManagedMixin, IConsumer, IProvider, CustomCodeHolder, ExecuteableMixin, LoggableMixin):
     __metaclass__ = ABCMeta
 
     @abstractmethod

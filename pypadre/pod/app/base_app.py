@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from pypadre.core.base import ChildEntity
+from pypadre.core.base import ChildMixin
 from pypadre.core.util.inheritance import SuperStop
 from pypadre.pod.service.base_service import BaseService
 
@@ -88,7 +88,7 @@ class BaseEntityApp(IBaseApp):
         pass
 
 
-class BaseChildApp(ChildEntity, BaseEntityApp):
+class BaseChildApp(ChildMixin, BaseEntityApp):
     """ Base class for apps being a child of another app. """
     __metaclass__ = ABCMeta
 

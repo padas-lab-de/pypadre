@@ -4,8 +4,8 @@ import unittest
 import numpy as np
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.icode import Function
-from pypadre.core.model.pipeline.components import CustomSplit
+from pypadre.core.model.code.codemixin import Function
+from pypadre.core.model.pipeline.components.components import CustomSplit
 from pypadre.core.util.utils import unpack
 from pypadre.pod.tests.base_test import PadreAppTest
 from pypadre.pod.tests.util.util import create_sklearn_test_pipeline

@@ -3,9 +3,7 @@ import re
 import shutil
 from abc import abstractmethod, ABCMeta
 
-from cachetools import LRUCache, cached
-
-from pypadre.core.base import ChildEntity
+from pypadre.core.base import ChildMixin
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable, IRepository
 from pypadre.pod.util.file_util import get_path
@@ -273,7 +271,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 
 
 # TODO Maybe we could simplify the file repository by having all of them on root level. We don't need to use submodules and therefore can cope without the structure when using git tsrc
-class IChildFileRepository(IFileRepository, ChildEntity):
+class IChildFileRepository(IFileRepository, ChildMixin):
 
     @abstractmethod
     def __init__(self, *, parent: IFileRepository, name: str, backend: IPadreBackend, **kwargs):
@@ -287,7 +285,7 @@ class IChildFileRepository(IFileRepository, ChildEntity):
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
 
         # Put parent if it is not already existing
-        if self.parent is not None and isinstance(obj, ChildEntity):
+        if self.parent is not None and isinstance(obj, ChildMixin):
             if not self.parent.exists(obj.parent.id):
                 self.parent.put(obj.parent)
 

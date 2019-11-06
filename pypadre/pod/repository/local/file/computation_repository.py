@@ -1,14 +1,12 @@
 from types import GeneratorType
 
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.lazy_loader import SimpleLazyObject
-from pypadre.core.model.pipeline.components import PipelineComponent
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.repository.i_repository import IRunRepository, IComputationRepository
+from pypadre.pod.repository.i_repository import IComputationRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
-from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer, DillSerializer
+from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
 
 NAME = "computations"
 

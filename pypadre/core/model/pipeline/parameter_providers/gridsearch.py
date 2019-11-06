@@ -1,7 +1,7 @@
 from pypadre import _version, _name
 from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
-from pypadre.core.model.generic.custom_code import IProvidedCode
-from pypadre.core.model.pipeline.parameters import IParameterProvider, ParameterMap
+from pypadre.core.model.generic.custom_code import ProvidedCodeMixin
+from pypadre.core.model.pipeline.parameter_providers.parameters import IParameterProvider, ParameterMap
 from pypadre.core.util.utils import unpack
 
 
@@ -78,6 +78,6 @@ def grid_search(ctx, **kwargs):
                               predecessor=predecessor, branch=True)
 
 
-class GridSearch(IProvidedCode, IParameterProvider):
+class GridSearch(ProvidedCodeMixin, IParameterProvider):
     def __init__(self, **kwargs):
         super().__init__(package=__name__, fn_name="grid_search",  requirement=_name.__name__, version=_version.__version__, **kwargs)
