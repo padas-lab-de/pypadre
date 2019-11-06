@@ -74,12 +74,13 @@ def split(ctx, strategy="random", test_ratio=0.25, random_seed=None, val_ratio=0
                 r.shuffle(idx)
             n_tr = int(n * (1.0 - test_ratio))
             train, test = idx[:n_tr], idx[n_tr:]
+            num += 1
             if val_ratio > 0:  # create a validation set out of the test set
                 n_v = int(len(train) * val_ratio)
-                yield Split(run=run, num=++num, train_idx=train[:n_v], test_idx=test, val_idx=train[n_v:],
+                yield Split(run=run, num=num, train_idx=train[:n_v], test_idx=test, val_idx=train[n_v:],
                             component=component, predecessor=predecessor)
             else:
-                yield Split(run=run, num=++num, train_idx=train, test_idx=test, val_idx=None, component=component,
+                yield Split(run=run, num=num, train_idx=train, test_idx=test, val_idx=None, component=component,
                             predecessor=predecessor)
         elif strategy == "cv":
             for i in range(n_folds):

@@ -1,5 +1,5 @@
 from typing import Optional, List
-
+from copy import deepcopy
 import numpy as np
 
 from pypadre import _name, _version
@@ -7,6 +7,24 @@ from pypadre.core.metrics.MetricRegistry import metric_registry
 from pypadre.core.metrics.metrics import IMetricProvider, Metric
 from pypadre.core.model.generic.custom_code import IProvidedCode
 from pypadre.core.util.utils import unpack
+from padre.PaDREOntology import PaDREOntology
+from pypadre.core.model.pipeline.components import EvaluatorComponent
+
+TOTAL_ERROR = "total_error"
+MEAN_ERROR = "mean_error"
+MEAN_ABSOLUTE_ERROR = "mean_absolute_error"
+STANDARD_DEVIATION = "standard_deviation"
+MAX_ABSOLUTE_ERROR = "max_absolute_error"
+MIN_ABSOLUTE_ERROR = "min_absolute_error"
+
+PRECISION = "precision"
+RECALL = "recall"
+ACCURACY = "accuracy"
+F1_SCORE = "f1_score"
+
+CLASSIFICATION_METRICS = "classification_metrics"
+REGRESSION_METRICS = "regression_metrics"
+CONFUSION_MATRIX = "ConfusionMatrix"
 
 
 def matrix(ctx, **kwargs) -> Optional[Metric]:
@@ -21,7 +39,6 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
             """
     import copy
     # import the constant strings that are the dictionary keys from the evaluator component
-    from pypadre.core.model.pipeline.components import EvaluatorComponent
     (computation,) = unpack(ctx, "computation")
 
     # create the predicted values and the truth values array from the computation results
@@ -60,7 +77,7 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
         for idx in range(0, len(truth)):
             confusion_matrix[int(truth[idx])][int(predicted[idx])] += 1
 
-    return Metric(name="ConfusionMatrix", computation=computation, result=copy.deepcopy(confusion_matrix.tolist()))
+    return Metric(name=CONFUSION_MATRIX, computation=computation, result=copy.deepcopy(confusion_matrix.tolist()))
 
 
 class ConfusionMatrix(IProvidedCode, IMetricProvider):
@@ -71,13 +88,29 @@ class ConfusionMatrix(IProvidedCode, IMetricProvider):
 
     @property
     def consumes(self) -> str:
-        return "classification"
+        # return "classification"
+        return PaDREOntology.SubClassesExperiment.Classification.value
 
 
 def regression(ctx, **kwargs) -> Optional[List[Metric]]:
-    computation = unpack(ctx, "data")
-    truth = computation.result.truth
-    predicted = computation.result.predicted
+
+    (computation,) = unpack(ctx, "computation")
+
+    predictions = computation.result[EvaluatorComponent.PREDICTIONS]
+
+    predicted = []
+    truth = []
+
+    # The predictions dictionary contains as the key the testing row index, and the value is a dictionary. The
+    # dictionary contains the truth value, predicted value and probabilities
+    for row_idx in predictions:
+        prediction_results = predictions.get(row_idx)
+        predicted.append(prediction_results.get(EvaluatorComponent.PREDICTED))
+        truth.append(prediction_results.get(EvaluatorComponent.TRUTH))
+
+    if predicted is None or truth is None or len(predicted) != len(truth):
+        computation.send_error("")
+        return None
 
     """
     The function computes the regression metrics of results
@@ -88,14 +121,16 @@ def regression(ctx, **kwargs) -> Optional[List[Metric]]:
 
     :return: Dictionary containing the computed metrics
     """
-    metrics = []
-    error = truth - predicted
-    metrics.append(Metric(name='mean_error', result=np.mean(error)))
-    metrics.append(Metric(name='mean_absolute_error', result=np.mean(abs(error))))
-    metrics.append(Metric(name='standard_deviation', result=np.std(error)))
-    metrics.append(Metric(name='max_absolute_error', result=np.max(abs(error))))
-    metrics.append(Metric(name='min_absolute_error', result=np.min(abs(error))))
-    return metrics
+    error = np.array(truth) - np.array(predicted)
+
+    regression_metrics = dict()
+    regression_metrics[TOTAL_ERROR] = float(np.sum(error))
+    regression_metrics[MEAN_ERROR] = float(np.mean(error))
+    regression_metrics[MEAN_ABSOLUTE_ERROR] = float(np.mean(abs(error)))
+    regression_metrics[STANDARD_DEVIATION] = float(np.std(error))
+    regression_metrics[MAX_ABSOLUTE_ERROR] = float(np.max(abs(error)))
+    regression_metrics[MIN_ABSOLUTE_ERROR] = float(np.min(abs(error)))
+    return Metric(name=REGRESSION_METRICS, computation=computation, result=deepcopy(regression_metrics))
 
 
 class RegressionMetrics(IProvidedCode, IMetricProvider):
@@ -106,7 +141,8 @@ class RegressionMetrics(IProvidedCode, IMetricProvider):
 
     @property
     def consumes(self) -> str:
-        return "regression"
+        # return "regression"
+        return PaDREOntology.SubClassesExperiment.Regression.value
 
 
 # TODO extend
@@ -124,7 +160,6 @@ def classification(ctx, option='macro', **kwargs):
 
     :return: Classification metrics as a dictionary
     """
-    import copy
     if confusion_matrix is None:
         return None
 
@@ -147,24 +182,24 @@ def classification(ctx, option='macro', **kwargs):
 
     accuracy = tp / np.sum(confusion_matrix)
     if option == 'macro':
-        classification_metrics['recall'] = float(np.mean(recall))
-        classification_metrics['precision'] = float(np.mean(precision))
-        classification_metrics['accuracy'] = accuracy
-        classification_metrics['f1_score'] = float(np.mean(f1_measure))
+        classification_metrics[RECALL] = float(np.mean(recall))
+        classification_metrics[PRECISION] = float(np.mean(precision))
+        classification_metrics[ACCURACY] = accuracy
+        classification_metrics[F1_SCORE] = float(np.mean(f1_measure))
 
     elif option == 'micro':
-        classification_metrics['recall'] = accuracy
-        classification_metrics['precision'] = accuracy
-        classification_metrics['accuracy'] = accuracy
-        classification_metrics['f1_score'] = accuracy
+        classification_metrics[RECALL] = accuracy
+        classification_metrics[PRECISION] = accuracy
+        classification_metrics[ACCURACY] = accuracy
+        classification_metrics[F1_SCORE] = accuracy
 
     else:
-        classification_metrics['recall'] = recall.tolist()
-        classification_metrics['precision'] = precision.tolist()
-        classification_metrics['accuracy'] = accuracy
-        classification_metrics['f1_score'] = f1_measure.tolist()
+        classification_metrics[RECALL] = recall.tolist()
+        classification_metrics[PRECISION] = precision.tolist()
+        classification_metrics[ACCURACY] = accuracy
+        classification_metrics[F1_SCORE] = f1_measure.tolist()
 
-    return Metric(name="classification_metrics", computation=computation, result=copy.deepcopy(classification_metrics))
+    return Metric(name=CLASSIFICATION_METRICS, computation=computation, result=deepcopy(classification_metrics))
 
 
 class ClassificationMetrics(IProvidedCode, IMetricProvider):

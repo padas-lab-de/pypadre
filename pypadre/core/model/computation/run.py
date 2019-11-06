@@ -10,9 +10,12 @@ WRITE_METRICS = "write_metrics"
 
 
 class Run(IExecuteable, IStoreable, MetadataEntity, ChildEntity, Tablefyable):
+    """
+    A run is an execution of the pipeline on a specific dataset. Each time an experiment is executed a new run is
+    created.
+    """
 
-    EXECUTION_ID = "experiment_id"
-
+    EXECUTION_ID = "execution_id"
 
     @classmethod
     def _tablefy_register_columns(cls):

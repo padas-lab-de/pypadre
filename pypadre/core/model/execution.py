@@ -6,7 +6,11 @@ from pypadre.core.model.computation.run import Run
 
 
 class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity, Tablefyable):
-    """ A execution should save data about the running env and the version of the code on which it was run """
+    """
+    A execution should save data about the running env and the version of the code on which it was run .
+    An execution is linked to the version of the code being executed. The execution directory is the hash of the commit
+    of the source code file.
+    """
 
     EXPERIMENT_ID = "experiment_id"
 

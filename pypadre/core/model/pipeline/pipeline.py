@@ -101,7 +101,7 @@ class Pipeline(IProgressable, IExecuteable, DiGraph, Validateable):
 
         computation = node.execute(run=run, data=data,
                                    predecessor=kwargs.pop("predecessor", None), store_results=store_results,
-                                   initial_hyperparameters = initial_hyperparameters,
+                                   initial_hyperparameters=initial_hyperparameters,
                                    **kwargs)
 
         self.send_log(message="Following metrics would be available for " +
