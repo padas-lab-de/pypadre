@@ -40,7 +40,7 @@ class IProgressable(Signaler):
         self.send_signal(CommonSignals.PROGRESS, self, progress=progress, **kwargs)
 
 
-@signals(CommonSignals.LOG)
+@signals(CommonSignals.LOG, CommonSignals.LOG_INFO, CommonSignals.LOG_WARN, CommonSignals.LOG_ERROR)
 class ILoggable(Signaler):
     """ This is the interface for all entities being able to signal a progress of their state."""
     __metaclass__ = ABCMeta

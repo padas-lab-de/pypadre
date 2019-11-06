@@ -309,7 +309,7 @@ class AppLocalBackends(PadreAppTest):
                                                              'experiments/Test Experiment/executions'))
         assert(files_found is not None)
 
-    def test_all_functionalities(self):
+    def test_all_functionalities_classification(self):
 
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
@@ -384,6 +384,7 @@ class AppLocalBackends(PadreAppTest):
                     return os.path.join(root, name)
 
         _id = '_diabetes_dataset'
+
         dataset = self.app.datasets.list({'name': _id})
 
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
@@ -395,15 +396,18 @@ class AppLocalBackends(PadreAppTest):
                                        'SKLearnEstimator': {'parameters': parameter_dict}
                                        })
 
-        files_found = find('results.bin', os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
+        files_found = find('results.bin',
+                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
                                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
-        files_found = find('initial_hyperparameters.json', os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
+        files_found = find('initial_hyperparameters.json',
+                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
                                                                               'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
-        files_found = find('parameters.json', os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
+        files_found = find('parameters.json',
+                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
                                                                  'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
