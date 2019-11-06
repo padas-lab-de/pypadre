@@ -15,6 +15,7 @@ NAME = "computations"
 META_FILE = File("metadata.json", JSonSerializer)
 PARAMETER_FILE = File("parameters.json", JSonSerializer)
 RESULT_FILE = File("results.bin", DillSerializer)
+INITIAL_HYPERPARAMETERS = File("initial_hyperparameters.json", JSonSerializer)
 
 
 class ComputationFileRepository(IChildFileRepository, ILogFileRepository, IComputationRepository):
@@ -48,5 +49,6 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         computation = obj
         self.write_file(directory, META_FILE, computation.metadata)
         self.write_file(directory, PARAMETER_FILE, computation.parameters)
+        self.write_file(directory, INITIAL_HYPERPARAMETERS, computation.initial_hyperparameters)
         if not isinstance(computation.result, GeneratorType) and store_results:
             self.write_file(directory, RESULT_FILE, computation.result, mode='wb')

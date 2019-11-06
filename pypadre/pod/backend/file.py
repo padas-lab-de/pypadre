@@ -35,7 +35,12 @@ class PadreFileBackend(IPadreBackend):
 
     def log(self, message, **kwargs):
         if self._file is None:
-            self._file = open(os.path.join(self.root_dir, "padre.log"), "a")
+            path = os.path.join(self.root_dir, "padre.log")
+            if not os.path.exists(self.root_dir):
+                os.makedirs(self.root_dir)
+
+            self._file = open(path, "a")
+
         self._file.write(message)
 
     def __init__(self, config):

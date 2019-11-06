@@ -39,6 +39,10 @@ class CommonSignals:
     START = SignalSchema("start", False)
     STOP = SignalSchema("stop", False)
     LOG = SignalSchema("log", True)
+    LOG_INFO = SignalSchema("log_info", False)
+    LOG_WARN = SignalSchema("log_warn", False)
+    LOG_ERROR = SignalSchema("log_error", False)
+
     CODEHASH = SignalSchema("codehash", False)
     LOAD = SignalSchema("load", False)
     GET = SignalSchema("get", False)
