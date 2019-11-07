@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository, ICodeRepository, \
     IPipelineOutputRepository
@@ -43,7 +44,6 @@ class PadreFileBackend(IPadreBackend):
                 os.makedirs(self.root_dir)
 
             self._file = open(path, "a")
-
         self._file.write(message)
 
     def __init__(self, config):
@@ -64,9 +64,10 @@ class PadreFileBackend(IPadreBackend):
 
     def __del__(self):
         if self._file is not None:
+            self._file.flush()
             self._file.close()
 
-        super.__del__()
+        # super.__del__()
 
     @property
     def dataset(self) -> DatasetFileRepository:

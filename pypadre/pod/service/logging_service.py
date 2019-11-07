@@ -1,4 +1,5 @@
-from pypadre.core.events.events import LOG_EVENT, connect_base_signal
+from pypadre.core.events.events import CommonSignals, connect_subclasses
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 from pypadre.pod.service.base_service import ServiceMixin
 
 
@@ -7,6 +8,7 @@ class LoggingService(ServiceMixin):
     def __init__(self, backends, *args, **kwargs):
         super().__init__(backends, *args, **kwargs)
 
+        @connect_subclasses(LoggableMixin, name=CommonSignals.LOG.name)
         def log(*args, **kwargs):
             """
             Logs a warning to the backend
@@ -30,7 +32,5 @@ class LoggingService(ServiceMixin):
             else:
                 for b in self.backends:
                     b.log_warn(**kwargs)
-                # raise ValueError('Undefined Log level given:{log_level}'.format(log_level=log_level))
 
-        connect_base_signal(LOG_EVENT, log)
         self.save_signal_fn(log)

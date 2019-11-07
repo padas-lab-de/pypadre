@@ -25,6 +25,9 @@ class SignalSchema:
     def cascade(self):
         return self._cascade
 
+    def __str__(self):
+        return str(self.name)
+
     def __hash__(self):
         return str(self.name).__hash__()
 
@@ -39,9 +42,7 @@ class CommonSignals:
     START = SignalSchema("start", False)
     STOP = SignalSchema("stop", False)
     LOG = SignalSchema("log", True)
-
     CODEHASH = SignalSchema("codehash", False)
-    LOAD = SignalSchema("load", False)
     GET = SignalSchema("get", False)
 
 
@@ -137,10 +138,8 @@ def connect(*classes, name=None):
 
 def connect_subclasses(*classes, name=None):
     """
-    Decorator used to decorate methods which are to connect to signals of the subclasses of given classes.
-    :param name:
-    :param clz:
-    :return:
+    Decorator used to decorate methods which are to connect to signals of the subclasses of given classes. If no name
+    is given the function name is taken as signal name. :param name: :param clz: :return:
     """
 
     def connect_decorator(fn):
@@ -216,8 +215,8 @@ class Signaler(SuperStop):
     """
 
     @classmethod
-    def send_cls_signal(cls, signal: SignalSchema, condition=None, *sender, **kwargs):
-        if condition is None or condition:
+    def send_cls_signal(cls, signal: SignalSchema, condition=True, *sender, **kwargs):
+        if condition:
             if len(sender) == 0:
                 sender = [cls]
             if signal.name not in cls.signals():
@@ -227,8 +226,8 @@ class Signaler(SuperStop):
                     raise ValueError("Signal is not existing on " + str(cls))
                 cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
 
-    def send_signal(self, signal: SignalSchema, condition=None, *sender, **kwargs):
-        if condition is None or condition:
+    def send_signal(self, signal: SignalSchema, condition=True, *sender, **kwargs):
+        if condition:
             if len(sender) == 0:
                 sender = [self]
             if signal.name not in self.signals():

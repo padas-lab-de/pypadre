@@ -63,8 +63,8 @@ class LoggableMixin(Signaler):
     def send_info(self, *, message, **kwargs):
         self.send_signal(self.SIGNAL_LOG, self, log_level=self.LogLevels.INFO, message=message, **kwargs)
 
-    def send_warn(self, message, condition=None, **kwargs):
+    def send_warn(self, message, condition=True, **kwargs):
         self.send_signal(self.SIGNAL_LOG, log_level=self.LogLevels.WARN, message=message, condition=condition, **kwargs)
 
-    def send_error(self, message, condition=None, **kwargs):
+    def send_error(self, message, condition=True, **kwargs):
         self.send_signal(self.SIGNAL_LOG, log_level=self.LogLevels.ERROR, message=message, condition=condition, **kwargs)

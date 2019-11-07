@@ -1,10 +1,10 @@
 import os
 from abc import abstractmethod, ABCMeta
 
-from pypadre.pod.repository.local.file.generic.i_file_repository import IFileRepository
 from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
+from pypadre.pod.repository.local.file.generic.i_file_repository import IFileRepository
 
-FILE_NAME = "log.txt"
+FILE_NAME = "padre.log"
 
 
 class ILogFileRepository(IFileRepository, ILogRepository):
