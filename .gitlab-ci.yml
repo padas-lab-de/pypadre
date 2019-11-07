@@ -56,7 +56,7 @@ python-release:
     - sed -i "s/release = .*/release = '$VERSION'/g" setup.py
     #- grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install --extra-index-url https://$PYPI_USER:$PYPI_PW@$PYPI_URL || true # Enforce the order of the installation # Update requirements txt with version number
     - python setup.py sdist # creates the tarball
-    - python -m unittest discover -s ./tests/unit-tests/
+    - python -m unittest discover -s ./
     - twine upload --repository-url $PYPI_URL dist/*
   artifacts:
     paths:
