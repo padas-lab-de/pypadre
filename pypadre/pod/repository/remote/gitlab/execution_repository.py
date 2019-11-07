@@ -41,7 +41,6 @@ class ExecutionGitlabRepository(IChildFileRepository, IExecutionRepository):
         execution = obj
         self.write_file(directory, META_FILE, execution.metadata)
         add_and_commit(self.parent.root_dir)
-        if self.parent.remote is not None:
-            self.parent.push_changes()
+        self.parent.update()
         # The code for each execution changes. So it is necessary to write the experiment.json file too.
         # self.write_file(directory, CONFIG_FILE, execution.config)

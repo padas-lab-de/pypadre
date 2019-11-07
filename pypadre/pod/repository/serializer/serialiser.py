@@ -76,7 +76,7 @@ class YamlSerializer(Serializer):
 
     @staticmethod
     def deserialize(buffer):
-        return yaml.load(buffer)
+        return yaml.load(buffer, Loader=yaml.FullLoader)
 
 class TextSerializer(Serializer):
 

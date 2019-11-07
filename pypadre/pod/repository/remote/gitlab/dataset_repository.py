@@ -9,7 +9,7 @@ from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.remote.gitlab.repository.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
-from pypadre.pod.util.git_util import add_git_lfs_attribute_file
+from pypadre.pod.util.git_util import add_git_lfs_attribute_file, add_and_commit
 
 NAME = "datasets"
 META_FILE = File("metadata.json", JSonSerializer)
@@ -65,6 +65,7 @@ class DatasetGitlabRepository(GitLabRepository, IDatasetRepository):
         dataset = obj
 
         if self.remote is not None:
+            add_and_commit(directory)
             self.push_changes()
         else:
             self.write_file(directory, META_FILE, dataset.metadata)

@@ -130,6 +130,8 @@ def add_untracked_files(repo):
     if has_untracked_files(repo=repo):
         untracked_files = get_untracked_files(repo=repo)
         add_files(repo=repo, file_path=untracked_files)
+    elif has_uncommitted_files(repo=repo):
+        repo.git.add(A=True)
 
 
 def delete_tags(repo, tag_name):
@@ -264,8 +266,8 @@ def get_repo(path=None, url=None, **kwargs):
         return Repo(path)
 
 
-def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,init=False):
+def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,force_commit=False):
     repo = create_repo(path=dir_path, bare=False) if not repo_exists(dir_path) else get_repo(path=dir_path)
     add_untracked_files(repo=repo)
-    if len(repo.index.diff(None)) > 0 or init:
+    if len(repo.index.diff(None)) > 0 or not repo.active_branch.is_valid() or force_commit:
         commit(repo, message=message)

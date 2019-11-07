@@ -82,6 +82,11 @@ class ExperimentGitlabRepository(IChildFileRepository,GitLabRepository, IExperim
     def put_progress(self, experiment, **kwargs):
         self.log("EXPERIMENT PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
+    def update(self,experiment: Experiment, commit_message:str):
+        add_and_commit(self.to_directory(experiment),message=commit_message)
+        self.push_changes()
+        #TODO
+
     def _put(self, experiment: Experiment, *args, directory, merge=False,**kwargs):
 
         # update experiment
@@ -93,9 +98,9 @@ class ExperimentGitlabRepository(IChildFileRepository,GitLabRepository, IExperim
                 experiment.merge_metadata(metadata=metadata)
         if self.remote is not None:
             # TODO add a counter (of commits) or a timer for each push
+            self.parent.update(experiment.parent, src=experiment.name,url=self.get_repo_url())
+            add_and_commit(directory)
             self.push_changes()
-
-
         else:
             self.write_file(directory, META_FILE, experiment.metadata)
             self.write_file(directory, WORKFLOW_FILE, experiment.pipeline, 'wb')

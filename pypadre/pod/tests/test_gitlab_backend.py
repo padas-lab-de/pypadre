@@ -77,49 +77,21 @@ class PadreGitTest(unittest.TestCase):
             shutil.rmtree(cls.workspace_path)
         os.remove(cls.config_path)
 
+
 class GitlabBackend(PadreGitTest):
 
-    # def __init__(self, *args, **kwargs):
-    #     super(GitlabBackend, self).__init__(*args, **kwargs)
-    #     config = PadreConfig(config_file=config_path)
-    #     config.set("backends", str([
-    #                 {
-    #                     "root_dir": workspace_path,
-    #                     "gitlab_url": 'http://localhost:8080/',
-    #                     "user" : "root",
-    #                     "token" : "e8mbtk4suozvmPw5c5Fo"
-    #                 }
-    #             ]))
-    #     self.app = PadreAppFactory.get(config)
-    #
-    # def tearDown(self):
-    #     # delete data content
-    #     try:
-    #         shutil.rmtree(workspace_path+"/datasets")
-    #         shutil.rmtree(workspace_path+"/projects")
-    #     except FileNotFoundError:
-    #         pass
-    #
-    # @classmethod
-    # def tearDownClass(cls):
-    #     # delete configuration
-    #     if os.path.isdir(workspace_path):
-    #         shutil.rmtree(workspace_path)
-    #     os.remove(config_path)
+    def tearDown(self):
 
+        super().tearDown()
 
-    def test_gitlab_connection(self):
-
-        backends = self.app.backends
-
-
-        server = gitlab.Gitlab(url='http://localhost:8080/',private_token="e8mbtk4suozvmPw5c5Fo")
+        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/',private_token="LvVzAaNyFyS6iiJNzTFf")
 
         projects = server.projects.list()
 
-        server.__exit__()
+        for project in projects:
+            server.projects.delete(project.get_id())
 
-        assert projects is not None
+        server.__exit__()
 
     def test_dataset(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
@@ -165,3 +137,5 @@ class GitlabBackend(PadreGitTest):
         experiments = self.app.experiments.list({'name': name})
 
         assert (isinstance(experiments, list))
+
+        assert name in [ex.name for ex in experiments]

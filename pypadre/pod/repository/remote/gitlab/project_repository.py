@@ -7,7 +7,7 @@ from pypadre.pod.repository.i_repository import IProjectRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.remote.gitlab.repository.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, YamlSerializer, TextSerializer
-from pypadre.pod.util.git_util import add_and_commit
+from pypadre.pod.util.git_util import add_and_commit, repo_exists
 
 NAME = 'projects'
 _GROUP = '_projects'
@@ -44,6 +44,13 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
         """
         return self.list({'folder': re.escape(name)})
 
+    def update(self,project:Project,src,url):
+        self._tsrc = self.get_file(self._repo,MANIFEST_FILE)
+        self._tsrc["repos"].append({"src":src,"url":url})
+        self.write_file(self.to_directory(project), MANIFEST_FILE, self._tsrc)
+        add_and_commit(self.to_directory(project),message="updating the tsrc file", force_commit=True)
+        self.push_changes()
+
     def _put(self, project: Project, *args, directory: str, merge=False, **kwargs):
         #TODO tsrc manifest file creation
         if merge:
@@ -51,6 +58,7 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
             if metadata is not None:
                 project.merge_metadata(metadata)
         if self.remote is not None:
+            add_and_commit(directory)
             self.push_changes()
         else:
             self.write_file(directory, META_FILE, project.metadata)

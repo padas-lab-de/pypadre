@@ -99,13 +99,16 @@ class GitLabRepository(IGitRepository):
             #TODO print warning
             raise ValueError("there is no remote repository. Create one")
         else:
-            attributes = self._repo.attributes
-            url= attributes.get("ssh_url_to_repo") if ssh else attributes.get("http_url_to_repo")
+            url= self.get_repo_url(ssh=ssh)
             _url = url.split("//")
             url = "".join([_url[0],"//","oauth2:{}@".format(self._token),_url[1]]) #To resolve the authentication https://stackoverflow.com/a/52154378
             return url
 
+    def get_repo_url(self,ssh=False):
+        return self._repo.attributes.get("ssh_url_to_repo") if ssh else self._repo.attributes.get("http_url_to_repo")
+
     def add_remote(self,branch,url):
+
         try:
             self._remote = self._local_repo.create_remote(branch, url)
         except GitCommandError as e:
@@ -136,7 +139,7 @@ class GitLabRepository(IGitRepository):
 
         self._put(obj, *args, directory=directory,  merge=merge,**kwargs)
 
-        self.reset()
+        # self.reset()
 
     @abstractmethod
     def _put(self, obj, *args, directory: str,  merge=False, **kwargs):
@@ -218,7 +221,11 @@ class GitLabRepository(IGitRepository):
         commit = self._repo.commits.create(options)
         return commit
 
-    def push_changes(self):
+    def push_changes(self,commit_counter=0):
+        if self._remote is None:
+            remote_url = self.get_remote_url()
+            self.add_remote(self._branch,remote_url)
+        #TODO push if waiting commits is equal or more than the commit counter.
         try:
             self._remote.pull(refspec=self._branch)
             self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))  # TODO commit/push schedule?
@@ -227,6 +234,10 @@ class GitLabRepository(IGitRepository):
                 self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))
             else:
                 return
+
+    @abstractmethod
+    def update(self,*args):
+        pass
 
     def upload_file(self, filename, path):
         if self._repo is not None:
