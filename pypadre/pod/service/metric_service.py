@@ -4,10 +4,10 @@ from pypadre.core.events.events import connect_subclasses, connect
 from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
 from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IMetricRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
-class MetricService(BaseService):
+class MetricService(ModelServiceMixin):
     """
     Class providing commands for managing datasets.
     """

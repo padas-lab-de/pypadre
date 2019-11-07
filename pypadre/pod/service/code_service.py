@@ -5,10 +5,10 @@ from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.code.codemixin import CodeMixin
 from pypadre.core.model.generic.i_model_mixins import StoreableMixin
 from pypadre.pod.repository.i_repository import ICodeRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
-class CodeService(BaseService):
+class CodeService(ModelServiceMixin):
     """
     Class providing commands for managing datasets.
     """

@@ -1,4 +1,5 @@
 from _py_abc import ABCMeta
+from abc import abstractmethod
 from typing import List, Type, Callable
 
 from pypadre.core.events.events import Signaler
@@ -6,27 +7,28 @@ from pypadre.core.validation.validation import ValidateableFactory, ValidationEr
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable
 
 
-class BaseService:
-    """ Base class for apps containing backends. """
+class ServiceMixin:
+    """ Base class for services containing backends. """
     __metaclass__ = ABCMeta
 
-    def __init__(self, backends, *, model_clz: Type[Signaler], **kwargs):
+    @abstractmethod
+    def __init__(self, backends, *args, **kwargs):
         b = backends if isinstance(backends, List) else [backends]
         self._backends = [] if backends is None else b
-        self._model_clz = model_clz
 
     @property
     def backends(self):
         return self._backends
 
-    @property
-    def model_clz(self):
-        return self._model_clz
+    def save_signal_fn(self, fn: Callable):
+        setattr(self, "_signal_" + str(hash(fn)), fn)
 
-    def create(self, *args, handlers: List[ValidationErrorHandler]=None, **kwargs):
-        if handlers is None:
-            handlers = []
-        return ValidateableFactory.make(self.model_clz, *args, handlers=handlers, **kwargs)
+
+class CrudServiceMixin(ServiceMixin):
+
+    @abstractmethod
+    def __init__(self, backends, *args, **kwargs):
+        super().__init__(backends, *args, **kwargs)
 
     def list(self, search, offset=0, size=100) -> list:
         """
@@ -97,5 +99,21 @@ class BaseService:
             backend: IStoreableRepository = b
             backend.delete_by_id(uid)
 
-    def save_signal_fn(self, fn: Callable):
-        setattr(self, "_signal_" + str(hash(fn)), fn)
+
+class ModelServiceMixin(CrudServiceMixin):
+    """ Base serivce for services handeling model entites. """
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def __init__(self, backends, *, model_clz: Type[Signaler], **kwargs):
+        super().__init__(backends, **kwargs)
+        self._model_clz = model_clz
+
+    @property
+    def model_clz(self):
+        return self._model_clz
+
+    def create(self, *args, handlers: List[ValidationErrorHandler]=None, **kwargs):
+        if handlers is None:
+            handlers = []
+        return ValidateableFactory.make(self.model_clz, *args, handlers=handlers, **kwargs)

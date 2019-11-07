@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 from pypadre.core.base import ChildMixin
 from pypadre.core.util.inheritance import SuperStop
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
 class IBaseApp(SuperStop):
@@ -25,7 +25,7 @@ class IBaseApp(SuperStop):
 class BaseEntityApp(IBaseApp):
     __metaclass__ = ABCMeta
 
-    def __init__(self, service: BaseService, **kwargs):
+    def __init__(self, service: ModelServiceMixin, **kwargs):
         self.service = service
         super().__init__(**kwargs)
 
@@ -92,7 +92,7 @@ class BaseChildApp(ChildMixin, BaseEntityApp):
     """ Base class for apps being a child of another app. """
     __metaclass__ = ABCMeta
 
-    def __init__(self, parent: IBaseApp, service: BaseService, **kwargs):
+    def __init__(self, parent: IBaseApp, service: ModelServiceMixin, **kwargs):
         super().__init__(parent=parent, service=service, **kwargs)
 
     def has_print(self) -> bool:

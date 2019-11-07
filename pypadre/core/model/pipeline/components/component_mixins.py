@@ -42,7 +42,8 @@ class PipelineComponentMixin(CustomCodeHolder, IConsumer, IProvider, Validateabl
         results = self._execute_component_code(data=data, run=run, predecessor=predecessor, **kwargs)
         if not isinstance(results, Computation):
             results = Computation(component=self, run=run, predecessor=predecessor,
-                                  branch=branch, result=results, parameters=kwargs.get("parameters", {}))
+                                  branch=branch, result=results, parameters=kwargs.get("parameters", {}),
+                                  initial_hyperparameters=kwargs.get('initial_hyperparameters', {}))
 
         if intermediate_results:
             results.send_put(store_results=store_results)

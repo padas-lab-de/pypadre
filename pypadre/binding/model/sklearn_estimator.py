@@ -161,8 +161,7 @@ class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, Paramete
         return None
 
     def get_initial_hyperparameters(self):
-        from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
-        from copy import deepcopy
+        from pypadre.core.visitors.mappings import name_mappings
 
         hyperparameter_dict = dict()
 

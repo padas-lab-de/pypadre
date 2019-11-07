@@ -1,14 +1,15 @@
-from typing import Optional, List
 from copy import deepcopy
+from typing import Optional, List
+
 import numpy as np
+from padre.PaDREOntology import PaDREOntology
 
 from pypadre import _name, _version
 from pypadre.core.metrics.metric_registry import metric_registry
 from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
 from pypadre.core.model.generic.custom_code import ProvidedCodeMixin
-from pypadre.core.util.utils import unpack
-from padre.PaDREOntology import PaDREOntology
 from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin
+from pypadre.core.util.utils import unpack
 
 TOTAL_ERROR = "total_error"
 MEAN_ERROR = "mean_error"

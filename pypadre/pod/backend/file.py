@@ -24,13 +24,13 @@ class PadreFileBackend(IPadreBackend):
       |------experiments\
     """
 
-    def log_info(self, message, **kwargs):
+    def log_info(self, message="", **kwargs):
         self.log(message="INFO: " + message, **kwargs)
 
-    def log_warn(self, message, **kwargs):
+    def log_warn(self, message="", **kwargs):
         self.log(message="WARN: " + message, **kwargs)
 
-    def log_error(self, message, **kwargs):
+    def log_error(self, message="", **kwargs):
         self.log(message="ERROR: " + message, **kwargs)
 
     def log(self, message, **kwargs):

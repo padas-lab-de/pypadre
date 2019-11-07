@@ -4,10 +4,10 @@ from pypadre.core.events.events import connect
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IComputationRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
-class ComputationService(BaseService):
+class ComputationService(ModelServiceMixin):
     """
     Class providing commands for managing datasets.
     """
