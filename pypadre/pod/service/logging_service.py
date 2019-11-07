@@ -17,7 +17,7 @@ class LoggingService(ServiceMixin):
 
             if log_level == "info":
                 for b in self.backends:
-                    b.log_warn(**kwargs)
+                    b.log_info(**kwargs)
 
             elif log_level == 'warn':
                 for b in self.backends:

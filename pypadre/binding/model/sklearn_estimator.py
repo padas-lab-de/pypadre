@@ -57,7 +57,7 @@ class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, Paramete
 
         self.set_parameter_values(parameters=kwargs)
 
-        self.send_start(phase='sklearn.' + phases.fitting)
+        self.send_start(message="Starting phase sklearn." + phases.fitting)
         y = None
         if split.train_targets is not None:
             y = split.train_targets.reshape((len(split.train_targets),))
@@ -66,11 +66,11 @@ class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, Paramete
             # Create dummy target of zeros if target is not present.
             y = np.zeros(shape=(len(split.train_features, )))
         self._pipeline.fit(split.train_features, y)
-        self.send_stop(phase='sklearn.' + phases.fitting)
+        self.send_stop(message='Stopping phase sklearn.' + phases.fitting)
         if self.is_scorer():
-            self.send_start(phase=f"sklearn.scoring.trainset")
+            self.send_start(message="Starting phase sklearn.scoring.trainset")
             score = self._pipeline.score(split.train_features, y)
-            self.send_stop(phase=f"sklearn.scoring.trainset")
+            self.send_stop(message="Stopping phase sklearn.scoring.trainset")
             # TODO use other signals?
             self.send_log(keys=['training score'], values=[score], message="Logging the training score")
 

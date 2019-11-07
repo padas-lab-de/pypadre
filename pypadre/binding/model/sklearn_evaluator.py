@@ -47,7 +47,7 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
 
         self.send_error(message="Test set is missing.", condition=not split.has_testset())
 
-        self.send_start(phase='sklearn.' + phases.inferencing)
+        self.send_start(message="Starting phase sklearn." + phases.inferencing)
         train_idx = train_idx.tolist()
         test_idx = test_idx.tolist()
 
@@ -55,7 +55,7 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
         y = split.test_targets.reshape((len(split.test_targets),))
 
         y_predicted = np.asarray(model.predict(split.test_features))
-        self.send_stop(phase='sklearn.' + phases.inferencing)
+        self.send_stop(message="Stopping phase sklearn." + phases.inferencing)
 
         self.send_log(mode='probability', pred=y_predicted, truth=y,
                       message="Checking if the workflow supports probability computation or not.")
@@ -93,9 +93,9 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
             type_ = PaDREOntology.SubClassesExperiment.Regression.value
 
         if self.is_scorer(model):
-            self.send_start(phase=f"sklearn.scoring.testset")
+            self.send_start(message="Starting phase sklearn.scoring.testset")
             score = model.score(split.test_features, y, )
-            self.send_stop(phase=f"sklearn.scoring.testset")
+            self.send_stop(message="Stopping phase sklearn.scoring.testset")
             self.send_log(keys=["test score"], values=[score], message="Logging the testing score")
 
         results = self.create_results_dictionary(split_num=split.number, train_idx=train_idx, test_idx=test_idx,

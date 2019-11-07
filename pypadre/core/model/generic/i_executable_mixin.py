@@ -25,9 +25,9 @@ class ExecuteableMixin(Signaler):
     def execute(self, *args, **kwargs):
         if not self.is_executable():
             raise ValueError(str(self) + " is not executable.")
-        self.send_start()
+        self.send_start(message="Execution is starting for {name}".format(name=self.name))
         execute = self._execute_helper(*args, **kwargs)
-        self.send_stop()
+        self.send_stop(message="Execution is ending for {name}".format(name=self.name))
         return execute
 
     # noinspection PyMethodMayBeStatic

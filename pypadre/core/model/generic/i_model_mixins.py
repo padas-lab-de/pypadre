@@ -15,10 +15,10 @@ class StoreableMixin(Signaler):
         super().__init__(*args, **kwargs)
 
     def send_put(self, **kwargs):
-        self.send_signal(CommonSignals.PUT, self, **kwargs)
+        self.send_signal(CommonSignals.PUT, self, message="Putting object {name}".format(name=self.name), **kwargs)
 
     def send_delete(self, **kwargs):
-        self.send_signal(CommonSignals.DELETE, self, **kwargs)
+        self.send_signal(CommonSignals.DELETE, self, message="Deleting object {name}".format(name=self.name), **kwargs)
 
     @classmethod
     def send_get(cls, *sender, uid=None, **kwargs):

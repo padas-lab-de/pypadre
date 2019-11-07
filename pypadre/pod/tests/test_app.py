@@ -325,8 +325,9 @@ class AppLocalBackends(PadreAppTest):
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC
+            from sklearn.decomposition.pca import PCA
             # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
+            estimators = [('PCA', PCA()),('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
         def find(name, path):
@@ -340,8 +341,8 @@ class AppLocalBackends(PadreAppTest):
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                creator=self.test_all_functionalities)
-        parameter_dict = {'SVC': {'C': [0.1, 0.2]}}
+                                creator=self.test_full_stack)
+        parameter_dict = {'SVC': {'C':[0.1,0.2]}, 'PCA': {'n_components':[1, 2, 3]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
                                        })
