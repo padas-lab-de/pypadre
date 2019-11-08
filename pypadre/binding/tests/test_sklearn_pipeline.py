@@ -367,6 +367,48 @@ class TestSKLearnPipeline(PadreAppTest):
         files_found = find_subdirectories(os.path.expanduser('~/.pypadre-test/projects/Test Project Multiple Experiments/experiments/'))
         assert (experiment_name1 in files_found and experiment_name2 in files_found)
 
+    def test_multiple_projects(self):
+
+        project_name1 = 'Test Project 1 Multiple Projects'
+        project_name2 = 'Test Project 2 Multiple Projects'
+        project1 = Project(name=project_name1,
+                           description='Testing the functionalities of project backend',
+                           creator=Function(fn=self.test_multiple_experiments_one_project))
+
+        project2 = Project(name=project_name2,
+                           description='Testing the functionalities of project backend',
+                           creator=Function(fn=self.test_multiple_experiments_one_project))
+
+        self.app.datasets.load_defaults()
+
+        experiment_name1 = 'Test Experiment1'
+        experiment_name2 = 'Test Experiment2'
+
+        _id = '_iris_dataset'
+        dataset = self.app.datasets.list({'name': _id})
+
+        experiment = Experiment(name=experiment_name1, description='Test Experiment',
+                                dataset=dataset.pop(), project=project1,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
+                                creator=self.test_full_stack)
+        parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
+        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
+                                       'SKLearnEstimator': {'parameters': parameter_dict}
+                                       })
+
+        dataset = self.app.datasets.list({'name': _id})
+        experiment = Experiment(name=experiment_name2, description='Test Experiment',
+                                dataset=dataset.pop(), project=project2,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
+                                creator=self.test_full_stack)
+        parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
+        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
+                                       'SKLearnEstimator': {'parameters': parameter_dict}
+                                       })
+
+        files_found = find_subdirectories(
+            os.path.expanduser('~/.pypadre-test/projects/'))
+        assert (project_name1 in files_found and project_name2 in files_found)
 
 
 if __name__ == '__main__':
