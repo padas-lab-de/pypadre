@@ -4,9 +4,10 @@ from pypadre.core.events.events import connect
 from pypadre.core.model.project import Project
 from pypadre.pod.repository.i_repository import IProjectRepository
 from pypadre.pod.service.base_service import ModelServiceMixin
+from pypadre.pod.service.logging_service import LoggingService
 
 
-class ProjectService(ModelServiceMixin):
+class ProjectService(ModelServiceMixin, LoggingService):
     """
     Class providing commands for managing datasets.
     """

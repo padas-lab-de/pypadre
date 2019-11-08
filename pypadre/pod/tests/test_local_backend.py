@@ -2,11 +2,6 @@ import os
 import shutil
 import unittest
 
-from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.events.events import connect_base_signal, LOG_EVENT
-from pypadre.pod.app import PadreConfig
-from pypadre.pod.app.padre_app import PadreAppFactory
-
 config_path = os.path.join(os.path.expanduser("~"), ".padre-test.cfg")
 workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
 

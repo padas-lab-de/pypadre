@@ -1,9 +1,10 @@
 import unittest
-
+import os
 # noinspection PyMethodMayBeStatic
 import numpy as np
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.core.model.code.codemixin import Function
 from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.model.pipeline.components.components import CustomSplit
@@ -18,34 +19,52 @@ test_numpy_array = np.array([[1.0, "A", 2],
                              [3.0, "C", 4]])
 
 
-def create_test_pipeline():
+def create_test_pipeline_SVC():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
 
+def create_test_pipeline_SVR():
+    from sklearn.pipeline import Pipeline
+    from sklearn.svm import SVR
+    # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+    estimators = [('SVR', SVR())]
+    return Pipeline(estimators)
+
+def create_sklearn_test_pipeline(*, estimators, **kwargs):
+    def sklearn_pipeline():
+        from sklearn.pipeline import Pipeline
+        return Pipeline(estimators)
+
+    return SKLearnPipeline(pipeline_fn=sklearn_pipeline, **kwargs)
+
+
 class TestSKLearnPipeline(PadreAppTest):
 
     def __init__(self, *args, **kwargs):
         super(TestSKLearnPipeline, self).__init__(*args, **kwargs)
+
+    def setUp(self):
         self.project = Project(name='Test Project', description='Some description')
 
     def test_default_sklearn_pipeline(self):
-        # TODO clean up experiment creator
-        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline)
+
+        project = Project(name='Test Project 2',
+                          description='Testing the functionalities of project backend',
+                          creator=Function(fn=self.test_default_sklearn_pipeline))
+
+        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline_SVC)
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline)
+        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline,
+                                creator=self.test_default_sklearn_pipeline)
 
         experiment.execute()
         print(experiment)
         # TODO asserts and stuff
-
-    def test_default_sklearn_pipeline_grid_search(self):
-        pass
-        # TODO test grid search
 
     def test_custom_split_sklearn_pipeline(self):
 
@@ -55,9 +74,10 @@ class TestSKLearnPipeline(PadreAppTest):
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
 
-        pipeline = SKLearnPipeline(splitting=CustomSplit(fn=custom_split), pipeline_fn=create_test_pipeline)
+        pipeline = SKLearnPipeline(splitting=CustomSplit(fn=custom_split), pipeline_fn=create_test_pipeline_SVC)
         iris = SKLearnLoader().load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline)
+        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline,
+                                creator=self.test_custom_split_sklearn_pipeline)
 
         experiment.execute()
 
@@ -89,22 +109,24 @@ class TestSKLearnPipeline(PadreAppTest):
             _data.set_data(new_data, attributes=data.attributes)
             return _data
 
-        pipeline = SKLearnPipeline(preprocessing_fn=preprocessing, pipeline_fn=create_test_pipeline)
+        pipeline = SKLearnPipeline(preprocessing_fn=Function(fn=preprocessing), pipeline_fn=create_test_pipeline_SVC)
 
         loader = SKLearnLoader()
         digits = loader.load("sklearn", utility="load_iris")
 
-        experiment = Experiment(name='Test Experiment', project=self.project, dataset=digits, pipeline=pipeline)
+        experiment = Experiment(name='Test Experiment', project=self.project, dataset=digits, pipeline=pipeline,
+                                creator=self.test_sklearn_pipeline_with_preprocessing)
 
         experiment.execute()
 
     def test_hyperparameter_search(self):
 
-        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline)
+        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline_SVC)
 
         iris = SKLearnLoader().load("sklearn", utility="load_iris")
         experiment = Experiment(name='Hyperparameter Search', project=self.project,
-                                dataset=iris, pipeline=pipeline)
+                                dataset=iris, pipeline=pipeline,
+                                creator=self.test_hyperparameter_search)
 
         params_svc = {'C': [0.5, 1.0, 1.5],
                       'poly_degree': [1, 2, 3],
@@ -113,6 +135,116 @@ class TestSKLearnPipeline(PadreAppTest):
         param = {'SKLearnEstimator': params_dict}
         experiment.execute(parameters=param)
         print(experiment)
+
+    def test_full_stack(self):
+        from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.binding.metrics import sklearn_metrics
+        print(sklearn_metrics)
+        # TODO plugin system
+
+        self.app.datasets.load_defaults()
+        project = Project(name='Test Project 2',
+                          description='Testing the functionalities of project backend',
+                          creator=Function(fn=self.test_full_stack))
+
+        def create_test_pipeline():
+            from sklearn.pipeline import Pipeline
+            from sklearn.svm import SVC
+            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+            estimators = [('SVC', SVC(probability=True))]
+            return Pipeline(estimators)
+
+        id = '_iris_dataset'
+        dataset = self.app.datasets.list({'name': id})
+
+        experiment = Experiment(name='Test Experiment', description='Test Experiment',
+                                dataset=dataset.pop(), project=project,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
+                                creator=self.test_full_stack)
+        experiment.execute()
+        assert(experiment.executions is not None)
+        computations = self.app.computations.list()
+        assert(isinstance(computations, list))
+        assert(len(computations) > 0)
+        experiments = self.app.experiments.list()
+        assert(isinstance(experiments, list))
+        assert(len(experiments)>0)
+
+    def test_all_functionalities_regression(self):
+
+        from pypadre.core.model.project import Project
+        from pypadre.core.model.experiment import Experiment
+        from pypadre.binding.metrics import sklearn_metrics
+        print(sklearn_metrics)
+        # TODO plugin system
+
+        self.app.datasets.load_defaults()
+        project = Project(name='Test Project Regression',
+                          description='Testing the functionalities of project',
+                          creator=Function(fn=self.test_all_functionalities_regression))
+
+        def find(name, path):
+            for root, dirs, files in os.walk(path):
+                if name in files:
+                    return os.path.join(root, name)
+
+        _id = '_diabetes_dataset'
+
+        dataset = self.app.datasets.list({'name': _id})
+
+        experiment = Experiment(name='Test Experiment', description='Test Experiment',
+                                dataset=dataset.pop(), project=project,
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_SVR),
+                                creator=self.test_all_functionalities_regression)
+        parameter_dict = {'SVR': {'C': [0.1, 0.2]}}
+        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
+                                       'SKLearnEstimator': {'parameters': parameter_dict}
+                                       })
+
+        files_found = find('results.bin',
+                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
+                                                             'experiments/Test Experiment/executions'))
+        assert (files_found is not None)
+
+        files_found = find('initial_hyperparameters.json',
+                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
+                                                                              'experiments/Test Experiment/executions'))
+        assert (files_found is not None)
+
+        files_found = find('parameters.json',
+                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
+                                                                 'experiments/Test Experiment/executions'))
+        assert (files_found is not None)
+
+
+    def test_custom_split_pipeline(self):
+
+        def custom_split(ctx, **kwargs):
+            (data,) = unpack(ctx, "data")
+            idx = np.arange(data.size[0])
+            cutoff = int(len(idx) / 2)
+            return idx[:cutoff], idx[cutoff:], None
+
+        from sklearn.svm import SVC
+        from sklearn.decomposition import PCA
+        pipeline = create_sklearn_test_pipeline(estimators=[('PCA', PCA()),('SVC', SVC(probability=True))],
+                                                splitting=CustomSplit(fn=custom_split))
+
+        self.app.datasets.load_defaults()
+        # TODO investigate race condition? dataset seems to be sometimes null in the dataset
+        project = self.create_project(name='Test Project Custom Split', description='Testing custom splits',
+                                      store_code=True, creator_name="f_" + os.path.basename(__file__), creator_code=__file__)
+        dataset = self.app.datasets.list({'name': '_iris_dataset'})
+        experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
+                                            dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
+                                            creator_name="f_" + os.path.basename(__file__), creator_code=__file__,
+                                            creator=self.test_custom_split_pipeline)
+
+        experiment.execute()
+
+        self.app.computations.list()
+        experiments = self.app.experiments.list()
 
 
 if __name__ == '__main__':

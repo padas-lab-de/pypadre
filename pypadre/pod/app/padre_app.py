@@ -88,7 +88,7 @@ class PadreApp(IBaseApp):
         self._backends = backends
 
         # TODO Should each subApp really hold each backend? This may be convenient to code like this.
-        self._logger = LoggingService(backends)
+        #  self._logger = LoggingService(backends)
         self._dataset_app = DatasetApp(self,
                                        [backend.dataset for backend in backends] if backends is not None else None)
         self._project_app = ProjectApp(self,

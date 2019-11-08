@@ -1,7 +1,7 @@
 import sys
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.events.events import connect_base_signal, LOG_EVENT
+from pypadre.core.events.events import connect_base_signal, EVENT_TRIGGERED, CommonSignals
 from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 
 
@@ -28,8 +28,8 @@ def _log_event(sender, *, signal, **kwargs):
 
 
 def connect_log_to_stdout():
-    connect_base_signal("log", _log)
+    connect_base_signal(CommonSignals.LOG.name, _log)
 
 
 def connect_event_to_stdout():
-    connect_base_signal(LOG_EVENT, _log_event)
+    connect_base_signal(EVENT_TRIGGERED, _log_event)

@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from pypadre.core.events.events import Signaler, CommonSignals, signals
+from pypadre.core.events.events import Signaler, CommonSignals, signals, EVENT_TRIGGERED
 
 
 @signals(CommonSignals.PUT, CommonSignals.DELETE, CommonSignals.GET)
@@ -40,7 +40,7 @@ class ProgressableMixin(Signaler):
         self.send_signal(CommonSignals.PROGRESS, self, progress=progress, **kwargs)
 
 
-@signals(CommonSignals.LOG)
+@signals(CommonSignals.LOG, EVENT_TRIGGERED)
 class LoggableMixin(Signaler):
     """ This is the interface for all entities being able to signal a progress of their state."""
     __metaclass__ = ABCMeta
@@ -68,3 +68,7 @@ class LoggableMixin(Signaler):
 
     def send_error(self, message, condition=True, **kwargs):
         self.send_signal(self.SIGNAL_LOG, log_level=self.LogLevels.ERROR, message=message, condition=condition, **kwargs)
+
+    def log_event(self, *args, **kwargs):
+        self.send_signal(self.SIGNAL_LOG, self, log_level=self.LogLevels.LOG, message=message, **kwargs)
+

@@ -54,8 +54,9 @@ class DataSetLoaderMixin(LoggableMixin):
     def _create_dataset(self, **kwargs):
         # TODO extract attributes
         dataset = Dataset(metadata=kwargs)
-        self.send_warn(condition=len(dataset.metadata["targets"]) == 0, source=self,
-                       message='No targets defined. Program will crash when used for supervised learning')
+        self.send_warn(condition=len(dataset.metadata["targets"]) != 0, source=self,
+                       message='Source: DataSetLoaderMixin._create_dataset. No targets defined. '
+                               'Program will crash when used for supervised learning')
         return dataset
 
 

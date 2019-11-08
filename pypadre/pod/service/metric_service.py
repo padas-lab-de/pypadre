@@ -1,6 +1,6 @@
 from typing import List
 
-from pypadre.core.events.events import connect_subclasses, connect
+from pypadre.core.events.events import connect_subclasses, connect, CommonSignals
 from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
 from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IMetricRepository
@@ -17,7 +17,7 @@ class MetricService(ModelServiceMixin):
         self._measure_meters = measure_meters
 
         @connect(Metric)
-        @connect_subclasses(Metric)
+        @connect_subclasses(Metric, name=CommonSignals.PUT.name)
         def put(obj, **kwargs):
             self.put(obj)
         self.save_signal_fn(put)

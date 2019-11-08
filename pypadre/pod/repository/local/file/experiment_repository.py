@@ -9,6 +9,7 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
+from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
 
 # CONFIG_FILE = File("experiment.json", JSonSerializer)

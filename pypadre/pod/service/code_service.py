@@ -1,6 +1,6 @@
 from typing import List
 
-from pypadre.core.events.events import connect_subclasses, connect
+from pypadre.core.events.events import connect_subclasses, connect, CommonSignals
 from pypadre.core.model.code.code_file import CodeFile
 from pypadre.core.model.code.codemixin import CodeMixin
 from pypadre.core.model.generic.i_model_mixins import StoreableMixin
@@ -16,17 +16,17 @@ class CodeService(ModelServiceMixin):
     def __init__(self, backends: List[ICodeRepository], **kwargs):
         super().__init__(model_clz=CodeMixin, backends=backends, **kwargs)
 
-        @connect_subclasses(CodeMixin)
+        @connect_subclasses(CodeMixin, name=CommonSignals.PUT.name)
         def put(obj, **sended_kwargs):
             self.put(obj, **sended_kwargs)
         self.save_signal_fn(put)
 
-        @connect_subclasses(CodeMixin)
+        @connect_subclasses(CodeMixin, name=CommonSignals.DELETE.name)
         def delete(obj, **sended_kwargs):
             self.delete(obj)
         self.save_signal_fn(delete)
 
-        @connect_subclasses(CodeMixin)
+        @connect_subclasses(CodeMixin, name=CommonSignals.GET.name)
         def get(sender, **sended_kwargs):
             return_val = sended_kwargs.get(StoreableMixin.RETURN_VAL)
             name = sended_kwargs.get("name")

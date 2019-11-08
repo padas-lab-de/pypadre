@@ -267,7 +267,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 
     def _get_all_dirs(self):
         import glob
-        return glob.glob(self._replace_placeholders_with_wildcard(self.root_dir) + "/*")
+        return glob.glob(self._replace_placeholders_with_wildcard(self.root_dir) + "/*/")
 
 
 # TODO Maybe we could simplify the file repository by having all of them on root level. We don't need to use submodules and therefore can cope without the structure when using git tsrc

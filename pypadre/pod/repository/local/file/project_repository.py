@@ -6,13 +6,14 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IProjectRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
+from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer
 
 NAME = 'projects'
 META_FILE = File("metadata.json", JSonSerializer)
 
 
-class ProjectFileRepository(IGitRepository, IProjectRepository):
+class ProjectFileRepository(IGitRepository, IProjectRepository, ILogFileRepository):
 
     @staticmethod
     def placeholder():

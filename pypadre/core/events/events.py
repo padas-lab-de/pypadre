@@ -2,6 +2,7 @@
 Structure of Event Handling Mechanism in PyPaDRe
 Signals can be triggered on Class or Base level.
 """
+from functools import wraps
 
 from blinker import Namespace, ANY
 
@@ -69,14 +70,14 @@ class PointAccessNamespace(Namespace):
 
 
 # signal name for the signal which is triggered / cascaded to for each other signal
-LOG_EVENT = "log_event"
+EVENT_TRIGGERED = "generic_event"
 
 # all classes which where registered via decorator call
 signal_classes = set()
 
 # all base signals
 base_signals = PointAccessNamespace()
-base_signals.signal(LOG_EVENT)
+base_signals.signal(EVENT_TRIGGERED)
 
 
 def connect_base_signal(name, fn):
@@ -143,16 +144,21 @@ def connect_subclasses(*classes, name=None):
     """
 
     def connect_decorator(fn):
-        signal_name = name if name is not None else fn.__name__
-        if len(classes) is 0:
-            raise ValueError("You need to provide a class to find subclasses to connect to.")
-        else:
-            subclasses = set()
-            for clz in classes:
-                subclasses.update(clz.__subclasses__())
-            for subclass in subclasses:
-                connect_class_signal(subclass, signal_name, fn)
-        return fn
+        @wraps(fn)
+        def connect_subclasses_fn(*classes, name=None):
+            signal_name = name if name is not None else fn.__name__
+            if len(classes) is 0:
+                raise ValueError("You need to provide a class to find subclasses to connect to.")
+            else:
+                subclasses = set()
+                for clz in classes:
+                    subclasses.update(clz.__subclasses__())
+                for subclass in subclasses:
+                    connect_class_signal(subclass, signal_name, fn)
+                if subclasses:
+                    connect_subclasses_fn(*subclasses, name=signal_name)
+            return fn
+        return connect_subclasses_fn(*classes, name=name)
     return connect_decorator
 
 
@@ -202,8 +208,8 @@ def signals(*args):
                 # make_cascade(signal.name)
                 setattr(cls, "_cascade_" + schema.name, make_cascade(signal.name))
                 signal.connect(getattr(cls, "_cascade_" + schema.name))
-            setattr(cls, "_cascade_" + LOG_EVENT + "_" + schema.name, make_all_cascade(LOG_EVENT))
-            signal.connect(getattr(cls, "_cascade_" + LOG_EVENT + "_" + schema.name))
+            setattr(cls, "_cascade_" + EVENT_TRIGGERED + "_" + schema.name, make_all_cascade(EVENT_TRIGGERED))
+            signal.connect(getattr(cls, "_cascade_" + EVENT_TRIGGERED + "_" + schema.name))
         cls.signal_namespace = namespace
         return cls
     return signals_decorator

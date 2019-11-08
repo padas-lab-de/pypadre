@@ -206,70 +206,6 @@ class AppLocalBackends(PadreAppTest):
         self.app.splits.put(split)
         # FIXME Christofer put asserts here
 
-    def test_full_stack(self):
-        from pypadre.core.model.project import Project
-        from pypadre.core.model.experiment import Experiment
-        from pypadre.binding.metrics import sklearn_metrics
-        print(sklearn_metrics)
-        # TODO plugin system
-
-        self.app.datasets.load_defaults()
-        project = Project(name='Test Project 2',
-                          description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_full_stack))
-
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
-        id = '_iris_dataset'
-        dataset = self.app.datasets.list({'name': id})
-
-        experiment = Experiment(name='Test Experiment', description='Test Experiment',
-                                dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                creator=self.test_full_stack)
-        experiment.execute()
-        assert(experiment.executions is not None)
-        computations = self.app.computations.list()
-        assert(isinstance(computations, list))
-        assert(len(computations) > 0)
-        experiments = self.app.experiments.list()
-        assert(isinstance(experiments, list))
-        assert(len(experiments)>0)
-
-    def test_custom_split_pipeline(self):
-
-        def custom_split(ctx, **kwargs):
-            (data,) = unpack(ctx, "data")
-            idx = np.arange(data.size[0])
-            cutoff = int(len(idx) / 2)
-            return idx[:cutoff], idx[cutoff:], None
-
-        from sklearn.svm import SVC
-        from sklearn.decomposition import PCA
-        pipeline = create_sklearn_test_pipeline(estimators=[('PCA', PCA()),('SVC', SVC(probability=True))],
-                                                splitting=CustomSplit(fn=custom_split))
-
-        self.app.datasets.load_defaults()
-        # TODO investigate race condition? dataset seems to be sometimes null in the dataset
-        project = self.create_project(name='Test Project Custom Split', description='Testing custom splits',
-                                      store_code=True, creator_name="f_" + os.path.basename(__file__), creator_code=__file__)
-        dataset = self.app.datasets.list({'name': '_iris_dataset'})
-        experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
-                                            dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
-                                            creator_name="f_" + os.path.basename(__file__), creator_code=__file__,
-                                            creator=self.test_custom_split_pipeline)
-
-        experiment.execute()
-
-        self.app.computations.list()
-        experiments = self.app.experiments.list()
-        # FIXME Christofer put asserts here
-
     def test_dumping_intermediate_results(self):
 
         from pypadre.core.model.project import Project
@@ -359,58 +295,6 @@ class AppLocalBackends(PadreAppTest):
                                                                          'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
-    def test_all_functionilities_regression(self):
-
-        from pypadre.core.model.project import Project
-        from pypadre.core.model.experiment import Experiment
-        from pypadre.binding.metrics import sklearn_metrics
-        print(sklearn_metrics)
-        # TODO plugin system
-
-        self.app.datasets.load_defaults()
-        project = Project(name='Test Project Regression',
-                          description='Testing the functionalities of project',
-                          creator=Function(fn=self.test_full_stack))
-
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVR
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVR', SVR())]
-            return Pipeline(estimators)
-
-        def find(name, path):
-            for root, dirs, files in os.walk(path):
-                if name in files:
-                    return os.path.join(root, name)
-
-        _id = '_diabetes_dataset'
-
-        dataset = self.app.datasets.list({'name': _id})
-
-        experiment = Experiment(name='Test Experiment', description='Test Experiment',
-                                dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                creator=self.test_full_stack)
-        parameter_dict = {'SVR': {'C': [0.1, 0.2]}}
-        experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
-                                       'SKLearnEstimator': {'parameters': parameter_dict}
-                                       })
-
-        files_found = find('results.bin',
-                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
-                                                             'experiments/Test Experiment/executions'))
-        assert (files_found is not None)
-
-        files_found = find('initial_hyperparameters.json',
-                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
-                                                                              'experiments/Test Experiment/executions'))
-        assert (files_found is not None)
-
-        files_found = find('parameters.json',
-                           os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
-                                                                 'experiments/Test Experiment/executions'))
-        assert (files_found is not None)
 
 
 if __name__ == '__main__':
