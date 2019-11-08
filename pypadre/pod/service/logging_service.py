@@ -1,4 +1,4 @@
-from pypadre.core.events.events import CommonSignals, connect_subclasses, EVENT_TRIGGERED
+from pypadre.core.events.events import CommonSignals, connect_subclasses, EVENT_TRIGGERED, connect
 from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 from pypadre.pod.service.base_service import ServiceMixin
 
@@ -31,15 +31,16 @@ class LoggingService(ServiceMixin):
 
             else:
                 for b in self.backends:
+                    b.log_warn(message="Incorrect logging level specified: {log_level}".format(log_level=log_level))
                     b.log_warn(**kwargs)
 
                 #  raise ValueError("Incorrect logging level specified: {log_level}".format(log_level=log_level))
         self.save_signal_fn(log)
 
-        # @connect_subclasses(LoggableMixin, name=EVENT_TRIGGERED)
+        # @connect_subclasses(LoggableMixin, name=CommonSignals.START)
         # def log_event(*args, **kwargs):
         #     for b in self.backends:
         #         b.log_info(**kwargs)
-
+        #
         # self.save_signal_fn(log_event)
 
