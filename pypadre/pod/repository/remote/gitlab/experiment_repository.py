@@ -19,7 +19,8 @@ NAME = 'experiments'
 
 cache = LRUCache(maxsize=16)
 
-class ExperimentGitlabRepository(IChildFileRepository,GitLabRepository, IExperimentRepository):
+
+class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperimentRepository):
 
     @staticmethod
     def placeholder():
@@ -98,12 +99,12 @@ class ExperimentGitlabRepository(IChildFileRepository,GitLabRepository, IExperim
                 experiment.merge_metadata(metadata=metadata)
         if self.remote is not None:
             # TODO add a counter (of commits) or a timer for each push
-            self.parent.update(experiment.parent, src=experiment.name,url=self.get_repo_url())
-            add_and_commit(directory)
+            self.parent.update(experiment.parent, src=experiment.name, url=self.get_repo_url())
+            add_and_commit(directory,message="Adding unstaged changes in the repo")
             self.push_changes()
         else:
             self.write_file(directory, META_FILE, experiment.metadata)
             self.write_file(directory, WORKFLOW_FILE, experiment.pipeline, 'wb')
-            add_and_commit(directory)
+            add_and_commit(directory,message="Adding the metadata and the workflow of the experiment")
 
         remove_cached(cache, experiment.id)

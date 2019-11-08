@@ -3,6 +3,8 @@ import os
 import shutil
 import unittest
 import gitlab
+
+from pypadre.core.model.code.icode import Function
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
@@ -92,6 +94,18 @@ class GitlabBackend(PadreGitTest):
             server.projects.delete(project.get_id())
 
         server.__exit__()
+
+    def test_code(self):
+        def foo(ctx):
+            return "foo"
+
+        foo_code = self.app.code.create(clz=Function, fn=foo)
+        self.app.code.put(foo_code, store_code=True)
+        code_list = self.app.code.list()
+        loaded_code = code_list.pop()
+
+        out = loaded_code.call()
+        assert out is "foo"
 
     def test_dataset(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?

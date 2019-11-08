@@ -65,9 +65,9 @@ class DatasetGitlabRepository(GitLabRepository, IDatasetRepository):
         dataset = obj
 
         if self.remote is not None:
-            add_and_commit(directory)
+            add_and_commit(directory,message="Adding unstaged changes in the repo")
             self.push_changes()
         else:
             self.write_file(directory, META_FILE, dataset.metadata)
             self.write_file(directory, DATA_FILE, dataset.data(), 'wb')
-            add_git_lfs_attribute_file(directory, "*.bin")
+            add_git_lfs_attribute_file(directory, "*.bin", message="Adding the metadata and the binary dump of the dataset")

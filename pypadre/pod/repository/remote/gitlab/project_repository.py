@@ -16,6 +16,7 @@ MANIFEST_FILE = File("manifest.yml", YamlSerializer)
 GIT_IGNORE = File(".gitignore", TextSerializer)
 _gitignore = "experiments/"
 
+
 class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
 
     @staticmethod
@@ -30,6 +31,10 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
 
     def get_by_repo(self, repo):
         metadata = self.get_file(repo, META_FILE)
+        return Project(name=metadata.pop("name"), description=metadata.pop("description"), metadata=metadata)
+
+    def get_by_dir(self, directory):
+        metadata = self.get_file(directory, META_FILE)
         return Project(name=metadata.pop("name"), description=metadata.pop("description"), metadata=metadata)
 
     def to_folder_name(self, project):
@@ -48,7 +53,7 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
         self._tsrc = self.get_file(self._repo,MANIFEST_FILE)
         self._tsrc["repos"].append({"src":src,"url":url})
         self.write_file(self.to_directory(project), MANIFEST_FILE, self._tsrc)
-        add_and_commit(self.to_directory(project),message="updating the tsrc file", force_commit=True)
+        add_and_commit(self.to_directory(project), message="Adding a new experiment repo to the tsrc file.", force_commit=True)
         self.push_changes()
 
     def _put(self, project: Project, *args, directory: str, merge=False, **kwargs):
@@ -58,10 +63,10 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
             if metadata is not None:
                 project.merge_metadata(metadata)
         if self.remote is not None:
-            add_and_commit(directory)
+            add_and_commit(directory,message="Adding unstaged changes in the repo")
             self.push_changes()
         else:
             self.write_file(directory, META_FILE, project.metadata)
             self.write_file(directory, MANIFEST_FILE, self._tsrc)
             self.write_file(directory, GIT_IGNORE, _gitignore)
-            add_and_commit(directory)
+            add_and_commit(directory, message="Adding the metadata and the manifest files for ")

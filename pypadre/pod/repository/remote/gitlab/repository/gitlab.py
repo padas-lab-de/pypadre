@@ -167,7 +167,8 @@ class GitLabRepository(IGitRepository):
         if self._group is None:
             return super().list(search)
         else:
-            for repo in self._group.projects.list(search=search.get("name")):
+            name = search.get("name","") if search is not None else ""
+            for repo in self._group.projects.list(search=name):
                 repos.append(self._git.projects.get(repo.id,lazy=False))
         return self.filter([self.get_by_repo(repo) for repo in repos],search)
 
@@ -233,7 +234,7 @@ class GitLabRepository(IGitRepository):
             if "Couldn't find remote ref" in e.stderr:
                 self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))
             else:
-                return
+                raise NotImplementedError
 
     @abstractmethod
     def update(self,*args):

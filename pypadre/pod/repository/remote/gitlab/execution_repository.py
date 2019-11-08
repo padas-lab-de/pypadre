@@ -1,6 +1,7 @@
 from pypadre.core.model.execution import Execution
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExecutionRepository
+from pypadre.pod.repository.local.file.execution_repository import ExecutionFileRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer
 from pypadre.pod.util.git_util import add_and_commit
@@ -11,17 +12,12 @@ NAME = 'executions'
 META_FILE = File("metadata.json", JSonSerializer)
 
 
-class ExecutionGitlabRepository(IChildFileRepository, IExecutionRepository):
+class ExecutionGitlabRepository(ExecutionFileRepository):
 
-    @staticmethod
-    def placeholder():
-        return '{EXECUTION_ID}'
 
     def __init__(self, backend: IPadreBackend):
-        super().__init__(parent=backend.experiment, name=NAME, backend=backend)
+        super().__init__(backend=backend)
 
-    def to_folder_name(self, execution):
-        return str(execution.hash)
 
     def get(self, uid):
         """
@@ -32,15 +28,11 @@ class ExecutionGitlabRepository(IChildFileRepository, IExecutionRepository):
         # TODO: Execution folder name is the hash. Get by uid will require looking into the metadata
         return super().get(uid)
 
-    def get_by_dir(self, directory):
-        metadata = self.get_file(directory, META_FILE)
-        experiment = self.backend.experiment.get(metadata.get("experiment_id"))
-        return Execution(experiment=experiment, metadata=metadata)
+    def update(self,obj, commit_message:str):
+        self.parent.update(obj,commit_message)
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
-        execution = obj
-        self.write_file(directory, META_FILE, execution.metadata)
-        add_and_commit(self.parent.root_dir)
-        self.parent.update()
+        super()._put(obj,*args,directory,merge,**kwargs)
+        self.parent.update(obj.experiment, commit_message= "Added a new execution or updated existing one to the experiment.")
         # The code for each execution changes. So it is necessary to write the experiment.json file too.
         # self.write_file(directory, CONFIG_FILE, execution.config)

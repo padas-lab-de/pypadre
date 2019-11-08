@@ -130,7 +130,7 @@ def add_untracked_files(repo):
     if has_untracked_files(repo=repo):
         untracked_files = get_untracked_files(repo=repo)
         add_files(repo=repo, file_path=untracked_files)
-    elif has_uncommitted_files(repo=repo):
+    if has_uncommitted_files(repo=repo):
         repo.git.add(A=True)
 
 
@@ -184,7 +184,7 @@ def push(repo, remote_name, remote_url):
     remote.push(refspec='{}:{}'.format('master', 'master'))
 
 
-def add_git_lfs_attribute_file(directory, file_extension, init=False):
+def add_git_lfs_attribute_file(directory, file_extension, message=DEFAULT_GIT_MSG):
     # Get os version and write content to file
     path = None
     # TODO: Verify path in Windows
@@ -202,7 +202,7 @@ def add_git_lfs_attribute_file(directory, file_extension, init=False):
 
     # Add all untracked files
     add_untracked_files(repo=repo)
-    commit(repo, message=DEFAULT_GIT_MSG)
+    commit(repo, message=message)
 
 
 def has_untracked_files(repo):
@@ -269,5 +269,5 @@ def get_repo(path=None, url=None, **kwargs):
 def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,force_commit=False):
     repo = create_repo(path=dir_path, bare=False) if not repo_exists(dir_path) else get_repo(path=dir_path)
     add_untracked_files(repo=repo)
-    if len(repo.index.diff(None)) > 0 or not repo.active_branch.is_valid() or force_commit:
+    if len(repo.index.diff(None)) > 0 or not repo.active_branch.is_valid() or force_commit or len(repo.index.diff("master"))>0:
         commit(repo, message=message)
