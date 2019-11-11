@@ -57,7 +57,7 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
         y_predicted = np.asarray(model.predict(split.test_features))
         self.send_stop(message="Stopping phase sklearn." + phases.inferencing)
 
-        self.send_log(mode='probability', pred=y_predicted, truth=y,
+        self.send_info(mode='probability', pred=y_predicted, truth=y,
                       message="Checking if the workflow supports probability computation or not.")
 
         # Check if the final estimator has an attribute called probability and if it has check if it is True
@@ -86,8 +86,8 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
 
             if compute_probabilities:
                 y_predicted_probabilities = model.predict_proba(split.test_features)
-                self.send_log(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
-                              message="Computing and saving the prediction probabilities")
+                self.send_info(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
+                               message="Computing and saving the prediction probabilities")
                 y_predicted_probabilities = y_predicted_probabilities.tolist()
         else:
             type_ = PaDREOntology.SubClassesExperiment.Regression.value
@@ -96,7 +96,7 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
             self.send_start(message="Starting phase sklearn.scoring.testset")
             score = model.score(split.test_features, y, )
             self.send_stop(message="Stopping phase sklearn.scoring.testset")
-            self.send_log(keys=["test score"], values=[score], message="Logging the testing score")
+            self.send_info(keys=["test score"], values=[score], message="Logging the testing score")
 
         results = self.create_results_dictionary(split_num=split.number, train_idx=train_idx, test_idx=test_idx,
                                                  dataset=split.dataset.name,

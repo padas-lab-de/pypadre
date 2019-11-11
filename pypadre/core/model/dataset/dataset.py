@@ -307,7 +307,7 @@ class Transformation(Dataset):
         :param attributes:
         :return:
         """
-        self._metadata["attributes"] = attributes
+        self.metadata["attributes"] = attributes
 
     def set_data(self, data, attributes=None):
         """

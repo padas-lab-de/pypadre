@@ -72,14 +72,14 @@ class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, Paramete
             score = self._pipeline.score(split.train_features, y)
             self.send_stop(message="Stopping phase sklearn.scoring.trainset")
             # TODO use other signals?
-            self.send_log(keys=['training score'], values=[score], message="Logging the training score")
+            self.send_info(keys=['training score'], values=[score], message="Logging the training score")
 
             if split.has_valset():
                 y = split.val_targets.reshape((len(split.val_targets),))
                 self.send_start(phase='sklearn.scoring.valset')
                 score = self._pipeline.score(split.val_features, y)
                 self.send_stop(phase='sklearn.scoring.valset')
-                self.send_log(keys=['validation score'], values=[score], message="Logging the validation score")
+                self.send_info(keys=['validation score'], values=[score], message="Logging the validation score")
         return Training(split=split, component=component, run=run, model=self._pipeline, parameters=kwargs,
                         initial_hyperparameters=initial_hyperparameters)
 

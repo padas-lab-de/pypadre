@@ -40,7 +40,7 @@ class ProgressableMixin(Signaler):
         self.send_signal(CommonSignals.PROGRESS, self, progress=progress, **kwargs)
 
 
-@signals(CommonSignals.LOG, EVENT_TRIGGERED)
+@signals(CommonSignals.LOG)
 class LoggableMixin(Signaler):
     """ This is the interface for all entities being able to signal a progress of their state."""
     __metaclass__ = ABCMeta
