@@ -19,7 +19,7 @@ def dataset():
     return np.append(data, target, axis=1)
 
 
-@app.workflow(dataset=dataset, experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
+@app.workflow(dataset=dataset, experiment_name="Iris SVC", project_name="Examples")
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC

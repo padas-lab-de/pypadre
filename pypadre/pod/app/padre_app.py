@@ -24,7 +24,9 @@ from typing import List, Union
 
 from docutils.nodes import warning
 from jsonschema import ValidationError
+from sklearn.pipeline import Pipeline
 
+from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.generic.custom_code import _convert_path_to_code_object
 from pypadre.core.model.pipeline.parameter_providers.parameters import FunctionParameterProvider
@@ -149,14 +151,22 @@ class PadreApp(IBaseApp):
     def code(self):
         return self._code_app
 
-    def workflow(self, *args, ptype, parameters=None, parameter_provider=None,
+    def workflow(self, *args, ptype=None, parameters=None, parameter_provider=None,
                  dataset: Union[Dataset, str], project_name=None, experiment_name=None,
                  project_description=None,
                  experiment_description=None, auto_main=True, **kwargs):
         """
         Decroator for functions that return a single workflow to be executed in an experiment with name exp_name
-        :param exp_name: name of the experiment
         :param args: additional positional parameters to an experiment (replaces other positional parameters if longer)
+        :param ptype:
+        :param parameters:
+        :param parameter_provider: Object that provides parameters for hyperparameter search
+        :param dataset: Dataset object of the experiment
+        :param project_name:
+        :param experiment_name: Name of the experiment
+        :param project_description:
+        :param experiment_description:
+        :param auto_main:
         :param kwargs: kwarguments for experiments
         :return:
         """
@@ -174,15 +184,22 @@ class PadreApp(IBaseApp):
             creator = _convert_path_to_code_object(filename, function_name)
 
             if ptype is None:
+                pipeline = wrap_workflow()
+                if isinstance(pipeline, Pipeline):
+                    local_ptype = SKLearnPipeline
+                    pass
                 # TODO look up the class by parsing the mapping / looking at the return value of the function or something similar
-                raise NotImplementedError()
+                # raise NotImplementedError()
+
+            else:
+                local_ptype = ptype
 
 
             # TODO check pipeline type (where to put provider)
             if parameter_provider is not None:
-                pipeline = ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider, creator=creator)
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider, creator=creator)
             else:
-                pipeline = ptype(pipeline_fn=wrap_workflow, creator=creator)
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, creator=creator)
 
             project = self.projects.get_by_name(project_name)
             if project is None:
