@@ -5,7 +5,7 @@ import re
 import shutil
 
 from pypadre.core.model.code.code_file import CodeFile
-from pypadre.core.model.code.icode import ICode, Function
+from pypadre.core.model.code.codemixin import CodeMixin, Function
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
@@ -43,17 +43,17 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
                          , backend=backend)
         self._group = self.get_group(name=NAME)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
 
         metadata = self.get_file(path, META_FILE)
 
         # TODO what about inherited classes
-        if metadata.get(ICode.CODE_CLASS) == str(Function):
+        if metadata.get(CodeMixin.CODE_CLASS) == str(Function):
             fn = self.get_file(path, CODE_FILE)
             code = Function(fn=fn, metadata=metadata)
 
-        elif metadata.get(ICode.CODE_CLASS) == str(CodeFile):
+        elif metadata.get(CodeMixin.CODE_CLASS) == str(CodeFile):
             code = CodeFile(path=metadata.path, cmd=metadata.cmd, file=metadata.get("file", None))
 
         else:
@@ -64,11 +64,11 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
     def get_by_repo(self,repo):
 
         metadata = self.get_file(repo, META_FILE)
-        if metadata.get(ICode.CODE_CLASS) == str(Function):
+        if metadata.get(CodeMixin.CODE_CLASS) == str(Function):
             fn = self.get_file(repo, CODE_FILE)
             code = Function(fn=fn, metadata=metadata)
 
-        elif metadata.get(ICode.CODE_CLASS) == str(CodeFile):
+        elif metadata.get(CodeMixin.CODE_CLASS) == str(CodeFile):
             code = CodeFile(path=metadata.path, cmd=metadata.cmd, file=metadata.get("file", None))
 
         else:

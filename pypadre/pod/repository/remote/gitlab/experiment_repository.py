@@ -50,7 +50,7 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
         """
         return self.list({'folder': re.escape(name)})
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         import glob
 
         path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
@@ -100,12 +100,13 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
                 experiment.merge_metadata(metadata=metadata)
         if self.remote is not None:
             # TODO add a counter (of commits) or a timer for each push
-            self.parent.update(experiment.parent, src=experiment.name, url=self.get_repo_url())
             add_and_commit(directory,message="Adding unstaged changes in the repo")
             self.push_changes()
         else:
             self.write_file(directory, META_FILE, experiment.metadata)
             self.write_file(directory, WORKFLOW_FILE, experiment.pipeline, 'wb')
             add_and_commit(directory,message="Adding the metadata and the workflow of the experiment")
+            self.parent.update(experiment.parent, src=experiment.name, url=self.get_repo_url(),
+                               commit_message="Adding the experiment named {} repository to the tsrc file.".format(experiment.name))
 
         remove_cached(cache, experiment.id)

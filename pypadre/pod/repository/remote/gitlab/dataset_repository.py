@@ -26,7 +26,7 @@ class DatasetGitlabRepository(GitLabRepository, IDatasetRepository):
                          , backend=backend)
         self._group = self.get_group(name=NAME)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         if len(directory) == 0:
             return None
 

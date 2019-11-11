@@ -5,9 +5,10 @@ from pypadre.core.model.project import Project
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IProjectRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
+from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
 from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, YamlSerializer, TextSerializer
-from pypadre.pod.util.git_util import add_and_commit, repo_exists
+from pypadre.pod.util.git_util import add_and_commit
 
 NAME = 'projects'
 _GROUP = '_projects'
@@ -17,7 +18,7 @@ GIT_IGNORE = File(".gitignore", TextSerializer)
 _gitignore = "experiments/"
 
 
-class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
+class ProjectGitlabRepository(GitLabRepository, IProjectRepository, ILogFileRepository):
 
     @staticmethod
     def placeholder():
@@ -33,7 +34,7 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
         metadata = self.get_file(repo, META_FILE)
         return Project(name=metadata.pop("name"), description=metadata.pop("description"), metadata=metadata)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         return Project(name=metadata.pop("name"), description=metadata.pop("description"), metadata=metadata)
 
@@ -49,11 +50,11 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
         """
         return self.list({'folder': re.escape(name)})
 
-    def update(self,project:Project,src,url):
+    def update(self,project:Project,src,url,commit_message:str):
         self._tsrc = self.get_file(self._repo,MANIFEST_FILE)
         self._tsrc["repos"].append({"src":src,"url":url})
         self.write_file(self.to_directory(project), MANIFEST_FILE, self._tsrc)
-        add_and_commit(self.to_directory(project), message="Adding a new experiment repo to the tsrc file.", force_commit=True)
+        add_and_commit(self.to_directory(project), message=commit_message, force_commit=True)
         self.push_changes()
 
     def _put(self, project: Project, *args, directory: str, merge=False, **kwargs):

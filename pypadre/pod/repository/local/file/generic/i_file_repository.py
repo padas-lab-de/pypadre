@@ -211,7 +211,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         :return: Loaded file
         """
         loaded = self.get_file_fn(dir, file)()
-        return loaded if loaded else default
+        return loaded if loaded is not None else default
 
     def has_file(self, dir, file: File):
         """
