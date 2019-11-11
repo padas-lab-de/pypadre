@@ -2,9 +2,11 @@ import os
 import re
 import shutil
 from abc import abstractmethod, ABCMeta
+from logging import warning
 
 from pypadre.core.base import ChildMixin
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
+from pypadre.pod.repository.exceptions import ObjectAlreadyExists
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable, IRepository
 from pypadre.pod.util.file_util import get_path
 
@@ -51,6 +53,9 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         if directory is None:
             return None
         return self.get_by_dir(directory)
+
+    def exists_object(self, obj):
+        return self.get_by_dir(self.to_directory(obj)) is not None
 
     def list(self, search, offset=0, size=100):
         """
@@ -99,8 +104,8 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         # Create or overwrite folder
         if os.path.exists(directory):
             if not allow_overwrite:
-                raise ValueError("Object path %s already exists.".format(obj) +
-                                 "Overwriting not explicitly allowed. Set allow_overwrite=True")
+                raise ObjectAlreadyExists("Object path for {} already exists.".format(str(obj)) +
+                                 " Overwriting not explicitly allowed. Set allow_overwrite=True.")
             shutil.rmtree(directory)
         os.makedirs(directory)
 
@@ -127,14 +132,24 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         """
         return str(obj.id)
 
-    @abstractmethod
     def get_by_dir(self, directory):
         """
         Gets an object for a given directory.
         :param directory: Directory to load the object from
         :return: Object which should be deserialized
         """
-        pass
+        if not self.has_dir(directory):
+            return None
+
+        try:
+            return self._get_by_dir(directory)
+        except ValueError:
+            warning("Couldn't load object in dir " + str(directory) + ". Object might be corrupted.")
+            return None
+
+    @abstractmethod
+    def _get_by_dir(self, directory):
+        raise NotImplementedError()
 
     def find_dir_by_id(self, uid):
         """
@@ -187,14 +202,16 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         if self.has_dir(directory):
             shutil.rmtree(directory)
 
-    def get_file(self, dir, file: File):
+    def get_file(self, dir, file: File, default=None):
         """
         Get a file in a directory by using a serializer name combination defined in a File object.
         :param dir: Location of the repo
         :param file: File object
+        :param default: Default if file couldn't be loaded
         :return: Loaded file
         """
-        return self.get_file_fn(dir, file)()
+        loaded = self.get_file_fn(dir, file)()
+        return loaded if loaded else default
 
     def has_file(self, dir, file: File):
         """
@@ -286,7 +303,7 @@ class IChildFileRepository(IFileRepository, ChildMixin):
 
         # Put parent if it is not already existing
         if self.parent is not None and isinstance(obj, ChildMixin):
-            if not self.parent.exists(obj.parent.id):
+            if not self.parent.exists_object(obj.parent):
                 self.parent.put(obj.parent)
 
         super().put(obj, *args, merge=merge, allow_overwrite=allow_overwrite, **kwargs)

@@ -126,10 +126,10 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
 
         # Check if we are a end node
         if self.out_degree(node) == 0 and aggregate_results:
-            print("we are at the end of the pipeline / store results?")
             # TODO we are at the end of the pipeline / store results?
             output = PipelineOutput.from_computation(computation)
             output.send_put()
+            print("Calculating " + output.name + " done.")
 
     def _execute_successors(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap, run: Run,
                             predecessor: Computation = None, **kwargs):

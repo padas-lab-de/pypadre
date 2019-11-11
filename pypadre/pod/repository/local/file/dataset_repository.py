@@ -33,7 +33,7 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
         self.write_file(directory, DATA_FILE, dataset.data(), 'wb')
         add_git_lfs_attribute_file(directory, "*.bin")
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         if len(directory) == 0:
             return None
 

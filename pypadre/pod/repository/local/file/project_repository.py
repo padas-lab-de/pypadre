@@ -22,7 +22,7 @@ class ProjectFileRepository(IGitRepository, IProjectRepository, ILogFileReposito
     def __init__(self, backend: IPadreBackend):
         super().__init__(root_dir=os.path.join(backend.root_dir, NAME), backend=backend)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         return Project(name=metadata.pop("name"), description=metadata.pop("description"), metadata=metadata)
 

@@ -40,7 +40,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
     def __init__(self, backend: IPadreBackend):
         super().__init__(root_dir=os.path.join(backend.root_dir, NAME), backend=backend)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
 
         metadata = self.get_file(path, META_FILE)

@@ -13,7 +13,7 @@ from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 
 class SKLearnPipeline(DefaultPythonExperimentPipeline):
 
-    def __init__(self, *, splitting: Union[Type[CodeMixin], Callable] = None, pipeline_fn: Callable, **kwargs):
+    def __init__(self, *, splitting: Union[Type[CodeMixin], Callable] = None, parameter_provider=None, pipeline_fn: Callable, **kwargs):
         """
 
         :param splitting:
@@ -29,7 +29,9 @@ class SKLearnPipeline(DefaultPythonExperimentPipeline):
 
         # Verify running two instances of the function creates two Pipeline objects
         assert(pipeline is not pipeline_fn())
-        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline)
+
+        # TODO provider for a specific node
+        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, parameter_provider=parameter_provider)
         sk_learn_evaluator = SKLearnEvaluator()
         super().__init__(splitting=splitting, estimator=sk_learn_estimator, evaluator=sk_learn_evaluator, **kwargs)
 

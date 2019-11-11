@@ -16,14 +16,18 @@ Architecture of the module
 """
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
+import configparser
 import inspect
+import os
 from functools import wraps
 from typing import List, Union
 
+from docutils.nodes import warning
 from jsonschema import ValidationError
 
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.generic.custom_code import _convert_path_to_code_object
+from pypadre.core.model.pipeline.parameter_providers.parameters import FunctionParameterProvider
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
 from pypadre.core.util.utils import filter_nones
@@ -41,7 +45,6 @@ from pypadre.pod.app.project.run_app import RunApp
 from pypadre.pod.app.project.split_app import SplitApp
 from pypadre.pod.backend.file import PadreFileBackend
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
-from pypadre.pod.service.logging_service import LoggingService
 
 
 # logger = PadreLogger(app=None)
@@ -146,7 +149,8 @@ class PadreApp(IBaseApp):
     def code(self):
         return self._code_app
 
-    def workflow(self, *args, ptype, dataset: Union[Dataset, str], project_name=None, experiment_name=None,
+    def workflow(self, *args, ptype, parameters=None, parameter_provider=None,
+                 dataset: Union[Dataset, str], project_name=None, experiment_name=None,
                  project_description=None,
                  experiment_description=None, auto_main=True, **kwargs):
         """
@@ -156,6 +160,9 @@ class PadreApp(IBaseApp):
         :param kwargs: kwarguments for experiments
         :return:
         """
+
+        if parameters is None:
+            parameters = {}
 
         def workflow_decorator(f_create_workflow):
             @wraps(f_create_workflow)
@@ -170,7 +177,13 @@ class PadreApp(IBaseApp):
                 # TODO look up the class by parsing the mapping / looking at the return value of the function or something similar
                 raise NotImplementedError()
 
-            pipeline = ptype(pipeline_fn=wrap_workflow, creator=creator)
+
+            # TODO check pipeline type (where to put provider)
+            if parameter_provider is not None:
+                pipeline = ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider, creator=creator)
+            else:
+                pipeline = ptype(pipeline_fn=wrap_workflow, creator=creator)
+
             project = self.projects.get_by_name(project_name)
             if project is None:
                 project = self.projects.create(
@@ -182,11 +195,34 @@ class PadreApp(IBaseApp):
                 project=project,
                 pipeline=pipeline, dataset=d, creator=creator)
             if auto_main:
-                return experiment.execute()
+                return experiment.execute(parameters=parameters)
             else:
+                if parameters:
+                    warning("Parameters are given but experiment is not started directly. Parameters will be omitted. "
+                            "You have to pass them on the execute call again.")
                 return experiment
 
         return workflow_decorator
+
+    def parameter_map(self):
+        def parameter_decorator(f_create_parameters):
+            @wraps(f_create_parameters)
+            def wrap_parameters(*args, **kwargs):
+                # here the parameter map gets called. We could add some logging etc. capability here,
+                # but i am not sure
+                return f_create_parameters(*args, **kwargs)
+            return wrap_parameters()
+        return parameter_decorator
+
+    def parameter_provider(self, *args, **kwargs):
+        def parameter_decorator(f_create_parameters):
+            @wraps(f_create_parameters)
+            def wrap_parameters(*args, **kwargs):
+                # here the parameter provider gets called. We could add some logging etc. capability here,
+                # but i am not sure
+                return f_create_parameters(*args, **kwargs)
+            return FunctionParameterProvider(name="custom_parameter_provider", fn=wrap_parameters)
+        return parameter_decorator
 
     def dataset(self, *args, name=None, **kwargs):
         def dataset_decorator(f_create_dataset):
@@ -196,8 +232,8 @@ class PadreApp(IBaseApp):
                 return f_create_dataset(*args, **kwargs)
 
             if name is None:
-                return self.datasets.load(f_create_dataset())
-            return self.datasets.load(f_create_dataset(), name=name, **kwargs)
+                return self.datasets.load(wrap_dataset())
+            return self.datasets.load(wrap_dataset(), name=name, **kwargs)
 
         return dataset_decorator
 
@@ -216,3 +252,21 @@ class PadreApp(IBaseApp):
     def print_(self, output, **kwargs):
         if self.has_print():
             self._print(output, **kwargs)
+
+
+def example_app():
+    config_path = os.path.join(os.path.expanduser("~"), ".padre-example.cfg")
+    workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-example")
+
+    """Create config file for testing purpose"""
+    config = configparser.ConfigParser()
+    with open(config_path, 'w+') as configfile:
+        config.write(configfile)
+
+    config = PadreConfig(config_file=config_path)
+    config.set("backends", str([
+        {
+            "root_dir": workspace_path
+        }
+    ]))
+    return PadreAppFactory.get(config)

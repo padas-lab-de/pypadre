@@ -31,7 +31,7 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
         # TODO: Execution folder name is the hash. Get by uid will require looking into the metadata
         return super().get(uid)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         experiment = self.backend.experiment.get(metadata.get("experiment_id"))
         return Execution(experiment=experiment, metadata=metadata)

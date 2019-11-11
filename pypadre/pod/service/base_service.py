@@ -1,9 +1,11 @@
 from _py_abc import ABCMeta
 from abc import abstractmethod
+from logging import warning
 from typing import List, Type, Callable
 
 from pypadre.core.events.events import Signaler
 from pypadre.core.validation.validation import ValidateableFactory, ValidationErrorHandler
+from pypadre.pod.repository.exceptions import ObjectAlreadyExists
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable
 
 
@@ -53,7 +55,10 @@ class CrudServiceMixin(ServiceMixin):
         """
         for b in self.backends:
             backend: IStoreableRepository = b
-            backend.put(obj, **kwargs)
+            try:
+                backend.put(obj, **kwargs)
+            except ObjectAlreadyExists as e:
+                warning("Couldn't store object" + str(obj) + "!" + str(e) + " Skipping storage.")
 
     def patch(self, obj):
         """

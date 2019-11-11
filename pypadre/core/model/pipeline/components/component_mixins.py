@@ -11,7 +11,7 @@ from pypadre.core.model.generic.custom_code import CustomCodeHolder, ProvidedCod
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.pipeline.components.component_interfaces import IConsumer, IProvider
 from pypadre.core.model.pipeline.parameter_providers.gridsearch import GridSearch
-from pypadre.core.model.pipeline.parameter_providers.parameters import IParameterProvider, ParameterMap
+from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProviderMixin, ParameterMap
 from pypadre.core.validation.validation import ValidateParameters
 
 
@@ -62,7 +62,7 @@ class ParameterizedPipelineComponentMixin(PipelineComponentMixin, ValidateParame
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *, parameter_schema: Iterable = None, parameter_provider: IParameterProvider = None, **kwargs):
+    def __init__(self, *, parameter_schema: Iterable = None, parameter_provider: ParameterProviderMixin = None, **kwargs):
         # TODO name via enum or name via owlready2
         # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)

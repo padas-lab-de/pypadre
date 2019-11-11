@@ -3,7 +3,7 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IRunRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
-from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
+from pypadre.pod.repository.serializer.serialiser import JSonSerializer
 
 NAME = "runs"
 
@@ -20,7 +20,7 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
     def __init__(self, backend: IPadreBackend):
         super().__init__(parent=backend.execution, name=NAME, backend=backend)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         #hyperparameter = self.get_file(directory, HYPERPARAMETER_FILE)
         #workflow = self.get_file(directory, WORKFLOW_FILE)

@@ -36,7 +36,7 @@ class CustomCodeHolder(ExecuteableMixin, Signaler):
         self._code = code
 
     def _execute_helper(self, *args, **kwargs):
-        self.send_put(allow_overwrite=True)
+        self.code.send_put(allow_overwrite=True)
         return self.code.call(**kwargs)
 
     @property

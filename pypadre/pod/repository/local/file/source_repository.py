@@ -26,7 +26,7 @@
 #         # TODO might be changed. Execution get folder name or id by git commit hash?
 #         return super().get(uid)
 #
-#     def get_by_dir(self, directory):
+#     def _get_by_dir(self, directory):
 #         # Souce code will not get_by_dir
 #         pass
 #

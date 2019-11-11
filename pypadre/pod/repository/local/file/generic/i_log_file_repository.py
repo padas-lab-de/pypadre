@@ -18,7 +18,8 @@ class ILogFileRepository(IFileRepository, ILogRepository):
         super().__init__(**kwargs)
 
     def __del__(self):
-        self._file.close()
+        if self._file is not None:
+            self._file.close()
     """
     def log(self, msg):
         self._write(msg)

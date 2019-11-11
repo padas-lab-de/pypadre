@@ -19,6 +19,9 @@ class IStoreableRepository:
         # TODO don't load object for better performance
         return self.get(uid) is not None
 
+    def exists_object(self, obj):
+        return self.exists(obj.id)
+
     @abstractmethod
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
         raise NotImplementedError()

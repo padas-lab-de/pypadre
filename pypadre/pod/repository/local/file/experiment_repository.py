@@ -9,7 +9,6 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
-from pypadre.pod.repository.local.file.generic.i_log_file_repository import ILogFileRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
 
 # CONFIG_FILE = File("experiment.json", JSonSerializer)
@@ -50,7 +49,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
             search['folder'] = re.escape(name)
         return super().list(search, offset, size)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         import glob
 
         path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
