@@ -20,14 +20,14 @@ def git_hash(path: str):
 
     else:
         # This shouldn't occur
-        raise ValueError("Path of the repository is invalid " + path)
+        raise ValueError("Path of the generic is invalid " + path)
 
     repo = open_existing_repo(dir_path, search_parents=True)
 
     if repo is not None:
         return repo.head.object.hexsha
 
-    # If no repository was found return none
+    # If no generic was found return none
     return None
 
 
@@ -45,7 +45,7 @@ def repo_exists(dir_path):
 
 def commit(repo, message):
     """
-    Commit a repository
+    Commit a generic
     :param repo: Repo object
     :param message: Message when committing
     :return:
@@ -93,8 +93,8 @@ def create_head(repo, name):
 def create_remote(repo, remote_name, url=''):
     """
     :param repo: The repo object that has to be passed
-    :param remote_name: Name of the remote repository
-    :param url: URL to the remote repository
+    :param remote_name: Name of the remote generic
+    :param url: URL to the remote generic
     :return:
     """
     return repo.create_remote(name=remote_name, url=url)
@@ -102,8 +102,8 @@ def create_remote(repo, remote_name, url=''):
 
 def create_repo(path, bare=True):
     """
-    Creates a local repository
-    :param bare: Creates a bare git repository
+    Creates a local generic
+    :param bare: Creates a bare git generic
     :return: Repo object
     """
     return Repo.init(path, bare)
@@ -130,6 +130,8 @@ def add_untracked_files(repo):
     if has_untracked_files(repo=repo):
         untracked_files = get_untracked_files(repo=repo)
         add_files(repo=repo, file_path=untracked_files)
+    if has_uncommitted_files(repo=repo):
+        repo.git.add(A=True)
 
 
 def delete_tags(repo, tag_name):
@@ -162,7 +164,7 @@ def archive_repo(repo, path):
 def clone(repo, url, path, branch='master'):
     """
     Clone a remote repo
-    :param repo: Repo object of the repository
+    :param repo: Repo object of the generic
     :param url: URL of the remote remo
     :param path: Path to clone the remote repo
     :param branch: Branch to pull from the remote repo
@@ -182,7 +184,7 @@ def push(repo, remote_name, remote_url):
     remote.push(refspec='{}:{}'.format('master', 'master'))
 
 
-def add_git_lfs_attribute_file(directory, file_extension):
+def add_git_lfs_attribute_file(directory, file_extension, message=DEFAULT_GIT_MSG):
     # Get os version and write content to file
     path = None
     # TODO: Verify path in Windows
@@ -191,15 +193,16 @@ def add_git_lfs_attribute_file(directory, file_extension):
     else:
         path = os.path.join(directory, GIT_ATTRIBUTES)
 
+    repo = create_repo(path=directory, bare=False) if not repo_exists(directory) else get_repo(path=directory)
+
     with open(path, "w") as f:
         f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
-    repo = create_repo(path=directory, bare=False)
     add_files(repo, file_path=path)
     commit(repo=repo, message='Added .gitattributes file for Git LFS')
 
     # Add all untracked files
     add_untracked_files(repo=repo)
-    commit(repo, message=DEFAULT_GIT_MSG)
+    commit(repo, message=message)
 
 
 def has_untracked_files(repo):
@@ -249,22 +252,22 @@ def get_untracked_files(repo):
 
 def get_repo(path=None, url=None, **kwargs):
     """
-    Pull a repository from remote
+    Pull a generic from remote
     :param repo_name: Name of the repo to be cloned
     :param path: Path to be cloned
-    :param url: Path to the remote repository to be cloned
+    :param url: Path to the remote generic to be cloned
     :return:
     """
     if path is not None and url is not None:
         return Repo.clone_from(url=url, to_path=path)
 
     elif url is None and path is not None:
-        # Open the local repository
+        # Open the local generic
         return Repo(path)
 
 
-def add_and_commit(dir_path, message=DEFAULT_GIT_MSG):
-    repo = get_repo(path=dir_path)
+def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,force_commit=False):
+    repo = create_repo(path=dir_path, bare=False) if not repo_exists(dir_path) else get_repo(path=dir_path)
     add_untracked_files(repo=repo)
-    if len(repo.index.diff(None)) > 0:
+    if len(repo.index.diff(None)) > 0 or not repo.active_branch.is_valid() or force_commit or len(repo.index.diff("master"))>0:
         commit(repo, message=message)

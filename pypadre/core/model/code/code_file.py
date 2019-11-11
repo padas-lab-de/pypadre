@@ -39,7 +39,7 @@ class CodeFile(CodeMixin):
             metadata["hash"] = hash
         super().__init__(metadata=metadata, **kwargs)
 
-        # Set hash. This can be provided by a git repository for example
+        # Set hash. This can be provided by a git generic for example
         self._hash = hash
 
     @property

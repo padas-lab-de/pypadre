@@ -40,15 +40,24 @@ class IGitRepository(IFileRepository):
         directory = self.to_directory(obj)
         if not repo_exists(directory):
             repo = Repo.init(path=directory, **kwargs.pop("repo_kwargs", {}))
+            add_and_commit(directory, message=kwargs.pop('message', 'Initial Commit of Repository'))
         else:
             repo = get_repo(path=directory, **kwargs.pop("repo_kwargs", {}))
+            add_and_commit(directory, message=kwargs.pop('message', 'commiting existing changes'))
 
-        add_and_commit(directory, message=kwargs.pop('message', 'Initial Commit of Repository'))
         return repo
 
     def get(self, uid):
         # Call the File backend get function
         return super().get(uid=uid)
+
+    def get_by_repo(self,repo):
+        """
+        Gets an object for a given generic.
+        :param directory: generic object to load the object from
+        :return: Object which should be deserialized
+        """
+        pass
 
     def delete(self, id_):
         """
@@ -56,7 +65,7 @@ class IGitRepository(IFileRepository):
         :param id_: id of the repo to be deleted
         :return:
         """
-        # TODO: User will have to remove the remote repository by themselves
+        # TODO: User will have to remove the remote generic by themselves
         super().delete(id_)
 
     @staticmethod
@@ -73,10 +82,10 @@ class IGitRepository(IFileRepository):
         # Get the directory path from the object
         dir_path = self.to_directory(obj)
 
-        # Check if there is a repository existing in the path or any path of the parent directories
+        # Check if there is a generic existing in the path or any path of the parent directories
         repo = open_existing_repo(dir_path, search_parents=False)
 
-        # If a repository does not exist return false
+        # If a generic does not exist return false
         if repo is None:
             return False
 

@@ -14,6 +14,7 @@ if "PADRE_CFG_FILE" in os.environ:
 else:
     _PADRE_CFG_FILE = os.path.expanduser('~/.padre.cfg')
 
+_GITLAB_BASE_URL = 'http://localhost:8080/'
 
 class PadreConfig:
     """
@@ -31,6 +32,13 @@ class PadreConfig:
 
     [LOCAL BACKEND]
     root_dir = ~/.pypadre/
+
+    [GITLAB BACKEND]
+    root_dir = ~/.pypadre/
+    user = username
+    token = user_private_token
+    gitlab_url = https://gitlab.padim.fim.uni-passau.de
+
 
     [GENERAL]
     offline = True
@@ -96,6 +104,12 @@ class PadreConfig:
                     },
                     {
                         "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre")
+                    },
+                    {
+                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre"),
+                        "gitlab_url": _GITLAB_BASE_URL,
+                        "user": "root",
+                        "token": "e8mbtk4suozvmPw5c5Fo"
                     }
                 ]
             }

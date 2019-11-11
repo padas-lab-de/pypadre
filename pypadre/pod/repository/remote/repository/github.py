@@ -32,7 +32,7 @@
 #
 #     def delete_file(self, path, commit_message, commit_sha, branch):
 #         """
-#         Deletes a file from the GitHub online repository
+#         Deletes a file from the GitHub online generic
 #         :param path: Path of the file in the repo
 #         :param commit_message: Commit message
 #         :param commit_sha: SHA of the commit
@@ -51,7 +51,7 @@
 #
 #     def put(self, **kwargs):
 #         """
-#         Write a file, create a new repository if needed
+#         Write a file, create a new generic if needed
 #         :param kwargs:
 #         :return:
 #         """
