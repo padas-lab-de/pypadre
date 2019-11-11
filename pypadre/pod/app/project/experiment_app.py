@@ -13,8 +13,12 @@ class ExperimentApp(BaseChildApp):
         super().__init__(parent, service=ExperimentService(backends=backends), **kwargs)
 
     def execute(self, id):
-        self.service.execute(id)
+        return self.service.execute(id)
 
+    def create(self, *args, **kwargs):
+        experiment = self.service.create(*args, **kwargs)
+        self.put(experiment)
+        return experiment
 
     # def delete_experiments(self, search):
     #     """

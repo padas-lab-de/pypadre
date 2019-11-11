@@ -1,7 +1,52 @@
 import re
 from typing import Sequence
 
+from jsonschema import ValidationError, validators
+from padre.PaDREOntology import PaDREOntology
+
 from pypadre.core.validation.validation import ValidationErrorHandler
+
+
+# TODO move defaults to json schema
+# def extend_with_default(validator_class):
+#     # see https://python-jsonschema.readthedocs.io/en/stable/faq/
+#     validate_properties = validator_class.VALIDATORS["properties"]
+#
+#     def set_defaults(validator, properties, instance, schema):
+#         for property, subschema in properties.items():
+#             if "default" in subschema:
+#                 instance.setdefault(property, subschema["default"])
+#
+#         for error in validate_properties(
+#                 validator, properties, instance, schema,
+#         ):
+#             yield error
+#
+#     return validators.extend(
+#         validator_class, {"properties": set_defaults},
+#     )
+
+
+def padre_enum(validator, padre_enum, instance, schema):
+    """
+    Function to evaluate if a enum exists via jsonschema evaluation. This is used for ontology validation.
+    :param validator:
+    :param padre_enum:
+    :param instance:
+    :return:
+    """
+    if validator.is_type(instance, "string"):
+        if padre_enum is not None:
+            # noinspection PyProtectedMember
+            if not hasattr(PaDREOntology, padre_enum):
+                yield ValidationError("%r is not a valid padre enum" % (padre_enum))
+            # TODO cleanup access to enum
+            elif instance not in getattr(PaDREOntology, padre_enum)._value2member_map_:
+                yield ValidationError("%r is not a valid value entry of padre enum %r" % (instance, padre_enum))
+
+
+padre_schema_validator = validators.extend(validators.Draft7Validator,
+                                           validators={"padre_enum": padre_enum}, version="1.0")
 
 
 class JsonSchemaRequiredHandler(ValidationErrorHandler):

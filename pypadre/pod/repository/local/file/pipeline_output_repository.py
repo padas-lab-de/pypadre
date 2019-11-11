@@ -22,9 +22,9 @@ class PipelineOutputFileRepository(IChildFileRepository, ILogFileRepository, IPi
     def __init__(self, backend: IPadreBackend):
         super().__init__(parent=backend.run, name=NAME, backend=backend)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
-        parameter = self.get_file(directory, PARAMETER_FILE)
+        parameter = self.get_file(directory, PARAMETER_FILE, {})
         metric = self.get_file(directory, METRIC_FILE)
         result = self.get_file(directory, RESULT_FILE)
 
@@ -33,6 +33,7 @@ class PipelineOutputFileRepository(IChildFileRepository, ILogFileRepository, IPi
 
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         self.write_file(directory, META_FILE, obj.metadata)
-        self.write_file(directory, PARAMETER_FILE, obj.parameter_selection)
+        if obj.parameter_selection != {}:
+            self.write_file(directory, PARAMETER_FILE, obj.parameter_selection)
         self.write_file(directory, METRIC_FILE, obj.metrics)
         self.write_file(directory, RESULT_FILE, obj.results)

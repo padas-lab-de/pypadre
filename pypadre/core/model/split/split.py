@@ -1,9 +1,9 @@
-from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.model.generic.i_model_mixins import IStoreable
+from pypadre.core.base import MetadataMixin, ChildMixin
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Split(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
+class Split(StoreableMixin, MetadataMixin, ChildMixin, Tablefyable):
     """
     A split is a single part of a execution and the actual excution over parts of the dataset.
     According to the experiment setup the pipeline/workflow will be executed

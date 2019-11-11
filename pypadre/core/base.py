@@ -3,8 +3,8 @@ from abc import ABCMeta, abstractmethod
 
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.util.inheritance import SuperStop
-from pypadre.core.util.utils import _Const, is_jsonable
-from pypadre.core.validation.validation import Validateable
+from pypadre.core.util.utils import _Const
+from pypadre.core.validation.json_validation import ModelHolderMixin
 
 
 ####################################################################################################################
@@ -43,7 +43,7 @@ Enum for the different phases of an experiment
 exp_events = _ExperimentEvents()
 
 
-class MetadataEntity(Validateable, Tablefyable):
+class MetadataMixin(ModelHolderMixin, Tablefyable):
     __metaclass__ = ABCMeta
     """
     Base object for entities that manage metadata. A MetadataEntity manages and id and a dict of metadata.
@@ -60,6 +60,7 @@ class MetadataEntity(Validateable, Tablefyable):
 
     @classmethod
     def _tablefy_register_columns(cls):
+        # TODO make all fields tablefyable
         cls.tablefy_register("id", "name", cls.CREATED_AT, cls.CREATED_BY, cls.UPDATED_AT, cls.LAST_MODIFIED_BY)
 
     @abstractmethod
@@ -67,22 +68,10 @@ class MetadataEntity(Validateable, Tablefyable):
 
         import time
 
-        self._metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
+        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
                           **metadata}
 
-        # TODO remove this. This is only put here to find invalid / unserializable metadata without explicitly calling serialize on it
-        if not is_jsonable(self._metadata):
-            raise ValueError(str(self) + " is not json serializable!")
-
-        # Merge all named parameters and kwargs together for validation
-        # argspec = inspect.getargvalues(inspect.currentframe())
-        # options = {**{key: argspec.locals[key] for key in argspec.args if key is not "self"}, **kwargs}
-
-        super().__init__(**{self.METADATA: self._metadata, **kwargs})
-
-        # if ontology_class is not None:
-        #     # TODO validation json schema vs ontology itself?
-        #     self._ontology_object = ontology_class(name=ontology_class.__name__ + "#" + self.id, **metadata)
+        super().__init__(**{"metadata": metadata, **kwargs})
 
 
     @property
@@ -109,50 +98,46 @@ class MetadataEntity(Validateable, Tablefyable):
         exist, the id is returned
         :return:
         """
-        if self._metadata and "name" in self._metadata:
-            return self._metadata["name"]
+        if self.metadata and "name" in self.metadata:
+            return self.metadata["name"]
         else:
             return str(self.id)
 
     @name.setter
     def name(self, name):
-        self._metadata["name"] = name
+        self.metadata["name"] = name
 
     @property
-    def createdAt(self):
-        if self.CREATED_AT in self._metadata:
-            return self._metadata[self.CREATED_AT]
+    def created_at(self):
+        if self.CREATED_AT in self.metadata:
+            return self.metadata[self.CREATED_AT]
         else:
             return None
 
     @property
-    def updatedAt(self):
-        if self.UPDATED_AT in self._metadata:
-            return self._metadata[self.UPDATED_AT]
+    def updated_at(self):
+        if self.UPDATED_AT in self.metadata:
+            return self.metadata[self.UPDATED_AT]
         else:
             return None
 
     @property
-    def lastModifiedBy(self):
-        if self.LAST_MODIFIED_BY in self._metadata:
-            return self._metadata[self.LAST_MODIFIED_BY]
+    def last_modified_by(self):
+        if self.LAST_MODIFIED_BY in self.metadata:
+            return self.metadata[self.LAST_MODIFIED_BY]
         else:
             return None
 
     @property
-    def createdBy(self):
-        if self.CREATED_BY in self._metadata:
-            return self._metadata[self.CREATED_BY]
+    def created_by(self):
+        if self.CREATED_BY in self.metadata:
+            return self.metadata[self.CREATED_BY]
         else:
             return None
 
     @property
     def metadata(self):
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, metadata):
-        self._metadata = metadata
+        return self._val_model
 
     def merge_metadata(self, metadata: dict):
 
@@ -164,7 +149,7 @@ class MetadataEntity(Validateable, Tablefyable):
                 pass
 
 
-class ChildEntity(SuperStop):
+class ChildMixin(SuperStop):
     """ This is the abstract class being hierarchically nested in another class. This is relevant for app structure
     and the backend structure. For example the project backend is the parent of experiment backend """
     __metaclass__ = ABCMeta

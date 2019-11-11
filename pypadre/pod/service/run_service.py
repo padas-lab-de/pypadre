@@ -3,10 +3,10 @@ from typing import List
 from pypadre.core.events.events import connect
 from pypadre.core.model.computation.run import Run
 from pypadre.pod.repository.i_repository import IRunRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
-class RunService(BaseService):
+class RunService(ModelServiceMixin):
     """
     Class providing commands for managing datasets.
     """

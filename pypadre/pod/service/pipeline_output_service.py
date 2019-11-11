@@ -4,10 +4,10 @@ from pypadre.core.events.events import connect
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IPipelineOutputRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
-class PipelineOutputService(BaseService):
+class PipelineOutputService(ModelServiceMixin):
     """
     Class providing commands for managing datasets.
     """

@@ -3,10 +3,10 @@ from typing import List
 from pypadre.core.events.events import connect
 from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import ISplitRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
-class SplitService(BaseService):
+class SplitService(ModelServiceMixin):
     """
     Class providing commands for managing datasets.
     """

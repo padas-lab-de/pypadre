@@ -4,8 +4,8 @@ from padre.PaDREOntology import PaDREOntology
 from pypadre import _version, _name
 from pypadre.core.base import phases
 from pypadre.core.model.computation.evaluation import Evaluation
-from pypadre.core.model.pipeline.components import IProvidedComponent, EvaluatorComponent, \
-    ParameterizedPipelineComponent
+from pypadre.core.model.pipeline.components.component_mixins import ProvidedComponentMixin, EvaluatorComponentMixin, \
+    ParameterizedPipelineComponentMixin
 from pypadre.core.util.utils import unpack
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
@@ -24,7 +24,7 @@ def evaluate(ctx, **kwargs):
     return component.evaluate(ctx, **kwargs)
 
 
-class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipelineComponent):
+class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, ParameterizedPipelineComponentMixin):
     """
     This class takes the output of an sklearn workflow which represents the fitted model along with the corresponding split,
     report and save all possible results that allows for common/custom metric computations.
@@ -47,7 +47,7 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
 
         self.send_error(message="Test set is missing.", condition=not split.has_testset())
 
-        self.send_start(phase='sklearn.' + phases.inferencing)
+        self.send_start(message="Starting phase sklearn." + phases.inferencing)
         train_idx = train_idx.tolist()
         test_idx = test_idx.tolist()
 
@@ -55,9 +55,9 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
         y = split.test_targets.reshape((len(split.test_targets),))
 
         y_predicted = np.asarray(model.predict(split.test_features))
-        self.send_stop(phase='sklearn.' + phases.inferencing)
+        self.send_stop(message="Stopping phase sklearn." + phases.inferencing)
 
-        self.send_log(mode='probability', pred=y_predicted, truth=y,
+        self.send_info(mode='probability', pred=y_predicted, truth=y,
                       message="Checking if the workflow supports probability computation or not.")
 
         # Check if the final estimator has an attribute called probability and if it has check if it is True
@@ -86,17 +86,17 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
 
             if compute_probabilities:
                 y_predicted_probabilities = model.predict_proba(split.test_features)
-                self.send_log(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
-                              message="Computing and saving the prediction probabilities")
+                self.send_info(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
+                               message="Computing and saving the prediction probabilities")
                 y_predicted_probabilities = y_predicted_probabilities.tolist()
         else:
             type_ = PaDREOntology.SubClassesExperiment.Regression.value
 
         if self.is_scorer(model):
-            self.send_start(phase=f"sklearn.scoring.testset")
+            self.send_start(message="Starting phase sklearn.scoring.testset")
             score = model.score(split.test_features, y, )
-            self.send_stop(phase=f"sklearn.scoring.testset")
-            self.send_log(keys=["test score"], values=[score], message="Logging the testing score")
+            self.send_stop(message="Stopping phase sklearn.scoring.testset")
+            self.send_info(keys=["test score"], values=[score], message="Logging the testing score")
 
         results = self.create_results_dictionary(split_num=split.number, train_idx=train_idx, test_idx=test_idx,
                                                  dataset=split.dataset.name,
@@ -126,10 +126,9 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
         return getattr(model, 'transform', None)
 
     @staticmethod
-    def create_results_dictionary(*, split_num:int, train_idx: list, test_idx: list, dataset: str, type_: str,
+    def create_results_dictionary(*, split_num: int, train_idx: list, test_idx: list, dataset: str, type_: str,
                                   truth: list, predicted: list, probabilities: list):
-        from pypadre.core.model.pipeline.components import EvaluatorComponent
-
+        from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin
         results = dict()
         results[DATASET_NAME] = dataset
         results[TRAINING_SAMPLES] = len(train_idx)
@@ -152,13 +151,13 @@ class SKLearnEvaluator(IProvidedComponent, EvaluatorComponent, ParameterizedPipe
             # The dictionary contains the truth value, the predicted value and if there are probabilities,
             # the probabilities of the classes
             curr_row_dict = dict()
-            curr_row_dict[EvaluatorComponent.TRUTH] = truth[idx]
-            curr_row_dict[EvaluatorComponent.PREDICTED] = predicted[idx]
-            curr_row_dict[EvaluatorComponent.PROBABILITIES] = probabilities[idx] if write_probabilites is True else []
+            curr_row_dict[EvaluatorComponentMixin.TRUTH] = truth[idx]
+            curr_row_dict[EvaluatorComponentMixin.PREDICTED] = predicted[idx]
+            curr_row_dict[EvaluatorComponentMixin.PROBABILITIES] = probabilities[idx] if write_probabilites is True else []
             predictions[test_row_index] = curr_row_dict
 
         # Add the predictions to the results dictionary
-        results[EvaluatorComponent.PREDICTIONS] = predictions
+        results[EvaluatorComponentMixin.PREDICTIONS] = predictions
 
         return results
 5

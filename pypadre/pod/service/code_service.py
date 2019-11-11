@@ -1,36 +1,36 @@
 from typing import List
 
-from pypadre.core.events.events import connect_subclasses, connect
-from pypadre.core.model.code.icode import ICode
+from pypadre.core.events.events import connect_subclasses, connect, CommonSignals
 from pypadre.core.model.code.code_file import CodeFile
-from pypadre.core.model.generic.i_model_mixins import IStoreable
+from pypadre.core.model.code.codemixin import CodeMixin
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin
 from pypadre.pod.repository.i_repository import ICodeRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
 
 
-class CodeService(BaseService):
+class CodeService(ModelServiceMixin):
     """
     Class providing commands for managing datasets.
     """
 
     def __init__(self, backends: List[ICodeRepository], **kwargs):
-        super().__init__(model_clz=ICode, backends=backends, **kwargs)
+        super().__init__(model_clz=CodeMixin, backends=backends, **kwargs)
 
-        @connect_subclasses(ICode)
+        @connect_subclasses(CodeMixin, name=CommonSignals.PUT.name)
         def put(obj, **sended_kwargs):
             self.put(obj, **sended_kwargs)
         self.save_signal_fn(put)
 
-        @connect_subclasses(ICode)
+        @connect_subclasses(CodeMixin, name=CommonSignals.DELETE.name)
         def delete(obj, **sended_kwargs):
             self.delete(obj)
         self.save_signal_fn(delete)
 
-        @connect_subclasses(ICode)
+        @connect_subclasses(CodeMixin, name=CommonSignals.GET.name)
         def get(sender, **sended_kwargs):
-            return_val = sended_kwargs.get(IStoreable.RETURN_VAL)
+            return_val = sended_kwargs.get(StoreableMixin.RETURN_VAL)
             name = sended_kwargs.get("name")
-            setattr(return_val, IStoreable.RETURN_VAL, self.get(name))
+            setattr(return_val, StoreableMixin.RETURN_VAL, self.get(name))
         self.save_signal_fn(get)
 
         @connect(CodeFile)

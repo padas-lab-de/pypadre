@@ -1,32 +1,30 @@
-from pypadre.core.base import MetadataEntity
-from pypadre.core.model.generic.custom_code import ICodeManagedObject
-from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
-from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.base import MetadataMixin
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
+from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin, ProgressableMixin
+from pypadre.core.validation.json_validation import make_model
+
+project_model = make_model(schema_resource_name='project.json')
 
 
-class Project(ICodeManagedObject, IStoreable, IExecuteable, IProgressable, MetadataEntity, Tablefyable):
+class Project(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin):
     """ A project should group experiments """
 
-    @classmethod
-    def _tablefy_register_columns(cls):
-        # TODO fill with properties to extract for table
-        cls.tablefy_register_columns({})
-
-    def __init__(self, name, description, **kwargs):
+    def __init__(self, name="Default project", description="Default project description", experiments=None, sub_projects=None, **kwargs):
         # Add defaults
-        defaults = {"name": "default project name", "description": "This is the default project."}
+        defaults = {}
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
 
-        super().__init__(schema_resource_name='project.json', metadata=metadata, **kwargs)
+        super().__init__(model_clz=project_model, metadata=metadata, **kwargs)
 
-        self._experiments = []
-        self._sub_projects = []
-
-    def handle_failure(self, e):
-        pass
+        if experiments is None:
+            experiments = []
+        if sub_projects is None:
+            sub_projects = []
+        self._experiments = experiments
+        self._sub_projects = sub_projects
 
     def get(self, key):
         if key == 'id':

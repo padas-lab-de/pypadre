@@ -21,7 +21,7 @@ class SplitFileRepository(IChildFileRepository, ILogFileRepository, ISplitReposi
     def __init__(self, backend: IPadreBackend):
         super().__init__(parent=backend.run, name=NAME, backend=backend)
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
 
         # TODO Computation

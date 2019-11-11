@@ -33,7 +33,7 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
         self.write_file(directory, DATA_FILE, dataset.data(), 'wb')
         add_git_lfs_attribute_file(directory, "*.bin")
 
-    def get_by_dir(self, directory):
+    def _get_by_dir(self, directory):
         if len(directory) == 0:
             return None
 
@@ -59,10 +59,9 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
         """
         return dataset.name
 
-    def get_by_name(self, name):
-        """
-        Shortcut because we know name is the folder name. We don't have to search in metadata.json
-        :param name: Name of the dataset
-        :return:
-        """
-        return self.list({'folder': re.escape(name)})
+    def list(self, search, offset=0, size=100):
+        if hasattr(search, "name"):
+            # Shortcut because we know name is the folder name. We don't have to search in metadata.json
+            name = search.pop("name")
+            search['folder'] = re.escape(name)
+        return super().list(search, offset, size)

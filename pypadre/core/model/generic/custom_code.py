@@ -1,18 +1,18 @@
-from abc import ABCMeta, abstractmethod
-from typing import Type, Optional, Union, Callable, Dict
 import os
 import sys
+from abc import ABCMeta, abstractmethod
+from typing import Type, Optional, Union, Callable, Dict
 
 from pypadre.core.events.events import Signaler
-from pypadre.core.model.code.icode import ICode, EnvCode
-from pypadre.core.model.generic.i_executable_mixin import IExecuteable
+from pypadre.core.model.code.codemixin import CodeMixin, EnvCode
+from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
 
 
-class CustomCodeHolder(IExecuteable, Signaler):
-    """ This is a class being created by a managed code file. The code file has to be stored in a git generic and
+class CustomCodeHolder(ExecuteableMixin, Signaler):
+    """ This is a class being created by a managed code file. The code file has to be stored in a git repository and
     versioned. """
 
-    def __init__(self, *args, code: Type[ICode] = None, **kwargs):
+    def __init__(self, *args, code: Type[CodeMixin] = None, **kwargs):
 
         # if code_name is not None:
         #     code_obj = ICode.send_get(self, name=code_name)
@@ -36,7 +36,7 @@ class CustomCodeHolder(IExecuteable, Signaler):
         self._code = code
 
     def _execute_helper(self, *args, **kwargs):
-        self.send_put(allow_overwrite=True)
+        self.code.send_put(allow_overwrite=True)
         return self.code.call(**kwargs)
 
     @property
@@ -54,17 +54,17 @@ def _convert_path_to_code_object(path: str, cmd=None):
 
 
 def _convert_function_to_code_object(fn):
-    from pypadre.core.model.code.icode import Function
+    from pypadre.core.model.code.codemixin import Function
     return Function(fn=fn)
 
 
-class ICodeManagedObject:
+class CodeManagedMixin:
     """ Class of objects which are derived from a user supplied code block. The code should be versioned and stored
-    in a generic. """
+    in a repository. """
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *args, creator: Optional[Union[Type[ICode], Callable, Dict, str]] = None, **kwargs):
+    def __init__(self, *args, creator: Optional[Union[Type[CodeMixin], Callable, Dict, str]] = None, **kwargs):
         # if creator is None:
         #     file_path = os.path.realpath(sys.argv[0])
         #     creator = CodeFile(file_path=file_path)
@@ -100,7 +100,7 @@ class ICodeManagedObject:
             # The dictionary can contain the path to a package or a file
             raise ValueError('Dictionary is currently not supported in Custom Code Object')
 
-        elif isinstance(creator, ICode):
+        elif isinstance(creator, CodeMixin):
             return creator
 
         else:
@@ -109,7 +109,7 @@ class ICodeManagedObject:
         return None
 
 
-class IProvidedCode(CustomCodeHolder, EnvCode):
+class ProvidedCodeMixin(CustomCodeHolder, EnvCode):
 
     @abstractmethod
     def __init__(self, **kwargs):

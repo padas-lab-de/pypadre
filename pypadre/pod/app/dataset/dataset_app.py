@@ -3,9 +3,9 @@ from typing import List, cast
 
 from jsonschema import ValidationError
 
-from pypadre.pod.app.base_app import BaseChildApp
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.pod.importing.dataset.dataset_import import PandasLoader, IDataSetLoader, CSVLoader, NumpyLoader, \
+from pypadre.pod.app.base_app import BaseChildApp
+from pypadre.pod.importing.dataset.dataset_import import PandasLoader, DataSetLoaderMixin, CSVLoader, NumpyLoader, \
     NetworkXLoader, SKLearnLoader, SnapLoader, KonectLoader, ICollectionDataSetLoader
 from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.pod.service.dataset_service import DatasetService
@@ -35,7 +35,7 @@ class DatasetApp(BaseChildApp):
         :param source: A string for collections or a object containing the data for single sources
         :return: The loader
         """
-        loaders = [loader for loader in self._loaders if cast(IDataSetLoader, loader).mapping(source)]
+        loaders = [loader for loader in self._loaders if cast(DataSetLoaderMixin, loader).mapping(source)]
         if len(loaders) == 1:
             return next(iter(loaders))
         elif len(loaders) > 1:
@@ -49,7 +49,7 @@ class DatasetApp(BaseChildApp):
         :return: Information about which loaders are available behind which mappers
         """
         out = "Pass a source matching one of the following functions: "
-        out += ",".join([str(inspect.getsource(cast(IDataSetLoader, loader).mapping)) for loader in self._loaders])
+        out += ",".join([str(inspect.getsource(cast(DataSetLoaderMixin, loader).mapping)) for loader in self._loaders])
         return out
 
     def load_defaults(self):
@@ -99,5 +99,12 @@ class DatasetApp(BaseChildApp):
         :return: dataset
         """
         loader = self.loader(source)
-        data_set = cast(IDataSetLoader, loader).load(source=source, **kwargs)
-        return self.put(data_set)
+        data_set = cast(DataSetLoaderMixin, loader).load(source=source, **kwargs)
+        self.put(data_set)
+        return data_set
+
+    def get_by_name(self, name):
+        found = self.service.list({"name": name})
+        if found:
+            return found.pop()
+        return None

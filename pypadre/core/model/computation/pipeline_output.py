@@ -1,13 +1,13 @@
 from typing import Set
 
-from pypadre.core.base import MetadataEntity, ChildEntity
+from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.generic.i_model_mixins import IStoreable
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin
 from pypadre.core.model.split.split import Split
 from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class PipelineOutput(IStoreable, MetadataEntity, ChildEntity, Tablefyable):
+class PipelineOutput(StoreableMixin, MetadataMixin, ChildMixin, Tablefyable):
 
     SPLIT_IDS = "split_ids"
 

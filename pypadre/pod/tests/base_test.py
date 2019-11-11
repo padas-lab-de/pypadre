@@ -12,6 +12,10 @@ class PadreAppTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+
+        connect_log_to_stdout()
+        connect_event_to_stdout()
+
         cls.config_path = os.path.join(os.path.expanduser("~"), ".padre-test.cfg")
         cls.workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
 
@@ -29,14 +33,12 @@ class PadreAppTest(unittest.TestCase):
             }
         ]))
         cls.app = PadreAppFactory.get(config)
-        connect_log_to_stdout()
-        connect_event_to_stdout()
 
     def create_experiment(self, *args, **kwargs):
-        return self.app.experiments.service.create(*args, **kwargs)
+        return self.app.experiments.create(*args, **kwargs)
 
     def create_project(self, *args, **kwargs):
-        return self.app.projects.service.create(*args, **kwargs)
+        return self.app.projects.create(*args, **kwargs)
 
     def create_execution(self, *args, **kwargs):
         return self.app.executions.service.create(*args, **kwargs)

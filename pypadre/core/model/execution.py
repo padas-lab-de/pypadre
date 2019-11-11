@@ -1,17 +1,19 @@
-from pypadre.core.base import MetadataEntity, ChildEntity
-from pypadre.core.model.generic.i_executable_mixin import IExecuteable
-from pypadre.core.model.generic.i_model_mixins import IStoreable, IProgressable
-from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
+from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
+from pypadre.core.model.generic.i_model_mixins import StoreableMixin, ProgressableMixin
+from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.validation.json_validation import make_model
+
+execution_model = make_model(schema_resource_name='execution.json')
 
 
-class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEntity, Tablefyable):
+class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin, Tablefyable):
     """
     A execution should save data about the running env and the version of the code on which it was run .
     An execution is linked to the version of the code being executed. The execution directory is the hash of the commit
     of the source code file.
     """
-
     EXPERIMENT_ID = "experiment_id"
 
     _runs = []
@@ -30,7 +32,7 @@ class Execution(IStoreable, IProgressable, IExecuteable, MetadataEntity, ChildEn
         if codehash is not None:
             metadata['hash'] = codehash
 
-        super().__init__(parent=experiment, schema_resource_name="execution.json", metadata=metadata, **kwargs)
+        super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
         self._command = command
 

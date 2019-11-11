@@ -1,23 +1,21 @@
 import inspect
 import os
 import re
-import tempfile
-import uuid
 from abc import abstractmethod, ABCMeta
 
-import arff
 import networkx as nx
 import numpy as np
 import pandas as pd
 import sklearn.datasets as ds
 from padre.PaDREOntology import PaDREOntology
+
 # import openml as oml
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.model.generic.i_model_mixins import ILoggable
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 from pypadre.core.util.utils import _Const
 from pypadre.pod.importing.dataset.graph_import import create_from_snap, create_from_konect
-from openml import exceptions
+
 
 class _Sources(_Const):
     file = "file"
@@ -28,7 +26,7 @@ class _Sources(_Const):
 sources = _Sources()
 
 
-class IDataSetLoader(ILoggable):
+class DataSetLoaderMixin(LoggableMixin):
     """
     Class used to load external datasets
     """
@@ -54,14 +52,15 @@ class IDataSetLoader(ILoggable):
         raise NotImplementedError()
 
     def _create_dataset(self, **kwargs):
-
         # TODO extract attributes
         dataset = Dataset(metadata=kwargs)
-        # self.send_warn(condition=len(dataset.metadata["targets"]) == 0, source=self, message='No targets defined. Program will crash when used for supervised learning')
+        self.send_warn(condition=len(dataset.metadata["targets"]) != 0, source=self,
+                       message='Source: DataSetLoaderMixin._create_dataset. No targets defined. '
+                               'Program will crash when used for supervised learning')
         return dataset
 
 
-class ICollectionDataSetLoader(IDataSetLoader):
+class ICollectionDataSetLoader(DataSetLoaderMixin):
     @abstractmethod
     def list(self, **kwargs):
         """
@@ -77,14 +76,19 @@ class ICollectionDataSetLoader(IDataSetLoader):
         pass
 
 
-class CSVLoader(IDataSetLoader):
+class CSVLoader(DataSetLoaderMixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def __hash__(self):
         return hash(self.__class__)
 
     @staticmethod
     def mapping(source):
-        return str.startswith("/") or str.startswith(".") and str.endswith(".csv")
+        if not isinstance(source, str):
+            return False
+        return str.startswith(source, "/") or str.startswith(source, ".") and str.endswith(source, ".csv")
 
     def load(self, source, **kwargs):
         """Takes the path of a csv file and a list of the target columns and creates a padre-Dataset.
@@ -97,7 +101,8 @@ class CSVLoader(IDataSetLoader):
             <class 'pypadre.datasets.Dataset'> A dataset containing the data of the .csv file
 
         """
-        self.send_error(message="Dataset path does not exist", condition=os.path.exists(os.path.abspath(source)),source=self)
+        self.send_error(message="Dataset path does not exist", condition=os.path.exists(os.path.abspath(source)),
+                        source=self)
 
         # TODO something else than multivariat?
         meta = {**{"name": source.split('/')[-1].split('.csv')[0],
@@ -126,7 +131,10 @@ class CSVLoader(IDataSetLoader):
         return data_set
 
 
-class PandasLoader(IDataSetLoader):
+class PandasLoader(DataSetLoaderMixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def mapping(source):
@@ -155,7 +163,10 @@ class PandasLoader(IDataSetLoader):
         return data_set
 
 
-class NumpyLoader(IDataSetLoader):
+class NumpyLoader(DataSetLoaderMixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def mapping(source):
@@ -177,8 +188,8 @@ class NumpyLoader(IDataSetLoader):
 
         meta = {**{"name": "numpy_imported",
                    "description": "imported by numpy multidimensional",
-                   "originalSource": "https://imported/from/numpy/NumpyArray.html", "attributes":atts,
-                   "targets":target_features}, **kwargs}
+                   "originalSource": "https://imported/from/numpy/NumpyArray.html", "attributes": atts,
+                   "targets": target_features}, **kwargs}
 
         data_set = self._create_dataset(**meta)
 
@@ -188,13 +199,16 @@ class NumpyLoader(IDataSetLoader):
         return data_set
 
 
-class NetworkXLoader(IDataSetLoader):
+class NetworkXLoader(DataSetLoaderMixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def mapping(source):
         return isinstance(source, nx.Graph)
 
-    def load(self, source, target_features=None,**kwargs):
+    def load(self, source, target_features=None, **kwargs):
         """
         Takes a networkx graph object and creates a padre dataset.
         :param source: networkx graph object
@@ -215,8 +229,10 @@ class NetworkXLoader(IDataSetLoader):
         return data_set
 
 
-
 class SKLearnLoader(ICollectionDataSetLoader):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     loaders = [("load_boston", ("regression", PaDREOntology.SubClassesDataset.Multivariat.value),
                 "https://scikit-learn.org/stable/modules/generated/"
@@ -239,29 +255,14 @@ class SKLearnLoader(ICollectionDataSetLoader):
         return ds.__all__
 
     def load_default(self):
-        loaders = [("load_boston", ("regression", PaDREOntology.SubClassesDataset.Multivariat.value),
-                    "https://scikit-learn.org/stable/modules/generated/"
-                    "sklearn.datasets.load_boston.html#sklearn.datasets.load_boston"),
-                   ("load_breast_cancer", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
-                    "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)"),
-                   ("load_diabetes", ("regression", PaDREOntology.SubClassesDataset.Multivariat.value),
-                    "https://scikit-learn.org/stable/modules/generated/"
-                    "sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes"),
-                   ("load_digits", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
-                    "http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits"),
-                   ("load_iris", ("classification", PaDREOntology.SubClassesDataset.Multivariat.value),
-                    "https://scikit-learn.org/stable/modules/generated/"
-                    "sklearn.datasets.load_iris.html#sklearn.datasets.load_iris"),
-                   ("load_linnerud", ("mregression", PaDREOntology.SubClassesDataset.Multivariat.value),
-                    "https://scikit-learn.org/stable/modules/generated/"
-                    "sklearn.datasets.load_linnerud.html#sklearn.datasets.load_linnerud")]
-
-        for loader in loaders:
+        for loader in self.loaders:
             yield self.load("sklearn", utility=loader[0], type=loader[1][1], originalSource=loader[2])
 
     @staticmethod
     def mapping(source):
-        return source.__eq__("sklearn")
+        if not isinstance(source, str):
+            return False
+        return source == "sklearn"
 
     def load(self, source, utility: str = None, **kwargs):
 
@@ -270,8 +271,8 @@ class SKLearnLoader(ICollectionDataSetLoader):
                 "A sklearn utility name has to be passed with the utility parameter to specify which data set to load.")
 
         bunch = getattr(ds, utility)()
-        #name = os.path.splitext(os.path.basename(bunch['filename']))[0]
-        #description = bunch["DESCR"]
+        # name = os.path.splitext(os.path.basename(bunch['filename']))[0]
+        # description = bunch["DESCR"]
 
         name, description = self._split_description(bunch['DESCR'])
 
@@ -288,9 +289,15 @@ class SKLearnLoader(ICollectionDataSetLoader):
         # TODO index was NONE, unit, datatype? FIXME
         for ix in range(data.shape[1]):
             if fn is not None and len(fn) > ix:
-                atts.append(Attribute(fn[ix], PaDREOntology.SubClassesMeasurement.Ratio.value, unit=PaDREOntology.SubClassesUnit.Count.value, description="TODO", defaultTargetAttribute=n_feat <= ix, index=ix, type=PaDREOntology.SubClassesDatum.Character.value))
+                atts.append(Attribute(fn[ix], PaDREOntology.SubClassesMeasurement.Ratio.value,
+                                      unit=PaDREOntology.SubClassesUnit.Count.value, description="TODO",
+                                      defaultTargetAttribute=n_feat <= ix, index=ix,
+                                      type=PaDREOntology.SubClassesDatum.Character.value))
             else:
-                atts.append(Attribute(str(ix), PaDREOntology.SubClassesMeasurement.Ratio.value, unit=PaDREOntology.SubClassesUnit.Count.value, description="TODO", defaultTargetAttribute=n_feat <= ix, index=ix, type=PaDREOntology.SubClassesDatum.Character.value))
+                atts.append(Attribute(str(ix), PaDREOntology.SubClassesMeasurement.Ratio.value,
+                                      unit=PaDREOntology.SubClassesUnit.Count.value, description="TODO",
+                                      defaultTargetAttribute=n_feat <= ix, index=ix,
+                                      type=PaDREOntology.SubClassesDatum.Character.value))
 
         meta["attributes"] = atts
         data_set = self._create_dataset(**meta)
@@ -315,6 +322,9 @@ class SKLearnLoader(ICollectionDataSetLoader):
 
 class SnapLoader(ICollectionDataSetLoader):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def list(self, **kwargs):
         pass
 
@@ -323,7 +333,9 @@ class SnapLoader(ICollectionDataSetLoader):
 
     @staticmethod
     def mapping(source):
-        return source.__eq__("snap")
+        if not isinstance(source, str):
+            return False
+        return source == "snap"
 
     def load(self, source, url="", link_num=0, **kwargs):
         """Takes the graph of the Snap website and puts it into a pypadre.dataset.
@@ -334,16 +346,20 @@ class SnapLoader(ICollectionDataSetLoader):
         Returns:
             A pypadre.dataset object that conatins the graph of the url.
         """
-        graph, meta = create_from_snap(url,link_num=link_num,logger=self)
+        graph, meta = create_from_snap(url, link_num=link_num, logger=self)
 
-        meta = {**meta,**kwargs}
+        meta = {**meta, **kwargs}
 
         data_set = self._create_dataset(**meta)
         data_set.set_data(graph)
 
         return data_set
 
+
 class KonectLoader(ICollectionDataSetLoader):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def list(self, **kwargs):
         pass
@@ -353,19 +369,19 @@ class KonectLoader(ICollectionDataSetLoader):
 
     @staticmethod
     def mapping(source):
-        return source.__eq__("konect")
+        if not isinstance(source, str):
+            return False
+        return source == "konect"
 
-    def load(self, source, url="", zero_based = False, **kwargs):
+    def load(self, source, url="", zero_based=False, **kwargs):
+        graph, meta = create_from_konect(url=url, zero_based=zero_based)
 
-        graph , meta = create_from_konect(url=url, zero_based=zero_based)
-
-        meta = {**meta,**kwargs}
+        meta = {**meta, **kwargs}
 
         data_set = self._create_dataset(**meta)
         data_set.set_data(graph)
 
         return data_set
-
 
 # class OpenMlLoader(ICollectionDataSetLoader):
 #     DATATYPE_MAP = {'INTEGER': (PaDREOntology.SubClassesDatum.Integer.value,PaDREOntology.SubClassesMeasurement.Ratio.value),
@@ -383,7 +399,9 @@ class KonectLoader(ICollectionDataSetLoader):
 #
 #     @staticmethod
 #     def mapping(source):
-#         return source.__eq__("openml")
+#         if not isinstance(source, str):
+#             return False
+#         return source == "openml"
 #
 #     def load(self, source, url="",**kwargs):
 #         """

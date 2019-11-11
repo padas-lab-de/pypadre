@@ -13,23 +13,26 @@ class IStoreableRepository:
 
     @abstractmethod
     def get(self, uid):
-        pass
+        raise NotImplementedError()
 
     def exists(self, uid):
         # TODO don't load object for better performance
         return self.get(uid) is not None
 
+    def exists_object(self, obj):
+        return self.exists(obj.id)
+
     @abstractmethod
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def delete_by_id(self, uid):
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def delete(self, obj):
-        pass
+        raise NotImplementedError()
 
 
 class ISearchable:
@@ -42,7 +45,7 @@ class ISearchable:
 
     @abstractmethod
     def list(self, search: dict, offset=0, size=100) -> list:
-        pass
+        raise NotImplementedError()
 
     @staticmethod
     def filter(objs: list, search: dict):
@@ -67,7 +70,7 @@ class IProgressableRepository(SuperStop):
 
     @abstractmethod
     def put_progress(self, obj, **kwargs):
-        pass
+        raise NotImplementedError()
 
 
 class ILogRepository(SuperStop):
@@ -80,7 +83,7 @@ class ILogRepository(SuperStop):
 
     @abstractmethod
     def log(self, msg):
-        pass
+        raise NotImplementedError()
 
 
 class IHashProvidingRepository(SuperStop):
@@ -92,7 +95,7 @@ class IHashProvidingRepository(SuperStop):
 
     @abstractmethod
     def get_hash(self):
-        pass
+        raise NotImplementedError()
 
 
 class IRepository:

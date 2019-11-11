@@ -3,11 +3,11 @@ from _py_abc import ABCMeta
 
 from pypadre.core.base import _CodeTypes
 from pypadre.core.events.events import CommonSignals, signals
-from pypadre.core.model.code.icode import ICode
+from pypadre.core.model.code.codemixin import CodeMixin
 
 
 @signals(CommonSignals.CODEHASH)
-class CodeFile(ICode):
+class CodeFile(CodeMixin):
     """ Interface for a code file or folder (script etc.) which can be executed from python."""
 
     __metaclass__ = ABCMeta
@@ -30,7 +30,7 @@ class CodeFile(ICode):
 
         defaults = {}
 
-        metadata = {**defaults, **{ICode.CODE_TYPE: _CodeTypes.file, self.CODE_PATH: path}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults, **{CodeMixin.CODE_TYPE: _CodeTypes.file, self.CODE_PATH: path}, **kwargs.pop("metadata", {})}
         if file is not None:
             metadata["file"] = file
         if cmd is not None:

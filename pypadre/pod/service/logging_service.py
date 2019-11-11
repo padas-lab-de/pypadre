@@ -1,131 +1,46 @@
-from typing import List, Type
-
-from pypadre.core.model.generic.i_model_mixins import ILoggable
-from pypadre.core.util.inheritance import SuperStop
-from pypadre.core.validation.validation import ValidationErrorHandler, ValidateableFactory
-from pypadre.pod.service.base_service import BaseService
-from pypadre.core.events.events import CommonSignals, signals, connect, connect_subclasses
+from pypadre.core.events.events import CommonSignals, connect_subclasses, EVENT_TRIGGERED, connect
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
+from pypadre.pod.service.base_service import ServiceMixin
 
 
-class LoggingService(BaseService):
+class LoggingService(ServiceMixin):
 
-    def __init__(self, backends, **kwargs):
-        b = backends if isinstance(backends, List) else [backends]
-        self._backends = [] if backends is None else b
+    def __init__(self, backends, *args, **kwargs):
+        super().__init__(backends, *args, **kwargs)
 
-        @connect_subclasses(ILoggable)
+        @connect_subclasses(LoggableMixin, name=CommonSignals.LOG.name)
         def log(*args, **kwargs):
             """
             Logs a warning to the backend
             :param obj:
             :return:
             """
-            log_level = kwargs.pop('log_level')
-            message = kwargs.pop('message')
+            log_level = kwargs.pop('log_level', LoggableMixin.LogLevels.INFO)
 
-            if log_level == "info":
+            if log_level == LoggableMixin.LogLevels.INFO:
                 for b in self.backends:
-                    b.log_warn(message=message, **kwargs)
+                    b.log_info(**kwargs)
 
-            elif log_level == 'warn':
+            elif log_level == LoggableMixin.LogLevels.WARN:
                 for b in self.backends:
-                    b.log_warn(message=message, **kwargs)
+                    b.log_warn(**kwargs)
 
-            elif log_level == 'error':
+            elif log_level == LoggableMixin.LogLevels.ERROR:
                 for b in self.backends:
-                    b.log_error(message=message, **kwargs)
+                    b.log_error(**kwargs)
 
             else:
-                raise ValueError('Undefined Log level given:{log_level}'.format(log_level=log_level))
+                for b in self.backends:
+                    b.log_warn(message="Incorrect logging level specified: {log_level}".format(log_level=log_level))
+                    b.log_warn(**kwargs)
 
+                #  raise ValueError("Incorrect logging level specified: {log_level}".format(log_level=log_level))
         self.save_signal_fn(log)
 
-    @property
-    def backends(self):
-        return self._backends
-
-    @property
-    def model_clz(self):
-        return self._model_clz
-
-    def create(self, *args, handlers: List[ValidationErrorHandler] = None, **kwargs):
-        if handlers is None:
-            handlers = []
-        return ValidateableFactory.make(self.model_clz, *args, handlers=handlers, **kwargs)
-
-    def list(self, search, offset=0, size=100) -> list:
-        """
-        Lists all entities matching search.
-        :param offset: Offset of the search
-        :param size: Size of the search
-        :param search: Search object
-        :return: Entities
-        """
-        return super.list(search=search, offset=offset, size=size)
-
-    def put(self, obj, **kwargs):
-        """
-        Puts the entity
-        :param obj: Entity to put
-        :return: Entity
-        """
-        return super.put(obj, kwargs)
-
-    def patch(self, obj):
-        """
-        Updates the entity
-        :param obj: Entity to put
-        :return: Entity
-        """
-        return super.path(obj)
-
-    def get(self, uid):
-        """
-        Get the entity by id
-        :param uid: Id of the entity to get
-        :return: Entity
-        """
-        return super.get(uid)
-
-    def delete(self, obj):
-        """
-        Delete the entity
-        :param obj: Entity to delete
-        :return: Entity
-        """
-        return super.delete(obj)
-
-    @connect_subclasses(ILoggable)
-    def log_info(self, **kwargs):
-        """
-        Logs the information to the backend
-        :param obj:
-        :return:
-        """
-
-        for b in self.backends:
-            b.log_info(kwargs)
-
-    @connect_subclasses(ILoggable)
-    def log_warn(self, **kwargs):
-        """
-        Logs a warning to the backend
-        :param obj:
-        :return:
-        """
-
-        for b in self.backends:
-            b.log_warn(kwargs)
-
-    @connect_subclasses(ILoggable)
-    def log_error(self, **kwargs):
-        """
-        Logs a warning to the backend
-        :param obj:
-        :return:
-        """
-
-        for b in self.backends:
-            b.log_error(kwargs)
-
+        # @connect_subclasses(LoggableMixin, name=CommonSignals.START)
+        # def log_event(*args, **kwargs):
+        #     for b in self.backends:
+        #         b.log_info(**kwargs)
+        #
+        # self.save_signal_fn(log_event)
 

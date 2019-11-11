@@ -26,11 +26,12 @@ seaborn==0.9.0
 matplotlib==3.0.0
 Sphinx==2.0.1
 jsonpickle==1.2
-jsonschema==3.0.2
+jsonschema==3.1.1
+jsonpatch==1.24
 blinker==1.4
 cachetools==3.1.1
 owlready2==0.21
 dill==0.3.1.1
 
 --extra-index-url https://pypi.padim.fim.uni-passau.de/
-pypadre-ontology==0.3.1
+pypadre-ontology>=0.3.1

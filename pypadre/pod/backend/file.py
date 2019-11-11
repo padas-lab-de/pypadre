@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository, ICodeRepository, \
@@ -24,14 +25,17 @@ class PadreFileBackend(IPadreBackend):
       |------experiments\
     """
 
-    def log_info(self, message, **kwargs):
-        self.log(message="INFO: " + message, **kwargs)
+    def _get_time_as_string(self):
+        return str(datetime.now())
 
-    def log_warn(self, message, **kwargs):
-        self.log(message="WARN: " + message, **kwargs)
+    def log_info(self, message="", **kwargs):
+        self.log(message=self._get_time_as_string() + ": " + "INFO: " + ": " + message + "\n", **kwargs)
 
-    def log_error(self, message, **kwargs):
-        self.log(message="ERROR: " + message, **kwargs)
+    def log_warn(self, message="", **kwargs):
+        self.log(message=self._get_time_as_string() + ": " + "WARN: " + ": " + message + "\n", **kwargs)
+
+    def log_error(self, message="", **kwargs):
+        self.log(message=self._get_time_as_string() + ": " + "ERROR: " + message + "\n", **kwargs)
 
     def log(self, message, **kwargs):
         if self._file is None:
@@ -40,7 +44,6 @@ class PadreFileBackend(IPadreBackend):
                 os.makedirs(self.root_dir)
 
             self._file = open(path, "a")
-
         self._file.write(message)
 
     def __init__(self, config):
@@ -58,6 +61,13 @@ class PadreFileBackend(IPadreBackend):
 
         # logging
         self._file = None
+
+    def __del__(self):
+        if self._file is not None:
+            self._file.flush()
+            self._file.close()
+
+        # super.__del__()
 
     @property
     def dataset(self) -> DatasetFileRepository:

@@ -1,8 +1,8 @@
 import sys
-
+from datetime import datetime
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.events.events import connect_base_signal, LOG_EVENT
-from pypadre.core.model.generic.i_model_mixins import ILoggable
+from pypadre.core.events.events import connect_base_signal, EVENT_TRIGGERED, CommonSignals
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 
 
 def create_sklearn_test_pipeline(*, estimators, **kwargs):
@@ -17,19 +17,22 @@ def _log(sender, *, message, log_level="", **kwargs):
     if log_level is "":
         print(str(sender) + ": " + message)
     else:
-        if log_level is ILoggable.LogLevels.ERROR:
+        if log_level is LoggableMixin.LogLevels.ERROR:
             sys.stderr.write(log_level.upper() + ": " + str(sender) + ": " + message)
         else:
             sys.stdout.write(log_level.upper() + ": " + str(sender) + ": " + message)
 
+def now():
+    return str(datetime.now())
+
 
 def _log_event(sender, *, signal, **kwargs):
-    _log(sender, message="Triggered " + str(signal.name) + " with " + str(kwargs))
+    _log(sender, message=now() + ": Triggered :" + str(signal.name) + " with " + str(kwargs) + "\n")
 
 
 def connect_log_to_stdout():
-    connect_base_signal("log", _log)
+    connect_base_signal(CommonSignals.LOG.name, _log)
 
 
 def connect_event_to_stdout():
-    connect_base_signal(LOG_EVENT, _log_event)
+    connect_base_signal(EVENT_TRIGGERED, _log_event)

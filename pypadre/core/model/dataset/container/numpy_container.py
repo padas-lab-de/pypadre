@@ -10,10 +10,10 @@ from pypadre.core.model.dataset import dataset
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.generic.i_model_mixins import ILoggable
+from pypadre.core.model.generic.i_model_mixins import LoggableMixin
 
 
-class NumpyContainer(IBaseContainer,ILoggable):
+class NumpyContainer(IBaseContainer, LoggableMixin):
 
     def __init__(self, data, attributes: List[Attribute]=None):
         # todo rework binary data into delegate pattern.
@@ -69,8 +69,7 @@ class NumpyContainer(IBaseContainer,ILoggable):
     def validate_attributes(self, attributes=None):
         # TODO look for validating the attributes properties with regards to the ontology
         if attributes is None or len(attributes) == 0:
-            self.send_warn(message='Attributes are missing! Attempting to derive them from the binary...',
-                           condition=True)
+            self.send_warn(message='Attributes are missing! Attempting to derive them from the binary...')
             attributes = self.derive_attributes(self.data)
 
         self.send_error(message="Incorrect number of attributes. Data has %d columns, provided attributes %d."

@@ -2,6 +2,7 @@
 Structure of Event Handling Mechanism in PyPaDRe
 Signals can be triggered on Class or Base level.
 """
+from functools import wraps
 
 from blinker import Namespace, ANY
 
@@ -25,6 +26,9 @@ class SignalSchema:
     def cascade(self):
         return self._cascade
 
+    def __str__(self):
+        return str(self.name)
+
     def __hash__(self):
         return str(self.name).__hash__()
 
@@ -39,12 +43,7 @@ class CommonSignals:
     START = SignalSchema("start", False)
     STOP = SignalSchema("stop", False)
     LOG = SignalSchema("log", True)
-    LOG_INFO = SignalSchema("log_info", False)
-    LOG_WARN = SignalSchema("log_warn", False)
-    LOG_ERROR = SignalSchema("log_error", False)
-
     CODEHASH = SignalSchema("codehash", False)
-    LOAD = SignalSchema("load", False)
     GET = SignalSchema("get", False)
 
 
@@ -71,14 +70,14 @@ class PointAccessNamespace(Namespace):
 
 
 # signal name for the signal which is triggered / cascaded to for each other signal
-LOG_EVENT = "log_event"
+EVENT_TRIGGERED = "generic_event"
 
 # all classes which where registered via decorator call
 signal_classes = set()
 
 # all base signals
 base_signals = PointAccessNamespace()
-base_signals.signal(LOG_EVENT)
+base_signals.signal(EVENT_TRIGGERED)
 
 
 def connect_base_signal(name, fn):
@@ -140,23 +139,26 @@ def connect(*classes, name=None):
 
 def connect_subclasses(*classes, name=None):
     """
-    Decorator used to decorate methods which are to connect to signals of the subclasses of given classes.
-    :param name:
-    :param clz:
-    :return:
+    Decorator used to decorate methods which are to connect to signals of the subclasses of given classes. If no name
+    is given the function name is taken as signal name. :param name: :param clz: :return:
     """
 
     def connect_decorator(fn):
-        signal_name = name if name is not None else fn.__name__
-        if len(classes) is 0:
-            raise ValueError("You need to provide a class to find subclasses to connect to.")
-        else:
-            subclasses = set()
-            for clz in classes:
-                subclasses.update(clz.__subclasses__())
-            for subclass in subclasses:
-                connect_class_signal(subclass, signal_name, fn)
-        return fn
+        @wraps(fn)
+        def connect_subclasses_fn(*classes, name=None):
+            signal_name = name if name is not None else fn.__name__
+            if len(classes) is 0:
+                raise ValueError("You need to provide a class to find subclasses to connect to.")
+            else:
+                subclasses = set()
+                for clz in classes:
+                    subclasses.update(clz.__subclasses__())
+                for subclass in subclasses:
+                    connect_class_signal(subclass, signal_name, fn)
+                if subclasses:
+                    connect_subclasses_fn(*subclasses, name=signal_name)
+            return fn
+        return connect_subclasses_fn(*classes, name=name)
     return connect_decorator
 
 
@@ -206,8 +208,8 @@ def signals(*args):
                 # make_cascade(signal.name)
                 setattr(cls, "_cascade_" + schema.name, make_cascade(signal.name))
                 signal.connect(getattr(cls, "_cascade_" + schema.name))
-            setattr(cls, "_cascade_" + LOG_EVENT + "_" + schema.name, make_all_cascade(LOG_EVENT))
-            signal.connect(getattr(cls, "_cascade_" + LOG_EVENT + "_" + schema.name))
+            setattr(cls, "_cascade_" + EVENT_TRIGGERED + "_" + schema.name, make_all_cascade(EVENT_TRIGGERED))
+            signal.connect(getattr(cls, "_cascade_" + EVENT_TRIGGERED + "_" + schema.name))
         cls.signal_namespace = namespace
         return cls
     return signals_decorator
@@ -219,8 +221,8 @@ class Signaler(SuperStop):
     """
 
     @classmethod
-    def send_cls_signal(cls, signal: SignalSchema, condition=None, *sender, **kwargs):
-        if condition is None or condition:
+    def send_cls_signal(cls, signal: SignalSchema, condition=True, *sender, **kwargs):
+        if condition:
             if len(sender) == 0:
                 sender = [cls]
             if signal.name not in cls.signals():
@@ -230,8 +232,8 @@ class Signaler(SuperStop):
                     raise ValueError("Signal is not existing on " + str(cls))
                 cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
 
-    def send_signal(self, signal: SignalSchema, condition=None, *sender, **kwargs):
-        if condition is None or condition:
+    def send_signal(self, signal: SignalSchema, condition=True, *sender, **kwargs):
+        if condition:
             if len(sender) == 0:
                 sender = [self]
             if signal.name not in self.signals():

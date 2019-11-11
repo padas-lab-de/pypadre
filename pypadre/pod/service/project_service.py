@@ -3,10 +3,11 @@ from typing import List
 from pypadre.core.events.events import connect
 from pypadre.core.model.project import Project
 from pypadre.pod.repository.i_repository import IProjectRepository
-from pypadre.pod.service.base_service import BaseService
+from pypadre.pod.service.base_service import ModelServiceMixin
+from pypadre.pod.service.logging_service import LoggingService
 
 
-class ProjectService(BaseService):
+class ProjectService(ModelServiceMixin, LoggingService):
     """
     Class providing commands for managing datasets.
     """
@@ -23,3 +24,7 @@ class ProjectService(BaseService):
         def delete(obj, **kwargs):
             self.delete(obj)
         self.save_signal_fn(delete)
+
+    def execute(self, id):
+        project = self.get(id)
+        return project.execute()

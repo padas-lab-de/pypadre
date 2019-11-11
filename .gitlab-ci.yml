@@ -24,7 +24,7 @@ build:
   except:
     - /^v.*$/
   script:
-    - python -m unittest discover -s ./tests/unit-tests/
+    - python -m unittest discover -s ./
     - python setup.py sdist
   artifacts:
     when: always
@@ -56,8 +56,8 @@ python-release:
     - sed -i "s/release = .*/release = '$VERSION'/g" setup.py
     #- grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install --extra-index-url https://$PYPI_USER:$PYPI_PW@$PYPI_URL || true # Enforce the order of the installation # Update requirements txt with version number
     - python setup.py sdist # creates the tarball
-    - python -m unittest discover -s ./tests/unit-tests/
-    - twine upload --generic-url $PYPI_URL dist/*
+    - python -m unittest discover -s ./
+    - twine upload --repository-url $PYPI_URL dist/*
   artifacts:
     paths:
       - PyPaDRe/sdist/*
@@ -77,7 +77,7 @@ python-release:
 #    - apt-get install --assume-yes sshpass openssh-client
 #    - python -m unittest discover -s ./tests/unit-tests/
 #    - python setup.py sdist
-#    - twine upload --generic-url $PYPI_URL dist/*
+#    - twine upload --repository-url $PYPI_URL dist/*
 #  artifacts:
 #    when: always
 #    paths:

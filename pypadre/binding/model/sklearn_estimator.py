@@ -5,8 +5,8 @@ from pypadre.binding.model.sklearn_gridsearch import SKLearnGridSearch
 from pypadre.binding.visitors.scikit import SciKitVisitor
 from pypadre.core.base import phases
 from pypadre.core.model.computation.training import Training
-from pypadre.core.model.pipeline.components import IProvidedComponent, EstimatorComponent, \
-    ParameterizedPipelineComponent
+from pypadre.core.model.pipeline.components.component_mixins import ProvidedComponentMixin, EstimatorComponentMixin, \
+    ParameterizedPipelineComponentMixin
 from pypadre.core.util.utils import unpack
 
 
@@ -25,7 +25,7 @@ def estimate(ctx, **kwargs):
     return component.estimate(ctx, **kwargs)
 
 
-class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipelineComponent):
+class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, ParameterizedPipelineComponentMixin):
     """
     This class encapsulates an sklearn workflow which allows to run sklearn pipelines or a list of sklearn components,
     report the results according to the outcome via the experiment logger.
@@ -57,7 +57,7 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
 
         self.set_parameter_values(parameters=kwargs)
 
-        self.send_start(phase='sklearn.' + phases.fitting)
+        self.send_start(message="Starting phase sklearn." + phases.fitting)
         y = None
         if split.train_targets is not None:
             y = split.train_targets.reshape((len(split.train_targets),))
@@ -66,20 +66,20 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
             # Create dummy target of zeros if target is not present.
             y = np.zeros(shape=(len(split.train_features, )))
         self._pipeline.fit(split.train_features, y)
-        self.send_stop(phase='sklearn.' + phases.fitting)
+        self.send_stop(message='Stopping phase sklearn.' + phases.fitting)
         if self.is_scorer():
-            self.send_start(phase=f"sklearn.scoring.trainset")
+            self.send_start(message="Starting phase sklearn.scoring.trainset")
             score = self._pipeline.score(split.train_features, y)
-            self.send_stop(phase=f"sklearn.scoring.trainset")
+            self.send_stop(message="Stopping phase sklearn.scoring.trainset")
             # TODO use other signals?
-            self.send_log(keys=['training score'], values=[score], message="Logging the training score")
+            self.send_info(keys=['training score'], values=[score], message="Logging the training score")
 
             if split.has_valset():
                 y = split.val_targets.reshape((len(split.val_targets),))
                 self.send_start(phase='sklearn.scoring.valset')
                 score = self._pipeline.score(split.val_features, y)
                 self.send_stop(phase='sklearn.scoring.valset')
-                self.send_log(keys=['validation score'], values=[score], message="Logging the validation score")
+                self.send_info(keys=['validation score'], values=[score], message="Logging the validation score")
         return Training(split=split, component=component, run=run, model=self._pipeline, parameters=kwargs,
                         initial_hyperparameters=initial_hyperparameters)
 
@@ -161,8 +161,7 @@ class SKLearnEstimator(IProvidedComponent, EstimatorComponent, ParameterizedPipe
         return None
 
     def get_initial_hyperparameters(self):
-        from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
-        from copy import deepcopy
+        from pypadre.core.visitors.mappings import name_mappings
 
         hyperparameter_dict = dict()
 
