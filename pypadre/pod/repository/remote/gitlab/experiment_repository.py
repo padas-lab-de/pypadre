@@ -3,12 +3,13 @@ import re
 
 from cachetools import LRUCache, cached
 
+from pypadre.core.model.execution import Execution
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
-from pypadre.pod.repository.remote.gitlab.repository.gitlab import GitLabRepository
+from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import DillSerializer, JSonSerializer, YamlSerializer
 from pypadre.pod.util.git_util import add_and_commit
 

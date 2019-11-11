@@ -14,7 +14,7 @@
 #
 #     def list(self, search, offset=0, size=100):
 #         """
-#         List all data sets in the repository
+#         List all data sets in the generic
 #         :param offset:
 #         :param size:
 #         :param **args:

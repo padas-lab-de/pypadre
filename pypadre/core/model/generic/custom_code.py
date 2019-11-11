@@ -9,7 +9,7 @@ from pypadre.core.model.generic.i_executable_mixin import IExecuteable
 
 
 class CustomCodeHolder(IExecuteable, Signaler):
-    """ This is a class being created by a managed code file. The code file has to be stored in a git repository and
+    """ This is a class being created by a managed code file. The code file has to be stored in a git generic and
     versioned. """
 
     def __init__(self, *args, code: Type[ICode] = None, **kwargs):
@@ -60,7 +60,7 @@ def _convert_function_to_code_object(fn):
 
 class ICodeManagedObject:
     """ Class of objects which are derived from a user supplied code block. The code should be versioned and stored
-    in a repository. """
+    in a generic. """
     __metaclass__ = ABCMeta
 
     @abstractmethod

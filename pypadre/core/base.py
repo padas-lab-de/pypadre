@@ -96,7 +96,7 @@ class MetadataEntity(Validateable, Tablefyable):
     @id.setter
     def id(self, _id):
         """
-        used for updating the id after the undlerying repository has assigned one
+        used for updating the id after the undlerying generic has assigned one
         :param _id: id, ideally an url
         :return:
         """

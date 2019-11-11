@@ -91,7 +91,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
 
         code_hash = git_hash(path=path)
         if code_hash is None and init_repo is True:
-            # if there is no repository present in the path, but the user wants to create a repo then
+            # if there is no generic present in the path, but the user wants to create a repo then
             # Create a repo
             # Add any untracked files and commit those files
             # Get the code_hash of the repo

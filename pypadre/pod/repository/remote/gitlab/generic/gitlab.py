@@ -3,7 +3,7 @@ This file contains the implementation for
 """
 # TODO: Handling of different file objects. It would be hard to keep track of all the file objects during an experiment
 # TODO: Find a better way of mananging file and commit objects
-# TODO: Create a dummy repository and check validity of all functions
+# TODO: Create a dummy generic and check validity of all functions
 # TODO: Lightweight function to validate the github repo and the git object along with the user
 # NOTE: The gitlab api access token provides read/write access to the user.
 
@@ -97,7 +97,7 @@ class GitLabRepository(IGitRepository):
     def get_remote_url(self, ssh=False):
         if self._repo is None:
             #TODO print warning
-            raise ValueError("there is no remote repository. Create one")
+            raise ValueError("there is no remote generic. Create one")
         else:
             url= self.get_repo_url(ssh=ssh)
             _url = url.split("//")
@@ -122,7 +122,7 @@ class GitLabRepository(IGitRepository):
         :return:
         """
         #TODO should we get the object from remote?
-        super().get(uid=uid)
+        return super().get(uid=uid)
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
 
@@ -139,7 +139,7 @@ class GitLabRepository(IGitRepository):
 
         self._put(obj, *args, directory=directory,  merge=merge,**kwargs)
 
-        # self.reset()
+        self.reset()
 
     @abstractmethod
     def _put(self, obj, *args, directory: str,  merge=False, **kwargs):
@@ -163,28 +163,34 @@ class GitLabRepository(IGitRepository):
         :param size:
         :return:
         """
-        repos = []
-        if self._group is None:
-            return super().list(search)
-        else:
-            name = search.get("name","") if search is not None else ""
-            for repo in self._group.projects.list(search=name):
-                repos.append(self._git.projects.get(repo.id,lazy=False))
-        return self.filter([self.get_by_repo(repo) for repo in repos],search)
+        return super().list(search, offset,size)
+        # repos = []
+        # if self._group is None or "name" not in search.keys():
+        #     return super().list(search)
+        # else:
+        #     name = search.get("name","") if search is not None else ""
+        #     for repo in self._group.projects.list(search=name):
+        #         repos.append(self._git.projects.get(repo.id,lazy=False))
+        # return self.filter([self.get_by_repo(repo) for repo in repos],search)
 
     def get_file(self, repo, file: File):
         """
-        Get a file in a repository by using a serializer name combination defined in a File object
+        Get a file in a generic by using a serializer name combination defined in a File object
         :param repo: Gitlab Repository object
         :param file: File object
         :return: Loaded file
         """
+        if not isinstance(repo,gitlab.v4.objects.Project):
+            return super().get_file(repo,file)
         try:
             f = repo.files.get(file_path=file.name, ref='master')
             data = file.serializer.deserialize(f.decode())
             return data
-        except gitlab.GitlabGetError as e:
-            return super().get_file(repo,file)
+        except Exception as e:
+            if self._local_repo is not None:
+                return super().get_file(self._local_repo.working_dir, file)
+            else:
+                return None
 
     def update_file(self, file, content, branch, commit_message):
         # Update a file and if the file is binary, the calling function should serialize the content for modifying
@@ -281,7 +287,7 @@ class GitLabRepository(IGitRepository):
 
     def get_experiment(self):
         """
-        Clones the experiment from the github repository
+        Clones the experiment from the github generic
         https://stackoverflow.com/questions/46937032/using-the-node-github-api-to-clone-a-remote-repo-locally
         :return:
         """
@@ -294,7 +300,7 @@ class GitLabRepository(IGitRepository):
         :param experiment: The experiment object
         :return:
         """
-        # TODO Check if the experiment.json file already exists in the repository
+        # TODO Check if the experiment.json file already exists in the generic
         if experiment.experiment_configuration is not None:
             filename = "experiment.json"
             comment = "Creating experiment configuration at root experiment directory"
@@ -305,7 +311,7 @@ class GitLabRepository(IGitRepository):
 
     def put_run(self, experiment, run):
         """
-        Stores a run of an experiment to the file repository.
+        Stores a run of an experiment to the file generic.
         :param experiment: experiment the run is part of
         :param run: run to put
         :return:
@@ -327,7 +333,7 @@ class GitLabRepository(IGitRepository):
 
     def put_split(self, experiment, run, split):
         """
-        Stores a run of an experiment to the file repository.
+        Stores a run of an experiment to the file generic.
         :param experiment: experiment the run is part of
         :param run: run to put
         :return:
@@ -387,9 +393,7 @@ class GitLabRepository(IGitRepository):
         created_file = self.create_file(filename, self._branch, content, None, self._user,
                                         'text', comment)
     def reset(self):
-        self._repo = None
         self._remote = None
-        self._local_repo = None
 
     @property
     def remote(self):

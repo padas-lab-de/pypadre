@@ -26,7 +26,7 @@ class CodeFileRepository(IChildFileRepository, IGitRepository, ICodeRepository):
     def get_by_dir(self, directory):
         path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
         
-        # TODO implement repository for other code types
+        # TODO implement generic for other code types
 
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         code = obj
@@ -35,4 +35,4 @@ class CodeFileRepository(IChildFileRepository, IGitRepository, ICodeRepository):
         if code.__class__ is Function:
             self.write_file(directory, CODE_FILE, code.fn, mode="wb")
 
-        # TODO implement repository for other code types
+        # TODO implement generic for other code types

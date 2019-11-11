@@ -78,7 +78,7 @@
 #
 # class PadreFileRepository(IRepository):
 #     """
-#     Delegator class for handling padre objects at the file repository level. The following files tructure is used:
+#     Delegator class for handling padre objects at the file generic level. The following files tructure is used:
 #
 #     root_dir
 #       |------datasets\

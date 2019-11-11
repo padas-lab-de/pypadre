@@ -7,7 +7,7 @@ from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IDatasetRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
-from pypadre.pod.repository.remote.gitlab.repository.gitlab import GitLabRepository
+from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
 from pypadre.pod.util.git_util import add_git_lfs_attribute_file, add_and_commit
 
@@ -25,6 +25,24 @@ class DatasetGitlabRepository(GitLabRepository, IDatasetRepository):
         super().__init__(root_dir=os.path.join(backend.root_dir, NAME), gitlab_url=backend.url, token=backend.token
                          , backend=backend)
         self._group = self.get_group(name=NAME)
+
+    def get_by_dir(self, directory):
+        if len(directory) == 0:
+            return None
+
+        metadata = self.get_file(directory, META_FILE)
+
+        attributes = [Attribute(**a) for a in metadata.get("attributes", {})]
+        metadata["attributes"] = attributes
+
+        ds = Dataset(metadata=metadata)
+
+        if self.has_file(os.path.join(self.root_dir, directory), DATA_FILE):
+            # TODO: Implement lazy loading of the dataset
+            def _load_data():
+                return self.get_file(os.path.join(self.root_dir, directory), DATA_FILE)
+            ds.add_proxy_loader(_load_data)
+        return ds
 
     def get_by_repo(self, repo):
         if repo is None:

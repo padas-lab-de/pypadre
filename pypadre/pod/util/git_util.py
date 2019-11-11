@@ -20,14 +20,14 @@ def git_hash(path: str):
 
     else:
         # This shouldn't occur
-        raise ValueError("Path of the repository is invalid " + path)
+        raise ValueError("Path of the generic is invalid " + path)
 
     repo = open_existing_repo(dir_path, search_parents=True)
 
     if repo is not None:
         return repo.head.object.hexsha
 
-    # If no repository was found return none
+    # If no generic was found return none
     return None
 
 
@@ -45,7 +45,7 @@ def repo_exists(dir_path):
 
 def commit(repo, message):
     """
-    Commit a repository
+    Commit a generic
     :param repo: Repo object
     :param message: Message when committing
     :return:
@@ -93,8 +93,8 @@ def create_head(repo, name):
 def create_remote(repo, remote_name, url=''):
     """
     :param repo: The repo object that has to be passed
-    :param remote_name: Name of the remote repository
-    :param url: URL to the remote repository
+    :param remote_name: Name of the remote generic
+    :param url: URL to the remote generic
     :return:
     """
     return repo.create_remote(name=remote_name, url=url)
@@ -102,8 +102,8 @@ def create_remote(repo, remote_name, url=''):
 
 def create_repo(path, bare=True):
     """
-    Creates a local repository
-    :param bare: Creates a bare git repository
+    Creates a local generic
+    :param bare: Creates a bare git generic
     :return: Repo object
     """
     return Repo.init(path, bare)
@@ -164,7 +164,7 @@ def archive_repo(repo, path):
 def clone(repo, url, path, branch='master'):
     """
     Clone a remote repo
-    :param repo: Repo object of the repository
+    :param repo: Repo object of the generic
     :param url: URL of the remote remo
     :param path: Path to clone the remote repo
     :param branch: Branch to pull from the remote repo
@@ -252,17 +252,17 @@ def get_untracked_files(repo):
 
 def get_repo(path=None, url=None, **kwargs):
     """
-    Pull a repository from remote
+    Pull a generic from remote
     :param repo_name: Name of the repo to be cloned
     :param path: Path to be cloned
-    :param url: Path to the remote repository to be cloned
+    :param url: Path to the remote generic to be cloned
     :return:
     """
     if path is not None and url is not None:
         return Repo.clone_from(url=url, to_path=path)
 
     elif url is None and path is not None:
-        # Open the local repository
+        # Open the local generic
         return Repo(path)
 
 

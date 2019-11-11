@@ -3,7 +3,7 @@
 # """
 # # TODO: Handling of different file objects. It would be hard to keep track of all the file objects during an experiment
 # # TODO: Find a better way of mananging file and commit objects
-# # TODO: Create a dummy repository and check validity of all functions
+# # TODO: Create a dummy generic and check validity of all functions
 # # TODO: Lightweight function to validate the github repo and the git object along with the user
 # # NOTE: The gitlab api access token provides read/write access to the user.
 #
@@ -131,7 +131,7 @@
 #
 #     def get_experiment(self):
 #         """
-#         Clones the experiment from the github repository
+#         Clones the experiment from the github generic
 #         https://stackoverflow.com/questions/46937032/using-the-node-github-api-to-clone-a-remote-repo-locally
 #         :return:
 #         """
@@ -144,7 +144,7 @@
 #         :param experiment: The experiment object
 #         :return:
 #         """
-#         # TODO Check if the experiment.json file already exists in the repository
+#         # TODO Check if the experiment.json file already exists in the generic
 #         if experiment.experiment_configuration is not None:
 #             filename = "experiment.json"
 #             comment = "Creating experiment configuration at root experiment directory"
@@ -155,7 +155,7 @@
 #
 #     def put_run(self, experiment, run):
 #         """
-#         Stores a run of an experiment to the file repository.
+#         Stores a run of an experiment to the file generic.
 #         :param experiment: experiment the run is part of
 #         :param run: run to put
 #         :return:
@@ -177,7 +177,7 @@
 #
 #     def put_split(self, experiment, run, split):
 #         """
-#         Stores a run of an experiment to the file repository.
+#         Stores a run of an experiment to the file generic.
 #         :param experiment: experiment the run is part of
 #         :param run: run to put
 #         :return:

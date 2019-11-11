@@ -10,7 +10,7 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
-from pypadre.pod.repository.remote.gitlab.repository.gitlab import GitLabRepository
+from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
 from pypadre.pod.util.git_util import git_hash, create_repo, add_and_commit
 
@@ -91,7 +91,7 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
     def _put(self, obj, *args, directory: str, store_code=False, **kwargs):
         code = obj
         self.write_file(directory, META_FILE, code.metadata)
-        add_and_commit(directory,message="Adding the experiment's source code metadata to the code repository")
+        add_and_commit(directory,message="Adding the experiment's source code metadata to the code generic")
         if store_code:
             if isinstance(code, Function):
                 self.write_file(directory, CODE_FILE, code.fn, mode="wb")
@@ -104,16 +104,14 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
                     copy(os.path.join(code.path, code.file), os.path.join(directory, "code", code.file))
                 else:
                     copy(code.path, code_dir)
-            add_and_commit(directory, message="Adding the serialized source code  to the code repository")
+            add_and_commit(directory, message="Adding the serialized source code  to the code generic")
         if self.remote is not None:
             self.push_changes()
 
-
     def get_code_hash(self, obj=None, path=None, init_repo=False, **kwargs):
-
         code_hash = git_hash(path=path)
         if code_hash is None and init_repo is True:
-            # if there is no repository present in the path, but the user wants to create a repo then
+            # if there is no generic present in the path, but the user wants to create a repo then
             # Create a repo
             # Add any untracked files and commit those files
             # Get the code_hash of the repo

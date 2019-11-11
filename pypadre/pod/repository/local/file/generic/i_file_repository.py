@@ -56,7 +56,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 
     def list(self, search, offset=0, size=100):
         """
-        List all objects in the repository
+        List all objects in the generic
         :param offset:
         :param size:
         :param search: search object. You can pass key value pairs to search for.
@@ -275,7 +275,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         return glob.glob(self._replace_placeholders_with_wildcard(self.root_dir) + "/*")
 
 
-# TODO Maybe we could simplify the file repository by having all of them on root level. We don't need to use submodules and therefore can cope without the structure when using git tsrc
+# TODO Maybe we could simplify the file generic by having all of them on root level. We don't need to use submodules and therefore can cope without the structure when using git tsrc
 class IChildFileRepository(IFileRepository, ChildEntity):
 
     @abstractmethod

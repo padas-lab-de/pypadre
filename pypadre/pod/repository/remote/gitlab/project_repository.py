@@ -5,7 +5,7 @@ from pypadre.core.model.project import Project
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IProjectRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
-from pypadre.pod.repository.remote.gitlab.repository.gitlab import GitLabRepository
+from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, YamlSerializer, TextSerializer
 from pypadre.pod.util.git_util import add_and_commit, repo_exists
 
@@ -39,7 +39,7 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
 
     def to_folder_name(self, project):
         # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
-        return "{}".format(project.name)
+        return project.name
 
     def get_by_name(self, name):
         """
@@ -69,4 +69,4 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository):
             self.write_file(directory, META_FILE, project.metadata)
             self.write_file(directory, MANIFEST_FILE, self._tsrc)
             self.write_file(directory, GIT_IGNORE, _gitignore)
-            add_and_commit(directory, message="Adding the metadata and the manifest files for ")
+            add_and_commit(directory, message="Adding the metadata and the manifest file of the project")

@@ -57,7 +57,7 @@ class IDataSetLoader(ILoggable):
 
         # TODO extract attributes
         dataset = Dataset(metadata=kwargs)
-        self.send_warn(condition=len(dataset.metadata["targets"]) == 0, source=self, message='No targets defined. Program will crash when used for supervised learning')
+        # self.send_warn(condition=len(dataset.metadata["targets"]) == 0, source=self, message='No targets defined. Program will crash when used for supervised learning')
         return dataset
 
 

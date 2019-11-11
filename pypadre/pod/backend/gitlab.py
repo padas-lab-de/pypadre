@@ -3,16 +3,16 @@ import os
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IProjectRepository, IExperimentRepository, IDatasetRepository, \
     IComputationRepository, IMetricRepository, ICodeRepository, IPipelineOutputRepository
-from pypadre.pod.repository.local.file.computation_repository import ComputationFileRepository
-from pypadre.pod.repository.local.file.metric_repository import MetricFileRepository
-from pypadre.pod.repository.local.file.pipeline_output_repository import PipelineOutputFileRepository
-from pypadre.pod.repository.local.file.run_repository import RunFileRepository
-from pypadre.pod.repository.local.file.split_repository import SplitFileRepository
 from pypadre.pod.repository.remote.gitlab.code_repository import CodeGitlabRepository
+from pypadre.pod.repository.remote.gitlab.computation_repository import ComputationGitlabRepository
 from pypadre.pod.repository.remote.gitlab.dataset_repository import DatasetGitlabRepository
 from pypadre.pod.repository.remote.gitlab.execution_repository import ExecutionGitlabRepository
 from pypadre.pod.repository.remote.gitlab.experiment_repository import ExperimentGitlabRepository
+from pypadre.pod.repository.remote.gitlab.metric_repository import MetricGitlabRepository
+from pypadre.pod.repository.remote.gitlab.pipeline_output_repository import PipelineOutputGitlabRepository
 from pypadre.pod.repository.remote.gitlab.project_repository import ProjectGitlabRepository
+from pypadre.pod.repository.remote.gitlab.run_repository import RunGitlabRepository
+from pypadre.pod.repository.remote.gitlab.split_repository import SplitGitlabRepository
 
 
 class PadreGitLabBackend(IPadreBackend):
@@ -29,10 +29,14 @@ class PadreGitLabBackend(IPadreBackend):
         self.log(message="ERROR: " + message, **kwargs)
 
     def log(self, message, **kwargs):
-        # if self._file is None:
-        #     self._file = open(os.path.join(self.root_dir, "padre.log"), "a")
-        # self._file.write(message)
-        pass
+        if self._file is None:
+            path = os.path.join(self.root_dir, "padre.log")
+            if not os.path.exists(self.root_dir):
+                os.makedirs(self.root_dir)
+
+            self._file = open(path, "a")
+
+        self._file.write(message)
 
     def __init__(self, config):
         super().__init__(config)
@@ -41,12 +45,12 @@ class PadreGitLabBackend(IPadreBackend):
         self._experiment = ExperimentGitlabRepository(self)
         self._dataset = DatasetGitlabRepository(self)
         self._execution = ExecutionGitlabRepository(self)
-        self._run = RunFileRepository(self)
-        self._split = SplitFileRepository(self)
-        self._computation = ComputationFileRepository(self)
-        self._metric = MetricFileRepository(self)
+        self._run = RunGitlabRepository(self)
+        self._split = SplitGitlabRepository(self)
+        self._computation = ComputationGitlabRepository(self)
+        self._metric = MetricGitlabRepository(self)
         self._code = CodeGitlabRepository(self)
-        self._pipeline_output = PipelineOutputFileRepository(self)
+        self._pipeline_output = PipelineOutputGitlabRepository(self)
 
         # logging
         self._file = None
@@ -68,11 +72,11 @@ class PadreGitLabBackend(IPadreBackend):
         return self._execution
 
     @property
-    def run(self) -> RunFileRepository:
+    def run(self) -> RunGitlabRepository:
         return self._run
 
     @property
-    def split(self) -> SplitFileRepository:
+    def split(self) -> SplitGitlabRepository:
         return self._split
 
     @property
