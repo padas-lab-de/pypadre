@@ -78,12 +78,6 @@ class GitLabRepository(IGitRepository):
     def get_repo_sub_directory_contents(self, path, branch):
         return self._repo.repository_tree(path=path, ref=branch)
 
-    def get_file_contents(self, path, branch, decode=True):
-        # Get a file and print its content
-        f = self._repo.files.get(file_path='README.rst', ref='master')
-        # If decode flag is set, decode and return else return base64 encoded content
-        return f.decode() if decode else f.content
-
     def create_file(self, path, branch, content, email=None, name=None, encoding="text", commit_message="None"):
         f = self._repo.files.create({'file_path': path,
                                      'branch': branch,
@@ -164,6 +158,7 @@ class GitLabRepository(IGitRepository):
         :return:
         """
         return super().list(search, offset,size)
+        #TODO getting objects from remote repositories?
         # repos = []
         # if self._group is None or "name" not in search.keys():
         #     return super().list(search)
@@ -173,7 +168,7 @@ class GitLabRepository(IGitRepository):
         #         repos.append(self._git.projects.get(repo.id,lazy=False))
         # return self.filter([self.get_by_repo(repo) for repo in repos],search)
 
-    def get_file(self, repo, file: File):
+    def get_file(self, repo, file: File, default=None):
         """
         Get a file in a generic by using a serializer name combination defined in a File object
         :param repo: Gitlab Repository object
@@ -181,7 +176,7 @@ class GitLabRepository(IGitRepository):
         :return: Loaded file
         """
         if not isinstance(repo,gitlab.v4.objects.Project):
-            return super().get_file(repo,file)
+            return super().get_file(repo,file,default=default)
         try:
             f = repo.files.get(file_path=file.name, ref='master')
             data = file.serializer.deserialize(f.decode())
@@ -191,14 +186,6 @@ class GitLabRepository(IGitRepository):
                 return super().get_file(self._local_repo.working_dir, file)
             else:
                 return None
-
-    def update_file(self, file, content, branch, commit_message):
-        # Update a file and if the file is binary, the calling function should serialize the content for modifying
-        file.content = content
-        file.save(branch=branch, commit_message=commit_message)
-
-    def delete_file(self, file, commit_message):
-        file.delete(commit_message=commit_message)
 
     def commit(self, **options):
         # Create a commit
