@@ -37,7 +37,7 @@ class PadreConfig:
     root_dir = ~/.pypadre/
     user = username
     token = user_private_token
-    gitlab_url = https://gitlab.padim.fim.uni-passau.de
+    gitlab_url = https://gitlab.padre.backend:30080/
 
 
     [GENERAL]
@@ -109,7 +109,7 @@ class PadreConfig:
                         "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre"),
                         "gitlab_url": _GITLAB_BASE_URL,
                         "user": "root",
-                        "token": "e8mbtk4suozvmPw5c5Fo"
+                        "token": "LvVzAaNyFyS6iiJNzTFf"
                     }
                 ]
             }
