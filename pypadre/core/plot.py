@@ -131,14 +131,18 @@ class ExperimentPlot(Plot):
     """
     Class providing commands for creating visualizations for experimental results.
     """
-    def __init__(self, experiment_id, run_id, split_id):
-        self._experiment_id = experiment_id + '.ex'
-        self._run_id = run_id + '.run'
-        self._split_id = split_id + '.split'
-        self._experiment_path = os.path.join(os.path.expanduser("~/.pypadre"), *["experiments", self._experiment_id])
+    def __init__(self, project_name, experiment_name, execution_id, run_id, split_id, base_path="~/.pypadre"):
+        self._run_id = run_id
+        self._split_id = split_id
+        self._experiment_path = os.path.join(os.path.expanduser(base_path), *["projects",
+                                                                              project_name,
+                                                                              "experiments",
+                                                                              experiment_name,
+                                                                              "executions",
+                                                                              execution_id])
 
     def split_path(self):
-        split_path = os.path.join(self._experiment_path, *[self._run_id, self._split_id])
+        split_path = os.path.join(self._experiment_path, *["runs", self._run_id, "output", self._split_id])
         if os.path.exists(split_path):
             return split_path
         else:
@@ -153,7 +157,7 @@ class ExperimentPlot(Plot):
         split_path = self.split_path()
         with open(os.path.join(split_path, "metrics.json")) as f:
             metrics = json.loads(f.read())
-        cm = np.array(metrics["confusion_matrix"])
+        cm = np.array(metrics[list(metrics.keys())[0]][0])
         max_value = cm.max()
         x, y = np.meshgrid(range(0, cm.shape[0]), range(0, cm.shape[0]))
         source = pd.DataFrame({'x': x.ravel(), 'y': y.ravel(), 'z': cm.ravel()})
@@ -188,8 +192,11 @@ class ExperimentPlot(Plot):
         split_path = self.split_path()
         with open(os.path.join(split_path, "results.json"), 'r') as f:
             results = json.loads(f.read())
-        probabilities = results["probabilities"]
-        truths = results["truth"]
+        probabilities = list()
+        truths = list()
+        for k, predictions in results["predictions"].items():
+            truths.append(predictions["truth"])
+            probabilities.append(predictions["probabilities"])
         if len(probabilities[0]) > 2:
             raise NotImplementedError("PR Plot only implemented for binary classification")
         score = [x[-1] for x in probabilities]
@@ -218,8 +225,11 @@ class ExperimentPlot(Plot):
         split_path = self.split_path()
         with open(os.path.join(split_path, "results.json"), 'r') as f:
             results = json.loads(f.read())
-        probabilities = results["probabilities"]
-        truths = results["truth"]
+        probabilities = list()
+        truths = list()
+        for k, predictions in results["predictions"].items():
+            truths.append(predictions["truth"])
+            probabilities.append(predictions["probabilities"])
         if len(probabilities[0]) > 2:
             raise NotImplementedError("ROC Plot only implemented for binary classification")
         score = [x[-1] for x in probabilities]
