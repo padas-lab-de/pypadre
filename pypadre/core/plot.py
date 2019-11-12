@@ -46,7 +46,7 @@ class DataPlot(Plot):
         :type y_title: str
         :returns: Json Vega lite specification
         """
-        data = self._dataset.data
+        data = pd.DataFrame(self._dataset.data(), columns=[attr["name"] for attr in self._dataset.attributes])
         target = self._dataset.get_target_attribute()
         if x_title is None:
             x_title = x_attr[0].upper() + x_attr[1:]
@@ -69,10 +69,8 @@ class DataPlot(Plot):
         :param title: Title of the chart
         :return: Returns vega lite specification of the chart.
         """
-        if self._dataset.binary_format() == 'numpy':
-            mx = pd.DataFrame(self._dataset.data).corr('pearson')
-        else:
-            mx = self._dataset.data.corr('pearson')
+        mx = pd.DataFrame(self._dataset.data(), columns=[attr["name"] for attr in self._dataset.attributes]
+                          ).corr('pearson')
         total_features = mx.shape[1]
         x, y = np.meshgrid(range(0, total_features), range(0, total_features))
         source = pd.DataFrame(
@@ -114,22 +112,8 @@ class DataPlot(Plot):
         :param title: Title of the chart
         :return: Returns vega lite specification of the chart.
         """
-        target = None
-        if type(self._dataset.data) == np.ndarray:
-            df = pd.DataFrame()
-            for index, attr in enumerate(self._dataset.attributes):
-
-                df[attr['name']] = self._dataset.data[:, index]
-                if attr['defaultTargetAttribute']:
-                    target = attr['name']
-        else:
-            df = self._dataset.data
-            columns = []
-            for attr in self._dataset.attributes:
-                columns.append(attr['name'])
-                if attr['defaultTargetAttribute']:
-                    target = attr['name']
-            df.columns = columns
+        df = pd.DataFrame(self._dataset.data(), columns=[attr["name"] for attr in self._dataset.attributes])
+        target = self._dataset.get_target_attribute()
         if df[target].nunique() <= 15:  # Treat as classification data
             chart = alt.Chart(df).mark_bar().encode(
                 x=alt.X('count()', title='Total Records'),

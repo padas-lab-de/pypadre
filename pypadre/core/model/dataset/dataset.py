@@ -207,6 +207,16 @@ class Dataset(StoreableMixin, MetadataMixin):
                                  correlation_overrides=correlation_overrides,
                                  check_recoded=check_recoded)
 
+    def get_target_attribute(self):
+        """
+        Return name of default target attribute
+        :return: string or None
+        """
+        for attr in self.attributes:
+            if attr["defaultTargetAttribute"]:
+                return attr["name"]
+        return None
+
     '''
     def get(self, key):
         if key == 'id':
