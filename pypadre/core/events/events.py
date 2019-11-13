@@ -45,6 +45,7 @@ class CommonSignals:
     LOG = SignalSchema("log", True)
     CODEHASH = SignalSchema("codehash", False)
     GET = SignalSchema("get", False)
+    GET_BY_HASH = SignalSchema("get_by_hash", False)
 
 
 class PointAccessNamespace(Namespace):
@@ -139,8 +140,8 @@ def connect(*classes, name=None):
 
 def connect_subclasses(*classes, name=None):
     """
-    Decorator used to decorate methods which are to connect to signals of the subclasses of given classes. If no name
-    is given the function name is taken as signal name. :param name: :param clz: :return:
+    Decorator used to decorate methods which are to connect to signals of the subclasses of the given classes and to
+    itself. If no name is given the function name is taken as signal name. :param name: :param clz: :return:
     """
 
     def connect_decorator(fn):
@@ -152,6 +153,7 @@ def connect_subclasses(*classes, name=None):
             else:
                 subclasses = set()
                 for clz in classes:
+                    connect_class_signal(clz, signal_name, fn)
                     subclasses.update(clz.__subclasses__())
                 for subclass in subclasses:
                     connect_class_signal(subclass, signal_name, fn)
@@ -221,7 +223,7 @@ class Signaler(SuperStop):
     """
 
     @classmethod
-    def send_cls_signal(cls, signal: SignalSchema, condition=True, *sender, **kwargs):
+    def send_cls_signal(cls, signal: SignalSchema, *sender, condition=True, **kwargs):
         if condition:
             if len(sender) == 0:
                 sender = [cls]
@@ -230,18 +232,12 @@ class Signaler(SuperStop):
                 init_class_signals(cls)
                 if signal.name not in cls.signals():
                     raise ValueError("Signal is not existing on " + str(cls))
-                cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
+            cls.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
 
-    def send_signal(self, signal: SignalSchema, condition=True, *sender, **kwargs):
-        if condition:
-            if len(sender) == 0:
-                sender = [self]
-            if signal.name not in self.signals():
-                # Try to add missing signals
-                init_class_signals(self.__class__)
-                if signal.name not in self.signals():
-                    raise ValueError("Signal is not existing on " + str(self.__class__))
-            self.signals().get(signal.name).send(*sender, signal=signal, **kwargs)
+    def send_signal(self, signal: SignalSchema, *sender, condition=True, **kwargs):
+        if len(sender) == 0:
+            sender = [self]
+        self.send_cls_signal(signal, *sender, condition=condition, **kwargs)
 
     @classmethod
     def signals(cls):

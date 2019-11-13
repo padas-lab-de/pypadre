@@ -2,12 +2,13 @@
 from typing import Callable, Union, Optional, Type
 
 from pypadre.core.base import ChildMixin, MetadataMixin
-from pypadre.core.model.code.codemixin import CodeMixin
+from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.execution import Execution
 from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin, ProgressableMixin
+from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.model.pipeline.pipeline import Pipeline
 from pypadre.core.model.project import Project
 ####################################################################################################################
@@ -84,8 +85,8 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
     CODE_PATH = 'code_path'
 
     # TODO non-metadata input should be a parameter
-    def __init__(self, name="Default experiment", description="Default experiment description", project: Project = None, dataset: Dataset = None, pipeline: Pipeline = None,
-                 creator: Optional[Union[Type[CodeMixin], Callable]] = None,
+    def __init__(self, *, name="Default experiment", description="Default experiment description", project: Project = None, dataset: Dataset = None,
+                 reference: Optional[Union[Type[CodeMixin], Callable]] = None, pipeline: Pipeline,
                  **kwargs):
         # Add defaults
         defaults = {}
@@ -94,13 +95,14 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
+            "id": name,
             self.PROJECT_ID: project.id if project else None,
             self.DATASET_ID: dataset.id if dataset else None,
             self.NAME: name,
             self.DESCRIPTION: description
         }}
 
-        super().__init__(parent=project, model_clz=experiment_model, creator=creator,
+        super().__init__(parent=project, model_clz=experiment_model, reference=reference,
                          metadata=metadata, **kwargs)
         # Variables
         self._dataset = dataset
@@ -136,7 +138,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         #                'create_repo': False}
 
         # Get hash from the outside if possible
-        code_hash = self.creator_hash
+        code_hash = self.reference_hash
 
         # Should we simply warn the user that there is no generic for the code
         if code_hash is None:

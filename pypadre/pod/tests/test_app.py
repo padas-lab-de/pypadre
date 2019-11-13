@@ -1,8 +1,6 @@
-import os
 import unittest
 
-from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.codemixin import Function
+from pypadre.core.model.code.code_mixin import Function
 from pypadre.pod.tests.base_test import PadreAppTest
 from pypadre.pod.tests.util.util import create_sklearn_test_pipeline
 
@@ -103,7 +101,7 @@ class AppLocalBackends(PadreAppTest):
 
         executions = self.app.executions.list({'hash': codehash})
         for execution_ in executions:
-            assert codehash in execution_.hash
+            assert codehash in execution_.id
         if len(executions) > 0:
             execution = self.app.executions.get(executions.__iter__().__next__().id)
             assert execution[0].name == executions[0].name

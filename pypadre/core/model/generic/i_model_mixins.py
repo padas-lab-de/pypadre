@@ -1,30 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from pypadre.core.events.events import Signaler, CommonSignals, signals, EVENT_TRIGGERED
-
-
-@signals(CommonSignals.PUT, CommonSignals.DELETE, CommonSignals.GET)
-class StoreableMixin(Signaler):
-    """ This is the interface for all entities being able to signal they are to be persisted, deleted etc."""
-    __metaclass__ = ABCMeta
-
-    RETURN_VAL = "return_val"
-
-    @abstractmethod
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def send_put(self, **kwargs):
-        self.send_signal(CommonSignals.PUT, self, message="Putting object {name}".format(name=self.name), **kwargs)
-
-    def send_delete(self, **kwargs):
-        self.send_signal(CommonSignals.DELETE, self, message="Deleting object {name}".format(name=self.name), **kwargs)
-
-    @classmethod
-    def send_get(cls, *sender, uid=None, **kwargs):
-        callback = {cls.RETURN_VAL: {}, "uid": uid}
-        cls.send_cls_signal(CommonSignals.DELETE, *sender, **{**callback, **kwargs})
-        return callback.get(cls.RETURN_VAL, {cls.RETURN_VAL: None})
+from pypadre.core.events.events import Signaler, CommonSignals, signals
 
 
 @signals(CommonSignals.PROGRESS)

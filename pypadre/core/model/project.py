@@ -1,7 +1,8 @@
 from pypadre.core.base import MetadataMixin
 from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin, ProgressableMixin
+from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.validation.json_validation import make_model
 
 project_model = make_model(schema_resource_name='project.json')
@@ -15,7 +16,7 @@ class Project(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableE
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{"id": name, "name": name, "description": description}}
 
         super().__init__(model_clz=project_model, metadata=metadata, **kwargs)
 

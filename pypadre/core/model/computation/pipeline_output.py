@@ -2,7 +2,7 @@ from typing import Set
 
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.model.split.split import Split
 from pypadre.core.printing.tablefyable import Tablefyable
 
@@ -10,6 +10,7 @@ from pypadre.core.printing.tablefyable import Tablefyable
 class PipelineOutput(StoreableMixin, MetadataMixin, ChildMixin, Tablefyable):
 
     SPLIT_IDS = "split_ids"
+    RUN_ID = "run_id"
 
     @classmethod
     def _tablefy_register_columns(cls):
@@ -20,8 +21,8 @@ class PipelineOutput(StoreableMixin, MetadataMixin, ChildMixin, Tablefyable):
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.SPLIT_IDS: [split.id for split in splits]}}
-        super().__init__(schema_resource_name="run.json", parent=run, result=self, metadata=metadata, **kwargs)
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.RUN_ID: run.id, self.SPLIT_IDS: [split.id for split in splits]}}
+        super().__init__(schema_resource_name="pipeline_output.json", parent=run, result=self, metadata=metadata, **kwargs)
         self._parameter_selection = parameter_selection
         self._metrics = metrics
         self._results = results

@@ -1,5 +1,5 @@
 from pypadre.core.base import MetadataMixin, ChildMixin
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.printing.tablefyable import Tablefyable
 
 

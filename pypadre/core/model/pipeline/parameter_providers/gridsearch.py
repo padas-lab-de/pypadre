@@ -1,6 +1,6 @@
-from pypadre import _version, _name
-from pypadre.core.model.generic.custom_code import ProvidedCodeMixin
-from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProviderMixin
+from pypadre import _name, _version
+from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier
+from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
 
 
 def _create_combinations(ctx, **parameters: dict):
@@ -34,6 +34,20 @@ def _create_combinations(ctx, **parameters: dict):
     return grid, params_list
 
 
-class GridSearch(ProvidedCodeMixin, ParameterProviderMixin):
-    def __init__(self, **kwargs):
-        super().__init__(package=__name__, fn_name="_create_combinations",  requirement=_name.__name__, version=_version.__version__, **kwargs)
+# class GridSearch(ProvidedCodeMixin, ParameterProviderMixin):
+#     def __init__(self, **kwargs):
+#         super().__init__(package=__name__, fn_name="_create_combinations", requirement=_name.__name__,
+#                          version=_version.__version__, **kwargs)
+
+
+# noinspection PyTypeChecker
+grid_search = ParameterProvider(name="grid_search",
+                                code=PythonPackage(package=__name__, variable="_create_combinations",
+                                                   identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__)))
+
+
+# Parameter provider holds a predefined code object but is itself something which has to be defined or managed somewhere
+default_parameter_provider_ref = PythonPackage(package=__name__, variable="default_parameter_provider",
+                                               identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
+default_parameter_provider = ParameterProvider(name="default_provider", reference=default_parameter_provider_ref,
+                                               code=grid_search)

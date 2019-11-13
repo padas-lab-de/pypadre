@@ -20,7 +20,7 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
         super().__init__(parent=backend.experiment, name=NAME, backend=backend)
 
     def to_folder_name(self, execution):
-        return str(execution.hash)
+        return str(execution.id)
 
     def get(self, uid):
         """
@@ -33,7 +33,7 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
 
     def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
-        experiment = self.backend.experiment.get(metadata.get("experiment_id"))
+        experiment = self.backend.experiment.get(metadata.get(Execution.EXPERIMENT_ID))
         return Execution(experiment=experiment, metadata=metadata)
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):

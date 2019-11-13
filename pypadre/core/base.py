@@ -20,12 +20,6 @@ class _Phases(_Const):
     inferencing = "inferencing/testing"
 
 
-class _CodeTypes(_Const):
-    env = "environment"
-    file = "file"
-    fn = "function"
-
-
 """
 Enum for the different phases of an experiment
 """
@@ -68,8 +62,7 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
 
         import time
 
-        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
-                          **metadata}
+        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()}, **metadata}
 
         super().__init__(**{"metadata": metadata, **kwargs})
 

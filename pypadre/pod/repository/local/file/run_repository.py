@@ -35,12 +35,6 @@ class RunFileRepository(IChildFileRepository, ILogFileRepository, IRunRepository
             "RUN PROGRESS: {curr_value}/{limit}. phase={phase} \n".format(**kwargs))
 
     def get(self, uid):
-        """
-        Shortcut because we know the id is the folder name. We don't have to search in metadata.json
-        :param uid: Uid of the run
-        :return:
-        """
-
         return super().get(uid)
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):

@@ -1,10 +1,10 @@
 import numpy as np
 from padre.PaDREOntology import PaDREOntology
 
-from pypadre import _version, _name
 from pypadre.core.base import phases
 from pypadre.core.model.computation.evaluation import Evaluation
-from pypadre.core.model.pipeline.components.component_mixins import ProvidedComponentMixin, EvaluatorComponentMixin, \
+from pypadre.core.model.generic.custom_code import ProvidedCodeHolderMixin
+from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin, \
     ParameterizedPipelineComponentMixin
 from pypadre.core.util.utils import unpack
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
@@ -19,22 +19,16 @@ TESTING_IDX = "testing_indices"
 TYPE = "type"
 
 
-def evaluate(ctx, **kwargs):
-    (component,) = unpack(ctx, "component")
-    return component.evaluate(ctx, **kwargs)
-
-
-class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, ParameterizedPipelineComponentMixin):
+class SKLearnEvaluator(ProvidedCodeHolderMixin, EvaluatorComponentMixin, ParameterizedPipelineComponentMixin):
     """
     This class takes the output of an sklearn workflow which represents the fitted model along with the corresponding split,
     report and save all possible results that allows for common/custom metric computations.
     """
 
     def __init__(self, **kwargs):
-        super().__init__(package=__name__, fn_name="evaluate",  requirement=_name.__name__,
-                         version=_version.__version__, name='SKLearnEvaluator', **kwargs)
+        super().__init__(name='SKLearnEvaluator', **kwargs)
 
-    def evaluate(self, ctx, **kwargs):
+    def call(self, ctx, **kwargs):
         data, predecessor, component, run = unpack(ctx, "data", ("predecessor", None), "component", "run")
         model = data["model"]
         split = data["split"]
@@ -86,19 +80,19 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
 
             if compute_probabilities:
                 y_predicted_probabilities = model.predict_proba(split.test_features)
-                self.send_info(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
+                component.send_info(mode='probability', pred=y_predicted, truth=y, probabilities=y_predicted_probabilities,
                                message="Computing and saving the prediction probabilities")
                 y_predicted_probabilities = y_predicted_probabilities.tolist()
         else:
             type_ = PaDREOntology.SubClassesExperiment.Regression.value
 
         if self.is_scorer(model):
-            self.send_start(message="Starting phase sklearn.scoring.testset")
+            component.send_start(message="Starting phase sklearn.scoring.testset")
             score = model.score(split.test_features, y, )
-            self.send_stop(message="Stopping phase sklearn.scoring.testset")
-            self.send_info(keys=["test score"], values=[score], message="Logging the testing score")
+            component.send_stop(message="Stopping phase sklearn.scoring.testset")
+            component.send_info(keys=["test score"], values=[score], message="Logging the testing score")
 
-        results = self.create_results_dictionary(split_num=split.number, train_idx=train_idx, test_idx=test_idx,
+        results = component.create_results_dictionary(split_num=split.number, train_idx=train_idx, test_idx=test_idx,
                                                  dataset=split.dataset.name,
                                                  truth=y.tolist(), predicted=y_predicted.tolist(), type_= type_,
                                                  probabilities=y_predicted_probabilities)
@@ -108,10 +102,6 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
 
         return Evaluation(training=predecessor, result_format=type_, result=results, component=component, run=run,
                           parameters=kwargs)
-
-    def hash(self):
-        # TODO
-        return self.__hash__()
 
     @staticmethod
     def is_inferencer(model=None):
@@ -160,5 +150,3 @@ class SKLearnEvaluator(ProvidedComponentMixin, EvaluatorComponentMixin, Paramete
         results[EvaluatorComponentMixin.PREDICTIONS] = predictions
 
         return results
-5
-

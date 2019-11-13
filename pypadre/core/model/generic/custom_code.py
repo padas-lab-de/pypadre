@@ -1,25 +1,25 @@
-import os
-import sys
 from abc import ABCMeta, abstractmethod
-from typing import Type, Optional, Union, Callable, Dict
+from typing import Type
 
+from pypadre import _name, _version
 from pypadre.core.events.events import Signaler
-from pypadre.core.model.code.codemixin import CodeMixin, EnvCode
+from pypadre.core.model.code.code_mixin import CodeMixin, PythonPackage, PipIdentifier
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
+from pypadre.core.util.utils import unpack
 
 
 class CustomCodeHolder(ExecuteableMixin, Signaler):
-    """ This is a class being created by a managed code file. The code file has to be stored in a git repository and
-    versioned. """
+    """ This is a class holding a custom function. """
 
     def __init__(self, *args, code: Type[CodeMixin] = None, **kwargs):
 
         # if code_name is not None:
         #     code_obj = ICode.send_get(self, name=code_name)
         #
-        # if code_obj is None:
+        # if code is None:
         #     metadata = {"name": code_name}
         #     if isinstance(code, Callable):
+        #         # TODO find a better definition
         #         code = Function(fn=code, metadata=metadata)
         #     elif isinstance(code, str):
         #         code = CodeFile(file_path=code, metadata=metadata)
@@ -32,8 +32,8 @@ class CustomCodeHolder(ExecuteableMixin, Signaler):
         #     # TODO move put somewhere else?
         #     code.send_put(allow_overwrite=True)
 
-        super().__init__(*args, **kwargs)
         self._code = code
+        super().__init__(*args, **kwargs)
 
     def _execute_helper(self, *args, **kwargs):
         self.code.send_put(allow_overwrite=True)
@@ -43,19 +43,19 @@ class CustomCodeHolder(ExecuteableMixin, Signaler):
     def code(self):
         return self._code
 
-    @property
-    def hash(self):
-        return self.code.hash()
+    # @property
+    # def id_hash(self):
+    #     return self.code.id
 
 
-def _convert_path_to_code_object(path: str, cmd=None):
-    from pypadre.core.model.code.code_file import CodeFile
-    return CodeFile(file_path=path, cmd=cmd)
-
-
-def _convert_function_to_code_object(fn):
-    from pypadre.core.model.code.codemixin import Function
-    return Function(fn=fn)
+# def _convert_path_to_code_object(path: str, cmd=None):
+#     from pypadre.core.model.code.code_file import CodeFile
+#     return CodeFile(file_path=path, cmd=cmd)
+#
+#
+# def _convert_function_to_code_object(fn):
+#     from pypadre.core.model.code.codemixin import Function
+#     return Function(fn=fn)
 
 
 class CodeManagedMixin:
@@ -64,59 +64,68 @@ class CodeManagedMixin:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self, *args, creator: Optional[Union[Type[CodeMixin], Callable, Dict, str]] = None, **kwargs):
+    def __init__(self, *args, reference: Type[CodeMixin] = None, **kwargs):
         # if creator is None:
         #     file_path = os.path.realpath(sys.argv[0])
         #     creator = CodeFile(file_path=file_path)
+        # self._creator = self.resolve_to_code_object(creator)
 
-        self._creator = self.resolve_to_code_object(creator)
+        self._reference = reference
 
         super().__init__(*args, **kwargs)
 
     @property
-    def creator(self):
-        return self._creator
+    def reference(self):
+        return self._reference
 
     @property
-    def creator_hash(self):
-        return self.creator.hash()
+    def reference_hash(self):
+        return self.reference.id
 
-    def resolve_to_code_object(self, creator):
-        # If the user has not specified a creator, get the file that was initially executed
-        if creator is None:
-            file_ = os.path.realpath(sys.argv[0])
-            return _convert_path_to_code_object(path=file_)
+    # def resolve_to_code_object(self, creator):
+    #     # If the user has not specified a creator, get the file that was initially executed
+    #     if creator is None:
+    #         file_ = os.path.realpath(sys.argv[0])
+    #         return _convert_path_to_code_object(path=file_)
+    #
+    #     # If the user has specified
+    #     elif callable(creator):
+    #         return _convert_function_to_code_object(fn=creator)
+    #
+    #     elif isinstance(creator, str) and os.path.exists(creator):
+    #         # cmd is set as the __main__ function as default for a file
+    #         return _convert_path_to_code_object(path=creator, cmd='__main__')
+    #
+    #     elif isinstance(creator, Dict):
+    #         # TODO: Support for dictionary and command to be introduced
+    #         # The dictionary can contain the path to a package or a file
+    #         raise ValueError('Dictionary is currently not supported in Custom Code Object')
+    #
+    #     elif isinstance(creator, CodeMixin):
+    #         return creator
+    #
+    #     else:
+    #         raise ValueError('Parameter not supported')
+    #     return None
 
-        # If the user has specified
-        elif callable(creator):
-            return _convert_function_to_code_object(fn=creator)
 
-        elif isinstance(creator, str) and os.path.exists(creator):
-            # cmd is set as the __main__ function as default for a file
-            return _convert_path_to_code_object(path=creator, cmd='__main__')
-
-        elif isinstance(creator, Dict):
-            # TODO: Support for dictionary and command to be introduced
-            # The dictionary can contain the path to a package or a file
-            raise ValueError('Dictionary is currently not supported in Custom Code Object')
-
-        elif isinstance(creator, CodeMixin):
-            return creator
-
-        else:
-            raise ValueError('Parameter not supported')
-
-        return None
+def component_self_call(ctx, **kwargs):
+    (component,) = unpack(ctx, "component")
+    return component.call(ctx, **kwargs)
 
 
-class ProvidedCodeMixin(CustomCodeHolder, EnvCode):
+class ProvidedCodeHolderMixin(CustomCodeHolder):
 
     @abstractmethod
     def __init__(self, **kwargs):
-        super().__init__(code=self, **kwargs)
+        # noinspection PyTypeChecker
+        super().__init__(code=PythonPackage(package=__name__, variable="component_self_call",
+                                            identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                     version=_version.__version__)), **kwargs)
 
-    def hash(self):
-        return hash(self.__class__)
+    @abstractmethod
+    def call(self, ctx, **kwargs):
+        raise NotImplementedError()
 
     def _execute_component_code(self, **kwargs):
-        return self.call(component=self, **kwargs)
+        return self.code.call(component=self, **kwargs)

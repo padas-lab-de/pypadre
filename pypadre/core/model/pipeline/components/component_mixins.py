@@ -7,15 +7,16 @@ from typing import Optional, Iterable, List
 from pypadre.core.base import MetadataMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.custom_code import CustomCodeHolder, ProvidedCodeMixin
+from pypadre.core.model.generic.custom_code import CustomCodeHolder, CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.pipeline.components.component_interfaces import IConsumer, IProvider
-from pypadre.core.model.pipeline.parameter_providers.gridsearch import GridSearch
+from pypadre.core.model.pipeline.parameter_providers.gridsearch import grid_search
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProviderMixin, ParameterMap
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.validation import ValidateParameters
 
 
-class PipelineComponentMixin(CustomCodeHolder, IConsumer, IProvider, ValidateableExecutableMixin, MetadataMixin):
+class PipelineComponentMixin(CodeManagedMixin, CustomCodeHolder, IConsumer, IProvider, ValidateableExecutableMixin, MetadataMixin):
     """
     This class is a component of the pipeline. It can consume and provide data as well as validate it's metadata.
     PipelineComponents can be represented by custom code.
@@ -28,8 +29,10 @@ class PipelineComponentMixin(CustomCodeHolder, IConsumer, IProvider, Validateabl
             metadata = {}
         # TODO name via enum or name via owlready2
         # TODO validation model?
+        # TODO build id from code id and reference id and name?
         super().__init__(metadata=metadata, **kwargs)
         self._name = name
+        self.metadata["id"] = persistent_hash((self.name, self.code.id, self.reference.id))
 
     @property
     def name(self):
@@ -67,7 +70,7 @@ class ParameterizedPipelineComponentMixin(PipelineComponentMixin, ValidateParame
         # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)
         if parameter_provider is None:
-            parameter_provider = GridSearch()
+            parameter_provider = grid_search
         self._parameter_schema = parameter_schema
         self._parameter_provider = parameter_provider
 
@@ -89,14 +92,6 @@ class ParameterizedPipelineComponentMixin(PipelineComponentMixin, ValidateParame
                                                              predecessor=predecessor, parameter_map=parameter_map)
         combinations.send_put()
         return combinations
-
-
-class ProvidedComponentMixin(ProvidedCodeMixin, PipelineComponentMixin):
-    """ This is an extension of the PipelineComponentMixin setting the type of CustomCode to provided. """
-
-    @abstractmethod
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
 
 class SplitComponentMixin(PipelineComponentMixin):

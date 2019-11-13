@@ -1,6 +1,10 @@
+import functools
 import json
+import operator
 import platform
 from typing import Tuple
+
+import pyhash
 
 
 class _Const:
@@ -90,3 +94,13 @@ def unpack(kwargs_obj: dict, *args):
 
 def filter_nones(d: dict):
     return {key: val for key, val in d.items() if val is not None}
+
+
+def persistent_hash(to_hash):
+    def add_str(a, b):
+        return operator.add(str(persistent_hash(str(a))), str(persistent_hash(str(b))))
+
+    if isinstance(to_hash, Tuple):
+        to_hash = functools.reduce(add_str, to_hash)
+    city = pyhash.city_fingerprint_256()
+    return city(to_hash)

@@ -17,7 +17,7 @@ from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
 from pypadre.core.validation.json_validation import make_model
@@ -50,6 +50,8 @@ class Dataset(StoreableMixin, MetadataMixin):
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {})}
+        # ID as hash of the dataset?
+        metadata = {**{"id": metadata.get("name")}, **metadata}
 
         super().__init__(model_clz=dataset_model, metadata=metadata, **kwargs)
 

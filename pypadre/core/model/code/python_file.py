@@ -16,6 +16,14 @@ class PythonFile(CodeFile):
 
         super().__init__(metadata=metadata, **kwargs)
 
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def function(self):
+        return self._function
+
     def call(self, args):
 
         # https://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path

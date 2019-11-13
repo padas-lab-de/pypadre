@@ -6,7 +6,8 @@ from typing import Optional, Iterable
 
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
-from pypadre.core.model.generic.i_model_mixins import ProgressableMixin, StoreableMixin
+from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.printing.tablefyable import Tablefyable
 
 

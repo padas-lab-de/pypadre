@@ -26,10 +26,11 @@ from docutils.nodes import warning
 from jsonschema import ValidationError
 from sklearn.pipeline import Pipeline
 
+from pypadre import _name, _version
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier, PythonFile, GitIdentifier
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.model.generic.custom_code import _convert_path_to_code_object
-from pypadre.core.model.pipeline.parameter_providers.parameters import FunctionParameterProvider
+from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
 from pypadre.core.util.utils import filter_nones
@@ -155,7 +156,9 @@ class PadreApp(IBaseApp):
     def code(self):
         return self._code_app
 
+    # ------------------------------------------ decorators -------------------------------------------
     def workflow(self, *args, ptype=None, parameters=None, parameter_provider=None,
+                 reference=None, reference_package=None,
                  dataset: Union[Dataset, str], project_name=None, experiment_name=None,
                  project_description=None,
                  experiment_description=None, auto_main=True, **kwargs):
@@ -184,9 +187,9 @@ class PadreApp(IBaseApp):
                 # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
                 return f_create_workflow(*args, **kwargs)
 
-            (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
-            creator = _convert_path_to_code_object(filename, function_name)
+            creator = to_decorator_reference(reference, reference_package)
 
+            local_ptype = None
             if ptype is None:
                 pipeline = wrap_workflow()
                 if isinstance(pipeline, Pipeline):
@@ -198,23 +201,22 @@ class PadreApp(IBaseApp):
             else:
                 local_ptype = ptype
 
-
             # TODO check pipeline type (where to put provider)
             if parameter_provider is not None:
-                pipeline = local_ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider, creator=creator)
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider, reference=creator)
             else:
-                pipeline = local_ptype(pipeline_fn=wrap_workflow, creator=creator)
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, reference=creator)
 
             project = self.projects.get_by_name(project_name)
             if project is None:
                 project = self.projects.create(
-                    **filter_nones({"name": project_name, "description": project_description}), creator=creator)
+                    **filter_nones({"name": project_name, "description": project_description}), reference=creator)
 
             d = dataset if isinstance(dataset, Dataset) else self.datasets.get_by_name(dataset)
             experiment = self.experiments.create(
                 **filter_nones({"name": experiment_name, "description": experiment_description}),
                 project=project,
-                pipeline=pipeline, dataset=d, creator=creator)
+                pipeline=pipeline, dataset=d, reference=creator)
             if auto_main:
                 return experiment.execute(parameters=parameters)
             else:
@@ -232,7 +234,9 @@ class PadreApp(IBaseApp):
                 # here the parameter map gets called. We could add some logging etc. capability here,
                 # but i am not sure
                 return f_create_parameters(*args, **kwargs)
+
             return wrap_parameters()
+
         return parameter_decorator
 
     def parameter_provider(self, *args, **kwargs):
@@ -242,7 +246,9 @@ class PadreApp(IBaseApp):
                 # here the parameter provider gets called. We could add some logging etc. capability here,
                 # but i am not sure
                 return f_create_parameters(*args, **kwargs)
-            return FunctionParameterProvider(name="custom_parameter_provider", fn=wrap_parameters)
+
+            return ParameterProvider(name="custom_parameter_provider", code=wrap_parameters)
+
         return parameter_decorator
 
     def dataset(self, *args, name=None, **kwargs):
@@ -291,3 +297,19 @@ def example_app():
         }
     ]))
     return PadreAppFactory.get(config)
+
+
+def to_decorator_reference(reference=None, reference_package=None, reference_git=None, git_path="."):
+    if reference is not None:
+        creator = reference
+    elif reference_package is not None:
+        (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
+        creator = PythonPackage(package=reference_package, variable=function_name,
+                                identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
+    elif reference_git is not None:
+        (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
+        creator = PythonFile(path=git_path, package=os.path.basename(__file__), variable=function_name,
+                             identifier=GitIdentifier(path=os.path.dirname(reference_git)))
+    else:
+        raise ValueError("You need to provide a reference for your workflow definition.")
+    return creator

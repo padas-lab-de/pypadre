@@ -2,7 +2,6 @@ from typing import List
 
 from pypadre.core.events.events import connect_subclasses, connect, CommonSignals
 from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
-from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IMetricRepository
 from pypadre.pod.service.base_service import ModelServiceMixin
 
@@ -13,7 +12,7 @@ class MetricService(ModelServiceMixin):
     """
 
     def __init__(self, measure_meters: List[MetricProviderMixin], backends: List[IMetricRepository], **kwargs):
-        super().__init__(model_clz=Split, backends=backends, **kwargs)
+        super().__init__(model_clz=Metric, backends=backends, **kwargs)
         self._measure_meters = measure_meters
 
         @connect(Metric)

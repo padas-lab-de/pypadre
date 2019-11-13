@@ -66,7 +66,7 @@ class ModelHolderMixin(ValidateableMixin):
         :param kwargs:
         :return:
         """
-        self._validate_metadata(kwargs.pop("metadata", {}))
+        self._validate_metadata(kwargs.pop("metadata", self._val_model))
 
     def _validate_metadata(self, metadata):
         if self._model_clz is None:

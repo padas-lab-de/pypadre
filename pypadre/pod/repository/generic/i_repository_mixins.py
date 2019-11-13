@@ -15,6 +15,10 @@ class IStoreableRepository:
     def get(self, uid):
         raise NotImplementedError()
 
+    @abstractmethod
+    def get_by_hash(self, hash):
+        raise NotImplementedError()
+
     def exists(self, uid):
         # TODO don't load object for better performance
         return self.get(uid) is not None

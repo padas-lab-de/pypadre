@@ -252,13 +252,15 @@ def get_untracked_files(repo):
 
 def get_repo(path=None, url=None, **kwargs):
     """
-    Pull a generic from remote
+    Pull a repository from remote or initialize a new empty repository
     :param repo_name: Name of the repo to be cloned
     :param path: Path to be cloned
     :param url: Path to the remote generic to be cloned
     :return:
     """
     if path is not None and url is not None:
+
+        # TODO check if repo exists if it does check remote
         return Repo.clone_from(url=url, to_path=path, **kwargs)
 
     elif url is None and path is not None:

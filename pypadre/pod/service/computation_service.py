@@ -1,8 +1,7 @@
 from typing import List
 
-from pypadre.core.events.events import connect, connect_subclasses, CommonSignals
+from pypadre.core.events.events import connect_subclasses, CommonSignals
 from pypadre.core.model.computation.computation import Computation
-from pypadre.core.model.split.split import Split
 from pypadre.pod.repository.i_repository import IComputationRepository
 from pypadre.pod.service.base_service import ModelServiceMixin
 
@@ -13,7 +12,7 @@ class ComputationService(ModelServiceMixin):
     """
 
     def __init__(self, backends: List[IComputationRepository], **kwargs):
-        super().__init__(model_clz=Split, backends=backends, **kwargs)
+        super().__init__(model_clz=Computation, backends=backends, **kwargs)
 
         @connect_subclasses(Computation, name=CommonSignals.PUT.name)
         # @connect_subclasses(Computation)

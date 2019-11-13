@@ -1,7 +1,7 @@
 import glob
 import os
 
-from pypadre.core.model.code.codemixin import Function
+from pypadre.core.model.code.code_mixin import Function
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
