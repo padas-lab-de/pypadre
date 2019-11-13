@@ -36,7 +36,7 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, 
                                                                  }}
         if predecessor is not None:
             metadata[self.PREDECESSOR_ID] = predecessor.id
-        if metrics is not None and len(metrics > 0):
+        if metrics is not None and len(metrics) > 0:
             metadata[self.METRICS_IDS] = [m.id for m in metrics]
             self._metrics = {m.name: m.result for m in metrics}
         else:

@@ -267,6 +267,7 @@ def get_repo(path=None, url=None, **kwargs):
     else:
         return None
 
+
 def crawl_repo(repo,rpath,_path=""):
     rpath = rpath.split('/')
     path = _path + '/' + rpath.pop(0)
@@ -279,7 +280,6 @@ def crawl_repo(repo,rpath,_path=""):
         return _paths
     else:
         return paths
-
 
 
 def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,force_commit=False):

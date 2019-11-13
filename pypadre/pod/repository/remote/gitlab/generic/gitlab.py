@@ -19,12 +19,13 @@ from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.generic.i_repository_mixins import ISearchable
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.local.file.generic.i_git_repository import IGitRepository
-from pypadre.pod.util.git_util import repo_exists, open_existing_repo, get_repo, add_and_commit, get_path, crawl_repo
+from pypadre.pod.util.git_util import repo_exists, open_existing_repo, get_repo, add_and_commit, crawl_repo
 
 permissions = {"guest":gitlab.GUEST_ACCESS,
                "maintainer":gitlab.MAINTAINER_ACCESS,
                "developer":gitlab.DEVELOPER_ACCESS,
                "reporter":gitlab.REPORTER_ACCESS}
+
 
 class GitLabRepository(IGitRepository):
     """ This is the abstract class extending the basic git backend with gitlab remote server functionality"""
@@ -130,11 +131,12 @@ class GitLabRepository(IGitRepository):
     def get(self, uid, rpath='', caller=None):
         """
         Gets the objects via uid. This might have to scan the metadatas on the remote repositories
-        :param rpath: relative path in the repository
+        :param caller: the child backend calling the method
+        :param rpath: relative pseudo-path in the repository
         :param uid: uid to search for
         :return:
         """
-        #TODO should we get the object from remote?
+        # TODO should we get the object from remote?
         # return super().get(uid=uid)
         (repo,path) = self.find_repo_by_id(uid,rpath=rpath, caller=caller)
         if repo is None:
@@ -143,11 +145,12 @@ class GitLabRepository(IGitRepository):
         # return super().get(uid=uid)
 
     def has_repo_dir(self,repo,path=None):
-        return len(repo.repository_tree(path=path))>0
+        return len(repo.repository_tree(path=path)) > 0
 
-    def get_by_repo(self, repo, path='',caller = None):
+    def get_by_repo(self, repo, path='', caller = None):
         """
 
+        :param caller:
         :param repo: repository of the object
         :param path: path to the object
         :return: the object
@@ -212,30 +215,22 @@ class GitLabRepository(IGitRepository):
             return repos
         return [(repo,path) for repo,path in repos if ISearchable.in_search(self.get_by_repo(repo, path=path,caller=caller),search)]
 
-    def list(self, search, offset=0, size=100):
+    def list(self, search, offset=0, size=100, caller=None):
         """
 
+        :param caller:
         :param search:
         :param offset:
         :param size:
         :return:
         """
+        if 'folder' in search:
+            return super().list(search,offset,size)
         rpath = ""
         if search is not None and 'rpath' in search:
             rpath = search.pop('rpath')
-        repos = self.get_repos_by_search(search,rpath=rpath)
-        return self.filter([self.get_by_repo(repo,path) for repo,path in repos],search)
-        # return super().list(search, offset,size)
-        #TODO getting objects from remote repositories? is it really required.
-        # if self._group is None :
-        #     return super().list(search,offset,size)
-        # else:
-        #     repos = []
-        #     name = search.get("name","") if search is not None else ""
-        #     for repo in self._group.projects.list(search=name):
-        #         repos.append(self._git.projects.get(repo.id,lazy=False))
-        #     rpath = search.pop('rpath','')
-        #     return self.filter([self.get_by_repo(repo,rpath=rpath) for repo in repos],search)
+        repos = self.get_repos_by_search(search,rpath=rpath, caller=caller)
+        return self.filter([self.get_by_repo(repo,path=path,caller=caller) for repo,path in repos],search)
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
 

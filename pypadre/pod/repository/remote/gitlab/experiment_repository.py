@@ -38,10 +38,6 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
 
         self._group = self.get_group(name=NAME)
 
-    @cached(cache)
-    def get(self,uid):
-        return super().get(uid)
-
     def get_by_name(self, name):
         """
         Shortcut because we know name is the folder name. We don't have to search in metadata.json
@@ -73,6 +69,7 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
     def _get_by_repo(self,repo,path=''):
         if repo is None:
             return None
+
         metadata = self.get_file(repo,META_FILE)
         pipeline = self.get_file(repo,WORKFLOW_FILE)
 
@@ -88,7 +85,7 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
 
     def update(self,experiment: Experiment, commit_message:str):
         add_and_commit(self.to_directory(experiment),message=commit_message)
-        self.push_changes()
+        self.push_changes(commit_counter=3)
         #TODO
 
     def _put(self, experiment: Experiment, *args, directory, merge=False,**kwargs):
