@@ -83,7 +83,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
 
     def to_folder_name(self, code):
         # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
-        return str(code.id_hash())
+        return str(code.id)
 
     def list(self, search, offset=0, size=100):
         if hasattr(search, "name"):

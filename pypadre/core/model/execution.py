@@ -33,6 +33,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         if codehash is not None:
             metadata['hash'] = codehash
 
+        metadata = {**{"id": metadata['hash']}, **metadata}
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
         self._command = command
@@ -42,9 +43,6 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         run = Run(execution=self)
         self._runs.append(run)
         return run.execute(data=self.dataset, execution=self, **kwargs)
-
-    def id_hash(self):
-        return self.hash
 
     @property
     def hash(self):

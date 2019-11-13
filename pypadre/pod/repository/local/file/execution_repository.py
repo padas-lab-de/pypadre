@@ -20,7 +20,7 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
         super().__init__(parent=backend.experiment, name=NAME, backend=backend)
 
     def to_folder_name(self, execution):
-        return str(execution.id_hash())
+        return str(execution.id)
 
     def get(self, uid):
         """

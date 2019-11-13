@@ -103,10 +103,6 @@ class SKLearnEvaluator(ProvidedCodeHolderMixin, EvaluatorComponentMixin, Paramet
         return Evaluation(training=predecessor, result_format=type_, result=results, component=component, run=run,
                           parameters=kwargs)
 
-    def id_hash(self):
-        # TODO
-        return self.__hash__()
-
     @staticmethod
     def is_inferencer(model=None):
         return getattr(model, 'predict', None)

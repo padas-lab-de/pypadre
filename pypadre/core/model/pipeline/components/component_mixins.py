@@ -12,6 +12,7 @@ from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutable
 from pypadre.core.model.pipeline.components.component_interfaces import IConsumer, IProvider
 from pypadre.core.model.pipeline.parameter_providers.gridsearch import grid_search
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProviderMixin, ParameterMap
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.validation import ValidateParameters
 
 
@@ -28,8 +29,10 @@ class PipelineComponentMixin(CodeManagedMixin, CustomCodeHolder, IConsumer, IPro
             metadata = {}
         # TODO name via enum or name via owlready2
         # TODO validation model?
+        # TODO build id from code id and reference id and name?
         super().__init__(metadata=metadata, **kwargs)
         self._name = name
+        self.metadata["id"] = persistent_hash((self.name, self.code.id, self.reference.id))
 
     @property
     def name(self):

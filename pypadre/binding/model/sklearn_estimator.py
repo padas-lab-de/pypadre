@@ -83,10 +83,6 @@ class SKLearnEstimator(ProvidedCodeHolderMixin, EstimatorComponentMixin, Paramet
         return Training(split=split, component=component, run=run, model=self._pipeline, parameters=kwargs,
                         initial_hyperparameters=initial_hyperparameters)
 
-    def id_hash(self):
-        # TODO hash should not change with training
-        return self.pipeline.__hash__()
-
     def configuration(self):
         return SciKitVisitor(self._pipeline)
 

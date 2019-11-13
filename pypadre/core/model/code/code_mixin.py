@@ -8,7 +8,7 @@ from ipython_genutils.py3compat import execfile
 from pypadre.core.base import MetadataMixin
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
-from pypadre.core.util.utils import _Const
+from pypadre.core.util.utils import _Const, persistent_hash
 from pypadre.pod.util.git_util import get_repo
 
 
@@ -79,7 +79,7 @@ class PipIdentifier(CodeIdentifier):
         return self._version
 
     def id_hash(self):
-        return hash((self._pip_package, self._version))
+        return persistent_hash((self._pip_package, self._version))
 
     def meta(self):
         return {self.VERSION: self._version, self.PIP_PACKAGE: self._pip_package}
@@ -118,7 +118,7 @@ class GitIdentifier(CodeIdentifier):
         return self._path + ":" + self._git_hash
 
     def id_hash(self):
-        return hash((self._path, self._git_hash))
+        return persistent_hash((self._path, self._git_hash))
 
     def version(self):
         return self._git_hash
@@ -189,10 +189,6 @@ class CodeMixin(StoreableMixin, MetadataMixin):
         # kwargs are the padre context to be used
         return self._call(kwargs, **parameters)
 
-    @abstractmethod
-    def id_hash(self):
-        raise NotImplementedError()
-
     @property
     def identifier(self):
         return self._identifier
@@ -228,12 +224,9 @@ class PythonPackage(CodeMixin):
         """
         self._variable = variable
         self._package = package
-        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable},
+        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, "id": persistent_hash((self._variable, self._package, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
         super().__init__(identifier=identifier, type=self._CodeType.package, metadata=metadata, **kwargs)
-
-    def id_hash(self):
-        return hash((self._variable, self._package, self._identifier.id_hash()))
 
     def _call(self, ctx, **kwargs):
         variable = getattr(importlib.import_module(self._package), self._variable)
@@ -261,12 +254,10 @@ class PythonFile(CodeMixin):
         self._variable = variable
         self._package = package
         self._path = path
-        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, self.PATH: self._path},
+        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, self.PATH: self._path,
+                       "id": persistent_hash((self._variable, self._package, self._path, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
         super().__init__(identifier=identifier, type=self._CodeType.python_file, metadata=metadata, **kwargs)
-
-    def id_hash(self):
-        return hash((self._variable, self._package, self._path, self._identifier.id_hash()))
 
     def _call(self, ctx, **kwargs):
         if self._variable is None:
@@ -297,12 +288,9 @@ class GenericCall(CodeMixin):
         :param kwargs:
         """
         self._cmd = cmd
-        metadata = {**{self.CMD: self._cmd},
+        metadata = {**{self.CMD: self._cmd, "id": persistent_hash((self._cmd, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
         super().__init__(identifier=identifier, type=self._CodeType.file, metadata=metadata, **kwargs)
-
-    def id_hash(self):
-        return hash((self._cmd, self._identifier.id_hash()))
 
     def _call(self, ctx, **kwargs):
         raise NotImplementedError()
@@ -326,10 +314,9 @@ class Function(CodeMixin):
         :param kwargs:
         """
         self._fn = fn
-        super().__init__(identifier=identifier, type=self._CodeType.function, **kwargs)
-
-    def id_hash(self):
-        return hash((self._cmd, self._identifier.id_hash()))
+        metadata = {**{"id": persistent_hash((identifier.id_hash()))},
+                    **kwargs.pop("metadata", {})}
+        super().__init__(identifier=identifier, type=self._CodeType.function, metadata=metadata, **kwargs)
 
     @property
     def fn(self):

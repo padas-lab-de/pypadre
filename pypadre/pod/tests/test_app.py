@@ -101,7 +101,7 @@ class AppLocalBackends(PadreAppTest):
 
         executions = self.app.executions.list({'hash': codehash})
         for execution_ in executions:
-            assert codehash in execution_.id_hash
+            assert codehash in execution_.id
         if len(executions) > 0:
             execution = self.app.executions.get(executions.__iter__().__next__().id)
             assert execution[0].name == executions[0].name

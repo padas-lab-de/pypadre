@@ -95,6 +95,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
+            "id": name,
             self.PROJECT_ID: project.id if project else None,
             self.DATASET_ID: dataset.id if dataset else None,
             self.NAME: name,
@@ -107,9 +108,6 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         self._dataset = dataset
         self._pipeline = pipeline
         self._executions = []
-
-    def id_hash(self):
-        return self.name
 
     @property
     def project(self):

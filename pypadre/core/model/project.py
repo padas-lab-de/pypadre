@@ -16,7 +16,7 @@ class Project(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableE
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {}), **{"name": name, "description": description}}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{"id": name, "name": name, "description": description}}
 
         super().__init__(model_clz=project_model, metadata=metadata, **kwargs)
 
@@ -26,9 +26,6 @@ class Project(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableE
             sub_projects = []
         self._experiments = experiments
         self._sub_projects = sub_projects
-
-    def id_hash(self):
-        return self.name
 
     def get(self, key):
         if key == 'id':

@@ -5,7 +5,6 @@ from sklearn.pipeline import Pipeline
 
 from pypadre.binding.model.sklearn_estimator import SKLearnEstimator
 from pypadre.binding.model.sklearn_evaluator import SKLearnEvaluator
-from pypadre.binding.visitors.scikit import SciKitVisitor
 from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.pipeline import pipeline
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
@@ -21,7 +20,7 @@ class SKLearnPipeline(DefaultPythonExperimentPipeline):
         :param kwargs:
         """
         pipeline = pipeline_fn()
-        visitor = SciKitVisitor(pipeline)
+        # visitor = SciKitVisitor(pipeline)
         # TODO use visitor to extract parameter schema from pipeline
 
         # Check if the return type is a Sklearn Pipeline

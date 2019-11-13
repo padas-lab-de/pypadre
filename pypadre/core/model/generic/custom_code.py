@@ -32,10 +32,8 @@ class CustomCodeHolder(ExecuteableMixin, Signaler):
         #     # TODO move put somewhere else?
         #     code.send_put(allow_overwrite=True)
 
-
-
-        super().__init__(*args, **kwargs)
         self._code = code
+        super().__init__(*args, **kwargs)
 
     def _execute_helper(self, *args, **kwargs):
         self.code.send_put(allow_overwrite=True)
@@ -45,9 +43,9 @@ class CustomCodeHolder(ExecuteableMixin, Signaler):
     def code(self):
         return self._code
 
-    @property
-    def id_hash(self):
-        return self.code.id_hash()
+    # @property
+    # def id_hash(self):
+    #     return self.code.id
 
 
 # def _convert_path_to_code_object(path: str, cmd=None):
@@ -82,7 +80,7 @@ class CodeManagedMixin:
 
     @property
     def reference_hash(self):
-        return self.reference.id_hash()
+        return self.reference.id
 
     # def resolve_to_code_object(self, creator):
     #     # If the user has not specified a creator, get the file that was initially executed

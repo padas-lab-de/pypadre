@@ -59,7 +59,7 @@ class CrudServiceMixin(ServiceMixin):
             try:
                 backend.put(obj, **kwargs)
             except ObjectAlreadyExists as e:
-                warning("Couldn't store object" + str(obj) + "!" + str(e) + " Skipping storage.")
+                warning("Couldn't store object " + str(obj) + "! " + str(e) + " Skipping storage.")
 
     def patch(self, obj):
         """

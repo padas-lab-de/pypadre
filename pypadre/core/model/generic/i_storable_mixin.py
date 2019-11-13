@@ -10,25 +10,23 @@ class StoreableMixin(MetadataMixin, Signaler):
     __metaclass__ = ABCMeta
 
     RETURN_VAL = "return_val"
-    HASH = '__hash'
+    # HASH = '__hash'
 
     @abstractmethod
     def __init__(self, *args, metadata=None, **kwargs):
 
-        in_hash = metadata.get(self.HASH, None) if metadata else None
+        in_hash = metadata.get("id", None) if metadata else None
 
         super().__init__(*args, metadata=metadata, **kwargs)
 
-        cur_hash = self.id_hash()
+        cur_hash = self.id
 
         if in_hash is None:
-            by_hash = self.send_get(self, hash=cur_hash)[self.RETURN_VAL]
+            by_hash = self.send_get(self, uid=cur_hash)[self.RETURN_VAL]
             if by_hash is not None:
                 # TODO check if we get problems here with changing the reference in the constructor. Alternatively we could use a factory.
                 self.__class__ = by_hash.__class__
                 self.__dict__ = by_hash.__dict__
-            else:
-                self.metadata[self.HASH] = cur_hash
         elif cur_hash != in_hash:
             self.send_warn("Identity hash " + str(cur_hash) +
                            " of loaded object " + str(self) + " seems to mismatch its stored hash value "
@@ -46,16 +44,13 @@ class StoreableMixin(MetadataMixin, Signaler):
         cls.send_cls_signal(CommonSignals.GET, *sender, **{**callback, **kwargs})
         return callback.get(cls.RETURN_VAL, {cls.RETURN_VAL: None})
 
-    @property
-    def __hash(self):
-        if self.HASH in self.metadata:
-            return self.metadata[self.HASH]
-        else:
-            return None
-
-    @abstractmethod
-    def id_hash(self):
-        return self.id
+    # @property
+    # def __hash(self):
+    #     if self.HASH in self.metadata:
+    #         return self.metadata[self.HASH]
+    #     else:
+    #         return None
+    #
 
     # @abstractmethod
     # def __eq__(self, other):

@@ -17,6 +17,7 @@ from pypadre.core.model.pipeline.components.component_mixins import EstimatorCom
     ParameterizedPipelineComponentMixin
 from pypadre.core.model.pipeline.components.components import SplitComponent, PipelineComponent, DefaultSplitComponent
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterMap
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.validation import ValidateableMixin
 
 
@@ -27,7 +28,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
 
     def hash(self):
         # TODO this has may have to include if the pipeline structure was changed etc
-        return hash(",".join([str(pc.id_hash()) for pc in self.nodes]))
+        return persistent_hash(",".join([str(pc.id) for pc in self.nodes]))
 
     def get_component(self, id):
         # TODO make this defensive
@@ -179,7 +180,7 @@ class DefaultPythonExperimentPipeline(Pipeline):
                                                     **attr) if preprocessing_fn else None
 
         if splitting is None:
-            self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, **attr)
+            self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, reference=attr.get("reference"))
         else:
             self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
 

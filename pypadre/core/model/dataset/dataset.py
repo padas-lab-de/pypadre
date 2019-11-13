@@ -50,6 +50,8 @@ class Dataset(StoreableMixin, MetadataMixin):
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {})}
+        # ID as hash of the dataset?
+        metadata = {**{"id": metadata.get("name")}, **metadata}
 
         super().__init__(model_clz=dataset_model, metadata=metadata, **kwargs)
 
@@ -215,10 +217,6 @@ class Dataset(StoreableMixin, MetadataMixin):
         else:
             return self.__dict__.get(key, None)
     '''
-
-    def id_hash(self):
-        # TODO create a hash of the dataset
-        return self.name
 
     # def profile(self, bins=50, check_correlation=True, correlation_threshold=0.8,
     #             correlation_overrides=None, check_recoded=False):
