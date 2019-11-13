@@ -1,4 +1,4 @@
-# from pypadre.pod.repository.i_repository import ISourceRepository
+# from pypadre.pod.generic.i_repository import ISourceRepository
 #
 #
 # class SourceFileRepository(ISourceRepository):

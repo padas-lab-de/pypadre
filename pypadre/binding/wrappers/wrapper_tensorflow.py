@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 
-# Todo remove and make on module (repository)
+# Todo remove and make on module (generic)
 # Todo version number??? Use version file.
 __version__ = "0.0.0"
 

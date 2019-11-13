@@ -21,7 +21,7 @@ def dataset():
 
 @app.workflow(dataset=dataset,
               reference_package=__name__,
-              experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
+              experiment_name="Iris SVC", project_name="Examples")
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC

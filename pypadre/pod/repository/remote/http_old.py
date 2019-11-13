@@ -364,7 +364,7 @@
 #
 #     def list(self, search_name=None, search_metadata=None, start=0, count=999999999, search=None) -> list:
 #         """
-#         List all data sets in the repository
+#         List all data sets in the generic
 #         :param search_name: regular expression based search string for the title. Default None
 #         :param search_metadata: dict with regular expressions per metadata key. Default None
 #         """

@@ -51,7 +51,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
     properties will gain special purpose for an experiment:
     - task - determines the task achieved by a experiment (e.g. classification, regression, metric learning etc.)
     - name - determines the name of an experiment
-    - id - determines the repository id of an experiment (might be equal to the name, if the name is also the id)
+    - id - determines the generic id of an experiment (might be equal to the name, if the name is also the id)
     - description - determines the description of an experiment
     - domain - determines the application domain
 
@@ -140,7 +140,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         # Get hash from the outside if possible
         code_hash = self.reference_hash
 
-        # Should we simply warn the user that there is no repository for the code
+        # Should we simply warn the user that there is no generic for the code
         if code_hash is None:
             raise ValueError("An execution has to reference a code hash to be valid.")
 
