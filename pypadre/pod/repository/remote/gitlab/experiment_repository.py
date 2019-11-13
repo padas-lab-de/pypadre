@@ -70,12 +70,14 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
     def to_folder_name(self, experiment):
         return experiment.name
 
-    def get_by_repo(self,repo):
+    def _get_by_repo(self,repo,path=''):
+        if repo is None:
+            return None
         metadata = self.get_file(repo,META_FILE)
         pipeline = self.get_file(repo,WORKFLOW_FILE)
 
         project = self.backend.project.get(metadata.get(Experiment.PROJECT_ID))
-        dataset = self.backend.project.get(metadata.get(Experiment.DATASET_ID))
+        dataset = self.backend.dataset.get(metadata.get(Experiment.DATASET_ID))
 
         ex = Experiment(name= metadata.get("name"), description=metadata.get("description"), project=project,
                         dataset=dataset, metadata=metadata, pipeline=pipeline)

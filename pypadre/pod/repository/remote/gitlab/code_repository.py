@@ -61,7 +61,7 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
 
         return code
 
-    def get_by_repo(self,repo):
+    def _get_by_repo(self,repo,path=''):
 
         metadata = self.get_file(repo, META_FILE)
         if metadata.get(CodeMixin.CODE_CLASS) == str(Function):

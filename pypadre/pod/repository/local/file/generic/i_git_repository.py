@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABCMeta
+from logging import warning
 
 from git import Repo
 
@@ -50,14 +51,23 @@ class IGitRepository(IFileRepository):
     def get(self, uid):
         # Call the File backend get function
         return super().get(uid=uid)
-
-    def get_by_repo(self,repo):
+    @abstractmethod
+    def get_by_repo(self,repo, rpath='', caller=None):
         """
         Gets an object for a given generic.
-        :param directory: generic object to load the object from
+        :param rpath: relative path in the repo
+        :param repo: repository to load the object from
         :return: Object which should be deserialized
         """
-        pass
+        raise NotImplementedError
+
+    @abstractmethod
+    def has_repo_dir(self,repo,rpath=None):
+        raise NotImplementedError
+
+    @abstractmethod
+    def _get_by_repo(self,repo,path=None):
+        raise NotImplementedError
 
     def delete(self, id_):
         """

@@ -44,7 +44,7 @@ class DatasetGitlabRepository(GitLabRepository, IDatasetRepository):
             ds.add_proxy_loader(_load_data)
         return ds
 
-    def get_by_repo(self, repo):
+    def _get_by_repo(self, repo, path=''):
         if repo is None:
             return None
 

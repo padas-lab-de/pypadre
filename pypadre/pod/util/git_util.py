@@ -259,11 +259,27 @@ def get_repo(path=None, url=None, **kwargs):
     :return:
     """
     if path is not None and url is not None:
-        return Repo.clone_from(url=url, to_path=path)
+        return Repo.clone_from(url=url, to_path=path, **kwargs)
 
     elif url is None and path is not None:
         # Open the local generic
         return Repo(path)
+    else:
+        return None
+
+def crawl_repo(repo,rpath,_path=""):
+    rpath = rpath.split('/')
+    path = _path + '/' + rpath.pop(0)
+    repository_tree = repo.repository_tree(path=path)
+    paths = [obj.get('path') for obj in repository_tree]
+    if len(rpath) > 0:
+        _paths = []
+        for _path in paths:
+            _paths += crawl_repo(repo,'/'.join(rpath),_path=_path)
+        return _paths
+    else:
+        return paths
+
 
 
 def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,force_commit=False):

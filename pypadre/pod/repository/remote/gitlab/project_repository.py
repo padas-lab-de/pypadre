@@ -30,7 +30,9 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository, ILogFileRepo
         self._group = self.get_group(name=_GROUP)
         self._tsrc = {"repos": []}
 
-    def get_by_repo(self, repo):
+    def _get_by_repo(self, repo, path=''):
+        if repo is None:
+            return None
         metadata = self.get_file(repo, META_FILE)
         return Project(name=metadata.pop("name"), description=metadata.pop("description"), metadata=metadata)
 
