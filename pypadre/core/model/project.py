@@ -1,7 +1,8 @@
 from pypadre.core.base import MetadataMixin
 from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin, ProgressableMixin
+from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.validation.json_validation import make_model
 
 project_model = make_model(schema_resource_name='project.json')
@@ -25,6 +26,9 @@ class Project(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableE
             sub_projects = []
         self._experiments = experiments
         self._sub_projects = sub_projects
+
+    def id_hash(self):
+        return self.name
 
     def get(self, key):
         if key == 'id':

@@ -46,7 +46,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
         if hasattr(search, "name"):
             # Shortcut because we know name is the folder name. We don't have to search in metadata.json
             name = search.pop("name")
-            search['folder'] = re.escape(name)
+            search[self.FOLDER_SEARCH] = re.escape(name)
         return super().list(search, offset, size)
 
     def _get_by_dir(self, directory):

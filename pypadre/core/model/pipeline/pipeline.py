@@ -5,7 +5,7 @@ from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.metrics.metric_registry import metric_registry
 from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap
-from pypadre.core.model.code.codemixin import CodeMixin
+from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.model.computation.run import Run
@@ -15,7 +15,7 @@ from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.pipeline.components.component_mixins import EstimatorComponentMixin, EvaluatorComponentMixin, \
     PipelineComponentMixin, \
     ParameterizedPipelineComponentMixin
-from pypadre.core.model.pipeline.components.components import SplitComponent, PipelineComponent
+from pypadre.core.model.pipeline.components.components import SplitComponent, PipelineComponent, DefaultSplitComponent
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterMap
 from pypadre.core.validation.validation import ValidateableMixin
 
@@ -27,7 +27,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
 
     def hash(self):
         # TODO this has may have to include if the pipeline structure was changed etc
-        return hash(",".join([str(pc.hash()) for pc in self.nodes]))
+        return hash(",".join([str(pc.id_hash()) for pc in self.nodes]))
 
     def get_component(self, id):
         # TODO make this defensive
@@ -167,7 +167,7 @@ class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
     def __init__(self, *, preprocessing_fn: Optional[Union[CodeMixin, Callable]] = None,
-                 splitting: Optional[Union[Type[CodeMixin], Callable]],
+                 splitting: Optional[Union[Type[CodeMixin], Callable]]=None,
                  estimator: Union[Callable, EstimatorComponentMixin],
                  evaluator: Union[Callable, EvaluatorComponentMixin], **attr):
         super().__init__(**attr)
@@ -178,7 +178,11 @@ class DefaultPythonExperimentPipeline(Pipeline):
         self._preprocessor = PipelineComponent(name="preprocessor", provides=["dataset"], code=preprocessing_fn,
                                                     **attr) if preprocessing_fn else None
 
-        self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
+        if splitting is None:
+            self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, **attr)
+        else:
+            self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
+
         self.add_node(self._splitter)
 
         self._estimator = estimator if isinstance(estimator, EstimatorComponentMixin) else EstimatorComponentMixin(

@@ -1,11 +1,11 @@
 import numpy as np
 
-from pypadre import _version, _name
-from pypadre.binding.model.sklearn_gridsearch import SKLearnGridSearch
+from pypadre.binding.model.sklearn_gridsearch import sklearn_grid_search
 from pypadre.binding.visitors.scikit import SciKitVisitor
 from pypadre.core.base import phases
 from pypadre.core.model.computation.training import Training
-from pypadre.core.model.pipeline.components.component_mixins import ProvidedComponentMixin, EstimatorComponentMixin, \
+from pypadre.core.model.generic.custom_code import ProvidedCodeHolderMixin
+from pypadre.core.model.pipeline.components.component_mixins import EstimatorComponentMixin, \
     ParameterizedPipelineComponentMixin
 from pypadre.core.util.utils import unpack
 
@@ -20,12 +20,12 @@ def is_sklearn_pipeline(pipeline):
     return type(pipeline).__name__ == 'Pipeline' and type(pipeline).__module__ == 'sklearn.pipeline'
 
 
-def estimate(ctx, **kwargs):
-    (component,) = unpack(ctx, "component")
-    return component.estimate(ctx, **kwargs)
+# def estimate(ctx, **kwargs):
+#     (component,) = unpack(ctx, "component")
+#     return component.estimate(ctx, **kwargs)
 
 
-class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, ParameterizedPipelineComponentMixin):
+class SKLearnEstimator(ProvidedCodeHolderMixin, EstimatorComponentMixin, ParameterizedPipelineComponentMixin):
     """
     This class encapsulates an sklearn workflow which allows to run sklearn pipelines or a list of sklearn components,
     report the results according to the outcome via the experiment logger.
@@ -43,15 +43,15 @@ class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, Paramete
         # TODO use default parameter provider if none is given
 
         if parameter_provider is None:
-            parameter_provider = SKLearnGridSearch()
+            parameter_provider = sklearn_grid_search
 
         if not pipeline or not is_sklearn_pipeline(pipeline):
             raise ValueError("SKLearnEstimator needs a delegate defined as sklearn.pipeline")
         self._pipeline = pipeline
 
-        super().__init__(package=__name__, fn_name="estimate",  requirement=_name.__name__, version=_version.__version__, name="SKLearnEstimator", parameter_provider=parameter_provider, **kwargs)
+        super().__init__(name="SKLearnEstimator", parameter_provider=parameter_provider, **kwargs)
 
-    def estimate(self, ctx, **kwargs):
+    def call(self, ctx, **kwargs):
         (split, component, run, initial_hyperparameters) = unpack(ctx, "data", "component", "run",
                                                                   "initial_hyperparameters")
 
@@ -83,7 +83,7 @@ class SKLearnEstimator(ProvidedComponentMixin, EstimatorComponentMixin, Paramete
         return Training(split=split, component=component, run=run, model=self._pipeline, parameters=kwargs,
                         initial_hyperparameters=initial_hyperparameters)
 
-    def hash(self):
+    def id_hash(self):
         # TODO hash should not change with training
         return self.pipeline.__hash__()
 

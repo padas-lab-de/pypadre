@@ -1,4 +1,3 @@
-
 """
 This is a minimal example of a PaDRE experiment.
 """
@@ -12,7 +11,7 @@ app = example_app()
 
 
 @app.dataset(name="iris", columns=['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)',
-                                                'petal width (cm)', 'class'], target_features='class')
+                                   'petal width (cm)', 'class'], target_features='class')
 def dataset():
     data = load_iris().data
     target = load_iris().target.reshape(-1, 1)
@@ -25,7 +24,8 @@ def parameters():
     return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [0.5]}}}}
 
 
-@app.workflow(dataset=dataset, parameters=parameters, experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
+@app.workflow(dataset=dataset, reference_package=__name__, parameters=parameters, experiment_name="Iris SVC",
+              project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC

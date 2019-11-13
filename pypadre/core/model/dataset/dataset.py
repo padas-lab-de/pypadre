@@ -17,7 +17,7 @@ from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
 from pypadre.core.validation.json_validation import make_model
@@ -215,6 +215,10 @@ class Dataset(StoreableMixin, MetadataMixin):
         else:
             return self.__dict__.get(key, None)
     '''
+
+    def id_hash(self):
+        # TODO create a hash of the dataset
+        return self.name
 
     # def profile(self, bins=50, check_correlation=True, correlation_threshold=0.8,
     #             correlation_overrides=None, check_recoded=False):

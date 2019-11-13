@@ -7,7 +7,7 @@ from padre.PaDREOntology import PaDREOntology
 from pypadre import _name, _version
 from pypadre.core.metrics.metric_registry import metric_registry
 from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
-from pypadre.core.model.generic.custom_code import ProvidedCodeMixin
+from pypadre.core.model.code.code_mixin import PipIdentifier, PythonPackage
 from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin
 from pypadre.core.util.utils import unpack
 
@@ -82,11 +82,12 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
     return Metric(name=CONFUSION_MATRIX, computation=computation, result=copy.deepcopy(confusion_matrix.tolist()))
 
 
-class ConfusionMatrix(ProvidedCodeMixin, MetricProviderMixin):
+class ConfusionMatrix(MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(package=__name__, fn_name="matrix", requirement=_name.__name__,
-                         version=_version.__version__, **kwargs)
+        super().__init__(code=PythonPackage(package=__name__, variable="matrix",
+                                            identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                     version=_version.__version__)), **kwargs)
 
     @property
     def consumes(self) -> str:
@@ -95,7 +96,6 @@ class ConfusionMatrix(ProvidedCodeMixin, MetricProviderMixin):
 
 
 def regression(ctx, **kwargs) -> Optional[List[Metric]]:
-
     (computation,) = unpack(ctx, "computation")
 
     predictions = computation.result[EvaluatorComponentMixin.PREDICTIONS]
@@ -135,11 +135,12 @@ def regression(ctx, **kwargs) -> Optional[List[Metric]]:
     return Metric(name=REGRESSION_METRICS, computation=computation, result=deepcopy(regression_metrics))
 
 
-class RegressionMetrics(ProvidedCodeMixin, MetricProviderMixin):
+class RegressionMetrics(MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(package=__name__, fn_name="regression", requirement=_name.__name__,
-                         version=_version.__version__, **kwargs)
+        super().__init__(code=PythonPackage(package=__name__, variable="regression",
+                                            identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                     version=_version.__version__)), **kwargs)
 
     @property
     def consumes(self) -> str:
@@ -204,15 +205,30 @@ def classification(ctx, option='macro', **kwargs):
     return Metric(name=CLASSIFICATION_METRICS, computation=computation, result=deepcopy(classification_metrics))
 
 
-class ClassificationMetrics(ProvidedCodeMixin, MetricProviderMixin):
+class ClassificationMetrics(MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(package=__name__, fn_name="classification", requirement=_name.__name__,
-                         version=_version.__version__, **kwargs)
+        super().__init__(code=PythonPackage(package=__name__, variable="classification",
+                                            identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                     version=_version.__version__)), **kwargs)
 
     @property
     def consumes(self) -> str:
         return str(ConfusionMatrix)
 
 
-metric_registry.add_providers(ConfusionMatrix(), RegressionMetrics(), ClassificationMetrics())
+confusion_matrix_ref = PythonPackage(package=__name__, variable="confusion_matrix",
+                                     identifier=PipIdentifier(pip_package=_name.__name__,
+                                                              version=_version.__version__))
+regression_metrics_ref = PythonPackage(package=__name__, variable="regression_metrics",
+                                       identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                version=_version.__version__))
+classification_metrics_ref = PythonPackage(package=__name__, variable="classification_metrics",
+                                           identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                    version=_version.__version__))
+
+confusion_matrix = ConfusionMatrix(reference=confusion_matrix_ref)
+regression_metrics = RegressionMetrics(reference=regression_metrics_ref)
+classification_metrics = ClassificationMetrics(reference=classification_metrics_ref)
+
+metric_registry.add_providers(confusion_matrix, classification_metrics, regression_metrics)

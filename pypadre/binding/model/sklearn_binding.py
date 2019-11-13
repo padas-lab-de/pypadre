@@ -6,7 +6,7 @@ from sklearn.pipeline import Pipeline
 from pypadre.binding.model.sklearn_estimator import SKLearnEstimator
 from pypadre.binding.model.sklearn_evaluator import SKLearnEvaluator
 from pypadre.binding.visitors.scikit import SciKitVisitor
-from pypadre.core.model.code.codemixin import CodeMixin
+from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.pipeline import pipeline
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 
@@ -31,8 +31,8 @@ class SKLearnPipeline(DefaultPythonExperimentPipeline):
         assert(pipeline is not pipeline_fn())
 
         # TODO provider for a specific node
-        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, parameter_provider=parameter_provider)
-        sk_learn_evaluator = SKLearnEvaluator()
+        sk_learn_estimator = SKLearnEstimator(pipeline=pipeline, parameter_provider=parameter_provider, reference=kwargs.get("reference"))
+        sk_learn_evaluator = SKLearnEvaluator(reference=kwargs.get("reference"))
         super().__init__(splitting=splitting, estimator=sk_learn_estimator, evaluator=sk_learn_evaluator, **kwargs)
 
 

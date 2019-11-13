@@ -5,6 +5,7 @@ from abc import abstractmethod, ABCMeta
 from logging import warning
 
 from pypadre.core.base import ChildMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.exceptions import ObjectAlreadyExists
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable, IRepository
@@ -38,6 +39,8 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
     structure"""
     __metaclass__ = ABCMeta
 
+    FOLDER_SEARCH = "__FOLDER"
+
     @abstractmethod
     def __init__(self, *, root_dir: str, backend: IPadreBackend, **kwargs):
         self.root_dir = root_dir
@@ -54,6 +57,9 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
             return None
         return self.get_by_dir(directory)
 
+    def get_by_hash(self, hash):
+        return next(iter(self.list({StoreableMixin.HASH: hash})), None)
+
     def exists_object(self, obj):
         return self.get_by_dir(self.to_directory(obj)) is not None
 
@@ -65,9 +71,10 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         :param search: search object. You can pass key value pairs to search for.
         """
         folder = ""
-        if search is not None and 'folder' in search:
-            folder = search.get('folder')
+        if search is not None and self.FOLDER_SEARCH in search:
+            folder = search.get(self.FOLDER_SEARCH)
         dirs = self.find_dirs(folder)
+        # TODO look into metadata file without loading the object to increase performance and filter sooner
         # TODO add offset und size
         return self.filter([self.get_by_dir(d) for d in dirs], search)
 

@@ -1,14 +1,15 @@
-from pypadre.core.base import MetadataMixin, ChildMixin
+from pypadre.core.base import ChildMixin
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin, ProgressableMixin
+from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.validation.json_validation import make_model
 
 execution_model = make_model(schema_resource_name='execution.json')
 
 
-class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin, Tablefyable):
+class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, ChildMixin, Tablefyable):
     """
     A execution should save data about the running env and the version of the code on which it was run .
     An execution is linked to the version of the code being executed. The execution directory is the hash of the commit
@@ -41,6 +42,9 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         run = Run(execution=self)
         self._runs.append(run)
         return run.execute(data=self.dataset, execution=self, **kwargs)
+
+    def id_hash(self):
+        return self.hash
 
     @property
     def hash(self):

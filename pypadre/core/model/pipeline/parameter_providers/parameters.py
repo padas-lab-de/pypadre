@@ -1,6 +1,9 @@
-from pypadre.core.model.code.codemixin import Function
+from abc import abstractmethod
+from typing import Type
+
+from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.computation.hyper_parameter_search import HyperParameterGrid
-from pypadre.core.model.generic.custom_code import CustomCodeHolder
+from pypadre.core.model.generic.custom_code import CustomCodeHolder, CodeManagedMixin
 from pypadre.core.util.inheritance import SuperStop
 
 
@@ -35,7 +38,12 @@ class ParameterMap:
         return list(self.map.keys())
 
 
-class ParameterProviderMixin(CustomCodeHolder, SuperStop):
+class ParameterProviderMixin(CodeManagedMixin, CustomCodeHolder, SuperStop):
+
+    @abstractmethod
+    def __init__(self, *args, reference: Type[CodeMixin] = None, **kwargs):
+        super().__init__(*args, reference=reference, **kwargs)
+
     def _execute_helper(self, *args, run, component, predecessor=None, parameter_map, **kwargs):
         """
            # We need to either create multiple components
@@ -68,7 +76,7 @@ class ParameterProviderMixin(CustomCodeHolder, SuperStop):
 
         # The params_list contains the names of the hyperparameters in the grid
         grid, params_list = super()._execute_helper(run=run, component=component, predecessor=predecessor,
-                                              parameter_map=parameter_map, parameters=hyperparameters)
+                                                    parameter_map=parameter_map, parameters=hyperparameters)
 
         return HyperParameterGrid(component=component, run=run,
                                   parameters={},
@@ -76,7 +84,11 @@ class ParameterProviderMixin(CustomCodeHolder, SuperStop):
                                   predecessor=predecessor, branch=True)
 
 
-class FunctionParameterProvider(ParameterProviderMixin):
+class ParameterProvider(ParameterProviderMixin):
+    """
+    Generic parameter provider.
+    """
 
-    def __init__(self, *args, fn, **kwargs):
-        super().__init__(*args, code=Function(fn=fn), **kwargs)
+    def __init__(self, name="custom_provider", code=None, **kwargs):
+        # TODO wrap in something better than function and get variables
+        super().__init__(name=name, code=code, **kwargs)

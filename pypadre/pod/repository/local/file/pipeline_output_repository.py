@@ -28,8 +28,14 @@ class PipelineOutputFileRepository(IChildFileRepository, ILogFileRepository, IPi
         metric = self.get_file(directory, METRIC_FILE)
         result = self.get_file(directory, RESULT_FILE)
 
+        run = self.backend.run.get(metadata.get(PipelineOutput.RUN_ID))
+
+        splits = set()
+        for split_id in metadata.get(PipelineOutput.SPLIT_IDS, []):
+            splits.add(self.backend.computation.get(split_id))
+
         # TODO PipelineOutput
-        return PipelineOutput(parameter_selection=parameter, metrics=metric, results=result)
+        return PipelineOutput(run=run, parameter_selection=parameter, metrics=metric, splits=splits, results=result, metadata=metadata)
 
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         self.write_file(directory, META_FILE, obj.metadata)

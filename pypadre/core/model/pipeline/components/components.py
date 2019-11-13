@@ -1,40 +1,20 @@
 from typing import Callable, List, Optional
 
-from pypadre.core.model.code.codemixin import Function
+from pypadre.core.model.code.code_mixin import Function, GitIdentifier
+from pypadre.core.model.generic.custom_code import ProvidedCodeHolderMixin
 from pypadre.core.model.pipeline.components.component_mixins import SplitComponentMixin, PipelineComponentMixin
 from pypadre.core.model.split.split import Split
-from pypadre.core.model.split.splitter import Splitter
+from pypadre.core.model.split.splitter import default_split
 from pypadre.core.util.utils import unpack
 
 
-class CustomSplit(Function):
-
-    def __init__(self, *, fn: Callable):
-        def custom_split(ctx, **kwargs):
-
-            def splitting_iterator():
-                num = -1
-                train_idx, test_idx, val_idx = fn(ctx, **kwargs)
-                (data, run, component, predecessor) = unpack(ctx, "data", "run", "component", ("predecessor", None))
-                yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
-                            val_idx=val_idx, component=component, predecessor=predecessor)
-            return splitting_iterator()
-        super().__init__(fn=custom_split)
-
-
-class SplitComponent(SplitComponentMixin):
-
-    def __init__(self, name="default_splitter", code=None, **kwargs):
-        if code is None:
-            code = Splitter()
-        if code is Callable:
-            code = Function(fn=code)
-        super().__init__(name=name, code=code, **kwargs)
-
-
 class PipelineComponent(PipelineComponentMixin):
+    """
+    Generic pipeline component taking a consumes and provides definition.
+    """
 
-    def __init__(self, *, name: str, consumes: str=None, provides: List[str], metadata: Optional[dict] = None, **kwargs):
+    def __init__(self, *, name: str, consumes: str = None, provides: List[str], metadata: Optional[dict] = None,
+                 **kwargs):
         super().__init__(name=name, metadata=metadata, **kwargs)
         self._consumes = consumes
         self._provides = provides
@@ -46,3 +26,45 @@ class PipelineComponent(PipelineComponentMixin):
     @property
     def provides(self) -> List[str]:
         return self._provides
+
+
+class SplitComponent(SplitComponentMixin):
+    """
+    Split component holding a custom split definition.
+    """
+
+    def __init__(self, name="splitter", code=None, **kwargs):
+        # TODO wrap in something better than function
+        if code is Callable:
+            code = Function(fn=code, identifier=GitIdentifier())
+        super().__init__(name=name, code=code, **kwargs)
+
+
+class DefaultSplitComponent(ProvidedCodeHolderMixin, SplitComponent):
+
+    def __init__(self, **kwargs):
+        super().__init__(name="default_split", **kwargs)
+
+    def call(self, ctx, **kwargs):
+        return default_split.call(parameters=kwargs, **ctx)
+
+
+# default_parameter_provider_ref = PythonPackage(package=__name__, variable="default_split_component",
+#                                                identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
+# default_split_component = SplitComponent(name="default_split", reference=default_parameter_provider_ref,
+#                                          code=default_split)
+
+
+def custom_splitting_wrapper(fn: Callable):
+    """
+     Custom split wrapper to give a template for users.
+    """
+
+    def custom_split(ctx, **kwargs):
+        num = -1
+        train_idx, test_idx, val_idx = fn(ctx, **kwargs)
+        (data, run, component, predecessor) = unpack(ctx, "data", "run", "component", ("predecessor", None))
+        yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
+                    val_idx=val_idx, component=component, predecessor=predecessor)
+
+    return custom_split

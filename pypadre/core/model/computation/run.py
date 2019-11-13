@@ -1,6 +1,6 @@
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
-from pypadre.core.model.generic.i_model_mixins import StoreableMixin
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.validation.json_validation import make_model
 
