@@ -107,9 +107,8 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                                    initial_hyperparameters=initial_hyperparameters,
                                    **kwargs)
 
-        self.send_info(message="Following metrics would be available for " +
-                              str(computation)
-                              + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
+        self.send_info(message="Following metrics would be available for " + str(computation)
+                               + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
 
         # calculate measures
         if allow_metrics:
@@ -168,7 +167,7 @@ class DefaultPythonExperimentPipeline(Pipeline):
 
     # TODO add source entity instead of callable (if only callable is given how to persist?)
     def __init__(self, *, preprocessing_fn: Optional[Union[CodeMixin, Callable]] = None,
-                 splitting: Optional[Union[Type[CodeMixin], Callable]]=None,
+                 splitting: Optional[Union[Type[CodeMixin], Callable]] = None,
                  estimator: Union[Callable, EstimatorComponentMixin],
                  evaluator: Union[Callable, EvaluatorComponentMixin], **attr):
         super().__init__(**attr)
@@ -177,7 +176,7 @@ class DefaultPythonExperimentPipeline(Pipeline):
             raise NotImplementedError("Preinitializing a pipeline is not implemented.")
 
         self._preprocessor = PipelineComponent(name="preprocessor", provides=["dataset"], code=preprocessing_fn,
-                                                    **attr) if preprocessing_fn else None
+                                               **attr) if preprocessing_fn else None
 
         if splitting is None:
             self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, reference=attr.get("reference"))
