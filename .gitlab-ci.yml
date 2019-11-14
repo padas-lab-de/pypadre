@@ -18,7 +18,7 @@ before_script:
   - pip install twine
   - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install || true # Enforce the order of the installation
   - git config --global user.email "padre@uni-passau.de"
-  - git config --global user.name "padre test runner"
+  - git config --global user.name "padre"
 
 build:
   image: python:3.7.4-stretch
