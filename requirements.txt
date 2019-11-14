@@ -35,4 +35,4 @@ owlready2==0.21
 dill==0.3.1.1
 python-gitlab==1.10.0
 pyhash==0.9.3
-pypadre-ontology==0.2.58 --extra-index-url https://pypi.padim.fim.uni-passau.de/simple
+pypadre-ontology>=0.3.1 --extra-index-url https://pypi.padim.fim.uni-passau.de/simple
