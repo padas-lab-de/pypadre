@@ -1,7 +1,7 @@
 import os
 import platform
 
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
 
 GIT_ATTRIBUTES = '.gitattributes.'
 DEFAULT_GIT_MSG = 'Added file to git'
@@ -265,7 +265,10 @@ def get_repo(path=None, url=None, **kwargs):
 
     elif url is None and path is not None:
         # Open the local generic
-        return Repo(path)
+        try:
+            return Repo(path)
+        except InvalidGitRepositoryError:
+            return create_repo(path=path)
     else:
         return None
 

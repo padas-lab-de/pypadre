@@ -1,7 +1,7 @@
 import numpy as np
 
-from pypadre import _version, _name
-from pypadre.core.model.code.code_mixin import PipIdentifier, Function
+from pypadre._package import PACKAGE_ID
+from pypadre.core.model.code.code_mixin import Function
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.split.split import Split
 from pypadre.core.util.utils import unpack
@@ -53,6 +53,9 @@ def split(ctx, strategy="random", test_ratio=0.25, random_seed=None, val_ratio=0
     #     if stratified and dataset.targets() is None:
     #         stratified = False
 
+    if random_seed is None:
+        from pypadre.core.util.random import padre_seed
+        random_seed = padre_seed
     r = np.random.RandomState(random_seed)
     idx = np.arange(n)
 
@@ -127,4 +130,4 @@ def split(ctx, strategy="random", test_ratio=0.25, random_seed=None, val_ratio=0
 
 
 default_split = Function(fn=split, transient=True,
-                         identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
+                         identifier=PACKAGE_ID)

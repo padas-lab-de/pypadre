@@ -6,7 +6,7 @@ from sklearn.datasets import load_iris
 from sklearn.decomposition import PCA
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.pod.app.padre_app import example_app
+from pypadre.examples.base_example import example_app
 
 app = example_app()
 
@@ -50,8 +50,8 @@ def provider(ctx, **parameters: dict):
     return grid, params_list
 
 
-@app.workflow(dataset=dataset, reference_package=__name__, parameters=parameters, parameter_provider=provider,
-              experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
+@app.experiment(dataset=dataset, reference_package=__name__, parameters=parameters, parameter_provider=provider,
+                experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC

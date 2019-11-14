@@ -1,4 +1,5 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
+import random
 from typing import Callable, Union, Optional, Type
 
 from pypadre.core.base import ChildMixin, MetadataMixin
@@ -14,6 +15,7 @@ from pypadre.core.model.project import Project
 ####################################################################################################################
 #  Module Private Functions and Classes
 ####################################################################################################################
+from pypadre.core.util.random import set_seeds
 from pypadre.core.validation.json_validation import make_model
 
 experiment_model = make_model(schema_resource_name='experiment.json')
@@ -79,14 +81,17 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
 
     PROJECT_ID = "project_id"
     DATASET_ID = "dataset_id"
+    SEED = "seed"
     NAME = "name"
     DESCRIPTION = "description"
     # variable to store the path of the source code which is used to run the experiment
     CODE_PATH = 'code_path'
 
     # TODO non-metadata input should be a parameter
-    def __init__(self, *, name="Default experiment", description="Default experiment description", project: Project = None, dataset: Dataset = None,
+    def __init__(self, *, name="Default experiment", description="Default experiment description",
+                 project: Project = None, dataset: Dataset = None,
                  reference: Optional[Union[Type[CodeMixin], Callable]] = None, pipeline: Pipeline,
+                 seed=None,
                  **kwargs):
         # Add defaults
         defaults = {}
@@ -98,6 +103,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
             "id": name,
             self.PROJECT_ID: project.id if project else None,
             self.DATASET_ID: dataset.id if dataset else None,
+            self.SEED: seed if seed else random.randint(1, int(1e9)),
             self.NAME: name,
             self.DESCRIPTION: description
         }}
@@ -125,7 +131,13 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
     def executions(self):
         return self._executions
 
+    @property
+    def seed(self):
+        return self.metadata[self.SEED]
+
     def _execute_helper(self, *args, **kwargs):
+
+        set_seeds(self.seed)
 
         if self.pipeline is None:
             raise ValueError("Pipeline has to be defined to run an experiment")

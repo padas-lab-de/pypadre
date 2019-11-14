@@ -4,8 +4,11 @@ import shutil
 from abc import abstractmethod, ABCMeta
 from logging import warning
 
+from cachetools import LRUCache, cached
+
 from pypadre.core.base import ChildMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
+from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.exceptions import ObjectAlreadyExists
 from pypadre.pod.repository.generic.i_repository_mixins import IStoreableRepository, ISearchable, IRepository
@@ -44,6 +47,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
     @abstractmethod
     def __init__(self, *, root_dir: str, backend: IPadreBackend, **kwargs):
         self.root_dir = root_dir
+        self._cache = LRUCache(maxsize=16)
         super().__init__(backend=backend, **kwargs)
 
     def get(self, uid):
@@ -52,10 +56,15 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         :param uid: uid to search for
         :return:
         """
-        directory = self.find_dir_by_id(uid)
-        if directory is None:
-            return None
-        return self.get_by_dir(directory)
+
+        # noinspection PyShadowingNames
+        @cached(self._cache)
+        def cached_get(uid):
+            directory = self.find_dir_by_id(uid)
+            if directory is None:
+                return None
+            return self.get_by_dir(directory)
+        return cached_get(uid=uid)
 
     def get_by_hash(self, hash):
         return next(iter(self.list({StoreableMixin.HASH: hash})), None)
@@ -92,6 +101,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         :param obj: Object to delete
         :return:
         """
+        remove_cached(self._cache, obj.id)
         self.delete_dir(self.to_directory(obj))
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
@@ -116,6 +126,8 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
                                           "Set allow_overwrite to True.".format(object=str(obj), path=directory))
             shutil.rmtree(directory)
         os.makedirs(directory)
+
+        remove_cached(self._cache, obj.id)
 
         # Put data of the object
         self._put(obj, *args, directory=directory, merge=merge, **kwargs)

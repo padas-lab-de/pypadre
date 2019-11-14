@@ -9,7 +9,7 @@ from pypadre.core.base import MetadataMixin
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.util.utils import _Const, persistent_hash
-from pypadre.pod.util.git_util import get_repo
+from pypadre.pod.util.git_util import get_repo, add_and_commit
 
 
 class CodeIdentifier:
@@ -108,11 +108,20 @@ class GitIdentifier(CodeIdentifier):
                     # Todo check git repo state
                     raise ValueError("Git repository has uncommitted changes please commit.")
                 if _repo is not None:
-                    self._git_hash = _repo.head.object.hexsha
+                    try:
+                        self._git_hash = _repo.head.object.hexsha
+                    except ValueError as e:
+                        add_and_commit(path, message="Initialized repository for you :-)")
+                        self._git_hash = _repo.head.object.hexsha
+
                 else:
                     raise EnvironmentError("Couldn't extract hash of repo because repo couldn't be found.")
 
         super().__init__(type=self._RepositoryType.git)
+
+    @property
+    def path(self):
+        return self._path
 
     def name(self):
         return self._path + ":" + self._git_hash
@@ -241,7 +250,7 @@ class PythonFile(CodeMixin):
     PACKAGE = "package"
     PATH = "path"
 
-    def __init__(self, *, git_path, package, variable, identifier: CodeIdentifier, **kwargs):
+    def __init__(self, *, path, package, variable, identifier: CodeIdentifier, **kwargs):
         """
         Call of a python file.
         :param identifier: This is the reference to the related git or pip repository
@@ -251,9 +260,17 @@ class PythonFile(CodeMixin):
         :param kwargs:
         """
 
+        # if isinstance(identifier, GitIdentifier):
+        #     path = path[identifier.path+1:]
+        # elif isinstance(identifier, PipIdentifier):
+        #     # TODO get path from install location of pip
+        #     pass
+
+        # full_path = path[identifier.path+1:]
+
         self._variable = variable
         self._package = package
-        self._path = git_path
+        self._path = path
         metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, self.PATH: self._path,
                        "id": persistent_hash((self._variable, self._package, self._path, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
