@@ -31,7 +31,7 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
 
         self.write_file(directory, META_FILE, dataset.metadata)
         self.write_file(directory, DATA_FILE, dataset.data(), 'wb')
-        add_git_lfs_attribute_file(directory, "*.bin")
+        add_git_lfs_attribute_file(directory, "*.bin", message="Adding the metadata and the binary dump of the dataset")
 
     def _get_by_dir(self, directory):
         if len(directory) == 0:
@@ -60,7 +60,7 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
         return dataset.name
 
     def list(self, search, offset=0, size=100):
-        if hasattr(search, "name"):
+        if "name" in search:
             # Shortcut because we know name is the folder name. We don't have to search in metadata.json
             name = search.pop("name")
             search[self.FOLDER_SEARCH] = re.escape(name)

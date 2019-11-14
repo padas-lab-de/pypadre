@@ -5,11 +5,13 @@ import unittest
 import gitlab
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.codemixin import Function
+from pypadre.core.model.code.code_mixin import Function, GitIdentifier, PythonFile
+
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 from pypadre.pod.tests.util.util import connect_log_to_stdout, connect_event_to_stdout, create_sklearn_test_pipeline
+
 
 # config_path = os.path.join(os.path.expanduser("~"), ".padre_git_test.cfg")
 # workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
@@ -30,13 +32,13 @@ class PadreGitTest(unittest.TestCase):
 
         config = PadreConfig(config_file=cls.config_path)
         config.set("backends", str([
-                    {
-                        "root_dir": cls.workspace_path,
-                        "gitlab_url": 'http://gitlab.padre.backend:30080/',
-                        "user" : "root",
-                        "token" : "LvVzAaNyFyS6iiJNzTFf"
-                    }
-                ]))
+            {
+                "root_dir": cls.workspace_path,
+                "gitlab_url": 'http://gitlab.padre.backend:30080/',
+                "user": "root",
+                "token": "LvVzAaNyFyS6iiJNzTFf"
+            }
+        ]))
         cls.app = PadreAppFactory.get(config)
         connect_log_to_stdout()
         connect_event_to_stdout()
@@ -64,11 +66,11 @@ class PadreGitTest(unittest.TestCase):
         # delete local data content
         try:
             if os.path.exists(os.path.join(self.workspace_path, "datasets")):
-                shutil.rmtree(self.workspace_path+"/datasets")
+                shutil.rmtree(self.workspace_path + "/datasets")
             if os.path.exists(os.path.join(self.workspace_path, "projects")):
-                shutil.rmtree(self.workspace_path+"/projects")
+                shutil.rmtree(self.workspace_path + "/projects")
             if os.path.exists(os.path.join(self.workspace_path, "code")):
-                shutil.rmtree(self.workspace_path+"/code")
+                shutil.rmtree(self.workspace_path + "/code")
         except FileNotFoundError:
             pass
 
@@ -87,7 +89,7 @@ class GitlabBackend(PadreGitTest):
 
         super().tearDown()
 
-        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/',private_token="LvVzAaNyFyS6iiJNzTFf")
+        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/', private_token="LvVzAaNyFyS6iiJNzTFf")
 
         projects = server.projects.list()
 
@@ -278,13 +280,13 @@ class GitlabBackend(PadreGitTest):
                                           single_transformation=True)
 
         run = self.create_run(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
-        train_range = list(range(1, 1000+1))
+        train_range = list(range(1, 1000 + 1))
         test_range = list(range(1000, 1100 + 1))
         split = self.create_split(run=run, num=0, train_idx=train_range, val_idx=None,
-                                  test_idx= test_range, keep_splits=True)
-        assert(isinstance(split, Split))
-        assert(split.test_idx==test_range)
-        assert(split.train_idx==train_range)
+                                  test_idx=test_range, keep_splits=True)
+        assert (isinstance(split, Split))
+        assert (split.test_idx == test_range)
+        assert (split.train_idx == train_range)
         self.app.splits.put(split)
         # FIXME Christofer put asserts here
 
@@ -315,13 +317,13 @@ class GitlabBackend(PadreGitTest):
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
                                 creator=self.test_full_stack)
         experiment.execute()
-        assert(experiment.executions is not None)
+        assert (experiment.executions is not None)
         computations = self.app.computations.list()
-        assert(isinstance(computations, list))
-        assert(len(computations) > 0)
+        assert (isinstance(computations, list))
+        assert (len(computations) > 0)
         experiments = self.app.experiments.list()
-        assert(isinstance(experiments, list))
-        assert(len(experiments)>0)
+        assert (isinstance(experiments, list))
+        assert (len(experiments) > 0)
 
     def test_all_functionalities_classification(self):
 
@@ -364,10 +366,11 @@ class GitlabBackend(PadreGitTest):
                                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
-        files_found = find('initial_hyperparameters.json', os.path.expanduser('~/.pypadre-git-test/projects/Test Project 2/'
-                                                             'experiments/Test Experiment/executions'))
+        files_found = find('initial_hyperparameters.json',
+                           os.path.expanduser('~/.pypadre-git-test/projects/Test Project 2/'
+                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
         files_found = find('parameters.json', os.path.expanduser('~/.pypadre-git-test/projects/Test Project 2/'
-                                                                         'experiments/Test Experiment/executions'))
+                                                                 'experiments/Test Experiment/executions'))
         assert (files_found is not None)

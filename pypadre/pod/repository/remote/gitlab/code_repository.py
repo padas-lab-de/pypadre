@@ -3,15 +3,17 @@ import glob
 import os
 import re
 import shutil
+import tempfile
 
 from pypadre.core.model.code.code_mixin import CodeMixin, PythonPackage, PythonFile, GenericCall, \
     GitIdentifier, CodeIdentifier, PipIdentifier, Function
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
+from pypadre.pod.repository.local.file.code_repository import CodeFileRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
-from pypadre.pod.util.git_util import git_hash, create_repo, add_and_commit
+from pypadre.pod.util.git_util import git_hash, create_repo, add_and_commit, get_repo
 
 
 def copy(src, dest):
@@ -30,6 +32,7 @@ NAME = "code"
 META_FILE = File("metadata.json", JSonSerializer)
 CODE_FILE = File("code.bin", DillSerializer)
 
+
 # TODO rework!
 
 class CodeGitlabRepository(GitLabRepository, ICodeRepository):
@@ -41,86 +44,29 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
     def __init__(self, backend: IPadreBackend):
         super().__init__(root_dir=os.path.join(backend.root_dir, NAME), gitlab_url=backend.url, token=backend.token
                          , backend=backend)
+        self._file_backend = CodeFileRepository(backend=backend)
         self._group = self.get_group(name=NAME)
 
     def _get_by_dir(self, directory):
-        path = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir), directory))[0]
+        return self._file_backend._get_by_dir(directory)
 
-        metadata = self.get_file(path, META_FILE)
-
-        identifier_type = metadata.get(CodeMixin.REPOSITORY_TYPE)
-        identifier_data = metadata.get(CodeMixin.IDENTIFIER)
-
-        identifier = None
-        if identifier_type == CodeIdentifier._RepositoryType.pip:
-            version = identifier_data.get(PipIdentifier.VERSION)
-            pip_package = identifier_data.get(PipIdentifier.PIP_PACKAGE)
-            identifier = PipIdentifier(version=version, pip_package=pip_package)
-
-        if identifier_type == CodeIdentifier._RepositoryType.git:
-            path = identifier_data.get(GitIdentifier.PATH)
-            git_hash = identifier_data.get(GitIdentifier.GIT_HASH)
-            identifier = GitIdentifier(path=path, git_hash=git_hash)
-
-        if identifier is None:
-            raise ValueError(
-                "Identifier is not present in the meta information of code object in directory " + directory)
-
-        if metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.function):
-            fn_dir = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir),
-                                            os.path.abspath(os.path.join(directory, '..', 'function'))))[0]
-            fn = self.get_file(fn_dir, CODE_FILE)
-            code = Function(fn=fn, metadata=metadata, identifier=identifier)
-
-        elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.package):
-            code = PythonPackage(metadata=metadata, package=metadata.get(PythonPackage.PACKAGE),
-                                 variable=metadata.get(PythonPackage.VARIABLE), identifier=identifier)
-
-        elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.python_file):
-            code = PythonFile(metadata=metadata, path=metadata.get(PythonFile.PATH),
-                              package=metadata.get(PythonFile.PACKAGE), variable=metadata.get(PythonFile.VARIABLE),
-                              identifier=identifier)
-
-        elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.file):
-            code = GenericCall(metadata=metadata, cmd=metadata.get(GenericCall.CMD), identifier=identifier)
-        else:
-            raise NotImplementedError(metadata.get(CodeMixin.CODE_TYPE) + " couldn't load from type.")
-
-        return code
-
-    def _get_by_repo(self,repo,path=''):
-        # TODO rework!
-        # metadata = self.get_file(repo, META_FILE)
-        # if metadata.get(CodeMixin.CODE_CLASS) == str(Function):
-        #     fn = self.get_file(repo, CODE_FILE)
-        #     code = Function(fn=fn, metadata=metadata)
-        #
-        # elif metadata.get(CodeMixin.CODE_CLASS) == str(CodeFile):
-        #     code = CodeFile(path=metadata.path, cmd=metadata.cmd, file=metadata.get("file", None))
-        #
-        # else:
-        #     raise NotImplementedError()
-        #
-        # return code
-        pass
+    def _get_by_repo(self, repo, path=''):
+        # TODO rework
+        with tempfile.mkdtemp() as temp_dir:
+            temp_local_repo = get_repo(path=temp_dir, url=self.url_oauth(self.get_repo_url(repo)))
+            metadata = self._file_backend.get_file(temp_dir, META_FILE)
+            return self._file_backend._create_object(metadata, directory=temp_dir)
 
     def to_folder_name(self, code):
         # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
         return code.name
 
-    def get_by_name(self, name):
-        """
-        Shortcut because we know name is the folder name. We don't have to search in metadata.json
-        :param name: Name of the dataset
-        :return:
-        """
-        return self.list({'folder': re.escape(name)})
-
-    def _put(self, obj, *args, directory: str, store_code=False, **kwargs):
-        #TODO rework!
-        code = obj
-        self.write_file(directory, META_FILE, code.metadata)
-        add_and_commit(directory,message="Adding the experiment's source code metadata to the code generic")
+    def _put(self, obj, *args, directory: str, **kwargs):
+        # TODO rework!
+        self._file_backend._put(obj, *args, directory, **kwargs)
+        add_and_commit(directory, message="Adding the experiment's source code metadata to the code generic")
+        if self.has_remote_backend(obj):
+            self.push_changes()
         # if store_code:
         #     if isinstance(code, Function):
         #         self.write_file(directory, CODE_FILE, code.fn, mode="wb")
@@ -136,19 +82,3 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
         #     add_and_commit(directory, message="Adding the serialized source code  to the code generic")
         # if self.remote is not None:
         #     self.push_changes()
-
-    def get_code_hash(self, obj=None, path=None, init_repo=False, **kwargs):
-        code_hash = git_hash(path=path)
-        if code_hash is None and init_repo is True:
-            # if there is no generic present in the path, but the user wants to create a repo then
-            # Create a repo
-            # Add any untracked files and commit those files
-            # Get the code_hash of the repo
-            # TODO give git an id and hold some reference in workspace???
-            dir_path = os.path.dirname(path)
-            create_repo(dir_path)
-            add_and_commit(dir_path)
-            code_hash = git_hash(path=dir_path)
-
-        if obj is not None:
-            obj.set_hash(code_hash)
