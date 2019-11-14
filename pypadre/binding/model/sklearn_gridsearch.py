@@ -1,5 +1,5 @@
 from pypadre import _version, _name
-from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier
+from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier, Function
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
 
 
@@ -29,7 +29,10 @@ def _create_combinations(ctx, **parameters: dict):
 
 
 # noinspection PyTypeChecker
+# Create a default pip identifier
 sklearn_grid_search = ParameterProvider(name="default_sklearn_provider",
-                                        code=PythonPackage(package=__name__, variable="_create_combinations",
+                                        reference=PythonPackage(package=__name__, variable="sklearn_grid_search",
                                                            identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                                    version=_version.__version__)),
+                                        code=Function(fn=_create_combinations, transient=True, identifier=PipIdentifier(pip_package=_name.__name__,
                                                                                     version=_version.__version__)))

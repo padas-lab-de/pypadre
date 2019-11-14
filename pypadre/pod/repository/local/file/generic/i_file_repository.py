@@ -111,8 +111,9 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         # Create or overwrite folder
         if os.path.exists(directory):
             if not allow_overwrite:
-                raise ObjectAlreadyExists("Object path for {} already exists.".format(str(obj)) +
-                                 " Overwriting not explicitly allowed. Set allow_overwrite=True.")
+                raise ObjectAlreadyExists("Object path for {object} already exists at path:{path}. "
+                                          "Overwriting is not explicitly allowed. "
+                                          "Set allow_overwrite to True.".format(object=str(obj), path=directory))
             shutil.rmtree(directory)
         os.makedirs(directory)
 

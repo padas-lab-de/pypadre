@@ -1,11 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from typing import Type
 
-from pypadre import _name, _version
 from pypadre.core.events.events import Signaler
-from pypadre.core.model.code.code_mixin import CodeMixin, PythonPackage, PipIdentifier
+from pypadre.core.model.code.code_mixin import CodeMixin, Function
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
-from pypadre.core.util.utils import unpack
 
 
 class CustomCodeHolder(ExecuteableMixin, Signaler):
@@ -63,8 +61,10 @@ class CodeManagedMixin:
     in a repository. """
     __metaclass__ = ABCMeta
 
+    DEFINED_IN = "defined_in"
+
     @abstractmethod
-    def __init__(self, *args, reference: Type[CodeMixin] = None, **kwargs):
+    def __init__(self, *args, reference: Type[CodeMixin], **kwargs):
         # if creator is None:
         #     file_path = os.path.realpath(sys.argv[0])
         #     creator = CodeFile(file_path=file_path)
@@ -72,7 +72,9 @@ class CodeManagedMixin:
 
         self._reference = reference
 
-        super().__init__(*args, **kwargs)
+        metadata = {**kwargs.pop("metadata", {}), **{self.DEFINED_IN: reference.id}}
+        super().__init__(*args, metadata=metadata, **kwargs)
+        self.reference.send_put()
 
     @property
     def reference(self):
@@ -109,19 +111,17 @@ class CodeManagedMixin:
     #     return None
 
 
-def component_self_call(ctx, **kwargs):
-    (component,) = unpack(ctx, "component")
-    return component.call(ctx, **kwargs)
+# def component_self_call(ctx, **kwargs):
+#     (component,) = unpack(ctx, "component")
+#     return component.call(ctx, **kwargs)
 
 
 class ProvidedCodeHolderMixin(CustomCodeHolder):
 
     @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, *, reference: CodeMixin, fn, **kwargs):
         # noinspection PyTypeChecker
-        super().__init__(code=PythonPackage(package=__name__, variable="component_self_call",
-                                            identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                     version=_version.__version__)), **kwargs)
+        super().__init__(code=Function(fn=fn, identifier=reference.identifier, transient=True), reference=reference, **kwargs)
 
     @abstractmethod
     def call(self, ctx, **kwargs):

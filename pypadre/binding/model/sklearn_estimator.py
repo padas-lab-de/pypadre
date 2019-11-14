@@ -49,7 +49,7 @@ class SKLearnEstimator(ProvidedCodeHolderMixin, EstimatorComponentMixin, Paramet
             raise ValueError("SKLearnEstimator needs a delegate defined as sklearn.pipeline")
         self._pipeline = pipeline
 
-        super().__init__(name="SKLearnEstimator", parameter_provider=parameter_provider, **kwargs)
+        super().__init__(name="SKLearnEstimator", fn=self.call, parameter_provider=parameter_provider, **kwargs)
 
     def call(self, ctx, **kwargs):
         (split, component, run, initial_hyperparameters) = unpack(ctx, "data", "component", "run",

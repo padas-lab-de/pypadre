@@ -1,5 +1,4 @@
 from pypadre.core.base import MetadataMixin
-from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
@@ -8,7 +7,7 @@ from pypadre.core.validation.json_validation import make_model
 project_model = make_model(schema_resource_name='project.json')
 
 
-class Project(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin):
+class Project(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, MetadataMixin):
     """ A project should group experiments """
 
     def __init__(self, name="Default project", description="Default project description", experiments=None, sub_projects=None, **kwargs):

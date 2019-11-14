@@ -3,6 +3,9 @@ import os
 import shutil
 import unittest
 
+from pypadre._package import PACKAGE_ID
+from pypadre.core.model.code.code_mixin import PythonPackage
+from pypadre.core.util.utils import find_package_structure
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
 from pypadre.pod.tests.util.util import connect_log_to_stdout, connect_event_to_stdout
@@ -53,15 +56,21 @@ class PadreAppTest(unittest.TestCase):
         # clean up if last teardown wasn't called correctly
         self.tearDown()
 
+    def setup_reference(self, file):
+        # TODO can we move that to setup in some way??? reference to (__file__)
+        self.test_reference = PythonPackage(package=find_package_structure(file),
+                                            variable=self._testMethodName, identifier=PACKAGE_ID)
+
     def tearDown(self):
+        self.test_reference = None
         # delete data content
         try:
             if os.path.exists(os.path.join(self.workspace_path, "datasets")):
-                shutil.rmtree(self.workspace_path+"/datasets")
+                shutil.rmtree(self.workspace_path + "/datasets")
             if os.path.exists(os.path.join(self.workspace_path, "projects")):
-                shutil.rmtree(self.workspace_path+"/projects")
+                shutil.rmtree(self.workspace_path + "/projects")
             if os.path.exists(os.path.join(self.workspace_path, "code")):
-                shutil.rmtree(self.workspace_path+"/code")
+                shutil.rmtree(self.workspace_path + "/code")
         except FileNotFoundError:
             pass
 

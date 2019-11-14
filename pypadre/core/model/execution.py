@@ -16,6 +16,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
     of the source code file.
     """
     EXPERIMENT_ID = "experiment_id"
+    EXPERIMENT_NAME = "experiment_name"
 
     _runs = []
     @classmethod
@@ -28,7 +29,8 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.EXPERIMENT_ID: experiment.id}}
+        metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.EXPERIMENT_ID: experiment.id,
+                                                                 self.EXPERIMENT_NAME: experiment.name}}
 
         if codehash is not None:
             metadata['hash'] = codehash

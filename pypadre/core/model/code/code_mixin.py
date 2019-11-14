@@ -241,11 +241,11 @@ class PythonFile(CodeMixin):
     PACKAGE = "package"
     PATH = "path"
 
-    def __init__(self, *, path, package, variable, identifier: CodeIdentifier, **kwargs):
+    def __init__(self, *, git_path, package, variable, identifier: CodeIdentifier, **kwargs):
         """
         Call of a python file.
         :param identifier: This is the reference to the related git or pip repository
-        :param path: This the path to the file or package name
+        :param git_path: This the path to the file or package name
         :param package: Name of the package
         :param variable: Variable name
         :param kwargs:
@@ -253,7 +253,7 @@ class PythonFile(CodeMixin):
 
         self._variable = variable
         self._package = package
-        self._path = path
+        self._path = git_path
         metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, self.PATH: self._path,
                        "id": persistent_hash((self._variable, self._package, self._path, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
@@ -304,7 +304,7 @@ class Function(CodeMixin):
     Simple function holder
     """
 
-    def __init__(self, *, fn: Callable, identifier: GitIdentifier, **kwargs):
+    def __init__(self, *, fn: Callable, identifier: CodeIdentifier, transient=False, **kwargs):
         """
         This is a simple function holder to be pickled in a repository. In general don't use it if you can use a file
         instead.
@@ -314,7 +314,8 @@ class Function(CodeMixin):
         :param kwargs:
         """
         self._fn = fn
-        metadata = {**{"id": persistent_hash((identifier.id_hash()))},
+        self._transient = transient
+        metadata = {**{"id": persistent_hash((fn.__name__, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
         super().__init__(identifier=identifier, type=self._CodeType.function, metadata=metadata, **kwargs)
 
@@ -327,3 +328,9 @@ class Function(CodeMixin):
 
     def _call(self, ctx, **kwargs):
         return self.fn(ctx, **kwargs)
+
+    def send_put(self, **kwargs):
+        if not self._transient:
+            super().send_put(**kwargs)
+        else:
+            super().send_info(message="Put called on transient function " + str(self))
