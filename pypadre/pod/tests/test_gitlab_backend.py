@@ -5,7 +5,7 @@ import unittest
 import gitlab
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.codemixin import Function
+#from pypadre.core.model.code.codemixin import Function
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
