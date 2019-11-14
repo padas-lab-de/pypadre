@@ -33,7 +33,7 @@ from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
-from pypadre.core.util.utils import filter_nones
+from pypadre.core.util.utils import filter_nones, find_package_structure
 from pypadre.pod.app.base_app import IBaseApp
 from pypadre.pod.app.code_app import CodeApp
 from pypadre.pod.app.config.padre_config import PadreConfig
@@ -308,11 +308,11 @@ def to_decorator_reference(reference=None, reference_package=None, reference_git
         creator = reference
     elif reference_package is not None:
         (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
-        creator = PythonPackage(package=reference_package, variable=function_name,
+        creator = PythonPackage(package=find_package_structure(reference_package), variable=function_name,
                                 identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
     elif reference_git is not None:
         (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
-        creator = PythonFile(path=git_path, package=os.path.basename(__file__), variable=function_name,
+        creator = PythonFile(git_path=git_path, package=os.path.basename(__file__), variable=function_name,
                              identifier=GitIdentifier(path=os.path.dirname(reference_git)))
     else:
         raise ValueError("You need to provide a reference for your definition.")

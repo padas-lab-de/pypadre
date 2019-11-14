@@ -1,10 +1,14 @@
 import functools
 import json
 import operator
+import os
 import platform
-from typing import Tuple
+import site
+from typing import Tuple, List
 
 import pyhash
+
+from pypadre.definitions import ROOT_DIR
 
 
 class _Const:
@@ -104,3 +108,23 @@ def persistent_hash(to_hash):
         to_hash = functools.reduce(add_str, to_hash)
     city = pyhash.city_fingerprint_256()
     return city(to_hash)
+
+
+def find_package_structure(package_path):
+    package_path, file_extension = os.path.splitext(package_path)
+
+    sitepackages = site.getsitepackages()
+    to_search = []
+    if not isinstance(sitepackages, List):
+        sitepackages = [sitepackages]
+    to_search.extend(sitepackages)
+
+    usersitepackages = site.getsitepackages()
+    if not isinstance(usersitepackages, List):
+        usersitepackages = [usersitepackages]
+    to_search.extend(usersitepackages)
+    to_search.append(ROOT_DIR)
+
+    for search in to_search:
+        if search in package_path:
+            return package_path[len(search)+1:].replace(os.path.sep, ".")

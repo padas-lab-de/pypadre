@@ -72,7 +72,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
             code = PythonPackage(metadata=metadata, package=metadata.get(PythonPackage.PACKAGE), variable=metadata.get(PythonPackage.VARIABLE), identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.python_file):
-            code = PythonFile(metadata=metadata, path=metadata.get(PythonFile.PATH), package=metadata.get(PythonFile.PACKAGE), variable=metadata.get(PythonFile.VARIABLE), identifier=identifier)
+            code = PythonFile(metadata=metadata, git_path=metadata.get(PythonFile.PATH), package=metadata.get(PythonFile.PACKAGE), variable=metadata.get(PythonFile.VARIABLE), identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.file):
             code = GenericCall(metadata=metadata, cmd=metadata.get(GenericCall.CMD), identifier=identifier)
