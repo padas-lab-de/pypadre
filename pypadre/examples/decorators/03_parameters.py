@@ -23,7 +23,7 @@ def parameters():
     return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [0.1, 0.5, 1.0]}}}}
 
 
-@app.workflow(dataset=dataset, reference_package=__name__, parameters=parameters, experiment_name="Iris SVC",
+@app.workflow(dataset=dataset, reference_package=__file__, parameters=parameters, experiment_name="Iris SVC",
               project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline

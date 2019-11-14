@@ -185,7 +185,6 @@ class CodeMixin(StoreableMixin, MetadataMixin):
         raise NotImplementedError()
 
     def call(self, **kwargs):
-        self.send_put()
         parameters = kwargs.pop("parameters", {})
         # kwargs are the padre context to be used
         return self._call(kwargs, **parameters)
@@ -242,11 +241,11 @@ class PythonFile(CodeMixin):
     PACKAGE = "package"
     PATH = "path"
 
-    def __init__(self, *, path, package, variable, identifier: CodeIdentifier, **kwargs):
+    def __init__(self, *, git_path, package, variable, identifier: CodeIdentifier, **kwargs):
         """
         Call of a python file.
         :param identifier: This is the reference to the related git or pip repository
-        :param path: This the path to the file or package name
+        :param git_path: This the path to the file or package name
         :param package: Name of the package
         :param variable: Variable name
         :param kwargs:
@@ -254,7 +253,7 @@ class PythonFile(CodeMixin):
 
         self._variable = variable
         self._package = package
-        self._path = path
+        self._path = git_path
         metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, self.PATH: self._path,
                        "id": persistent_hash((self._variable, self._package, self._path, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}

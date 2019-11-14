@@ -7,6 +7,9 @@ from pypadre.pod.tests.util.util import create_sklearn_test_pipeline
 
 class AppLocalBackends(PadreAppTest):
 
+    def setUp(self):
+        self.setup_reference(__file__)
+
     def test_dataset(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
 
@@ -46,8 +49,10 @@ class AppLocalBackends(PadreAppTest):
 
     def test_experiment(self):
         from pypadre.core.model.experiment import Experiment
+
         project = self.create_project(name='Test Project 2',
-                                      description='Testing the functionalities of project backend')
+                                      description='Testing the functionalities of project backend',
+                                      reference=self.test_reference)
         self.app.projects.put(project)
 
         self.app.datasets.load_defaults()
@@ -57,7 +62,9 @@ class AppLocalBackends(PadreAppTest):
         experiment = self.create_experiment(name='Test Experiment SVM', description='Testing experiment using SVM',
                                             dataset=dataset.pop(), project=project,
                                             pipeline=create_sklearn_test_pipeline(
-                                                estimators=[('SVC', SVC(probability=True))]))
+                                                estimators=[('SVC', SVC(probability=True))],
+                                                reference=self.test_reference),
+                                            reference=self.test_reference)
 
         self.app.experiments.put(experiment)
         name = 'Test Experiment SVM'
@@ -190,15 +197,16 @@ class AppLocalBackends(PadreAppTest):
                                           single_transformation=True)
 
         run = self.create_run(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
-        train_range = list(range(1, 1000+1))
+        train_range = list(range(1, 1000 + 1))
         test_range = list(range(1000, 1100 + 1))
         split = self.create_split(run=run, num=0, train_idx=train_range, val_idx=None,
-                                  test_idx= test_range, keep_splits=True)
-        assert(isinstance(split, Split))
-        assert(split.test_idx==test_range)
-        assert(split.train_idx==train_range)
+                                  test_idx=test_range, keep_splits=True)
+        assert (isinstance(split, Split))
+        assert (split.test_idx == test_range)
+        assert (split.train_idx == train_range)
         self.app.splits.put(split)
         # FIXME Christofer put asserts here
+
 
 if __name__ == '__main__':
     unittest.main()

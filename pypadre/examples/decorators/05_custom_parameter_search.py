@@ -24,8 +24,34 @@ def parameters():
     return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [0.1, 0.5, 1.0]}, 'PCA': {'n_components': [1, 2, 3]}}}}
 
 
-@app.workflow(dataset=dataset, reference_package=__name__, parameters=parameters, experiment_name="Iris SVC",
-              project_name="Examples", ptype=SKLearnPipeline)
+@app.parameter_provider(reference_package=__file__)
+def provider(ctx, **parameters: dict):
+    import itertools
+
+    params_list = []
+    master_list = []
+
+    for estimator in parameters:
+        param_dict = parameters.get(estimator)
+        for parameter in param_dict:
+            parameter_values = param_dict.get(parameter)
+
+            def add_one(i):
+                return i + 1
+
+            if parameter == 'C':
+                parameter_values = map(add_one, parameter_values)
+
+            master_list.append(parameter_values)
+            params_list.append(''.join([estimator, '.', parameter]))
+
+    # TODO make this provider make sense
+    grid = itertools.product(*master_list)
+    return grid, params_list
+
+
+@app.workflow(dataset=dataset, reference_package=__name__, parameters=parameters, parameter_provider=provider,
+              experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
