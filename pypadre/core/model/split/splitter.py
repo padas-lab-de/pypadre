@@ -1,7 +1,7 @@
 import numpy as np
 
 from pypadre import _version, _name
-from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier
+from pypadre.core.model.code.code_mixin import PipIdentifier, Function
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.split.split import Split
 from pypadre.core.util.utils import unpack
@@ -126,5 +126,5 @@ def split(ctx, strategy="random", test_ratio=0.25, random_seed=None, val_ratio=0
     return splitting_iterator()
 
 
-default_split = PythonPackage(package=__name__, variable="split",
-                              identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
+default_split = Function(fn=split, transient=True,
+                         identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))

@@ -1,5 +1,5 @@
 from pypadre import _name, _version
-from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier
+from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier, Function
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
 
 
@@ -41,9 +41,8 @@ def _create_combinations(ctx, **parameters: dict):
 
 
 # noinspection PyTypeChecker
-grid_search = ParameterProvider(name="grid_search",
-                                code=PythonPackage(package=__name__, variable="_create_combinations",
-                                                   identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__)))
+grid_search = Function(fn=_create_combinations, transient=True,
+                       identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
 
 
 # Parameter provider holds a predefined code object but is itself something which has to be defined or managed somewhere

@@ -185,6 +185,7 @@ class CodeMixin(StoreableMixin, MetadataMixin):
         raise NotImplementedError()
 
     def call(self, **kwargs):
+        self.send_put()
         parameters = kwargs.pop("parameters", {})
         # kwargs are the padre context to be used
         return self._call(kwargs, **parameters)
@@ -304,7 +305,7 @@ class Function(CodeMixin):
     Simple function holder
     """
 
-    def __init__(self, *, fn: Callable, identifier: GitIdentifier, **kwargs):
+    def __init__(self, *, fn: Callable, identifier: CodeIdentifier, transient=False, **kwargs):
         """
         This is a simple function holder to be pickled in a repository. In general don't use it if you can use a file
         instead.
@@ -314,7 +315,8 @@ class Function(CodeMixin):
         :param kwargs:
         """
         self._fn = fn
-        metadata = {**{"id": persistent_hash((identifier.id_hash()))},
+        self._transient = transient
+        metadata = {**{"id": persistent_hash((fn.__name__, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
         super().__init__(identifier=identifier, type=self._CodeType.function, metadata=metadata, **kwargs)
 
@@ -327,3 +329,9 @@ class Function(CodeMixin):
 
     def _call(self, ctx, **kwargs):
         return self.fn(ctx, **kwargs)
+
+    def send_put(self, **kwargs):
+        if not self._transient:
+            super().send_put(**kwargs)
+        else:
+            super().send_info(message="Put called on transient function " + str(self))

@@ -24,7 +24,7 @@ def parameters():
     return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [0.1, 0.5, 1.0]}, 'PCA': {'n_components': [1, 2, 3]}}}}
 
 
-@app.parameter_provider()
+@app.parameter_provider(reference_package=__name__)
 def provider(ctx, **parameters: dict):
     import itertools
 

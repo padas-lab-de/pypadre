@@ -10,7 +10,7 @@ from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.custom_code import CustomCodeHolder, CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.pipeline.components.component_interfaces import IConsumer, IProvider
-from pypadre.core.model.pipeline.parameter_providers.gridsearch import grid_search
+from pypadre.core.model.pipeline.parameter_providers.gridsearch import default_parameter_provider
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProviderMixin, ParameterMap
 from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.validation import ValidateParameters
@@ -70,7 +70,7 @@ class ParameterizedPipelineComponentMixin(PipelineComponentMixin, ValidateParame
         # TODO implement parameter schema via owlready2 / mapping
         super().__init__(**kwargs)
         if parameter_provider is None:
-            parameter_provider = grid_search
+            parameter_provider = default_parameter_provider
         self._parameter_schema = parameter_schema
         self._parameter_provider = parameter_provider
 

@@ -26,7 +26,7 @@ class SKLearnEvaluator(ProvidedCodeHolderMixin, EvaluatorComponentMixin, Paramet
     """
 
     def __init__(self, **kwargs):
-        super().__init__(name='SKLearnEvaluator', **kwargs)
+        super().__init__(name='SKLearnEvaluator', fn=self.call, **kwargs)
 
     def call(self, ctx, **kwargs):
         data, predecessor, component, run = unpack(ctx, "data", ("predecessor", None), "component", "run")

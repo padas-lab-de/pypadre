@@ -28,7 +28,7 @@ from sklearn.pipeline import Pipeline
 
 from pypadre import _name, _version
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier, PythonFile, GitIdentifier
+from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier, PythonFile, GitIdentifier, Function
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
 from pypadre.core.printing.tablefyable import Tablefyable
@@ -218,7 +218,8 @@ class PadreApp(IBaseApp):
                 project=project,
                 pipeline=pipeline, dataset=d, reference=creator)
             if auto_main:
-                return experiment.execute(parameters=parameters)
+                experiment.execute(parameters=parameters)
+                return experiment
             else:
                 if parameters:
                     warning("Parameters are given but experiment is not started directly. Parameters will be omitted. "
@@ -239,7 +240,7 @@ class PadreApp(IBaseApp):
 
         return parameter_decorator
 
-    def parameter_provider(self, *args, **kwargs):
+    def parameter_provider(self, *args, reference=None, reference_package=None, **kwargs):
         def parameter_decorator(f_create_parameters):
             @wraps(f_create_parameters)
             def wrap_parameters(*args, **kwargs):
@@ -247,7 +248,10 @@ class PadreApp(IBaseApp):
                 # but i am not sure
                 return f_create_parameters(*args, **kwargs)
 
-            return ParameterProvider(name="custom_parameter_provider", code=wrap_parameters)
+            creator = to_decorator_reference(reference, reference_package)
+
+            return ParameterProvider(name="custom_parameter_provider", reference=creator,
+                                     code=Function(fn=wrap_parameters, identifier=creator.identifier, transient=True))
 
         return parameter_decorator
 
@@ -311,5 +315,5 @@ def to_decorator_reference(reference=None, reference_package=None, reference_git
         creator = PythonFile(path=git_path, package=os.path.basename(__file__), variable=function_name,
                              identifier=GitIdentifier(path=os.path.dirname(reference_git)))
     else:
-        raise ValueError("You need to provide a reference for your workflow definition.")
+        raise ValueError("You need to provide a reference for your definition.")
     return creator

@@ -4,7 +4,6 @@ This is a minimal example of a PaDRE experiment.
 import numpy as np
 from sklearn.datasets import load_iris
 
-from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.pod.app.padre_app import example_app
 
 app = example_app()
@@ -20,7 +19,7 @@ def dataset():
 
 
 @app.workflow(dataset=dataset,
-              reference_package=__name__,
+              reference_package="examples.decorators.01_iris_classification",
               experiment_name="Iris SVC", project_name="Examples")
 def experiment():
     from sklearn.pipeline import Pipeline

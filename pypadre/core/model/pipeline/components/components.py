@@ -43,16 +43,10 @@ class SplitComponent(SplitComponentMixin):
 class DefaultSplitComponent(ProvidedCodeHolderMixin, SplitComponent):
 
     def __init__(self, **kwargs):
-        super().__init__(name="default_split", **kwargs)
+        super().__init__(name="default_split", fn=self.call, **kwargs)
 
     def call(self, ctx, **kwargs):
         return default_split.call(parameters=kwargs, **ctx)
-
-
-# default_parameter_provider_ref = PythonPackage(package=__name__, variable="default_split_component",
-#                                                identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
-# default_split_component = SplitComponent(name="default_split", reference=default_parameter_provider_ref,
-#                                          code=default_split)
 
 
 def custom_splitting_wrapper(fn: Callable):

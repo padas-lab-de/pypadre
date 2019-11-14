@@ -4,6 +4,7 @@ import re
 from cachetools import LRUCache, cached
 
 from pypadre.core.model.experiment import Experiment
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
@@ -57,6 +58,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
         metadata = self.get_file(path, META_FILE)
         # config = self.get_file(path, CONFIG_FILE)
         pipeline = self.get_file(path, WORKFLOW_FILE)
+        reference = self.backend.code.get(metadata.get(CodeManagedMixin.DEFINED_IN))
         # preprocess_workflow = self.get_file(path, PREPROCESS_WORKFLOW_FILE)
 
         project = self.backend.project.get(metadata.get(Experiment.PROJECT_ID))
@@ -65,7 +67,7 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
 
         ex = Experiment(name=metadata.get("name"), description=metadata.get("description"), project=project,
-                        dataset=dataset, metadata=metadata, pipeline=pipeline)
+                        dataset=dataset, metadata=metadata, reference=reference, pipeline=pipeline)
         return ex
 
     def put_progress(self, experiment, **kwargs):
