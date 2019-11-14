@@ -8,7 +8,7 @@ from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.model.code.code_mixin import Function
 from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
-from pypadre.core.model.pipeline.components.components import CustomSplit
+# from pypadre.core.model.pipeline.components.components import CustomSplit
 from pypadre.core.model.project import Project
 from pypadre.core.util.utils import unpack
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
