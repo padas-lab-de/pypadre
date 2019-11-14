@@ -1,4 +1,4 @@
---index-url=https://pypi.padim.fim.uni-passau.de/ --extra-index-url=https://pypi.org/simple
+--index-url=https://pypi.padim.fim.uni-passau.de/simple --extra-index-url=https://pypi.org/simple
 
 msgpack_numpy==0.4.1
 requests>=2.18.0
