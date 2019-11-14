@@ -399,10 +399,10 @@ class OpenMLLoader(DataSetLoaderMixin):
 
     def load(self, source, **kwargs):
         """
-        Downloads dataset from OpenML and returns is as an instance of Padre dataset.
+        Downloads dataset from OpenML and returns it as an instance of Padre dataset.
         :param source: Id of the dataset at openML
         :param kwargs: Additional info (e-g openml api key as oml_key)
-        :return: A dataset object
+        :return: A Padre-dataset object
         """
         path = os.path.expanduser("~/.pypadre") + '/temp/openml'
         oml.config.apikey = kwargs.pop("oml_key")
@@ -432,7 +432,7 @@ class OpenMLLoader(DataSetLoaderMixin):
             data_set.set_data(df_data)
 
         except ConnectionError as err:
-            self.send_warn(condition=True,
+            self.send_warn(condition=False,
                            source=self.__class__.__name__,
                            message="openML unreachable! \nErrormessage: " + str(err))
         return data_set

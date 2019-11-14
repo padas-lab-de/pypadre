@@ -185,9 +185,10 @@ class ExperimentPlot(Plot):
     def plot_pr_curve(self, title='Precision Recall Curve'):
         """Plot precision recall curve and return its json specification of vega-lite
 
+        Plots curves for Binary and multi class classification
+
         :param title: Title for the chart
         :returns: Json specification of Vega-Lite
-        Todo: Currently only implemented for binary classification, later add functionality for multi class classification
         """
         split_path = self.split_path()
         with open(os.path.join(split_path, "results.json"), 'r') as f:
@@ -197,30 +198,55 @@ class ExperimentPlot(Plot):
         for k, predictions in results["predictions"].items():
             truths.append(predictions["truth"])
             probabilities.append(predictions["probabilities"])
-        if len(probabilities[0]) > 2:
-            raise NotImplementedError("PR Plot only implemented for binary classification")
-        score = [x[-1] for x in probabilities]
-        precision, recall, thresholds = metrics.precision_recall_curve(truths, score)
-        data = pd.DataFrame({
-            "x": recall,
-            "y": precision
-        })
-        chart = alt.Chart(data).mark_area(
-            color="lightblue",
-            interpolate='step-after',
-            line=True
-        ).encode(
-            x=alt.X('x', title="Recall"),
-            y=alt.Y('y', title="Precision")
-        ).properties(title=title)
+        if len(probabilities[0]) > 2:  # Multi class classification
+            # Use binary approach that is treat each class as 1 and all other classes as 0
+            targets = set(truths)
+            precisions = np.array([])
+            recalls = np.array([])
+            colors = np.array([])
+            for target_label in targets:
+                label_truths = [1.0 if truth == target_label else 0.0 for truth in truths]
+                score = [x[int(target_label)] for x in probabilities]
+                precision, recall, thresholds = metrics.precision_recall_curve(label_truths, score)
+                precisions = np.concatenate([precisions, precision])
+                recalls = np.concatenate([recalls, recall])
+                colors = np.concatenate([colors, np.full((1, recall.size), int(target_label)).flatten()])
+            data = pd.DataFrame({
+                "x": recalls,
+                "y": precisions,
+                "color": colors
+            })
+            chart = alt.Chart(data).mark_line(
+                interpolate='step-after',
+            ).encode(
+                x=alt.X('x', title="Recall"),
+                y=alt.Y('y', title="Precision"),
+                color=alt.Color('color:N', title="Labels")
+            ).properties(title=title)
+        else:  # Binary classification
+            score = [x[-1] for x in probabilities]
+            precision, recall, thresholds = metrics.precision_recall_curve(truths, score)
+            data = pd.DataFrame({
+                "x": recall,
+                "y": precision
+            })
+            chart = alt.Chart(data).mark_area(
+                color="lightblue",
+                interpolate='step-after',
+                line=True
+            ).encode(
+                x=alt.X('x', title="Recall"),
+                y=alt.Y('y', title="Precision")
+            ).properties(title=title)
         return chart.to_json()
 
     def plot_roc_curve(self, title='ROC Curve'):
         """Plot ROC curve and return its json specification of vega-lite
 
+        Plots curves for Binary and multi class classification
+
         :param title: Title for the chart
         :returns: Json specification of Vega-Lite
-        Todo: Currently only implemented for binary classification, later add functionality for multi class classification
         """
         split_path = self.split_path()
         with open(os.path.join(split_path, "results.json"), 'r') as f:
@@ -230,22 +256,46 @@ class ExperimentPlot(Plot):
         for k, predictions in results["predictions"].items():
             truths.append(predictions["truth"])
             probabilities.append(predictions["probabilities"])
-        if len(probabilities[0]) > 2:
-            raise NotImplementedError("ROC Plot only implemented for binary classification")
-        score = [x[-1] for x in probabilities]
-        fpr, tpr, thresholds = metrics.roc_curve(truths, score)
-        data = pd.DataFrame({
-            "x": fpr,
-            "y": tpr
-        })
-        chart = alt.Chart(data).mark_area(
-            color="lightblue",
-            interpolate='step-after',
-            line=True
-        ).encode(
-            x=alt.X('x', title="False Positive Rate"),
-            y=alt.Y('y', title="True Positive Rate")
-        ).properties(title=title)
+        if len(probabilities[0]) > 2:  # Multi class classification
+            # Use binary approach that is treat each class as 1 and all other classes as 0
+            targets = set(truths)
+            tprs = np.array([])
+            fprs = np.array([])
+            colors = np.array([])
+            for target_label in targets:
+                label_truths = [1.0 if truth == target_label else 0.0 for truth in truths]
+                score = [x[int(target_label)] for x in probabilities]
+                fpr, tpr, thresholds = metrics.roc_curve(label_truths, score)
+                tprs = np.concatenate([tprs, tpr])
+                fprs = np.concatenate([fprs, fpr])
+                colors = np.concatenate([colors, np.full((1, fpr.size), int(target_label)).flatten()])
+            data = pd.DataFrame({
+                "x": fprs,
+                "y": tprs,
+                "color": colors
+            })
+            chart = alt.Chart(data).mark_line(
+                interpolate='step-after',
+            ).encode(
+                x=alt.X('x', title="False Positive Rate"),
+                y=alt.Y('y', title="True Positive Rate"),
+                color=alt.Color('color:N', title="Labels")
+            ).properties(title=title)
+        else:  # Binary classification
+            score = [x[-1] for x in probabilities]
+            fpr, tpr, thresholds = metrics.roc_curve(truths, score)
+            data = pd.DataFrame({
+                "x": fpr,
+                "y": tpr
+            })
+            chart = alt.Chart(data).mark_area(
+                color="lightblue",
+                interpolate='step-after',
+                line=True
+            ).encode(
+                x=alt.X('x', title="False Positive Rate"),
+                y=alt.Y('y', title="True Positive Rate")
+            ).properties(title=title)
         return chart.to_json()
 
 
