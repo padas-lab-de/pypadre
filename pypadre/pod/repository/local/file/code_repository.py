@@ -91,7 +91,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
         return str(code.id)
 
     def list(self, search, offset=0, size=100):
-        if "name" in search:
+        if search is not None and "name" in search:
             # Shortcut because we know name is the folder name. We don't have to search in metadata.json
             name = search.pop("name")
             search[self.FOLDER_SEARCH] = re.escape(name)

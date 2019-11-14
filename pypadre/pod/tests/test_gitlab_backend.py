@@ -4,8 +4,10 @@ import shutil
 import unittest
 import gitlab
 
+from pypadre._package import PACKAGE_ID
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.code_mixin import Function, GitIdentifier, PythonFile
+from pypadre.core.model.code.code_mixin import Function, GitIdentifier, PythonFile, PythonPackage
+from pypadre.core.util.utils import find_package_structure
 
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
@@ -62,6 +64,11 @@ class PadreGitTest(unittest.TestCase):
         # clean up if last teardown wasn't called correctly
         self.tearDown()
 
+    def setup_reference(self, file):
+        # TODO can we move that to setup in some way??? reference to (__file__)
+        self.test_reference = PythonPackage(package=find_package_structure(file),
+                                            variable=self._testMethodName, identifier=PACKAGE_ID)
+
     def tearDown(self):
         # delete local data content
         try:
@@ -85,6 +92,9 @@ class PadreGitTest(unittest.TestCase):
 
 class GitlabBackend(PadreGitTest):
 
+    def setUp(self):
+        self.setup_reference(__file__)
+
     def tearDown(self):
 
         super().tearDown()
@@ -97,18 +107,6 @@ class GitlabBackend(PadreGitTest):
             server.projects.delete(project.get_id())
 
         server.__exit__()
-
-    def test_code(self):
-        def foo(ctx):
-            return "foo"
-
-        foo_code = self.app.code.create(clz=Function, fn=foo)
-        self.app.code.put(foo_code, store_code=True)
-        code_list = self.app.code.list()
-        loaded_code = code_list.pop()
-
-        out = loaded_code.call()
-        assert out is "foo"
 
     def test_dataset(self):
         # TODO test putting, fetching, searching, folder/git structure, deletion, git functionality?
@@ -125,7 +123,7 @@ class GitlabBackend(PadreGitTest):
     def test_project(self):
         from pypadre.core.model.project import Project
 
-        project = Project(name='Test Project', description='Testing the functionalities of project backend')
+        project = Project(name='Test Project', description='Testing the functionalities of project backend',reference=self.test_reference)
         self.app.projects.put(project)
 
         name = 'Test Project'
@@ -134,9 +132,8 @@ class GitlabBackend(PadreGitTest):
             assert name in project.name
 
     def test_experiment(self):
-        from pypadre.core.model.experiment import Experiment
         project = self.create_project(name='Test Project 2',
-                                      description='Testing the functionalities of project backend')
+                                      description='Testing the functionalities of project backend',reference = self.test_reference)
         self.app.projects.put(project)
 
         # self.app.datasets.load_defaults()
@@ -147,12 +144,14 @@ class GitlabBackend(PadreGitTest):
         experiment = self.create_experiment(name='Test Experiment SVM', description='Testing experiment using SVM',
                                             dataset=dataset, project=project,
                                             pipeline=create_sklearn_test_pipeline(
-                                                estimators=[('SVC', SVC(probability=True))]))
+                                                estimators=[('SVC', SVC(probability=True))],
+                                                reference=self.test_reference),
+                                            reference=self.test_reference)
 
         self.app.experiments.put(experiment)
 
         name = 'Test Experiment SVM'
-        experiments = self.app.experiments.list({'name': name})
+        experiments = self.app.experiments.list()
 
         assert (isinstance(experiments, list))
 

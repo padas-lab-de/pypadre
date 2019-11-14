@@ -66,7 +66,7 @@ class GitLabRepository(IGitRepository):
         return self._git.projects.get(id=project_id, lazy=lazy) if self._git is not None else None
 
     def create_repo(self, obj):
-        name = obj.name
+        name = self.to_folder_name(obj)
         if not self._repo_exists(name):
             try:
                 if self._group:
@@ -181,7 +181,7 @@ class GitLabRepository(IGitRepository):
         repos = self.get_repos_by_search({'id': uid}, rpath=rpath, caller=caller)
         if len(repos) > 1:
             raise RuntimeError("Found multiple repositories for one ID. Data corrupted! " + str(repos))
-        return repos.pop() if len(repos) == 1 else None
+        return repos.pop() if len(repos) == 1 else (None,None)
 
     def to_repo(self, obj):
         """
@@ -202,22 +202,19 @@ class GitLabRepository(IGitRepository):
         if self._group is None:
             return []
         else:
-            if search is not None:
-                repos = []
-                for repo in self._group.projects.list():
+            repos = []
+            for repo in self._group.projects.list():
 
-                    repo = self._git.projects.get(repo.id)
-                    if rpath == "":
-                        repos.append((repo, ""))
-                    else:
-                        _path = ""
-                        paths = crawl_repo(repo, rpath, _path)
-                        if len(paths) != 0:
-                            for path in paths:
-                                repos.append((repo, path))
-                return self.filter_repos(repos, search, caller=caller)
-            else:
-                return []
+                repo = self._git.projects.get(repo.id)
+                if rpath == "":
+                    repos.append((repo, ""))
+                else:
+                    _path = ""
+                    paths = crawl_repo(repo, rpath, _path)
+                    if len(paths) != 0:
+                        for path in paths:
+                            repos.append((repo, path))
+            return self.filter_repos(repos, search, caller=caller)
 
     def filter_repos(self, repos: list, search: dict, caller=None):
         if search is None:
