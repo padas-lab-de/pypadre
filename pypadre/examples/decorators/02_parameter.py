@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.datasets import load_iris
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.pod.app.padre_app import example_app
+from pypadre.examples.base_example import example_app
 
 app = example_app()
 
@@ -24,8 +24,8 @@ def parameters():
     return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [0.5]}}}}
 
 
-@app.workflow(dataset=dataset, reference_package=__file__, parameters=parameters, experiment_name="Iris SVC",
-              project_name="Examples", ptype=SKLearnPipeline)
+@app.experiment(dataset=dataset, reference_package=__file__, parameters=parameters, experiment_name="Iris SVC",
+                project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC

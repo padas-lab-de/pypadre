@@ -1,11 +1,8 @@
 import os
 import re
 
-from cachetools import LRUCache, cached
-
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.model.generic.custom_code import CodeManagedMixin
-from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
@@ -18,7 +15,7 @@ WORKFLOW_FILE = File("workflow.pickle", DillSerializer)
 META_FILE = File("metadata.json", JSonSerializer)
 
 NAME = 'experiments'
-cache = LRUCache(maxsize=16)
+# cache = LRUCache(maxsize=16)
 
 
 class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperimentRepository):
@@ -32,19 +29,17 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
 
     # TODO caching could also be done on service layer
     # TODO write tests for caching
-    @cached(cache)
     def get(self, uid):
         return super().get(uid)
 
     def delete(self, id):
-        remove_cached(cache, id)
         return super().delete(id)
 
     def to_folder_name(self, experiment):
         return experiment.name
 
     def list(self, search, offset=0, size=100):
-        if hasattr(search, "name"):
+        if search is not None and "name" in search:
             # Shortcut because we know name is the folder name. We don't have to search in metadata.json
             name = search.pop("name")
             search[self.FOLDER_SEARCH] = re.escape(name)
@@ -85,4 +80,3 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
 
         self.write_file(directory, META_FILE, experiment.metadata)
         self.write_file(directory, WORKFLOW_FILE, experiment.pipeline, 'wb')
-        remove_cached(cache, experiment.id)

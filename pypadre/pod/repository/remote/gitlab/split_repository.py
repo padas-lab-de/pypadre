@@ -17,7 +17,7 @@ class SplitGitlabRepository(SplitFileRepository):
     def get(self, uid, rpath='executions/runs/splits'):
         return self.backend.experiment.get(uid, rpath=rpath, caller=self)
 
-    def _get_by_repo(self,repo, path=''):
+    def _get_by_repo(self, repo, path=''):
         metadata = self.backend.experiment.get_file(repo, META_FILE, path=path)
 
         # TODO Computation
@@ -25,5 +25,5 @@ class SplitGitlabRepository(SplitFileRepository):
         return split
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
-        super()._put(obj,*args, directory=directory,merge=merge,**kwargs)
-        self.parent.update(obj.parent,commit_message = "Creating a new split of the dataset")
+        super()._put(obj, *args, directory=directory, merge=merge, **kwargs)
+        self.parent.update(obj.parent, commit_message="Creating a new split of the dataset")

@@ -14,7 +14,7 @@ class AppLocalBackends(PadreAppTest):
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        @self.app.workflow(dataset=dataset.pop(), ptype=SKLearnPipeline)
+        @self.app.experiment(dataset=dataset.pop(), ptype=SKLearnPipeline)
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC
@@ -29,7 +29,7 @@ class AppLocalBackends(PadreAppTest):
             target = load_iris().target.reshape(-1, 1)
             return np.append(data, target, axis=1)
 
-        @self.app.workflow(dataset="iris", ptype=SKLearnPipeline)
+        @self.app.experiment(dataset="iris", ptype=SKLearnPipeline)
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC
@@ -45,7 +45,7 @@ class AppLocalBackends(PadreAppTest):
             target = load_iris().target.reshape(-1, 1)
             return np.append(data, target, axis=1)
 
-        @self.app.workflow(dataset="iris", ptype=SKLearnPipeline, project_name="My Fun Project", auto_main=False)
+        @self.app.experiment(dataset="iris", ptype=SKLearnPipeline, project_name="My Fun Project", auto_main=False)
         def experiment():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC

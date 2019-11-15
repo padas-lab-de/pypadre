@@ -1,6 +1,6 @@
 from _py_abc import ABCMeta
 from abc import abstractmethod
-from logging import warning
+from logging import info
 from typing import List, Type, Callable
 
 from pypadre.core.events.events import Signaler, connect_subclasses, CommonSignals
@@ -59,7 +59,7 @@ class CrudServiceMixin(ServiceMixin):
             try:
                 backend.put(obj, **kwargs)
             except ObjectAlreadyExists as e:
-                warning("Couldn't store object " + str(obj) + "! " + str(e) + " Skipping storing the object.")
+                info("Couldn't store object " + str(obj) + "! " + str(e) + " Skipping storing the object.")
 
     def patch(self, obj):
         """

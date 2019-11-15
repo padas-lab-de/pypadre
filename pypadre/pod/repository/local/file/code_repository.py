@@ -45,6 +45,10 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
 
         metadata = self.get_file(path, META_FILE)
 
+        return self._create_object(metadata, directory)
+
+    def _create_object(self, metadata, directory):
+
         identifier_type = metadata.get(CodeMixin.REPOSITORY_TYPE)
         identifier_data = metadata.get(CodeMixin.IDENTIFIER)
 
@@ -60,7 +64,8 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
             identifier = GitIdentifier(path=path, git_hash=git_hash)
 
         if identifier is None:
-            raise ValueError("Identifier is not present in the meta information of code object in directory " + directory)
+            raise ValueError(
+                "Identifier is not present in the meta information of code object in directory " + directory)
 
         if metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.function):
             fn_dir = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir),
@@ -69,10 +74,10 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
             code = Function(fn=fn, metadata=metadata, identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.package):
-            code = PythonPackage(metadata=metadata, package=metadata.get(PythonPackage.PACKAGE), variable=metadata.get(PythonPackage.VARIABLE), identifier=identifier)
+            code = PythonPackage(metadata=metadata, path=metadata.get(PythonFile.PATH), package=metadata.get(PythonPackage.PACKAGE), variable=metadata.get(PythonPackage.VARIABLE), identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.python_file):
-            code = PythonFile(metadata=metadata, git_path=metadata.get(PythonFile.PATH), package=metadata.get(PythonFile.PACKAGE), variable=metadata.get(PythonFile.VARIABLE), identifier=identifier)
+            code = PythonFile(metadata=metadata, path=metadata.get(PythonFile.PATH), package=metadata.get(PythonFile.PACKAGE), variable=metadata.get(PythonFile.VARIABLE), identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.file):
             code = GenericCall(metadata=metadata, cmd=metadata.get(GenericCall.CMD), identifier=identifier)
@@ -86,7 +91,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
         return str(code.id)
 
     def list(self, search, offset=0, size=100):
-        if hasattr(search, "name"):
+        if search is not None and "name" in search:
             # Shortcut because we know name is the folder name. We don't have to search in metadata.json
             name = search.pop("name")
             search[self.FOLDER_SEARCH] = re.escape(name)

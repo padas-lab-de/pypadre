@@ -1,7 +1,7 @@
 import os
 import platform
 
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
 
 GIT_ATTRIBUTES = '.gitattributes.'
 DEFAULT_GIT_MSG = 'Added file to git'
@@ -174,7 +174,6 @@ def clone(repo, url, path, branch='master'):
 
 
 def push(repo, remote_name, remote_url):
-
     # origin = bare_repo.create_remote('origin', url=cloned_repo.working_tree_dir)
     remote = repo.create_remote(remote_name, remote_url)
 
@@ -198,11 +197,18 @@ def add_git_lfs_attribute_file(directory, file_extension, message=DEFAULT_GIT_MS
     with open(path, "w") as f:
         f.write(" ".join([file_extension, 'filter=lfs diff=lfs merge=lfs -text']))
     add_files(repo, file_path=path)
-    commit(repo=repo, message='Added .gitattributes file for Git LFS')
+    if not clean_working_tree(repo):
+        commit(repo=repo, message='Added .gitattributes file for Git LFS')
 
     # Add all untracked files
     add_untracked_files(repo=repo)
-    commit(repo, message=message)
+    if not clean_working_tree(repo):
+        commit(repo, message=message)
+
+
+def clean_working_tree(repo):
+    return not (len(repo.index.diff(None)) > 0 or not repo.active_branch.is_valid() or len(
+        repo.index.diff(repo.active_branch.name)) > 0)
 
 
 def has_untracked_files(repo):
@@ -259,18 +265,20 @@ def get_repo(path=None, url=None, **kwargs):
     :return:
     """
     if path is not None and url is not None:
-
         # TODO check if repo exists if it does check remote
         return Repo.clone_from(url=url, to_path=path, **kwargs)
 
     elif url is None and path is not None:
         # Open the local generic
-        return Repo(path)
+        try:
+            return Repo(path)
+        except InvalidGitRepositoryError:
+            return create_repo(path=path)
     else:
         return None
 
 
-def crawl_repo(repo,rpath,_path=""):
+def crawl_repo(repo, rpath, _path=""):
     rpath = rpath.split('/')
     path = _path + '/' + rpath.pop(0)
     repository_tree = repo.repository_tree(path=path)
@@ -278,14 +286,15 @@ def crawl_repo(repo,rpath,_path=""):
     if len(rpath) > 0:
         _paths = []
         for _path in paths:
-            _paths += crawl_repo(repo,'/'.join(rpath),_path=_path)
+            _paths += crawl_repo(repo, '/'.join(rpath), _path=_path)
         return _paths
     else:
         return paths
 
 
-def add_and_commit(dir_path, message=DEFAULT_GIT_MSG,force_commit=False):
+def add_and_commit(dir_path, message=DEFAULT_GIT_MSG, force_commit=False):
     repo = create_repo(path=dir_path, bare=False) if not repo_exists(dir_path) else get_repo(path=dir_path)
     add_untracked_files(repo=repo)
-    if len(repo.index.diff(None)) > 0 or not repo.active_branch.is_valid() or force_commit or len(repo.index.diff("master"))>0:
+    if len(repo.index.diff(None)) > 0 or not repo.active_branch.is_valid() or force_commit or len(
+            repo.index.diff("master")) > 0:
         commit(repo, message=message)

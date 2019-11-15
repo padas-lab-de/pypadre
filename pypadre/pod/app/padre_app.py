@@ -16,39 +16,26 @@ Architecture of the module
 """
 
 # todo merge with cli. cli should use app and app should be configurable via builder pattern and configuration files
-import configparser
 import inspect
-import os
 from functools import wraps
-from typing import List, Union
+from logging import warning
+from pathlib import Path
+from typing import Union
 
 from docutils.nodes import warning
 from jsonschema import ValidationError
 from sklearn.pipeline import Pipeline
 
-from pypadre import _name, _version
+from pypadre._package import PACKAGE_ID
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.code_mixin import PythonPackage, PipIdentifier, PythonFile, GitIdentifier, Function
+from pypadre.core.model.code.code_mixin import PythonPackage, PythonFile, GitIdentifier, Function
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
-from pypadre.core.printing.tablefyable import Tablefyable
-from pypadre.core.printing.util.print_util import to_table
 from pypadre.core.util.utils import filter_nones, find_package_structure
-from pypadre.pod.app.base_app import IBaseApp
-from pypadre.pod.app.code_app import CodeApp
 from pypadre.pod.app.config.padre_config import PadreConfig
-from pypadre.pod.app.dataset.dataset_app import DatasetApp
-from pypadre.pod.app.metric_app import MetricApp
-from pypadre.pod.app.project.computation_app import ComputationApp
-from pypadre.pod.app.project.execution_app import ExecutionApp
-from pypadre.pod.app.project.experiment_app import ExperimentApp
-from pypadre.pod.app.project.pipeline_output_app import PipelineOutputApp
-from pypadre.pod.app.project.project_app import ProjectApp
-from pypadre.pod.app.project.run_app import RunApp
-from pypadre.pod.app.project.split_app import SplitApp
+from pypadre.pod.app.core_app import CoreApp
 from pypadre.pod.backend.file import PadreFileBackend
 from pypadre.pod.backend.gitlab import PadreGitLabBackend
-from pypadre.pod.backend.i_padre_backend import IPadreBackend
 
 
 # logger = PadreLogger(app=None)
@@ -84,84 +71,14 @@ class PadreAppFactory:
         return backends
 
 
-class PadreApp(IBaseApp):
-
-    # TODO metric algorithms should be passed for metric calculation. This should work a bit like on the server. Metrics themselves are plugins which are invoked by the reevaluater
-    def __init__(self, printer=None, backends: List[IPadreBackend] = None):
-        super().__init__()
-        self._print = printer
-
-        if backends is None:
-            pass
-            # TODO inform the user
-
-        self._backends = backends
-
-        # TODO Should each subApp really hold each backend? This may be convenient to code like this.
-        #  self._logger = LoggingService(backends)
-        self._dataset_app = DatasetApp(self,
-                                       [backend.dataset for backend in backends] if backends is not None else None)
-        self._project_app = ProjectApp(self,
-                                       [backend.project for backend in backends] if backends is not None else None)
-        self._experiment_app = ExperimentApp(self, [backend.experiment for backend in
-                                                    backends] if backends is not None else None)
-        self._execution_app = ExecutionApp(self, [backend.execution for backend in
-                                                  backends] if backends is not None else None)
-        self._run_app = RunApp(self, [backend.run for backend in backends] if backends is not None else None)
-        self._split_app = SplitApp(self, [backend.split for backend in backends] if backends is not None else None)
-        self._computation_app = ComputationApp(self, [backend.computation for backend in
-                                                      backends] if backends is not None else None)
-        self._metric_app = MetricApp(self, [backend.metric for backend in backends] if backends is not None else None)
-        self._code_app = CodeApp(self, [backend.code for backend in backends] if backends is not None else None)
-        self._pipeline_output_app = PipelineOutputApp(self, [backend.pipeline_output for backend in
-                                                             backends] if backends is not None else None)
-
-    @property
-    def backends(self):
-        return self._backends
-
-    @property
-    def datasets(self):
-        return self._dataset_app
-
-    @property
-    def projects(self):
-        return self._project_app
-
-    @property
-    def experiments(self):
-        return self._experiment_app
-
-    @property
-    def executions(self):
-        return self._execution_app
-
-    @property
-    def runs(self):
-        return self._run_app
-
-    @property
-    def splits(self):
-        return self._split_app
-
-    @property
-    def computations(self):
-        return self._computation_app
-
-    @property
-    def metrics(self):
-        return self._metric_app
-
-    @property
-    def code(self):
-        return self._code_app
+class PadreApp(CoreApp):
 
     # ------------------------------------------ decorators -------------------------------------------
-    def workflow(self, *args, ptype=None, parameters=None, parameter_provider=None,
-                 reference=None, reference_package=None,
-                 dataset: Union[Dataset, str], project_name=None, experiment_name=None,
-                 project_description=None,
-                 experiment_description=None, auto_main=True, **kwargs):
+    def experiment(self, *args, ptype=None, parameters=None, parameter_provider=None,
+                   reference=None, reference_package=None, reference_git=None,
+                   dataset: Union[Dataset, str], project_name=None, experiment_name=None,
+                   project_description=None, seed=None,
+                   experiment_description=None, auto_main=True, **kwargs):
         """
         Decroator for functions that return a single workflow to be executed in an experiment with name exp_name
         :param args: additional positional parameters to an experiment (replaces other positional parameters if longer)
@@ -181,18 +98,19 @@ class PadreApp(IBaseApp):
         if parameters is None:
             parameters = {}
 
-        def workflow_decorator(f_create_workflow):
-            @wraps(f_create_workflow)
+        def experiment_decorator(f_create_experiment):
+            @wraps(f_create_experiment)
             def wrap_workflow(*args, **kwargs):
                 # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
-                return f_create_workflow(*args, **kwargs)
+                return f_create_experiment(*args, **kwargs)
 
-            creator = to_decorator_reference(reference, reference_package)
+            creator = to_decorator_reference(reference, reference_package, reference_git)
 
             local_ptype = None
             if ptype is None:
                 pipeline = wrap_workflow()
                 if isinstance(pipeline, Pipeline):
+                    # TODO plugin don't reference the binding here!!!!
                     local_ptype = SKLearnPipeline
                     pass
                 # TODO look up the class by parsing the mapping / looking at the return value of the function or something similar
@@ -203,7 +121,8 @@ class PadreApp(IBaseApp):
 
             # TODO check pipeline type (where to put provider)
             if parameter_provider is not None:
-                pipeline = local_ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider, reference=creator)
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider,
+                                       reference=creator)
             else:
                 pipeline = local_ptype(pipeline_fn=wrap_workflow, reference=creator)
 
@@ -215,8 +134,7 @@ class PadreApp(IBaseApp):
             d = dataset if isinstance(dataset, Dataset) else self.datasets.get_by_name(dataset)
             experiment = self.experiments.create(
                 **filter_nones({"name": experiment_name, "description": experiment_description}),
-                project=project,
-                pipeline=pipeline, dataset=d, reference=creator)
+                project=project, pipeline=pipeline, dataset=d, reference=creator, seed=seed)
             if auto_main:
                 experiment.execute(parameters=parameters)
                 return experiment
@@ -226,7 +144,7 @@ class PadreApp(IBaseApp):
                             "You have to pass them on the execute call again.")
                 return experiment
 
-        return workflow_decorator
+        return experiment_decorator
 
     def parameter_map(self):
         def parameter_decorator(f_create_parameters):
@@ -268,52 +186,21 @@ class PadreApp(IBaseApp):
 
         return dataset_decorator
 
-    def print(self, obj):
-        if self.has_print():
-            self.print_(obj)
 
-    def print_tables(self, objects: List[Tablefyable], **kwargs):
-        if self.has_print():
-            self.print_("Loading.....")
-            self.print_(to_table(objects, **kwargs))
-
-    def has_print(self) -> bool:
-        return self._print is None
-
-    def print_(self, output, **kwargs):
-        if self.has_print():
-            self._print(output, **kwargs)
-
-
-def example_app():
-    config_path = os.path.join(os.path.expanduser("~"), ".padre-example.cfg")
-    workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-example")
-
-    """Create config file for testing purpose"""
-    config = configparser.ConfigParser()
-    with open(config_path, 'w+') as configfile:
-        config.write(configfile)
-
-    config = PadreConfig(config_file=config_path)
-    config.set("backends", str([
-        {
-            "root_dir": workspace_path
-        }
-    ]))
-    return PadreAppFactory.get(config)
-
-
-def to_decorator_reference(reference=None, reference_package=None, reference_git=None, git_path="."):
+def to_decorator_reference(reference=None, reference_package=None, reference_git=None):
     if reference is not None:
         creator = reference
     elif reference_package is not None:
-        (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
+        (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back.f_back)
         creator = PythonPackage(package=find_package_structure(reference_package), variable=function_name,
-                                identifier=PipIdentifier(pip_package=_name.__name__, version=_version.__version__))
+                                identifier=PACKAGE_ID)
     elif reference_git is not None:
-        (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
-        creator = PythonFile(git_path=git_path, package=os.path.basename(__file__), variable=function_name,
-                             identifier=GitIdentifier(path=os.path.dirname(reference_git)))
+        (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back.f_back)
+        # TODO find git repo or pass it and look where package starts import from there
+        git_repo = str(Path(reference_git).parent)
+        creator = PythonFile(path=str(Path(reference_git).parent), package=reference_git[len(git_repo) + 1:],
+                             variable=function_name,
+                             identifier=GitIdentifier(path=git_repo))
     else:
         raise ValueError("You need to provide a reference for your definition.")
     return creator

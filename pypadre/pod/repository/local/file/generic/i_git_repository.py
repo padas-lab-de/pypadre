@@ -1,5 +1,4 @@
 from abc import abstractmethod, ABCMeta
-from logging import warning
 
 from git import Repo
 
@@ -51,8 +50,9 @@ class IGitRepository(IFileRepository):
     def get(self, uid):
         # Call the File backend get function
         return super().get(uid=uid)
+
     @abstractmethod
-    def get_by_repo(self,repo, rpath='', caller=None):
+    def get_by_repo(self, repo, rpath='', caller=None):
         """
         Gets an object for a given generic.
         :param rpath: relative path in the repo
@@ -62,11 +62,11 @@ class IGitRepository(IFileRepository):
         raise NotImplementedError
 
     @abstractmethod
-    def has_repo_dir(self,repo,rpath=None):
+    def has_repo_dir(self, repo, rpath=None):
         raise NotImplementedError
 
     @abstractmethod
-    def _get_by_repo(self,repo,path=None):
+    def _get_by_repo(self, repo, path=None):
         raise NotImplementedError
 
     def delete(self, id_):
@@ -100,4 +100,3 @@ class IGitRepository(IFileRepository):
             return False
 
         return len(repo.remotes) > 0
-
