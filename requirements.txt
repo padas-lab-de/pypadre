@@ -1,3 +1,4 @@
+pyyaml==5.1.2
 msgpack_numpy==0.4.1
 requests>=2.18.0
 numpy==1.17.1
@@ -30,9 +31,8 @@ jsonschema==3.1.1
 jsonpatch==1.24
 blinker==1.4
 cachetools==3.1.1
+owlready2==0.21
 dill==0.3.1.1
 pyhash==0.9.3
 python-gitlab==1.12.1
-
---extra-index-url https://pypi.padim.fim.uni-passau.de/
-pypadre-ontology>=0.3.1
+pypadre-ontology>=0.3.1 --extra-index-url https://pypi.padim.fim.uni-passau.de/simple

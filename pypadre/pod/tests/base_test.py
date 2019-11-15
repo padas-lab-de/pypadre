@@ -38,19 +38,19 @@ class PadreAppTest(unittest.TestCase):
         cls.app = PadreAppFactory.get(config)
 
     def create_experiment(self, *args, **kwargs):
-        return self.app.experiments.create(*args, **kwargs)
+        return self.app.experiments.create(*args, **kwargs, reference=self.test_reference)
 
     def create_project(self, *args, **kwargs):
-        return self.app.projects.create(*args, **kwargs)
+        return self.app.projects.create(*args, **kwargs, reference=self.test_reference)
 
     def create_execution(self, *args, **kwargs):
-        return self.app.executions.service.create(*args, **kwargs)
+        return self.app.executions.service.create(*args, **kwargs, reference=self.test_reference)
 
     def create_run(self, *args, **kwargs):
-        return self.app.runs.service.create(*args, **kwargs)
+        return self.app.runs.service.create(*args, **kwargs, reference=self.test_reference)
 
     def create_split(self, *args, **kwargs):
-        return self.app.splits.service.create(*args, **kwargs)
+        return self.app.splits.service.create(*args, **kwargs, reference=self.test_reference)
 
     def setUp(self):
         # clean up if last teardown wasn't called correctly

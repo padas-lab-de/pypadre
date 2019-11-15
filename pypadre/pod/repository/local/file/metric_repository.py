@@ -1,5 +1,4 @@
 import os
-from logging import warning
 from types import GeneratorType
 
 from pypadre.core.metrics.metrics import Metric
@@ -28,16 +27,13 @@ class MetricFileRepository(IChildFileRepository, ILogFileRepository, IMetricRepo
         if not os.path.isdir(directory):
             return None
 
-        try:
-            metadata = self.get_file(directory, META_FILE)
-            result = self.get_file(directory, RESULT_FILE)
+        metadata = self.get_file(directory, META_FILE)
+        result = self.get_file(directory, RESULT_FILE)
+        computation = self.backend.computation.get(metadata.get(Metric.COMPUTATION_ID))
 
-            # TODO Computation
-            metric = Metric(metadata=metadata, result=result)
-            return metric
-        except:
-            warning("Couldn't load object in dir " + str(directory) + ". Object might be corrupted.")
-            return None
+        # TODO Computation
+        metric = Metric(name=metadata.get(Metric.NAME), computation=computation, metadata=metadata, result=result)
+        return metric
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         metric = obj
