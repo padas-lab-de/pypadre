@@ -81,7 +81,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         """
         folder = ""
         if search is not None and self.FOLDER_SEARCH in search:
-            folder = search.get(self.FOLDER_SEARCH)
+            folder = search.pop(self.FOLDER_SEARCH)
         dirs = self.find_dirs(folder)
         # TODO look into metadata file without loading the object to increase performance and filter sooner
         # TODO add offset und size
@@ -206,7 +206,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 
         if matcher is not None:
             rid = re.compile(matcher)
-            dirs = [d for d in dirs if rid.match(d)]
+            dirs = [d for d in dirs if rid.search(d)]
 
         if len(strip_postfix) == 0:
             return dirs
