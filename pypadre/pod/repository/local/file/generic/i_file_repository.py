@@ -163,7 +163,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 
         try:
             return self._get_by_dir(directory)
-        except ValueError:
+        except:
             warning("Couldn't load object in dir " + str(directory) + ". Object might be corrupted.")
             return None
 

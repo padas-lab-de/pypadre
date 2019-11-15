@@ -107,10 +107,14 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                                    initial_hyperparameters=initial_hyperparameters,
                                    **kwargs)
 
-        self.send_info(message="Following metrics would be available for " + str(computation)
-                               + ": " + ', '.join(str(p) for p in metric_registry.available_providers(computation)))
+        # look up available metrics
+        available_metrics = metric_registry.available_providers(computation)
+        if available_metrics:
+            available_message = "Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in available_metrics)
+            self.send_info(message=available_message)
+            print(available_message)
 
-        # calculate measures
+        # calculate metrics
         if allow_metrics:
             metrics = metric_registry.calculate_measures(computation, run=run, node=node, **kwargs)
             computation.metrics = metrics
@@ -128,7 +132,9 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
             # TODO we are at the end of the pipeline / store results?
             output = PipelineOutput.from_computation(computation)
             output.send_put()
-            print("Calculating " + output.name + " done.")
+            message = "Calculating " + output.name + " done."
+            self.send_info(message=message)
+            print(message)
 
     def _execute_successors(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap, run: Run,
                             predecessor: Computation = None, **kwargs):
@@ -199,6 +205,12 @@ class DefaultPythonExperimentPipeline(Pipeline):
             self.add_edge(self._preprocessor, self._splitter)
         self.add_edge(self._splitter, self._estimator)
         self.add_edge(self._estimator, self._evaluator)
+
+    def get_components(self):
+        nodes = []
+        nodes.extend(self.nodes)
+        return nodes
+
 
     @property
     def preprocessor(self):
