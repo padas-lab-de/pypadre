@@ -55,15 +55,14 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
         add_and_commit(self.to_directory(experiment), message=commit_message)
         self.push_changes()
 
-    def _put(self, experiment: Experiment, *args, directory, merge=False, **kwargs):
+    def _put(self, experiment: Experiment, *args, directory, merge=False, local=True, **kwargs):
 
         # update experiment
-        self._file_backend._put(experiment=experiment, *args, directory=directory, merge=merge, **kwargs)
-        add_and_commit(directory, message="Adding the metadata and the workflow of the experiment")
-        self.parent.update(experiment.parent, src=experiment.name, url=self.get_repo_url(),
-                           commit_message="Adding the experiment named {} repository to the tsrc file.".format(
-                               experiment.name))
+        if local:
+            self._file_backend._put(experiment=experiment, *args, directory=directory, merge=merge, **kwargs)
+            add_and_commit(directory, message="Adding the metadata and the workflow of the experiment")
         if self.has_remote_backend(experiment):
-            # TODO add a counter (of commits) or a timer for each push
-            add_and_commit(directory, message="Adding unstaged changes in the repo")
+            self.parent.update(experiment.parent, src=experiment.name, url=self.get_repo_url(),
+                               commit_message="Adding the experiment named {} repository to the tsrc file.".format(
+                                   experiment.name))
             self.push_changes()

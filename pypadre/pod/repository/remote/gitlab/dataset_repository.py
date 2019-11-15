@@ -56,9 +56,10 @@ class DatasetGitlabRepository(GitLabRepository, IDatasetRepository):
         """
         return dataset.name
 
-    def _put(self, obj, *args, directory: str, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, merge=False, local=True, **kwargs):
         dataset = obj
-        self._file_backend._put(obj, *args, directory=directory, merge=merge, **kwargs)
+        if local:
+            self._file_backend._put(obj, *args, directory=directory, merge=merge, **kwargs)
         if self.has_remote_backend(dataset):
             add_and_commit(directory, message="Adding unstaged changes in the repo")
             self.push_changes()

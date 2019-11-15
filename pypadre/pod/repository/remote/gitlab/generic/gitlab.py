@@ -38,6 +38,8 @@ class GitLabRepository(IGitRepository):
     _group = None
     _commit_counter = 0
 
+    RELATIVE_PATH = "rpath"
+
     @abstractmethod
     def __init__(self, root_dir: str, gitlab_url: str, token: str, backend: IPadreBackend, **kwargs):
         super().__init__(root_dir=root_dir, backend=backend, **kwargs)
@@ -125,7 +127,7 @@ class GitLabRepository(IGitRepository):
 
     def get_repo_url(self, repo=None, ssh=False):
         if repo is not None:
-            return repo.attributes.get("ssh_url_to_repo") if ssh else self._repo.attributes.get("http_url_to_repo")
+            return repo.attributes.get("ssh_url_to_repo") if ssh else repo.attributes.get("http_url_to_repo")
         return self._repo.attributes.get("ssh_url_to_repo") if ssh else self._repo.attributes.get("http_url_to_repo")
 
     def add_remote(self, branch, url):
@@ -146,7 +148,7 @@ class GitLabRepository(IGitRepository):
         """
         (repo, path) = self.find_repo_by_id(uid, rpath=rpath, caller=caller)
         if repo is None:
-            return super().get(uid=uid)
+            return None
         return self.get_by_repo(repo, path=path, caller=caller)
 
     def has_repo_dir(self, repo, path=None):
@@ -247,12 +249,12 @@ class GitLabRepository(IGitRepository):
 
         self.add_remote(self._branch, self.get_remote_url())
 
-        self._put(obj, *args, directory=self.to_directory(obj), merge=merge, **kwargs)
+        self._put(obj, *args, directory=self.to_directory(obj), merge=merge, local=False, **kwargs)
 
         self.reset()
 
     @abstractmethod
-    def _put(self, obj, *args, directory: str, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, merge=False, local=True, **kwargs):
         """
         This function pushes the files to the given remote branch from the local git repo.
         :param obj:

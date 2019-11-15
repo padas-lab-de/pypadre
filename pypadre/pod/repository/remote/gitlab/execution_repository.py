@@ -17,6 +17,10 @@ class ExecutionGitlabRepository(ExecutionFileRepository):
         self._gitlab_backend = self.backend.experiment
 
     def list(self, search, offset=0, size=100):
+        if search is None:
+            search = {self._gitlab_backend.RELATIVE_PATH: 'executions'}
+        else:
+            search[self._gitlab_backend.RELATIVE_PATH] = 'executions'
         return self._gitlab_backend.list(search, offset, size, caller=self)
 
     def get(self, uid, rpath=NAME):

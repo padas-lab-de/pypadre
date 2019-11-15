@@ -13,19 +13,24 @@ class MetricGitlabRepository(MetricFileRepository):
 
     def __init__(self, backend: IPadreBackend):
         super().__init__(backend=backend)
+        self._gitlab_backend = self.backend.experiment
 
-    def get(self, uid, rpath='executions/runs/metrics'):
-        return self.backend.experiment.get(uid, rpath=rpath, caller=self)
+    def get(self, uid):
+        return self._gitlab_backend.get(uid, rpath='executions/runs/metrics', caller=self)
 
     def list(self, search, offset=0, size=100):
+        if search is None:
+            search = {self._gitlab_backend.RELATIVE_PATH: 'executions/runs/metrics'}
+        else:
+            search[self._gitlab_backend.RELATIVE_PATH] = 'executions/runs/metrics'
         return self.backend.experiment.list(search, offset, size, caller=self)
 
     def _get_by_repo(self, repo, path=''):
-        metadata = self.backend.experimentget_file(repo, META_FILE, path=path)
-        result = self.backend.experiment.get_file(repo, RESULT_FILE, path=path)
+        metadata = self._gitlab_backend.get_file(repo, META_FILE, path=path)
+        result = self._gitlab_backend.get_file(repo, RESULT_FILE, path=path)
+        computation = self.backend.computation.get(metadata.get(Metric.COMPUTATION_ID))
 
-        # TODO Computation
-        metric = Metric(metadata=metadata, result=result)
+        metric = Metric(name=metadata.get(Metric.NAME), computation=computation, metadata=metadata, result=result)
         return metric
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):

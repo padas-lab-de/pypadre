@@ -14,10 +14,14 @@ class RunGitlabRepository(RunFileRepository):
         self._gitlab_backend = self.backend.experiment
 
     def list(self, search, offset=0, size=100):
+        if search is None:
+            search = {self._gitlab_backend.RELATIVE_PATH: 'executions/runs'}
+        else:
+            search[self._gitlab_backend.RELATIVE_PATH] = 'executions/runs'
         return self._gitlab_backend.list(search, offset, size, caller=self)
 
-    def get(self, uid, rpath='executions/runs'):
-        return self._gitlab_backend.get(uid, rpath=rpath, caller=self)
+    def get(self, uid):
+        return self._gitlab_backend.get(uid, rpath='executions/runs', caller=self)
 
     def _get_by_repo(self, repo, path=''):
         metadata = self._gitlab_backend.get_file(repo, META_FILE, path=path)

@@ -16,17 +16,22 @@ class ComputationGitlabRepository(ComputationFileRepository):
 
     def __init__(self, backend: IPadreBackend):
         super().__init__(backend=backend)
+        self._gitlab_backend = self.backend.experiment
 
-    def get(self, uid, rpath='executions/runs/computations'):
-        return self.backend.experiment.get(uid, rpath=rpath, caller=self)
+    def get(self, uid):
+        return self.backend.experiment.get(uid, rpath='executions/runs/computations', caller=self)
 
     def list(self, search, offset=0, size=100):
-        return self.backend.experiment.list(search, offset, size, caller=self)
+        if search is None:
+            search = {self._gitlab_backend.RELATIVE_PATH: 'executions/runs/computations'}
+        else:
+            search[self._gitlab_backend.RELATIVE_PATH] = 'executions/runs/computations'
+        return self._gitlab_backend.list(search, offset, size, caller=self)
 
     def _get_by_repo(self, repo, path=''):
-        metadata = self.backend.experiment.get_file(repo, META_FILE, path=path)
-        result = self.backend.experiment.get_file(repo, RESULT_FILE, path=path)
-        parameters = self.backend.experiment.get_file(repo, PARAMETER_FILE, default={}, path=path)
+        metadata = self._gitlab_backend.get_file(repo, META_FILE, path=path)
+        result = self._gitlab_backend.get_file(repo, RESULT_FILE, path=path)
+        parameters = self._gitlab_backend.get_file(repo, PARAMETER_FILE, default={}, path=path)
 
         # TODO Computation
         run_path = '/'.join(path.split('/')[:-2])

@@ -61,10 +61,11 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
         # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
         return self._file_backend.to_folder_name(code)
 
-    def _put(self, obj, *args, directory: str, **kwargs):
+    def _put(self, obj, *args, directory: str, local=True, **kwargs):
         # TODO rework!
-        self._file_backend._put(obj, *args, directory=directory, **kwargs)
-        add_and_commit(directory, message="Adding the experiment's source code metadata to the code generic")
+        if local:
+            self._file_backend._put(obj, *args, directory=directory, **kwargs)
+            add_and_commit(directory, message="Adding the experiment's source code metadata to the code generic")
         if self.has_remote_backend(obj):
             self.push_changes()
         # if store_code:
