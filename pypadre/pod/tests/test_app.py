@@ -51,8 +51,7 @@ class AppLocalBackends(PadreAppTest):
         from pypadre.core.model.experiment import Experiment
 
         project = self.create_project(name='Test Project 2',
-                                      description='Testing the functionalities of project backend',
-                                      reference=self.test_reference)
+                                      description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
         self.app.datasets.load_defaults()
@@ -61,10 +60,9 @@ class AppLocalBackends(PadreAppTest):
         from sklearn.svm import SVC
         experiment = self.create_experiment(name='Test Experiment SVM', description='Testing experiment using SVM',
                                             dataset=dataset.pop(), project=project,
-                                            pipeline=create_sklearn_test_pipeline(
-                                                estimators=[('SVC', SVC(probability=True))],
-                                                reference=self.test_reference),
-                                            reference=self.test_reference)
+                                            pipeline=
+                                            create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+                                                                         reference=self.test_reference))
 
         self.app.experiments.put(experiment)
         name = 'Test Experiment SVM'
