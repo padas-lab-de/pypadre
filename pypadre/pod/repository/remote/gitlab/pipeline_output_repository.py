@@ -25,11 +25,11 @@ class PipelineOutputGitlabRepository(PipelineOutputFileRepository):
         return self.backend.experiment.get(uid, rpath=rpath, caller=self)
 
     def list(self, search, offset=0, size=100):
-        return self.backend.experiment.list(search,offset,size, caller=self)
+        return self.backend.experiment.list(search, offset, size, caller=self)
 
-    def _get_by_repo(self,repo, path=''):
-        metadata = self.backend.experiment.get_file(repo, META_FILE,path=path)
-        parameter = self.backend.experiment.get_file(repo, PARAMETER_FILE, {},path=path)
+    def _get_by_repo(self, repo, path=''):
+        metadata = self.backend.experiment.get_file(repo, META_FILE, path=path)
+        parameter = self.backend.experiment.get_file(repo, PARAMETER_FILE, {}, path=path)
         metric = self.backend.experiment.get_file(repo, METRIC_FILE, path=path)
         result = self.backend.experiment.get_file(repo, RESULT_FILE, path=path)
 
@@ -38,5 +38,6 @@ class PipelineOutputGitlabRepository(PipelineOutputFileRepository):
 
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         super()._put(obj, *args, directory=directory, store_results=store_results, merge=merge, **kwargs)
-        self.parent.update(obj.parent, commit_message="Added metadata, parameter selection, metrics and results of the whole pipeline")
-        remove_cached(cache,obj.id)
+        self.parent.update(obj.parent,
+                           commit_message="Added metadata, parameter selection, metrics and results of the whole pipeline")
+        remove_cached(cache, obj.id)

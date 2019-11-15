@@ -18,7 +18,7 @@ cache = LRUCache(maxsize=16)
 
 class ComputationGitlabRepository(ComputationFileRepository):
 
-    def __init__(self,backend: IPadreBackend):
+    def __init__(self, backend: IPadreBackend):
         super().__init__(backend=backend)
 
     @cached(cache)
@@ -28,7 +28,7 @@ class ComputationGitlabRepository(ComputationFileRepository):
     def list(self, search, offset=0, size=100):
         return self.backend.experiment.list(search, offset, size, caller=self)
 
-    def _get_by_repo(self,repo, path=''):
+    def _get_by_repo(self, repo, path=''):
         metadata = self.backend.experiment.get_file(repo, META_FILE, path=path)
         result = self.backend.experiment.get_file(repo, RESULT_FILE, path=path)
         parameters = self.backend.experiment.get_file(repo, PARAMETER_FILE, default={}, path=path)
@@ -47,6 +47,6 @@ class ComputationGitlabRepository(ComputationFileRepository):
         return computation
 
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
-        super()._put(obj,*args,directory=directory,store_results=store_results, merge=merge, **kwargs)
+        super()._put(obj, *args, directory=directory, store_results=store_results, merge=merge, **kwargs)
         self.parent.update(obj.parent, commit_message="Added/updated a component computation")
         remove_cached(obj.id)

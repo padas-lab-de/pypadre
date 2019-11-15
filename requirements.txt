@@ -31,8 +31,8 @@ jsonpatch==1.24
 blinker==1.4
 cachetools==3.1.1
 dill==0.3.1.1
-python-gitlab==1.10.0
 pyhash==0.9.3
+python-gitlab==1.12.1
 
 --extra-index-url https://pypi.padim.fim.uni-passau.de/
 pypadre-ontology>=0.3.1
