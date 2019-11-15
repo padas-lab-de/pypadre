@@ -1,5 +1,3 @@
-from cachetools import cached, LRUCache
-
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
 from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
@@ -12,15 +10,12 @@ PARAMETER_FILE = File("parameters.json", JSonSerializer)
 METRIC_FILE = File("metrics.json", JSonSerializer)
 RESULT_FILE = File("results.json", JSonSerializer)
 
-cache = LRUCache(maxsize=5)
-
 
 class PipelineOutputGitlabRepository(PipelineOutputFileRepository):
 
     def __init__(self, backend: IPadreBackend):
         super().__init__(backend=backend)
 
-    @cached(cache)
     def get(self, uid, rpath='executions/runs/output'):
         return self.backend.experiment.get(uid, rpath=rpath, caller=self)
 
@@ -40,4 +35,3 @@ class PipelineOutputGitlabRepository(PipelineOutputFileRepository):
         super()._put(obj, *args, directory=directory, store_results=store_results, merge=merge, **kwargs)
         self.parent.update(obj.parent,
                            commit_message="Added metadata, parameter selection, metrics and results of the whole pipeline")
-        remove_cached(cache, obj.id)

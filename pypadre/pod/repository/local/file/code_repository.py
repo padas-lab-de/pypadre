@@ -47,7 +47,7 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
 
         return self._create_object(metadata, directory)
 
-    def _create_object(self, metadata, directory):
+    def _create_object(self, metadata, directory, root_dir=None):
 
         identifier_type = metadata.get(CodeMixin.REPOSITORY_TYPE)
         identifier_data = metadata.get(CodeMixin.IDENTIFIER)
@@ -68,8 +68,12 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
                 "Identifier is not present in the meta information of code object in directory " + directory)
 
         if metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.function):
-            fn_dir = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir),
+            if root_dir is not None:
+                fn_dir = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(root_dir),
                                    os.path.abspath(os.path.join(directory, '..', 'function'))))[0]
+            else:
+                fn_dir = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir),
+                                       os.path.abspath(os.path.join(directory, '..', 'function'))))[0]
             fn = self.get_file(fn_dir, CODE_FILE)
             code = Function(fn=fn, metadata=metadata, identifier=identifier)
 

@@ -20,7 +20,6 @@ class SplitGitlabRepository(SplitFileRepository):
     def _get_by_repo(self, repo, path=''):
         metadata = self.backend.experiment.get_file(repo, META_FILE, path=path)
 
-        # TODO Computation
         split = Split(metadata=metadata)
         return split
 

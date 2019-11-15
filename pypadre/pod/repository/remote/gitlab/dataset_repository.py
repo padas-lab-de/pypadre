@@ -1,5 +1,4 @@
 import os
-import re
 
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
@@ -9,7 +8,7 @@ from pypadre.pod.repository.local.file.dataset_repository import DatasetFileRepo
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
-from pypadre.pod.util.git_util import add_git_lfs_attribute_file, add_and_commit
+from pypadre.pod.util.git_util import add_and_commit
 
 NAME = "datasets"
 META_FILE = File("metadata.json", JSonSerializer)

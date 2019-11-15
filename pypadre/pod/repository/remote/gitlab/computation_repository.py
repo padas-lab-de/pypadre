@@ -1,5 +1,3 @@
-from cachetools import LRUCache, cached
-
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.generic.lazy_loader import SimpleLazyObject
 from pypadre.core.util.utils import remove_cached
@@ -13,15 +11,12 @@ PARAMETER_FILE = File("parameters.json", JSonSerializer)
 RESULT_FILE = File("results.bin", DillSerializer)
 INITIAL_HYPERPARAMETERS = File("initial_hyperparameters.json", JSonSerializer)
 
-cache = LRUCache(maxsize=16)
-
 
 class ComputationGitlabRepository(ComputationFileRepository):
 
     def __init__(self, backend: IPadreBackend):
         super().__init__(backend=backend)
 
-    @cached(cache)
     def get(self, uid, rpath='executions/runs/computations'):
         return self.backend.experiment.get(uid, rpath=rpath, caller=self)
 
@@ -49,4 +44,3 @@ class ComputationGitlabRepository(ComputationFileRepository):
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):
         super()._put(obj, *args, directory=directory, store_results=store_results, merge=merge, **kwargs)
         self.parent.update(obj.parent, commit_message="Added/updated a component computation")
-        remove_cached(obj.id)
