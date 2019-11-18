@@ -31,7 +31,8 @@ from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.model.code.code_mixin import PythonPackage, PythonFile, GitIdentifier, Function
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
-from pypadre.core.util.utils import filter_nones, find_package_structure
+from pypadre.core.model.split.split import Split
+from pypadre.core.util.utils import filter_nones, find_package_structure, unpack
 from pypadre.pod.app.config.padre_config import PadreConfig
 from pypadre.pod.app.core_app import CoreApp
 from pypadre.pod.backend.file import PadreFileBackend
@@ -60,7 +61,7 @@ class PadreAppFactory:
                 pass
                 # backends.append(PadreHttpBackend(b))
             elif 'gitlab_url' in b:
-                #TODO check for validity
+                # TODO check for validity
                 backends.append(PadreGitLabBackend(b))
             elif 'root_dir' in b:
                 # TODO check for validity
@@ -74,7 +75,7 @@ class PadreAppFactory:
 class PadreApp(CoreApp):
 
     # ------------------------------------------ decorators -------------------------------------------
-    def experiment(self, *args, ptype=None, parameters=None, parameter_provider=None,
+    def experiment(self, *args, ptype=None, parameters=None, parameter_provider=None, splitting=None,
                    reference=None, reference_package=None, reference_git=None,
                    dataset: Union[Dataset, str], project_name=None, experiment_name=None,
                    project_description=None, seed=None,
@@ -121,10 +122,11 @@ class PadreApp(CoreApp):
 
             # TODO check pipeline type (where to put provider)
             if parameter_provider is not None:
-                pipeline = local_ptype(pipeline_fn=wrap_workflow, parameter_provider=parameter_provider,
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, splitting=splitting,
+                                       parameter_provider=parameter_provider,
                                        reference=creator)
             else:
-                pipeline = local_ptype(pipeline_fn=wrap_workflow, reference=creator)
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, splitting=splitting, reference=creator)
 
             project = self.projects.get_by_name(project_name)
             if project is None:
@@ -185,6 +187,22 @@ class PadreApp(CoreApp):
             return self.datasets.load(wrap_dataset(), name=name, **kwargs)
 
         return dataset_decorator
+
+    def custom_splitter(self, *args, reference=None, reference_package=None, **kwargs):
+        def splitter_decorator(f_create_splitter):
+            @wraps(f_create_splitter)
+            def wrap_splitter(*args, **kwargs):
+                # here the custom splitter get called.
+                num = -1
+                train_idx, test_idx, val_idx = f_create_splitter(*args, **kwargs)
+                (data, run, component, predecessor) = unpack(args[0], "data", "run", "component", ("predecessor", None))
+                yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
+                            val_idx=val_idx, component=component, predecessor=predecessor, **kwargs)
+
+            creator = to_decorator_reference(reference, reference_package)
+            return Function(fn=wrap_splitter, transient=True, identifier=creator.identifier, **kwargs)
+
+        return splitter_decorator
 
 
 def to_decorator_reference(reference=None, reference_package=None, reference_git=None):

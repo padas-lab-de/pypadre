@@ -16,13 +16,13 @@ class SplitGitlabRepository(SplitFileRepository):
         self._gitlab_backend = self.backend.experiment
 
     def get(self, uid):
-        return self._gitlab_backend.get(uid, rpath='executions/runs/computations', caller=self)
+        return self._gitlab_backend.get(uid, rpath='executions/runs/splits', caller=self)
 
     def list(self, search, offset=0, size=100):
         if search is None:
-            search = {self._gitlab_backend.RELATIVE_PATH: 'executions/runs/computations'}
+            search = {self._gitlab_backend.RELATIVE_PATH: 'executions/runs/splits'}
         else:
-            search[self._gitlab_backend.RELATIVE_PATH] = 'executions/runs/computations'
+            search[self._gitlab_backend.RELATIVE_PATH] = 'executions/runs/splits'
         return self._gitlab_backend.list(search, offset, size, caller=self)
 
     def _get_by_repo(self, repo, path=''):

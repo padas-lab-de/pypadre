@@ -175,6 +175,7 @@ class GitLabRepository(IGitRepository):
     def find_repo_by_id(self, uid, rpath='', caller=None):
         """
         Find a repo by searching for the corresponding id of the object.
+        :param caller:
         :param rpath: relative path to the object
         :param uid: Id to search for
         :return: (repo,path to the object)
@@ -239,8 +240,10 @@ class GitLabRepository(IGitRepository):
         repos = self.get_repos_by_search(search, rpath=rpath, caller=caller)
         objs = [self.get_by_repo(repo, path=path, caller=caller) for repo, path in repos]
         local_objs = []
-        if hasattr(self, "_file_backend"):
+        if hasattr(self, "_file_backend") and caller is None:
             local_objs = self._file_backend.list(search, offset, size)
+        elif caller:
+            local_objs = super(caller.__class__, caller).list(search,offset,size)
         return objs + local_objs
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
