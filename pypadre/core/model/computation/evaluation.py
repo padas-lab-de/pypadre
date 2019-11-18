@@ -23,3 +23,6 @@ class Evaluation(Computation):
     @property
     def estimation(self):
         return self._training
+
+    def __str__(self):
+        return "Evaluation"

@@ -84,6 +84,8 @@ def matrix(ctx, **kwargs) -> Optional[Metric]:
 
 class ConfusionMatrix(MetricProviderMixin):
 
+    NAME = "Confusion Matrix"
+
     def __init__(self, *args, **kwargs):
         super().__init__(code=PythonPackage(package=__name__, variable="matrix",
                                             identifier=PipIdentifier(pip_package=_name.__name__,
@@ -93,6 +95,9 @@ class ConfusionMatrix(MetricProviderMixin):
     def consumes(self) -> str:
         # return "classification"
         return PaDREOntology.SubClassesExperiment.Classification.value
+
+    def __str__(self):
+        return self.NAME
 
 
 def regression(ctx, **kwargs) -> Optional[List[Metric]]:
@@ -207,6 +212,8 @@ def classification(ctx, option='macro', **kwargs):
 
 class ClassificationMetrics(MetricProviderMixin):
 
+    NAME = "Classification Metrics"
+
     def __init__(self, *args, **kwargs):
         super().__init__(code=PythonPackage(package=__name__, variable="classification",
                                             identifier=PipIdentifier(pip_package=_name.__name__,
@@ -216,6 +223,8 @@ class ClassificationMetrics(MetricProviderMixin):
     def consumes(self) -> str:
         return str(ConfusionMatrix)
 
+    def __str__(self):
+        return self.NAME
 
 confusion_matrix_ref = PythonPackage(package=__name__, variable="confusion_matrix",
                                      identifier=PipIdentifier(pip_package=_name.__name__,
