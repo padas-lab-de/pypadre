@@ -51,17 +51,18 @@ class ProjectGitlabRepository(GitLabRepository, IProjectRepository, ILogFileRepo
         add_and_commit(self.to_directory(project), message=commit_message, force_commit=True)
         self.push_changes()
 
-    def _put(self, obj, *args, directory: str, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, merge=False, local=True, **kwargs):
         project = obj
         if merge:
             metadata = self.get_file(directory, META_FILE)
             if metadata is not None:
                 project.merge_metadata(metadata)
-        if self.has_remote_backend(project):
-            add_and_commit(directory, message="Adding unstaged changes in the repo")
-            self.push_changes()
-        else:
+        if local:
             self.write_file(directory, META_FILE, project.metadata)
             self.write_file(directory, MANIFEST_FILE, self._tsrc)
             self.write_file(directory, GIT_IGNORE, _gitignore)
             add_and_commit(directory, message="Adding the metadata and the manifest file of the project")
+
+        if self.has_remote_backend(project):
+            add_and_commit(directory, message="Adding unstaged changes in the repo")
+            self.push_changes()

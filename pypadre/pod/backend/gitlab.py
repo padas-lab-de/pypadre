@@ -19,6 +19,7 @@ class PadreGitLabBackend(IPadreBackend):
     """
     backend class holding the gitlab repositories for our padre objects
     """
+
     def log_info(self, message, **kwargs):
         self.log(message="INFO: " + message, **kwargs)
 
@@ -40,7 +41,6 @@ class PadreGitLabBackend(IPadreBackend):
 
     def __init__(self, config):
         super().__init__(config)
-        #TODO finsh all backends repos
         self._project = ProjectGitlabRepository(self)
         self._experiment = ExperimentGitlabRepository(self)
         self._dataset = DatasetGitlabRepository(self)

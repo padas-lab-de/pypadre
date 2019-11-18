@@ -1,10 +1,5 @@
-import os
-import re
-
-from cachetools import LRUCache, cached
-
 from pypadre.core.model.experiment import Experiment
-from pypadre.core.util.utils import remove_cached
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.experiment_repository import ExperimentFileRepository
@@ -18,8 +13,6 @@ META_FILE = File("metadata.json", JSonSerializer)
 MANIFEST_FILE = File("manifest.yml", YamlSerializer)
 NAME = 'experiments'
 
-cache = LRUCache(maxsize=16)
-
 
 class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperimentRepository):
 
@@ -32,6 +25,7 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
                          , backend=backend, **kwargs)
         self._file_backend = ExperimentFileRepository(backend=backend)
         self._group = self.get_group(name=NAME)
+        # self._commit_counter = 2
 
     def _get_by_dir(self, directory):
         return self._file_backend._get_by_dir(directory)
@@ -48,9 +42,10 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
 
         project = self.backend.project.get(metadata.get(Experiment.PROJECT_ID))
         dataset = self.backend.dataset.get(metadata.get(Experiment.DATASET_ID))
+        reference = self.backend.code.get(metadata.get(CodeManagedMixin.DEFINED_IN))
 
         ex = Experiment(name=metadata.get("name"), description=metadata.get("description"), project=project,
-                        dataset=dataset, metadata=metadata, pipeline=pipeline)
+                        dataset=dataset, metadata=metadata, reference=reference, pipeline=pipeline)
         return ex
 
     def put_progress(self, experiment, **kwargs):
@@ -58,18 +53,16 @@ class ExperimentGitlabRepository(IChildFileRepository, GitLabRepository, IExperi
 
     def update(self, experiment: Experiment, commit_message: str):
         add_and_commit(self.to_directory(experiment), message=commit_message)
-        self.push_changes(commit_counter=3)
+        self.push_changes()
 
-    def _put(self, experiment: Experiment, *args, directory, merge=False, **kwargs):
+    def _put(self, experiment: Experiment, *args, directory, merge=False, local=True, **kwargs):
 
         # update experiment
-        self._file_backend._put(experiment=experiment, *args, directory=directory, merge=merge, **kwargs)
-        add_and_commit(directory, message="Adding the metadata and the workflow of the experiment")
-        self.parent.update(experiment.parent, src=experiment.name, url=self.get_repo_url(),
-                           commit_message="Adding the experiment named {} repository to the tsrc file.".format(
-                               experiment.name))
+        if local:
+            self._file_backend._put(experiment=experiment, *args, directory=directory, merge=merge, **kwargs)
+            add_and_commit(directory, message="Adding the metadata and the workflow of the experiment")
         if self.has_remote_backend(experiment):
-            # TODO add a counter (of commits) or a timer for each push
-            add_and_commit(directory, message="Adding unstaged changes in the repo")
+            self.parent.update(experiment.parent, src=experiment.name, url=self.get_repo_url(),
+                               commit_message="Adding the experiment named {} repository to the tsrc file.".format(
+                                   experiment.name))
             self.push_changes()
-        remove_cached(cache, experiment.id)

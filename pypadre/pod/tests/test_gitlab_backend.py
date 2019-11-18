@@ -12,13 +12,14 @@ from pypadre.core.util.utils import find_package_structure
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
 from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
+from pypadre.pod.tests.base_test import PadreAppTest
 from pypadre.pod.tests.util.util import connect_log_to_stdout, connect_event_to_stdout, create_sklearn_test_pipeline
 
 
 # config_path = os.path.join(os.path.expanduser("~"), ".padre_git_test.cfg")
 # workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
 
-class PadreGitTest(unittest.TestCase):
+class PadreGitTest(PadreAppTest):
 
     @classmethod
     def setUpClass(cls):
@@ -38,68 +39,25 @@ class PadreGitTest(unittest.TestCase):
                 "root_dir": cls.workspace_path,
                 "gitlab_url": 'http://gitlab.padre.backend:30080/',
                 "user": "root",
-                "token": "LvVzAaNyFyS6iiJNzTFf"
+                "token": "kd1dDsqG2Zm3HCAjpaCs"
             }
         ]))
         cls.app = PadreAppFactory.get(config)
         connect_log_to_stdout()
         connect_event_to_stdout()
 
-    def create_experiment(self, *args, **kwargs):
-        return self.app.experiments.service.create(*args, **kwargs)
-
-    def create_project(self, *args, **kwargs):
-        return self.app.projects.service.create(*args, **kwargs)
-
-    def create_execution(self, *args, **kwargs):
-        return self.app.executions.service.create(*args, **kwargs)
-
-    def create_run(self, *args, **kwargs):
-        return self.app.runs.service.create(*args, **kwargs)
-
-    def create_split(self, *args, **kwargs):
-        return self.app.splits.service.create(*args, **kwargs)
-
-    def setUp(self):
-        # clean up if last teardown wasn't called correctly
-        self.tearDown()
-
-    def setup_reference(self, file):
-        # TODO can we move that to setup in some way??? reference to (__file__)
-        self.test_reference = PythonPackage(package=find_package_structure(file),
-                                            variable=self._testMethodName, identifier=PACKAGE_ID)
-
-    def tearDown(self):
-        # delete local data content
-        try:
-            if os.path.exists(os.path.join(self.workspace_path, "datasets")):
-                shutil.rmtree(self.workspace_path + "/datasets")
-            if os.path.exists(os.path.join(self.workspace_path, "projects")):
-                shutil.rmtree(self.workspace_path + "/projects")
-            if os.path.exists(os.path.join(self.workspace_path, "code")):
-                shutil.rmtree(self.workspace_path + "/code")
-        except FileNotFoundError:
-            pass
-
-    # noinspection PyUnresolvedReferences
-    @classmethod
-    def tearDownClass(cls):
-        """Remove config file after test"""
-        if os.path.isdir(cls.workspace_path):
-            shutil.rmtree(cls.workspace_path)
-        os.remove(cls.config_path)
-
 
 class GitlabBackend(PadreGitTest):
 
     def setUp(self):
+        super().setUp()
         self.setup_reference(__file__)
 
     def tearDown(self):
 
         super().tearDown()
 
-        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/', private_token="LvVzAaNyFyS6iiJNzTFf")
+        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/', private_token="kd1dDsqG2Zm3HCAjpaCs")
 
         projects = server.projects.list()
 
@@ -123,7 +81,8 @@ class GitlabBackend(PadreGitTest):
     def test_project(self):
         from pypadre.core.model.project import Project
 
-        project = Project(name='Test Project', description='Testing the functionalities of project backend',reference=self.test_reference)
+        project = Project(name='Test Project', description='Testing the functionalities of project backend',
+                          reference=self.test_reference)
         self.app.projects.put(project)
 
         name = 'Test Project'
@@ -133,28 +92,23 @@ class GitlabBackend(PadreGitTest):
 
     def test_experiment(self):
         project = self.create_project(name='Test Project 2',
-                                      description='Testing the functionalities of project backend',reference = self.test_reference)
+                                      description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
-        # self.app.datasets.load_defaults()
-        # dataset = self.app.datasets.list({'name': '_boston_dataset'})
-        dataset = SKLearnLoader().load("sklearn", utility="load_boston")
+        self.app.datasets.load_defaults()
+        dataset = self.app.datasets.list({'name': '_boston_dataset'})
 
         from sklearn.svm import SVC
         experiment = self.create_experiment(name='Test Experiment SVM', description='Testing experiment using SVM',
-                                            dataset=dataset, project=project,
+                                            dataset=dataset.pop(), project=project,
                                             pipeline=create_sklearn_test_pipeline(
                                                 estimators=[('SVC', SVC(probability=True))],
-                                                reference=self.test_reference),
-                                            reference=self.test_reference)
+                                                reference=self.test_reference))
 
         self.app.experiments.put(experiment)
-
         name = 'Test Experiment SVM'
         experiments = self.app.experiments.list()
-
         assert (isinstance(experiments, list))
-
         assert name in [ex.name for ex in experiments]
 
     def test_execution(self):
@@ -166,20 +120,18 @@ class GitlabBackend(PadreGitTest):
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = Project(name='Test Project 2', description='Testing the functionalities of project backend',
+                          reference=self.test_reference)
         self.app.projects.put(project)
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
+        from sklearn.svm import SVC
         experiment = Experiment(name="Test Experiment SVM",
                                 description="Testing Support Vector Machines via SKLearn Pipeline",
                                 dataset=dataset[0],
-                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+                                pipeline=create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+                                                                      reference=self.test_reference),
+                                keep_splits=True, strategy="random", project=project,
+                                reference=self.test_reference)
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
@@ -196,12 +148,6 @@ class GitlabBackend(PadreGitTest):
             assert execution[0].name == executions[0].name
 
     def test_run(self):
-        """
-        project_backend: ProjectFileRepository = self.backend.project
-        experiment_backend: ExperimentFileRepository = project_backend.experiment
-        execution_backend: ExecutionFileRepository = experiment_backend.execution
-        run_backend: RunFileRepository = execution_backend.run
-        """
 
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
@@ -213,20 +159,18 @@ class GitlabBackend(PadreGitTest):
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = Project(name='Test Project 2', description='Testing the functionalities of project backend',
+                          reference=self.test_reference)
         self.app.projects.put(project)
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
+        from sklearn.svm import SVC
         experiment = Experiment(name="Test Experiment SVM",
                                 description="Testing Support Vector Machines via SKLearn Pipeline",
                                 dataset=dataset[0],
-                                workflow=create_test_pipeline, keep_splits=True, strategy="random", project=project)
+                                pipeline=create_sklearn_test_pipeline(
+                                    estimators=[('SVC', SVC(probability=True))],
+                                    reference=self.test_reference), keep_splits=True, strategy="random",
+                                project=project, reference=self.test_reference)
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
@@ -237,7 +181,7 @@ class GitlabBackend(PadreGitTest):
 
         executions = self.app.executions.list({'hash': codehash})
         if len(executions) > 0:
-            run = Run(execution=executions[0], workflow=execution.experiment.pipeline, keep_splits=True)
+            run = Run(execution=executions[0], pipeline=execution.experiment.pipeline, keep_splits=True)
             self.app.runs.put(run)
 
         else:
@@ -256,20 +200,16 @@ class GitlabBackend(PadreGitTest):
         project = self.app.projects.service.create(name='Test Project 2',
                                                    description='Testing the functionalities of project backend')
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
+        from sklearn.svm import SVC
         experiment = self.create_experiment(name="Test Experiment SVM",
                                             description="Testing Support Vector Machines via SKLearn Pipeline",
                                             dataset=dataset[0],
-                                            workflow=create_test_pipeline(), keep_splits=True,
+                                            pipeline=create_sklearn_test_pipeline(
+                                                estimators=[('SVC', SVC(probability=True))],
+                                                reference=self.test_reference), keep_splits=True,
                                             strategy="random", project=project)
 
         codehash = 'abdauoasg45qyh34t'
@@ -287,34 +227,34 @@ class GitlabBackend(PadreGitTest):
         assert (split.test_idx == test_range)
         assert (split.train_idx == train_range)
         self.app.splits.put(split)
-        # FIXME Christofer put asserts here
+        splits = self.app.splits.list({"id": split.id})
+
+        assert split.id in [item.id for item in splits]
 
     def test_full_stack(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.binding.metrics import sklearn_metrics
         print(sklearn_metrics)
-        # TODO plugin system
 
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2',
                           description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_full_stack))
-
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
+                          reference=self.test_reference)
 
         id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        experiment = Experiment(name='Test Experiment', description='Test Experiment',
-                                dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                creator=self.test_full_stack)
+        from sklearn.svm import SVC
+        experiment = Experiment(name="Test Experiment SVM",
+                                description="Testing Support Vector Machines via SKLearn Pipeline",
+                                dataset=dataset[0],
+                                pipeline=create_sklearn_test_pipeline(
+                                    estimators=[('SVC', SVC(probability=True))],
+                                    reference=self.test_reference),
+                                project=project,
+                                reference=self.test_reference)
+
         experiment.execute()
         assert (experiment.executions is not None)
         computations = self.app.computations.list()
@@ -335,7 +275,7 @@ class GitlabBackend(PadreGitTest):
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2',
                           description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_full_stack))
+                          reference=self.test_reference)
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -355,7 +295,8 @@ class GitlabBackend(PadreGitTest):
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                creator=self.test_full_stack)
+                                reference=self.test_reference)
+
         parameter_dict = {'SVC': {'C': [0.1, 0.2]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}

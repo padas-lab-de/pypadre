@@ -280,7 +280,7 @@ def get_repo(path=None, url=None, **kwargs):
 
 def crawl_repo(repo, rpath, _path=""):
     rpath = rpath.split('/')
-    path = _path + '/' + rpath.pop(0)
+    path = _path + '/' + rpath.pop(0) if _path!="" else rpath.pop(0)
     repository_tree = repo.repository_tree(path=path)
     paths = [obj.get('path') for obj in repository_tree]
     if len(rpath) > 0:

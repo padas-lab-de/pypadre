@@ -52,19 +52,20 @@ class CodeGitlabRepository(GitLabRepository, ICodeRepository):
 
     def _get_by_repo(self, repo, path=''):
         # TODO rework
-        with tempfile.mkdtemp() as temp_dir:
+        with tempfile.TemporaryDirectory(suffix="code") as temp_dir:
             temp_local_repo = get_repo(path=temp_dir, url=self.url_oauth(self.get_repo_url(repo)))
             metadata = self._file_backend.get_file(temp_dir, META_FILE)
-            return self._file_backend._create_object(metadata, directory=temp_dir)
+            return self._file_backend._create_object(metadata, directory=temp_dir, root_dir=temp_dir)
 
     def to_folder_name(self, code):
         # TODO only name for folder okay? (maybe a uuid, a digest of a config or similar?)
         return self._file_backend.to_folder_name(code)
 
-    def _put(self, obj, *args, directory: str, **kwargs):
+    def _put(self, obj, *args, directory: str, local=True, **kwargs):
         # TODO rework!
-        self._file_backend._put(obj, *args, directory=directory, **kwargs)
-        add_and_commit(directory, message="Adding the experiment's source code metadata to the code generic")
+        if local:
+            self._file_backend._put(obj, *args, directory=directory, **kwargs)
+            add_and_commit(directory, message="Adding the experiment's source code metadata to the code generic")
         if self.has_remote_backend(obj):
             self.push_changes()
         # if store_code:

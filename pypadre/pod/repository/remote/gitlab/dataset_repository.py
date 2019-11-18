@@ -1,5 +1,4 @@
 import os
-import re
 
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
@@ -9,7 +8,7 @@ from pypadre.pod.repository.local.file.dataset_repository import DatasetFileRepo
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, PickleSerializer
-from pypadre.pod.util.git_util import add_git_lfs_attribute_file, add_and_commit
+from pypadre.pod.util.git_util import add_and_commit
 
 NAME = "datasets"
 META_FILE = File("metadata.json", JSonSerializer)
@@ -57,9 +56,10 @@ class DatasetGitlabRepository(GitLabRepository, IDatasetRepository):
         """
         return dataset.name
 
-    def _put(self, obj, *args, directory: str, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, merge=False, local=True, **kwargs):
         dataset = obj
-        self._file_backend._put(obj, *args, directory=directory, merge=merge, **kwargs)
+        if local:
+            self._file_backend._put(obj, *args, directory=directory, merge=merge, **kwargs)
         if self.has_remote_backend(dataset):
             add_and_commit(directory, message="Adding unstaged changes in the repo")
             self.push_changes()

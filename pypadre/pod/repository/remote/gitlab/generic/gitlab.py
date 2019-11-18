@@ -11,8 +11,10 @@ from abc import abstractmethod, ABCMeta
 from logging import warning
 
 import gitlab
+from cachetools import cached
 from git import GitCommandError
 
+from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.generic.i_repository_mixins import ISearchable
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
@@ -34,6 +36,9 @@ class GitLabRepository(IGitRepository):
     _git = None
     _branch = "master"
     _group = None
+    _commit_counter = 0
+
+    RELATIVE_PATH = "rpath"
 
     @abstractmethod
     def __init__(self, root_dir: str, gitlab_url: str, token: str, backend: IPadreBackend, **kwargs):
@@ -77,8 +82,7 @@ class GitLabRepository(IGitRepository):
                 self._local_repo = super().put(obj)
             except Exception as e:
                 # TODO handle different exceptions upon creation
-                print(e)
-                pass
+                raise Exception
         else:
             self._repo = self.get_project_by_id(self.get_projects(name)[0].id)
             if not repo_exists(self.to_directory(obj)):
@@ -123,7 +127,7 @@ class GitLabRepository(IGitRepository):
 
     def get_repo_url(self, repo=None, ssh=False):
         if repo is not None:
-            return repo.attributes.get("ssh_url_to_repo") if ssh else self._repo.attributes.get("http_url_to_repo")
+            return repo.attributes.get("ssh_url_to_repo") if ssh else repo.attributes.get("http_url_to_repo")
         return self._repo.attributes.get("ssh_url_to_repo") if ssh else self._repo.attributes.get("http_url_to_repo")
 
     def add_remote(self, branch, url):
@@ -142,13 +146,10 @@ class GitLabRepository(IGitRepository):
         :param uid: uid to search for
         :return:
         """
-        # TODO should we get the object from remote?
-        # return super().get(uid=uid)
         (repo, path) = self.find_repo_by_id(uid, rpath=rpath, caller=caller)
         if repo is None:
-            return super().get(uid=uid)
+            return None
         return self.get_by_repo(repo, path=path, caller=caller)
-        # return super().get(uid=uid)
 
     def has_repo_dir(self, repo, path=None):
         return len(repo.repository_tree(path=path)) > 0
@@ -174,6 +175,7 @@ class GitLabRepository(IGitRepository):
     def find_repo_by_id(self, uid, rpath='', caller=None):
         """
         Find a repo by searching for the corresponding id of the object.
+        :param caller:
         :param rpath: relative path to the object
         :param uid: Id to search for
         :return: (repo,path to the object)
@@ -181,11 +183,11 @@ class GitLabRepository(IGitRepository):
         repos = self.get_repos_by_search({'id': uid}, rpath=rpath, caller=caller)
         if len(repos) > 1:
             raise RuntimeError("Found multiple repositories for one ID. Data corrupted! " + str(repos))
-        return repos.pop() if len(repos) == 1 else (None,None)
+        return repos.pop() if len(repos) == 1 else (None, None)
 
     def to_repo(self, obj):
         """
-        Returns the repo of the object
+        Returns the repository of the object
         :param obj:
         :return:
         """
@@ -238,8 +240,10 @@ class GitLabRepository(IGitRepository):
         repos = self.get_repos_by_search(search, rpath=rpath, caller=caller)
         objs = [self.get_by_repo(repo, path=path, caller=caller) for repo, path in repos]
         local_objs = []
-        if hasattr(self, "_file_backend"):
+        if hasattr(self, "_file_backend") and caller is None:
             local_objs = self._file_backend.list(search, offset, size)
+        elif caller:
+            local_objs = super(caller.__class__, caller).list(search,offset,size)
         return objs + local_objs
 
     def put(self, obj, *args, merge=False, allow_overwrite=False, **kwargs):
@@ -248,12 +252,12 @@ class GitLabRepository(IGitRepository):
 
         self.add_remote(self._branch, self.get_remote_url())
 
-        self._put(obj, *args, directory=self.to_directory(obj), merge=merge, **kwargs)
+        self._put(obj, *args, directory=self.to_directory(obj), merge=merge, local=False, **kwargs)
 
         self.reset()
 
     @abstractmethod
-    def _put(self, obj, *args, directory: str, merge=False, **kwargs):
+    def _put(self, obj, *args, directory: str, merge=False, local=True, **kwargs):
         """
         This function pushes the files to the given remote branch from the local git repo.
         :param obj:
@@ -275,8 +279,6 @@ class GitLabRepository(IGitRepository):
         :param file: File object
         :return: Loaded file
         """
-        if not isinstance(repo, gitlab.v4.objects.Project):
-            return super().get_file(repo, file, default=default)
         try:
             file_path = path + '/' + file.name if path != '' else file.name
             f = repo.files.get(file_path=file_path, ref='master')
@@ -335,18 +337,14 @@ class GitLabRepository(IGitRepository):
         commit = self._repo.commits.create(options)
         return commit
 
-    def push_changes(self, commit_counter=0):
+    def push_changes(self):
         if self._remote is None:
             remote_url = self.get_remote_url()
             self.add_remote(self._branch, remote_url)
-        # TODO push if waiting commits is equal or more than the commit counter.
-        try:
-            self._remote.pull(refspec=self._branch)
-            self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))  # TODO commit/push schedule?
-        except Exception as e:
-            if "Couldn't find remote ref" in e.stderr:
-                self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))
-            else:
+        if len(self._local_repo.index.diff(self._branch)) >= self._commit_counter:
+            try:
+                self._remote.push(refspec='{}:{}'.format(self._branch, self._branch))  # TODO commit/push schedule?
+            except Exception as e:
                 raise Exception
 
     @abstractmethod

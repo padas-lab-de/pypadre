@@ -43,7 +43,7 @@ class IGitRepository(IFileRepository):
             add_and_commit(directory, message=kwargs.pop('message', 'Initial Commit of Repository'))
         else:
             repo = get_repo(path=directory, **kwargs.pop("repo_kwargs", {}))
-            add_and_commit(directory, message=kwargs.pop('message', 'commiting existing changes'))
+            add_and_commit(directory, message=kwargs.pop('message', 'Commiting existing changes'))
 
         return repo
 
