@@ -9,7 +9,7 @@ from pypadre.core.base import MetadataMixin
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.util.utils import _Const, persistent_hash
-from pypadre.pod.util.git_util import get_repo, add_and_commit
+from pypadre.pod.util.git_util import get_repo, add_and_commit, has_uncommitted_files
 
 
 class CodeIdentifier:
@@ -104,9 +104,10 @@ class GitIdentifier(CodeIdentifier):
 
         if self._git_hash is None:
             with get_repo(path=path, url=url) as _repo:
-                if False:
+                if has_uncommitted_files(_repo):
                     # Todo check git repo state
-                    raise ValueError("Git repository has uncommitted changes please commit.")
+                    add_and_commit(path, message="Committing uncommitted changes :-)")
+                    # raise ValueError("Git repository has uncommitted changes please commit.")
                 if _repo is not None:
                     try:
                         self._git_hash = _repo.head.object.hexsha
@@ -233,7 +234,8 @@ class PythonPackage(CodeMixin):
         """
         self._variable = variable
         self._package = package
-        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, "id": persistent_hash((self._variable, self._package, identifier.id_hash()))},
+        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable,
+                       "id": persistent_hash((self._variable, self._package, identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
         super().__init__(identifier=identifier, type=self._CodeType.package, metadata=metadata, **kwargs)
 
