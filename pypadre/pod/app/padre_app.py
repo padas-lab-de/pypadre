@@ -76,7 +76,7 @@ class PadreApp(CoreApp):
 
     # ------------------------------------------ decorators -------------------------------------------
     def experiment(self, *args, ptype=None, parameters=None, parameter_provider=None, splitting=None,
-                   reference=None, reference_package=None, reference_git=None,
+                   preprocessing_fn=None, reference=None, reference_package=None, reference_git=None,
                    dataset: Union[Dataset, str], project_name=None, experiment_name=None,
                    project_description=None, seed=None,
                    experiment_description=None, auto_main=True, **kwargs):
@@ -123,10 +123,13 @@ class PadreApp(CoreApp):
             # TODO check pipeline type (where to put provider)
             if parameter_provider is not None:
                 pipeline = local_ptype(pipeline_fn=wrap_workflow, splitting=splitting,
+                                       preprocessing_fn=preprocessing_fn,
                                        parameter_provider=parameter_provider,
                                        reference=creator)
             else:
-                pipeline = local_ptype(pipeline_fn=wrap_workflow, splitting=splitting, reference=creator)
+                pipeline = local_ptype(pipeline_fn=wrap_workflow, splitting=splitting,
+                                       preprocessing_fn=preprocessing_fn,
+                                       reference=creator)
 
             project = self.projects.get_by_name(project_name)
             if project is None:
@@ -188,7 +191,7 @@ class PadreApp(CoreApp):
 
         return dataset_decorator
 
-    def custom_splitter(self, *args, reference=None, reference_package=None, **kwargs):
+    def custom_splitter(self, *args, reference_git=None, reference_package=None, **kwargs):
         def splitter_decorator(f_create_splitter):
             @wraps(f_create_splitter)
             def wrap_splitter(*args, **kwargs):
@@ -199,10 +202,25 @@ class PadreApp(CoreApp):
                 yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
                             val_idx=val_idx, component=component, predecessor=predecessor, **kwargs)
 
-            creator = to_decorator_reference(reference, reference_package)
+            creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
             return Function(fn=wrap_splitter, transient=True, identifier=creator.identifier, **kwargs)
 
         return splitter_decorator
+
+    def preprocessing(self, *args, reference_git=None, reference_package=None, store=False, **kwargs):
+        def preprocessing_decorator(f_create_preprocessing):
+            @wraps(f_create_preprocessing)
+            def wrap_preprocessing(*args, **kwargs):
+                _data = f_create_preprocessing(*args, **kwargs)
+                if store:
+                    self.datasets.put(_data)
+                return _data
+
+            creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
+
+            return Function(fn=wrap_preprocessing, transient=True, identifier=creator.identifier, **kwargs)
+
+        return preprocessing_decorator
 
 
 def to_decorator_reference(reference=None, reference_package=None, reference_git=None):

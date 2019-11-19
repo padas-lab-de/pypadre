@@ -39,7 +39,7 @@ class PadreGitTest(PadreAppTest):
                 "root_dir": cls.workspace_path,
                 "gitlab_url": 'http://gitlab.padre.backend:30080/',
                 "user": "root",
-                "token": "kd1dDsqG2Zm3HCAjpaCs"
+                "token": "LvVzAaNyFyS6iiJNzTFf"
             }
         ]))
         cls.app = PadreAppFactory.get(config)
@@ -57,7 +57,7 @@ class GitlabBackend(PadreGitTest):
 
         super().tearDown()
 
-        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/', private_token="kd1dDsqG2Zm3HCAjpaCs")
+        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/', private_token="LvVzAaNyFyS6iiJNzTFf")
 
         projects = server.projects.list()
 
