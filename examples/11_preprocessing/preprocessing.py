@@ -1,3 +1,4 @@
+from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.util.utils import unpack
 from pypadre.examples.base_example import example_app
 import numpy as np
@@ -16,19 +17,26 @@ def dataset():
     return np.append(data, target, axis=1)
 
 
-@app.custom_splitter(name="Custom splitter", reference_git=__file__)
-def custom_splitter(ctx, **kwargs):
-    (data,) = unpack(ctx, "data")
-    idx = np.arange(data.size[0])
-    cutoff = int(len(idx) / 2)
-    return idx[:cutoff], idx[cutoff:], None
+@app.preprocessing(reference_git=__file__, store=True)
+def preprocessing(ctx, **kwargs):
+    (dataset,) = unpack(ctx, "data")
+    from sklearn.preprocessing import StandardScaler
+    scaler = StandardScaler()
+    scaler.fit(dataset.features())
+    _dataset = Transformation(name="Standarized_%s" % dataset.name, dataset=dataset)
+    _features = scaler.transform(dataset.features())
+    targets = dataset.targets()
+    new_data = np.hstack((_features, targets))
+    _dataset.set_data(new_data, attributes=dataset.attributes)
+    return _dataset
 
 
 @app.parameter_map()
 def parameters():
     return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [1.0]}, 'PCA': {'n_components': [3]}}}}
 
-@app.experiment(dataset=dataset, reference_git=__file__, parameters=parameters, splitting=custom_splitter,
+
+@app.experiment(dataset=dataset, reference_git=__file__, parameters=parameters, preprocessing_fn=preprocessing,
                 experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline
