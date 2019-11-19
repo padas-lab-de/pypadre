@@ -41,10 +41,25 @@ Let's say we executed our script **versioned_code.py**.
 
 The output of this script is:
 
-![](output1.png)
+![](run1.png)
 
 This code reference is at the same time the **ID** of the corresponding execution of the experiment.
 
+* Screenshot #1 (The executions folder of the experiment) & (the runs folder of the experiment)
+
+![](executions1.png)   ![](runs1.png)
+
+As we can see the execution added has the code reference as the name of the folder.
+
+If we re-run the same code in **versioned_code.py**, we will have the same execution but with another added run.
+
+The output of the script is:
+
+![](run2.png)
+
+* Screeshot #2 (the runs folder of the experiment)
+
+![](executions2.png) ![](runs2.png)
 
 
 ### Changing the referenced code
@@ -58,3 +73,13 @@ After running this script let's say we changed the parameter_map :
 This would create a difference in the git repository and after commiting, we will have a new code version or HASH
 which will create a new execution of the experiment instead of a new run since the source code creating the experiment
 has changed.
+
+The output of the changed script is :
+ 
+![](run3.png)
+
+* Screeshot #3 (the executions folder of the experiment)
+
+![](executions3.png)
+
+As we can see a new execution has been added with the new code reference.
