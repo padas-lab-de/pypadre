@@ -74,8 +74,6 @@ class MetricRegistry(LoggableMixin):
 
             return self.execute_paths(execution_paths, computation, **kwargs)
 
-
-
         provider_history = set()
         results = []
 

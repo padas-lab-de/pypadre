@@ -93,7 +93,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                                           run=run, **kwargs)
 
     def _execute_pipeline_helper(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
-                                 write_parameters_map: WriteResultMetricsMap, metric_map: MetricsMap,
+                                 write_parameters_map: WriteResultMetricsMap, metrics_map: MetricsMap,
                                  run: Run, aggregate_results=True, **kwargs):
 
         write_parameters = write_parameters_map.get_for(node)
@@ -123,13 +123,13 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         if allow_metrics:
             providers = []
             for metric in available_metrics:
-                if str(metric) in metric_map.get(computation.component.name):
+                if str(metric) in metrics_map.get(computation.component.name):
                     providers.append(metric)
                     message = "Adding metric {metric} for computation " \
                               "on node {node}".format(metric=str(metric),
                                                       node=str(computation.component.name))
                     self.send_info(message=message)
-
+                    print(message)
             providers = providers if len(providers) > 0 else None
 
             metrics = metric_registry.calculate_measures(computation, run=run, node=node, providers=providers,
@@ -142,6 +142,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         for res in computation.iter_result():
             self._execute_successors(node, run=run, predecessor=computation,
                                      parameter_map=parameter_map, write_parameters_map=write_parameters_map,
+                                     metrics_map=metrics_map,
                                      data=res, **kwargs)
 
         # Check if we are a end node
@@ -154,11 +155,11 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
             print(message)
 
     def _execute_successors(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap, run: Run,
-                            predecessor: Computation = None, **kwargs):
+                            predecessor: Computation = None, metrics_map: MetricsMap, **kwargs):
         successors = self.successors(node)
         for successor in successors:
             self._execute_pipeline(successor, data=data, run=run, predecessor=predecessor,
-                                   parameter_map=parameter_map, **kwargs)
+                                   parameter_map=parameter_map, metrics_map=metrics_map, **kwargs)
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)
