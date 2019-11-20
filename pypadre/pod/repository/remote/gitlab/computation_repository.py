@@ -1,6 +1,5 @@
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.generic.lazy_loader import SimpleLazyObject
-from pypadre.core.util.utils import remove_cached
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.local.file.computation_repository import ComputationFileRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
@@ -39,7 +38,7 @@ class ComputationGitlabRepository(ComputationFileRepository):
         component = run.pipeline.get_component(metadata.get(Computation.COMPONENT_ID))
         predecessor = None
         if metadata.get(Computation.PREDECESSOR_ID) is not None:
-            predecessor = SimpleLazyObject(load_fn=lambda b: self.get(metadata.get(Computation.PREDECESSOR_ID)),
+            predecessor = SimpleLazyObject(load_fn=lambda: self.get(metadata.get(Computation.PREDECESSOR_ID)),
                                            id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
 
         computation = Computation(metadata=metadata, parameters=parameters, result=result, run=run, component=component,

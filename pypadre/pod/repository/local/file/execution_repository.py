@@ -1,4 +1,6 @@
 from pypadre.core.model.execution import Execution
+from pypadre.core.model.experiment import Experiment
+from pypadre.core.model.generic.lazy_loader import SimpleLazyObject
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExecutionRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
@@ -33,7 +35,8 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
 
     def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
-        experiment = self.backend.experiment.get(metadata.get(Execution.EXPERIMENT_ID))
+        experiment = SimpleLazyObject(load_fn=lambda: self.backend.experiment.get(metadata.get(Execution.EXPERIMENT_ID)),
+                                           id=metadata.get(Execution.EXPERIMENT_ID), clz=Experiment)
         # runs = self.backend.run.list({'execution_id': metadata.get('id')})
         return Execution(experiment=experiment, metadata=metadata)
 

@@ -156,6 +156,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         """
         Gets an object for a given directory.
         :param directory: Directory to load the object from
+        :param lazily: Retrieve object directly or just look up directory
         :return: Object which should be deserialized
         """
         if not self.has_dir(directory):
@@ -163,8 +164,8 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 
         try:
             return self._get_by_dir(directory)
-        except:
-            warning("Couldn't load object in dir " + str(directory) + ". Object might be corrupted.")
+        except Exception as e:
+            warning("Couldn't load object in dir " + str(directory) + ". Object might be corrupted. Error: " + str(e))
             return None
 
     @abstractmethod

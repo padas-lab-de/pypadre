@@ -91,7 +91,10 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
     def __init__(self, *, name="Default experiment", description="Default experiment description",
                  project: Project = None, dataset: Dataset = None,
                  reference: Optional[Union[Type[CodeMixin], Callable]] = None, pipeline: Pipeline,
-                 executions=[],seed=None, **kwargs):
+                 executions=None, seed=None, **kwargs):
+        if executions is None:
+            executions = []
+
         # Add defaults
         defaults = {}
 
@@ -100,8 +103,8 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
             "id": name,
-            self.PROJECT_ID: project.id if project else None,
-            self.DATASET_ID: dataset.id if dataset else None,
+            self.PROJECT_ID: project.id if project is not None else None,
+            self.DATASET_ID: dataset.id if dataset is not None else None,
             self.SEED: seed if seed else random.randint(1, int(1e9)),
             self.NAME: name,
             self.DESCRIPTION: description

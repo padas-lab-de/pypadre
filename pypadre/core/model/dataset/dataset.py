@@ -82,9 +82,10 @@ class Dataset(StoreableMixin, MetadataMixin):
 
     @property
     def attributes(self):
-        if self.attributes is None or len(self.attributes) == 0 and self.has_proxy_loader:
+        attr = self.metadata.get("attributes")
+        if attr is None or len(attr) == 0 and self.has_proxy_loader():
             warning("Returning empty attribute list. Attributes are empty for dataset with id " + self.id + " but loaders could be used to search for attributes.")
-        return self.metadata.get("attributes")
+        return attr
 
     def _execute_proxy_loaders(self):
         for key in list(self._proxy_loaders.keys()):
