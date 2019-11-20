@@ -31,5 +31,4 @@ def experiment():
     return Pipeline(estimators)
 
 Code_reference = experiment.reference_hash
-# Code_Reference = persistent_hash((str(Path(__file__).parent),git_hash(str(Path(__file__).parent))))
 print('Versioned code git reference hash: {}'.format(Code_reference))
