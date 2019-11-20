@@ -3,8 +3,10 @@ import os
 import re
 from abc import abstractmethod, ABCMeta
 
+import arff
 import networkx as nx
 import numpy as np
+import openml as oml
 import pandas as pd
 import sklearn.datasets as ds
 
@@ -382,6 +384,60 @@ class KonectLoader(ICollectionDataSetLoader):
         data_set.set_data(graph)
 
         return data_set
+
+
+class OpenMLLoader(DataSetLoaderMixin):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def mapping(source):
+        if not isinstance(source, str):
+            return False
+        return source == "openml"
+
+    def load(self, source, **kwargs):
+        """
+        Downloads dataset from OpenML and returns it as an instance of Padre dataset.
+        :param source: Id of the dataset at openML
+        :param kwargs: Additional info (e-g openml api key as oml_key)
+        :return: A Padre-dataset object
+        """
+        path = os.path.expanduser("~/.pypadre") + '/temp/openml'
+        oml.config.apikey = kwargs.pop("oml_key")
+        oml.config.cache_directory = path
+        data_set = None
+        try:
+            load = oml.datasets.get_dataset(source)
+            raw_data = arff.load(open(load.data_file, encoding='utf-8'))
+            attribute_list = [att[0] for att in raw_data["attributes"]]
+            df_data = pd.DataFrame(data=raw_data['data'])
+            df_data.columns = attribute_list
+            target_features = load.default_target_attribute.split(",")
+            for col_name in target_features:
+                df_data[col_name] = df_data[col_name].astype('category')
+                df_data[col_name] = df_data[col_name].cat.codes
+            atts = []
+            for feature in df_data.columns.values:
+                atts.append(Attribute(name=feature,
+                                      measurementLevel="Ratio" if feature in target_features else None,
+                                      defaultTargetAttribute=feature in target_features))
+
+            meta = {**{"name": load.name,
+                       "description": load.description,
+                       "originalSource": load.url, "attributes": atts,
+                       "targets": target_features}, **kwargs}
+            data_set = self._create_dataset(**meta)
+            data_set.set_data(df_data)
+
+        except ConnectionError as err:
+            self.send_warn(condition=False,
+                           source=self.__class__.__name__,
+                           message="openML unreachable! \nErrormessage: " + str(err))
+        return data_set
+
+
 
 # class OpenMlLoader(ICollectionDataSetLoader):
 #     DATATYPE_MAP = {'INTEGER': (PaDREOntology.SubClassesDatum.Integer.value,PaDREOntology.SubClassesMeasurement.Ratio.value),
