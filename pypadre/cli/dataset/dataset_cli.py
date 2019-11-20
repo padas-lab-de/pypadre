@@ -2,15 +2,16 @@
 Command Line Interface for PADRE.
 
 """
+from ast import literal_eval
 
 import click
 
+from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.printing.util.print_util import to_table
 #################################
 ####### DATASETS FUNCTIONS ##########
 #################################
 from pypadre.pod.app.dataset.dataset_app import DatasetApp
-from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.printing.util.print_util import to_table
 
 
 @click.group()
@@ -33,12 +34,16 @@ def _get_app(ctx) -> DatasetApp:
 @click.option('--column', '-c', help="Column to print", default=None, multiple=True)
 @click.pass_context
 def list(ctx, columns, search, offset, limit, column):
+
+    if search:
+        search = literal_eval(search)
+
     """Search for datasets."""
     if columns:
         print(Dataset.tablefy_columns())
         return 0
     # TODO like pageable (sort, offset etc.)
-    print(to_table(_get_app(ctx).list(search=search, offset=offset, size=limit),
+    print(to_table(Dataset, _get_app(ctx).list(search=search, offset=offset, size=limit),
           columns=column))
 
 

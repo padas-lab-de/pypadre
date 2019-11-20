@@ -45,10 +45,10 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
     """
 
     METADATA = "metadata"
-    CREATED_AT = 'createdAt'
-    UPDATED_AT = 'updatedAt'
-    LAST_MODIFIED_BY = 'lastModifiedBy'
-    CREATED_BY = 'createdBy'
+    CREATED_AT = 'created_at'
+    UPDATED_AT = 'updated_at'
+    LAST_MODIFIED_BY = 'last_modified_by'
+    CREATED_BY = 'created_by'
 
     OVERWRITABLE = [CREATED_AT, CREATED_BY]
 

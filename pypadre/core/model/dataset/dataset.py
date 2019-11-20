@@ -4,6 +4,7 @@ Module containing python classes for managing data sets
 - TODO allow group based management of binary files similar to hdF5
 
 """
+from logging import warning
 from typing import Callable
 
 import networkx as nx
@@ -36,6 +37,12 @@ dataset_model = make_model(schema_resource_name='dataset.json')
 
 
 class Dataset(StoreableMixin, MetadataMixin):
+
+    @classmethod
+    def _tablefy_register_columns(cls):
+        # TODO make all fields tablefyable
+        super()._tablefy_register_columns()
+        cls.tablefy_register("type", "attributes")
 
     def __init__(self, **kwargs):
         """
@@ -75,11 +82,19 @@ class Dataset(StoreableMixin, MetadataMixin):
 
     @property
     def attributes(self):
+        if self.attributes is None or len(self.attributes) == 0 and self.has_proxy_loader:
+            warning("Returning empty attribute list. Attributes are empty for dataset with id " + self.id + " but loaders could be used to search for attributes.")
         return self.metadata.get("attributes")
 
     def _execute_proxy_loaders(self):
         for key in list(self._proxy_loaders.keys()):
             self._proxy_loaders.pop(key)()
+
+    def has_proxy_loader(self):
+        return len(self._proxy_loaders) > 0
+
+    def binaries(self):
+        return self._binaries
 
     def container(self, bin_format=None):
         """
@@ -110,12 +125,14 @@ class Dataset(StoreableMixin, MetadataMixin):
                     return out
             raise ValueError("Couldn't convert to %s." % bin_format)
 
-    def has_container(self, bin_format):
+    def has_container(self, bin_format=None):
         """
         Check if container exists
         :param bin_format:
         :return:
         """
+        if bin_format is None:
+            return len(self._binaries) > 0
         return bin_format in self._binaries
 
     def add_container(self, container):
@@ -184,7 +201,10 @@ class Dataset(StoreableMixin, MetadataMixin):
         :return: (n_examples, n_attributes)
         """
         container: IBaseContainer = self.container(bin_format)
-        return container.shape
+        if container:
+            return container.shape
+        else:
+            return 0
 
     def targets(self, bin_format=None):
         container: IBaseContainer = self.container(bin_format)

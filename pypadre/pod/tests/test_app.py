@@ -49,7 +49,6 @@ class AppLocalBackends(PadreAppTest):
 
     def test_experiment(self):
         from pypadre.core.model.experiment import Experiment
-
         project = self.create_project(name='Test Project 2',
                                       description='Testing the functionalities of project backend')
         self.app.projects.put(project)
@@ -75,7 +74,6 @@ class AppLocalBackends(PadreAppTest):
     def test_execution(self):
 
         from pypadre.core.model.project import Project
-        from pypadre.core.model.experiment import Experiment
         from pypadre.core.model.execution import Execution
 
         self.app.datasets.load_defaults()
@@ -85,17 +83,12 @@ class AppLocalBackends(PadreAppTest):
         project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
-        experiment = Experiment(name="Test Experiment SVM",
-                                description="Testing Support Vector Machines via SKLearn Pipeline",
-                                dataset=dataset[0],
-                                workflow=create_test_pipeline(), keep_splits=True, strategy="random", project=project)
+        from sklearn.svm import SVC
+        experiment = self.create_experiment(name='Test Experiment SVM', description='Testing experiment using SVM',
+                                            dataset=dataset.pop(), project=project,
+                                            pipeline=
+                                            create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+                                                                         reference=self.test_reference))
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'

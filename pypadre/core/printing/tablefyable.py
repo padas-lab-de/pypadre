@@ -72,14 +72,15 @@ class Tablefyable(SuperStop):
             # register the properties
             cls._tablefy_register_columns()
 
-    def tablefy_header(self, *args):
+    @classmethod
+    def tablefy_header(cls, *args):
         """
         Gives the header list of the table.
         :param args: Names of the attributes to print
         :return:
         """
-        self.__class__._tablefy_check_init()
-        return [key for key, value in registry[self.__class__.__name__].items()
+        cls._tablefy_check_init()
+        return [key for key, value in registry[cls.__name__].items()
                 if len(args) == 0 or len(args) >= 1 and key in args]
 
     def tablefy_to_row(self, *args):

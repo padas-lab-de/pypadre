@@ -4,8 +4,8 @@ import unittest
 
 from click.testing import CliRunner
 
-from pypadre.pod.app import PadreConfig
 from pypadre.cli.pypadre import pypadre
+from pypadre.pod.app import PadreConfig
 
 
 # noinspection PyMethodMayBeStatic
@@ -59,6 +59,21 @@ class PadreCli(unittest.TestCase):
                                          'project', 'create'])
 
         assert '_diabetes' in result.output
+
+    def test_experiment(self):
+        # def handle_missing(obj, e, options):
+        #     return "a"
+        #
+        # p = ValidateableFactory.make(Project, handlers=[
+        #     JsonSchemaRequiredHandler(validator="required", get_value=handle_missing)])
+
+        runner = CliRunner()
+
+        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
+                                         'experiment', 'list'])
+
+        assert 'created_at' in result.output
 
 
 if __name__ == '__main__':
