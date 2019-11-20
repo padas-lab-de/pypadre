@@ -1,8 +1,28 @@
+import os
+
 from sklearn.datasets import load_iris
 import numpy as np
-from pypadre.examples.base_example import example_app
+from pypadre.pod.app import PadreConfig
+from pypadre.pod.app.padre_app import PadreAppFactory
 
-app = example_app()
+
+def gitlab_app():
+    config_path = os.path.join(os.path.expanduser("~"), ".padre-gitlab.cfg")
+    workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-gitlab")
+
+    config = PadreConfig(config_file=config_path)
+    config.set("backends", str([
+        {
+            "root_dir": workspace_path,
+            "gitlab_url": 'http://gitlab.padre.backend:30080/',
+            "user": "username",
+            "token": "access_token"
+        }
+    ]))
+    return PadreAppFactory.get(config)
+
+
+app = gitlab_app()
 
 
 @app.dataset(name="iris",
@@ -22,9 +42,3 @@ def experiment():
     from sklearn.svm import SVC
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
-
-executions = app.executions.list()
-
-#TODO get and show git diff between executions (commits IDs)
-
-

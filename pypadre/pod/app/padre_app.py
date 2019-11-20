@@ -247,7 +247,7 @@ class PadreApp(CoreApp):
                                 initial_hyperparameters=initial_hyperparameters)
 
             creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
-            return Function(fn=wrap_estimator, transient=True, identifier=creator)
+            return Function(fn=wrap_estimator, transient=True, identifier=creator.identifier)
 
         return estimator_decorator
 
@@ -263,7 +263,8 @@ class PadreApp(CoreApp):
                 train_idx = split.train_idx.tolist()
                 test_idx = split.test_idx.tolist()
                 y = split.test_targets.reshape((len(split.test_targets),))
-                y_pred, probabilities = f_create_evaluator(model, y, **kwargs)
+                X_test = split.test_features
+                y_pred, probabilities = f_create_evaluator(model, X_test, **kwargs)
                 results = SKLearnEvaluator.create_results_dictionary(split_num=split.number, train_idx=train_idx,
                                                                      test_idx=test_idx,
                                                                      dataset=split.dataset.name,
@@ -276,7 +277,7 @@ class PadreApp(CoreApp):
                                   parameters=kwargs)
 
             creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
-            return Function(fn=wrap_evaluator, transient=True, identifier=creator)
+            return Function(fn=wrap_evaluator, transient=True, identifier=creator.identifier)
 
         return evaluator_decorator
 
