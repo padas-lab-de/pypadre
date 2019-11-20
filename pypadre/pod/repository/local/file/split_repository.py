@@ -1,3 +1,5 @@
+import json
+
 from pypadre.core.model.split.split import Split
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ISplitRepository
@@ -35,3 +37,18 @@ class SplitFileRepository(IChildFileRepository, ILogFileRepository, ISplitReposi
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):
         computation = obj
         self.write_file(directory, META_FILE, computation.metadata)
+
+    def put_visualization(self, visualization, *args, **kwargs):
+        """
+        Put visualization schema in the local file system.
+
+        :param visualization: Visualization schema as string
+        :param args:
+        :param kwargs: Expected file_name, base_path
+        :return:
+        """
+        visualization = json.loads(visualization)
+        file_name = kwargs.pop("file_name", None)
+        if file_name is None:
+            file_name = "visualization.json"
+        self.write_file(kwargs.pop("base_path"), File(file_name, JSonSerializer), visualization)

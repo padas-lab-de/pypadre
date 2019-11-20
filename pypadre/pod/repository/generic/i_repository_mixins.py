@@ -31,6 +31,10 @@ class IStoreableRepository:
     def delete(self, obj):
         raise NotImplementedError()
 
+    @abstractmethod
+    def put_visualization(self, obj, *args, **kwargs):
+        raise NotImplementedError()
+
 
 class ISearchable:
     """ Interface for backends being searchable. Search on json data, folder name etc. for REST, local etc."""
