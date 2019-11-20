@@ -17,9 +17,8 @@ def dataset():
 
 
 @app.custom_splitter(name="Custom splitter", reference_git=__file__)
-def custom_splitter(ctx, **kwargs):
-    (data,) = unpack(ctx, "data")
-    idx = np.arange(data.size[0])
+def custom_splitter(dataset, **kwargs):
+    idx = np.arange(dataset.size[0])
     cutoff = int(len(idx) / 2)
     return idx[:cutoff], idx[cutoff:], None
 

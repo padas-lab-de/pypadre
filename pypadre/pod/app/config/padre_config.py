@@ -98,18 +98,7 @@ class PadreConfig:
                 "offline": True,
                 "backends": [
                     {
-                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre"),
-                        "base_url": _BASE_URL,
-                        "user": "mgrani",
-                    },
-                    {
                         "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre")
-                    },
-                    {
-                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre"),
-                        "gitlab_url": _GITLAB_BASE_URL,
-                        "user": "root",
-                        "token": "LvVzAaNyFyS6iiJNzTFf"
                     }
                 ]
             }

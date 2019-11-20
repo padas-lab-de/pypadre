@@ -18,17 +18,14 @@ def dataset():
 
 
 @app.preprocessing(reference_git=__file__, store=True)
-def preprocessing(ctx, **kwargs):
-    (dataset,) = unpack(ctx, "data")
+def preprocessing(dataset, **kwargs):
     from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
     scaler.fit(dataset.features())
-    _dataset = Transformation(name="Standarized_%s" % dataset.name, dataset=dataset)
     _features = scaler.transform(dataset.features())
     targets = dataset.targets()
     new_data = np.hstack((_features, targets))
-    _dataset.set_data(new_data, attributes=dataset.attributes)
-    return _dataset
+    return new_data
 
 
 @app.parameter_map()

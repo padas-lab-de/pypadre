@@ -25,12 +25,16 @@ from typing import Union
 from docutils.nodes import warning
 from jsonschema import ValidationError
 from sklearn.pipeline import Pipeline
+import numpy as np
 
 from pypadre._package import PACKAGE_ID
-from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.binding.model.sklearn_binding import SKLearnPipeline, SKLearnEvaluator
 from pypadre.core.model.code.code_mixin import PythonPackage, PythonFile, GitIdentifier, Function
-from pypadre.core.model.dataset.dataset import Dataset
+from pypadre.core.model.computation.evaluation import Evaluation
+from pypadre.core.model.computation.training import Training
+from pypadre.core.model.dataset.dataset import Dataset, Transformation
 from pypadre.core.model.pipeline.parameter_providers.parameters import ParameterProvider
+from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 from pypadre.core.model.split.split import Split
 from pypadre.core.util.utils import filter_nones, find_package_structure, unpack
 from pypadre.pod.app.config.padre_config import PadreConfig
@@ -78,16 +82,16 @@ class PadreApp(CoreApp):
     def experiment(self, *args, ptype=None, parameters=None, parameter_provider=None, splitting=None,
                    preprocessing_fn=None, reference=None, reference_package=None, reference_git=None,
                    dataset: Union[Dataset, str], project_name=None, experiment_name=None,
-                   project_description=None, seed=None,
+                   project_description=None, seed=None, estimator=None, evaluator=None,
                    experiment_description=None, auto_main=True, **kwargs):
         """
-        Decroator for functions that return a single workflow to be executed in an experiment with name exp_name
+        Decorator for functions that return a single workflow to be executed in an experiment with name exp_name
         :param args: additional positional parameters to an experiment (replaces other positional parameters if longer)
-        :param ptype:
-        :param parameters:
+        :param ptype: Pipeline type
+        :param parameters: parameters of the passed pipeline
         :param parameter_provider: Object that provides parameters for hyperparameter search
         :param dataset: Dataset object of the experiment
-        :param project_name:
+        :param project_name: Name of the project
         :param experiment_name: Name of the experiment
         :param project_description:
         :param experiment_description:
@@ -113,7 +117,8 @@ class PadreApp(CoreApp):
                 if isinstance(pipeline, Pipeline):
                     # TODO plugin don't reference the binding here!!!!
                     local_ptype = SKLearnPipeline
-                    pass
+                else:
+                    local_ptype = DefaultPythonExperimentPipeline
                 # TODO look up the class by parsing the mapping / looking at the return value of the function or something similar
                 # raise NotImplementedError()
 
@@ -121,13 +126,13 @@ class PadreApp(CoreApp):
                 local_ptype = ptype
 
             # TODO check pipeline type (where to put provider)
-            if parameter_provider is not None:
+            if local_ptype == SKLearnPipeline:
                 pipeline = local_ptype(pipeline_fn=wrap_workflow, splitting=splitting,
                                        preprocessing_fn=preprocessing_fn,
                                        parameter_provider=parameter_provider,
                                        reference=creator)
             else:
-                pipeline = local_ptype(pipeline_fn=wrap_workflow, splitting=splitting,
+                pipeline = local_ptype(splitting=splitting, estimator=estimator, evaluator=evaluator,
                                        preprocessing_fn=preprocessing_fn,
                                        reference=creator)
 
@@ -197,8 +202,8 @@ class PadreApp(CoreApp):
             def wrap_splitter(*args, **kwargs):
                 # here the custom splitter get called.
                 num = -1
-                train_idx, test_idx, val_idx = f_create_splitter(*args, **kwargs)
                 (data, run, component, predecessor) = unpack(args[0], "data", "run", "component", ("predecessor", None))
+                train_idx, test_idx, val_idx = f_create_splitter(data, **kwargs)
                 yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
                             val_idx=val_idx, component=component, predecessor=predecessor, **kwargs)
 
@@ -211,16 +216,69 @@ class PadreApp(CoreApp):
         def preprocessing_decorator(f_create_preprocessing):
             @wraps(f_create_preprocessing)
             def wrap_preprocessing(*args, **kwargs):
-                _data = f_create_preprocessing(*args, **kwargs)
+                (dataset,) = unpack(args[0], "data")
+                _data = f_create_preprocessing(dataset, **kwargs)
+                _dataset = Transformation(name="Standarized_%s" % dataset.name, dataset=dataset)
+                _dataset.set_data(_data, attributes=dataset.attributes)
                 if store:
-                    self.datasets.put(_data)
-                return _data
+                    self.datasets.put(_dataset)
+                return _dataset
 
             creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
 
             return Function(fn=wrap_preprocessing, transient=True, identifier=creator.identifier, **kwargs)
 
         return preprocessing_decorator
+
+    def estimator(self, *args, config=None, reference_git=None, reference_package=None, **kwargs):
+        def estimator_decorator(f_create_estimator):
+            @wraps(f_create_estimator)
+            def wrap_estimator(*args, **kwargs):
+                (split, component, run, initial_hyperparameters) = unpack(args[0], "data", "component", "run",
+                                                                          "initial_hyperparameters")
+                y = None
+                if split.train_targets is not None:
+                    y = split.train_targets.reshape((len(split.train_targets),))
+                else:
+                    y = np.zeros(shape=(len(split.train_features, )))
+                model = f_create_estimator(split.train_features, y, **config)
+
+                return Training(split=split, component=component, run=run, model=model, parameters=config,
+                                initial_hyperparameters=initial_hyperparameters)
+
+            creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
+            return Function(fn=wrap_estimator, transient=True, identifier=creator)
+
+        return estimator_decorator
+
+    def evaluator(self, *args, task_type=None, reference_git=None, reference_package=None, **kwargs):
+        def evaluator_decorator(f_create_evaluator):
+            @wraps(f_create_evaluator)
+            def wrap_evaluator(*args, **kwargs):
+                data, predecessor, component, run = unpack(args[0], "data", ("predecessor", None), "component", "run")
+                model = data["model"]
+                split = data["split"]
+                if not split.has_testset():
+                    raise ValueError("Test set is missing")
+                train_idx = split.train_idx.tolist()
+                test_idx = split.test_idx.tolist()
+                y = split.test_targets.reshape((len(split.test_targets),))
+                y_pred, probabilities = f_create_evaluator(model, y, **kwargs)
+                results = SKLearnEvaluator.create_results_dictionary(split_num=split.number, train_idx=train_idx,
+                                                                     test_idx=test_idx,
+                                                                     dataset=split.dataset.name,
+                                                                     truth=y.tolist(), predicted=y_pred.tolist(),
+                                                                     type_=task_type,
+                                                                     probabilities=probabilities.tolist())
+
+                return Evaluation(training=predecessor, result_format=task_type, result=results, component=component,
+                                  run=run,
+                                  parameters=kwargs)
+
+            creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
+            return Function(fn=wrap_evaluator, transient=True, identifier=creator)
+
+        return evaluator_decorator
 
 
 def to_decorator_reference(reference=None, reference_package=None, reference_git=None):
