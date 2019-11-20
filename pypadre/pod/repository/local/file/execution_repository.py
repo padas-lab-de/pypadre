@@ -34,6 +34,7 @@ class ExecutionFileRepository(IChildFileRepository, IExecutionRepository):
     def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         experiment = self.backend.experiment.get(metadata.get(Execution.EXPERIMENT_ID))
+        # runs = self.backend.run.list({'execution_id': metadata.get('id')})
         return Execution(experiment=experiment, metadata=metadata)
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):

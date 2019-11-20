@@ -59,6 +59,10 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
     def pipeline(self):
         return self.execution.pipeline
 
+    @property
+    def execution_id(self):
+        return self.parent.id
+
     def separate_hyperparameters_and_component_parameters(self, parameters:dict):
 
         parameter_dict = dict()

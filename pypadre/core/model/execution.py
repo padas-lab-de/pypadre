@@ -24,7 +24,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         # Add entries for tablefyable
         cls.tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
-    def __init__(self, experiment, codehash=None, command=None, **kwargs):
+    def __init__(self, experiment, codehash=None, command=None, runs=None,**kwargs):
         # Add defaults
         defaults = {}
 
@@ -39,6 +39,8 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
         self._command = command
+        if runs is not None:
+            self._runs = runs
 
     def _execute_helper(self, *args, **kwargs):
         self.send_put()
@@ -69,3 +71,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
     @property
     def run(self):
         return self._runs
+
+    @property
+    def experiment_id(self):
+        return self.metadata.get(self.EXPERIMENT_ID,None)

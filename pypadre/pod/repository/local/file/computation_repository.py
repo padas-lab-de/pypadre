@@ -35,9 +35,11 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         component = run.pipeline.get_component(metadata.get(Computation.COMPONENT_ID))
         predecessor = None
         if metadata.get(Computation.PREDECESSOR_ID) is not None:
-            predecessor = SimpleLazyObject(load_fn=lambda b: self.get(metadata.get(Computation.PREDECESSOR_ID)), id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
+            predecessor = SimpleLazyObject(load_fn=lambda b: self.get(metadata.get(Computation.PREDECESSOR_ID)),
+                                           id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
 
-        computation = Computation(metadata=metadata, parameters=parameters, result=result, run=run, component=component, predecessor=predecessor)
+        computation = Computation(metadata=metadata, parameters=parameters, result=result, run=run, component=component,
+                                  predecessor=predecessor)
         return computation
 
     def put_progress(self, run, **kwargs):

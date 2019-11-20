@@ -91,8 +91,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
     def __init__(self, *, name="Default experiment", description="Default experiment description",
                  project: Project = None, dataset: Dataset = None,
                  reference: Optional[Union[Type[CodeMixin], Callable]] = None, pipeline: Pipeline,
-                 seed=None,
-                 **kwargs):
+                 executions=[],seed=None, **kwargs):
         # Add defaults
         defaults = {}
 
@@ -113,7 +112,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         # Variables
         self._dataset = dataset
         self._pipeline = pipeline
-        self._executions = []
+        self._executions = executions
 
     @property
     def project(self):

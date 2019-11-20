@@ -16,15 +16,14 @@ def dataset():
 
 @app.experiment(dataset=dataset,
                 reference_package=__file__,
-                experiment_name="Iris SVC", project_name="Examples")
+                experiment_name="Iris SVC_", project_name="Examples")
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
-executions = app.executions.list()
-
+# executions = app.executions.list({'experiment_id':experiment.id})
 #TODO get and show git diff between executions (commits IDs)
 
 
