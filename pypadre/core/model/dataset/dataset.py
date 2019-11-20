@@ -9,7 +9,6 @@ from typing import Callable
 import networkx as nx
 import numpy as np
 import pandas as pd
-from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.core.base import MetadataMixin
@@ -18,6 +17,7 @@ from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
 from pypadre.core.validation.json_validation import make_model
@@ -208,6 +208,16 @@ class Dataset(StoreableMixin, MetadataMixin):
                                  correlation_threshold=correlation_threshold,
                                  correlation_overrides=correlation_overrides,
                                  check_recoded=check_recoded)
+
+    def get_target_attribute(self):
+        """
+        Return name of default target attribute
+        :return: string or None
+        """
+        for attr in self.attributes:
+            if attr["defaultTargetAttribute"]:
+                return attr["name"]
+        return None
 
     '''
     def get(self, key):

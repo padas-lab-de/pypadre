@@ -3,7 +3,6 @@ from typing import List
 import numpy as np
 import pandas as pd
 import pandas_profiling as pd_pf
-from padre.PaDREOntology import PaDREOntology
 from scipy import stats
 
 from pypadre.core.model.dataset import dataset
@@ -11,6 +10,7 @@ from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
 from pypadre.core.model.generic.i_model_mixins import LoggableMixin
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 
 
 class NumpyContainer(IBaseContainer, LoggableMixin):
