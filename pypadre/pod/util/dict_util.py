@@ -17,7 +17,7 @@ def dict_merge(dct, merge_dct):
 
 
 def get_dict_attr(obj, attr):
-    for obj in [obj] + obj.__class__.mro():
-        if attr in obj.__dict__:
-            return obj.__dict__[attr]
-    raise AttributeError
+    for o in [obj] + obj.__class__.mro():
+        if attr in o.__dict__:
+            return o.__dict__[attr]
+    raise AttributeError("Object " + obj + " has no attribute " + attr)

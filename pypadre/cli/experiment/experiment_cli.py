@@ -2,20 +2,31 @@
 Command Line Interface for PADRE.
 
 """
-import click
+from ast import literal_eval
 
+import click
 
 #################################
 ####### EXPERIMENT FUNCTIONS ##########
 #################################
+from pypadre.core.model.experiment import Experiment
+from pypadre.core.printing.util.print_util import to_table
+from pypadre.pod.app.project.experiment_app import ExperimentApp
+
+
+def _get_app(ctx) -> ExperimentApp:
+    return ctx.obj["pypadre-app"].experiments
+
 
 @click.group(name="experiment", invoke_without_command=True)
 @click.option('--id', '-i', type=str, help="id of the new default experiment")
 @click.pass_context
-def experiment(ctx):
+def experiment(ctx, id):
     """
     Commands for experiments.
     """
+    if id is not None:
+        ctx.obj["pypadre-app"].config.set("experiment", id, "DEFAULTS")
     if ctx.invoked_subcommand is None:
         if ctx.obj["pypadre-app"].config.get("experiment", "DEFAULTS") is not None:
             click.echo('Current default project is ' + ctx.obj["pypadre-app"].config.get("experiment", "DEFAULTS"))
@@ -30,10 +41,22 @@ def select(ctx, id):
 
 
 @experiment.command(name="list")
+@click.option('--columns', help='Show available column names', is_flag=True)
+@click.option('--offset', '-o', default=0, help='Starting position of the retrieval')
+@click.option('--limit', '-l', default=100, help='Number to retrieve')
+@click.option('--search', '-s', default=None,
+              help='Search dictonary.')
+@click.option('--column', '-c', help="Column to print", default=None, multiple=True)
 @click.pass_context
-def list(ctx):
-    # List all the experiments that are currently saved
-    print(ctx.obj["pypadre-app"].experiment_creator.experiment_names)
+def list(ctx, columns, search, offset, limit, column):
+    if search:
+        search = literal_eval(search)
+    if columns:
+        print(Experiment.tablefy_columns())
+        return 0
+    # TODO like pageable (sort, offset etc.)
+    print(to_table(Experiment, _get_app(ctx).list(search=search, offset=offset, size=limit),
+          columns=column))
 
 
 @experiment.command(name="components")
