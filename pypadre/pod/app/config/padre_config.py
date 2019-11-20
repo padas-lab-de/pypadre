@@ -16,6 +16,7 @@ else:
 
 _GITLAB_BASE_URL = 'http://localhost:8080/'
 
+
 class PadreConfig:
     """
     PadreConfig class covering functionality for viewing or updating default

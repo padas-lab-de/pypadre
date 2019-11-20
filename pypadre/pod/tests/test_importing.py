@@ -1,7 +1,7 @@
 import networkx
 import numpy as np
-from padre.PaDREOntology import PaDREOntology
 
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 from pypadre.pod.importing.dataset.dataset_import import SnapLoader, KonectLoader, SKLearnLoader
 from pypadre.pod.tests.base_test import PadreAppTest
 

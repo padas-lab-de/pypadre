@@ -7,12 +7,12 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import sklearn.datasets as ds
-from padre.PaDREOntology import PaDREOntology
 
 # import openml as oml
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.generic.i_model_mixins import LoggableMixin
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 from pypadre.core.util.utils import _Const
 from pypadre.pod.importing.dataset.graph_import import create_from_snap, create_from_konect
 

@@ -2,13 +2,13 @@ from copy import deepcopy
 from typing import Optional, List
 
 import numpy as np
-from padre.PaDREOntology import PaDREOntology
 
 from pypadre import _name, _version
 from pypadre.core.metrics.metric_registry import metric_registry
 from pypadre.core.metrics.metrics import MetricProviderMixin, Metric
 from pypadre.core.model.code.code_mixin import PipIdentifier, PythonPackage
 from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 from pypadre.core.util.utils import unpack
 
 TOTAL_ERROR = "total_error"
