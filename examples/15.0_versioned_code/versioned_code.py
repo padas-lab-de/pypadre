@@ -1,11 +1,9 @@
 from pathlib import Path
-
-import numpy as np
-from sklearn.datasets import load_iris
-from sklearn.decomposition import PCA
-
 from pypadre.core.util.utils import persistent_hash
 from pypadre.examples.base_example import example_app
+import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.datasets import load_iris
 from pypadre.pod.util.git_util import git_hash
 
 app = example_app()
@@ -32,7 +30,5 @@ def experiment():
     estimators = [('PCA', PCA()), ('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
-
-print(experiment.reference_hash)
-Code_Reference = persistent_hash((str(Path(__file__).parent),git_hash(str(Path(__file__).parent))))
-print('Versioned code git reference hash: {}'.format(Code_Reference))
+Code_reference = experiment.reference_hash
+print('Versioned code git reference hash: {}'.format(Code_reference))
