@@ -56,7 +56,7 @@ class PadreCli(unittest.TestCase):
 
         runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-                                         'project', 'select', 'xamp'])
+                                         'project', 'select', 'Examples'], input='experiment list\n')
 
     def test_experiment(self):
         # def handle_missing(obj, e, options):
@@ -72,6 +72,11 @@ class PadreCli(unittest.TestCase):
                                          'experiment', 'list'])
 
         assert 'created_at' in result.output
+
+    def test_computation(self):
+        runner = CliRunner()
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+                                         'computation', 'list'])
 
 
 if __name__ == '__main__':

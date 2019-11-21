@@ -4,17 +4,16 @@ from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.model.split.split import Split
-from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class PipelineOutput(StoreableMixin, MetadataMixin, ChildMixin, Tablefyable):
+class PipelineOutput(StoreableMixin, MetadataMixin, ChildMixin):
 
     SPLIT_IDS = "split_ids"
     RUN_ID = "run_id"
 
     @classmethod
     def _tablefy_register_columns(cls):
-        pass
+        super()._tablefy_register_columns()
 
     def __init__(self, run, parameter_selection: dict, metrics: dict, splits: Set[Split]=None, results=None, **kwargs):
         # Add defaults

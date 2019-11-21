@@ -10,7 +10,11 @@ import click
 #################################
 from click_shell import make_click_shell
 
+from pypadre.cli.computation import computation_cli
+from pypadre.cli.execution import execution_cli
 from pypadre.cli.experiment import experiment_cli
+from pypadre.cli.metric import metric_cli
+from pypadre.cli.run import run_cli
 from pypadre.core.model.project import Project
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
 from pypadre.pod.app.project.project_app import ProjectApp
@@ -82,7 +86,7 @@ def create(ctx, name):
 
 
 @click.group(name="select", invoke_without_command=True)
-@click.argument('name', type=click.STRING)
+@click.argument('id', type=click.STRING)
 @click.pass_context
 def select(ctx, id):
     """
@@ -97,11 +101,17 @@ def select(ctx, id):
         print("Multiple matching projects found!")
         _print_table(ctx, projects)
         return -1
-    s = make_click_shell(ctx, prompt='pypadre > pro: ' + id + ' > ', intro='Selecting project ' + name, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    prompt = ctx.obj['prompt']
+    s = make_click_shell(ctx, prompt=prompt + 'pro: ' + id + ' > ', intro='Selecting project ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    ctx.obj['prompt'] = prompt
     ctx.obj['project'] = projects.pop(0)
     s.cmdloop()
-    ctx.obj['project'] = None
+    del ctx.obj['project']
 
 
 project.add_command(select)
 select.add_command(experiment_cli.experiment)
+select.add_command(execution_cli.execution)
+select.add_command(run_cli.run)
+select.add_command(computation_cli.computation)
+select.add_command(metric_cli.metric)

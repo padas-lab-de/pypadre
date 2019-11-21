@@ -33,15 +33,15 @@ def _print_table(ctx, *args, **kwargs):
 def _filter_selection(ctx, found):
     # filter for execution selection
     if 'execution' in ctx.obj:
-        found = [f for f in found if f.parent.id == ctx.obj['execution']]
+        found = [f for f in found if f.parent == ctx.obj['execution']]
 
     # filter for experiment selection
     elif 'experiment' in ctx.obj:
-        found = [f for f in found if f.parent.parent.id == ctx.obj['experiment']]
+        found = [f for f in found if f.parent.parent == ctx.obj['experiment']]
 
     # filter for project selection
     elif 'project' in ctx.obj:
-        found = [f for f in found if f.parent.parent.parent.id == ctx.obj['project']]
+        found = [f for f in found if f.parent.parent.parent == ctx.obj['project']]
     return found
 
 
@@ -93,9 +93,9 @@ def select(ctx, id):
         print("Multiple matching runs found!")
         _print_table(ctx, runs)
         return -1
-    prompt = ctx.obj['promp']
+    prompt = ctx.obj['prompt']
     s = make_click_shell(ctx, prompt=prompt + 'run: ' + id + ' > ', intro='Selecting run ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
-    ctx.obj['promp'] = prompt
+    ctx.obj['prompt'] = prompt
     ctx.obj['run'] = runs.pop(0)
     s.cmdloop()
     del ctx.obj['run']

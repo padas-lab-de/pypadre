@@ -40,7 +40,7 @@ class Tablefyable(SuperStop):
 
         :return:
         """
-        pass
+        raise NotImplementedError()
 
     @classmethod
     def tablefy_register(cls, *args: str):

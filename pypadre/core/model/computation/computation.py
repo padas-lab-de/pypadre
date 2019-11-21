@@ -8,10 +8,9 @@ from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
-from pypadre.core.printing.tablefyable import Tablefyable
 
 
-class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, Tablefyable):
+class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin):
     COMPONENT_ID = "component_id"
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"
@@ -20,7 +19,7 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, 
 
     @classmethod
     def _tablefy_register_columns(cls):
-        pass
+        super()._tablefy_register_columns()
 
     def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result_format=None, result,
                  parameters=None, initial_hyperparameters=None, branch=False, metrics=None, **kwargs):
