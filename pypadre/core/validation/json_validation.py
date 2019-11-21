@@ -71,7 +71,9 @@ class ModelHolderMixin(ValidateableMixin):
     def _validate_metadata(self, metadata):
         if self._model_clz is None:
             # TODO make this an error as soon as all validateables are implemented
-            self.send_warn(message="A validateable object needs a model class to validate to: " + str(self))
+            self.send_warn(
+                message="A validateable object needs a model class to validate to. Class: "
+                        + self.__class__.__name__ + " metadata " + str(metadata))
             # warnings.warn("A validateable object needs a schema to validate to: " + str(self), FutureWarning)
             # raise ValueError("A validateable object needs a schema to validate to.")
         else:

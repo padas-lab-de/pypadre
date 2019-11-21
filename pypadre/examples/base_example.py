@@ -14,4 +14,5 @@ def example_app():
             "root_dir": workspace_path
         }
     ]))
+    config.save()
     return PadreAppFactory.get(config)

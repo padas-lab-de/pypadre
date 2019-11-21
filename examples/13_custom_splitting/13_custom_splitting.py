@@ -1,9 +1,9 @@
-from pypadre.core.util.utils import unpack
-from pypadre.examples.base_example import example_app
 import numpy as np
-from sklearn.decomposition import PCA
 from sklearn.datasets import load_iris
+from sklearn.decomposition import PCA
+
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.examples.base_example import example_app
 
 app = example_app()
 
@@ -26,6 +26,7 @@ def custom_splitter(dataset, **kwargs):
 @app.parameter_map()
 def parameters():
     return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [1.0]}, 'PCA': {'n_components': [3]}}}}
+
 
 @app.experiment(dataset=dataset, reference_git=__file__, parameters=parameters, splitting=custom_splitter,
                 experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)

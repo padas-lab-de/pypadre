@@ -23,9 +23,9 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
     @classmethod
     def _tablefy_register_columns(cls):
         # Add entries for tablefyable
-        cls.tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
+        cls.tablefy_register_columns({'hash': 'hash'})
 
-    def __init__(self, experiment, command=None, runs=None, pipeline=None, **kwargs):
+    def __init__(self, experiment, runs=None, pipeline=None, **kwargs):
         # Add defaults
         defaults = {}
 
@@ -36,7 +36,6 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
         metadata = {**{"id": kwargs.get("reference").id}, **metadata}
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
-        self._command = command
         if runs is not None:
             self._runs = runs
 
@@ -51,10 +50,6 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
     @property
     def hash(self):
         return self.reference.id
-
-    @property
-    def command(self):
-        return self._command
 
     @property
     def experiment(self):

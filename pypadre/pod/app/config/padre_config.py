@@ -62,14 +62,17 @@ class PadreConfig:
         :param config: Additional configuration
         """
         self._config = self.default()
+
         # handle file here
         self._config_file = config_file
         if self._config_file is not None:
             self.__load_config()
             if not os.path.exists(self._config_file) and create:
                 self.save()
+
         # now merge
         self.__merge_config(config)
+        self.save()
 
     def __merge_config(self, to_merge):
         # merges the provided dictionary into the config.

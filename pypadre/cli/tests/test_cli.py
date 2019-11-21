@@ -56,9 +56,7 @@ class PadreCli(unittest.TestCase):
 
         runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
-                                         'project', 'create'])
-
-        assert '_diabetes' in result.output
+                                         'project', 'list'])
 
     def test_experiment(self):
         # def handle_missing(obj, e, options):

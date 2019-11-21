@@ -93,3 +93,10 @@ class Tablefyable(SuperStop):
         return [get_dict_attr(self, value)(self) if callable(get_dict_attr(self, value)) else
                 get_dict_attr(self, value).fget(self) for key, value in registry[self.__class__.__name__].items()
                 if len(args) == 0 or len(args) >= 1 and key in args]
+
+    def __str__(self):
+        self.__class__._tablefy_check_init()
+        return self.__class__.__name__ + "[" + ", ".join(
+            ["'" + key + ": " + str(get_dict_attr(self, value)(self)) + "'" if callable(get_dict_attr(self, value)) else
+             "'" + key + ": " + str(get_dict_attr(self, value).fget(self)) + "'" for key, value in
+             registry[self.__class__.__name__].items()]) + "]"

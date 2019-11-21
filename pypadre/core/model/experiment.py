@@ -158,6 +158,6 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         if self.reference is None:
             raise ValueError("An execution has to reference a code hash to be valid.")
 
-        execution = Execution(experiment=self, command=kwargs.pop("cmd", "default"), pipeline=self.pipeline, reference=self.reference)
+        execution = Execution(experiment=self, pipeline=self.pipeline, reference=self.reference)
         self._executions.append(execution)
         return execution.execute(**kwargs)

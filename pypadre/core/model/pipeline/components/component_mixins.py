@@ -27,16 +27,17 @@ class PipelineComponentMixin(CodeManagedMixin, CustomCodeHolder, IConsumer, IPro
     def __init__(self, *, name: str, metadata: Optional[dict] = None, **kwargs):
         if metadata is None:
             metadata = {}
+
+        if name is None:
+            name = self.__class__.__name__
+
+        metadata = {**metadata, **{"name": name}}
         # TODO name via enum or name via owlready2
         # TODO validation model?
         # TODO build id from code id and reference id and name?
-        super().__init__(metadata=metadata, **kwargs)
-        self._name = name
-        self.metadata["id"] = persistent_hash((self.name, self.code.id, self.reference.id))
+        super().__init__(metadata=metadata, **kwargs)#
 
-    @property
-    def name(self):
-        return self._name
+        self.metadata["id"] = persistent_hash((self.name, self.code.id, self.reference.id))
 
     def _execute_helper(self, *, run: Run, data,
                         predecessor: Computation = None, branch=False, intermediate_results=True, store_results=False, **kwargs):

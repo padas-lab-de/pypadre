@@ -69,10 +69,6 @@ class Dataset(StoreableMixin, MetadataMixin):
         self._proxy_loaders[fn.__hash__()] = lambda: self.set_data(data=fn())
 
     @property
-    def name(self):
-        return self.metadata["name"]
-
-    @property
     def type(self):
         """
         returns the type of the dataset.

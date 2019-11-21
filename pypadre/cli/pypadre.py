@@ -9,6 +9,7 @@ import os
 
 import click
 from click_shell import shell
+from click_shell._cmd import ClickCmd
 
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
@@ -19,11 +20,22 @@ from .metric import metric_cli
 from .project import project_cli
 
 
+# Make prompt changeable
+def get_prompt(self):
+    try:
+        return self.ctx.obj['prompt']
+    except KeyError:
+        return self.prompt
+
+
+ClickCmd.get_prompt = get_prompt
+
+
 #################################
 #######      MAIN      ##########
 #################################
 # @click.group()
-@shell(prompt='pypadre > ', intro='Starting padre ...')
+@shell(prompt='pypadre > ', intro='Starting padre ...', hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
 @click.option('--config-file', '-c',
               type=click.Path(),
               default=os.path.expanduser('~/.padre.cfg'),
@@ -61,6 +73,7 @@ pypadre.add_command(dataset_cli.dataset)
 pypadre.add_command(project_cli.project)
 pypadre.add_command(experiment_cli.experiment)
 pypadre.add_command(metric_cli.metric)
+
 
 if __name__ == '__main__':
     pypadre()

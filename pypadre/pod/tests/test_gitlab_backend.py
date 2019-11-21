@@ -1,5 +1,6 @@
 import configparser
 import os
+
 import gitlab
 
 from pypadre.pod.app import PadreConfig
@@ -127,7 +128,7 @@ class GitlabBackend(PadreGitTest):
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
+        execution = Execution(experiment, codehash=codehash, append_runs=True, parameters=None,
                               preparameters=None, single_run=True,
                               single_transformation=True)
         self.app.executions.patch(execution)
@@ -166,7 +167,7 @@ class GitlabBackend(PadreGitTest):
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
+        execution = Execution(experiment, codehash=codehash, append_runs=True, parameters=None,
                               preparameters=None, single_run=True,
                               single_transformation=True)
         self.app.executions.put(execution)
@@ -205,7 +206,7 @@ class GitlabBackend(PadreGitTest):
                                             strategy="random", project=project)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = self.create_execution(experiment, codehash=codehash, command=None, append_runs=True,
+        execution = self.create_execution(experiment, codehash=codehash, append_runs=True,
                                           parameters=None,
                                           preparameters=None, single_run=True,
                                           single_transformation=True)
