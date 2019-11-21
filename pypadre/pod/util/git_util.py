@@ -1,7 +1,7 @@
 import os
 import platform
 
-from git import Repo, InvalidGitRepositoryError
+from git import Repo, InvalidGitRepositoryError, GitCommandError
 
 GIT_ATTRIBUTES = '.gitattributes.'
 DEFAULT_GIT_MSG = 'Added file to git'
@@ -219,6 +219,13 @@ def has_untracked_files(repo):
 def check_git_directory(repo, path):
     return repo.git_dir.startswith(path)
 
+def git_diff(commitID1=None,commitID2=None,path=None):
+    repo = get_repo(path=path)
+    try:
+        return repo.git.execute(
+            ['git', 'diff', commitID1, commitID2])
+    except GitCommandError:
+        return ''
 
 def get_head(repo):
     return repo.head

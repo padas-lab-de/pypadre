@@ -1,8 +1,13 @@
+import os
+
 from sklearn.datasets import load_iris
 import numpy as np
 from pypadre.examples.base_example import example_app
+from pypadre.pod.util.git_util import git_diff
 
 app = example_app()
+
+_VERSION = "1.0"
 
 
 @app.dataset(name="iris",
@@ -15,7 +20,7 @@ def dataset():
 
 
 @app.experiment(dataset=dataset,
-                reference_package=__file__,
+                reference_git=__file__,
                 experiment_name="Iris SVC_", project_name="Examples")
 def experiment():
     from sklearn.pipeline import Pipeline
@@ -23,7 +28,12 @@ def experiment():
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
-# executions = app.executions.list({'experiment_id':experiment.id})
-#TODO get and show git diff between executions (commits IDs)
-
-
+if _VERSION != "1.0":
+    # We list all different executions for the experiment defined above
+    executions = app.executions.list({'experiment_id': experiment.id})
+    # We extract the git hash which represents the version of code when executed a.k.a the corresponding commit ID
+    git_references = [execution.reference.identifier.version() for execution in executions]
+    git_repository_path = os.path.dirname(os.path.abspath(__file__))
+    commitID1 = git_references[0]
+    for commitid in git_references[1:]:
+        print(git_diff(commitID1,commitid, git_repository_path))
