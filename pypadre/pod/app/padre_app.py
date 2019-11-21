@@ -29,6 +29,7 @@ from sklearn.pipeline import Pipeline
 
 from pypadre._package import PACKAGE_ID
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline, SKLearnEvaluator
+from pypadre.core.base import phases
 from pypadre.core.model.code.code_mixin import PythonPackage, PythonFile, GitIdentifier, Function
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.computation.training import Training
@@ -251,8 +252,9 @@ class PadreApp(CoreApp):
                     y = split.train_targets.reshape((len(split.train_targets),))
                 else:
                     y = np.zeros(shape=(len(split.train_features, )))
+                component.send_start(message="Starting phase " + phases.fitting)
                 model = f_create_estimator(split.train_features, y, **config)
-
+                component.send_stop(message="Stopping phase "+ phases.fitting)
                 return Training(split=split, component=component, run=run, model=model, parameters=config,
                                 initial_hyperparameters=initial_hyperparameters)
 
@@ -268,13 +270,15 @@ class PadreApp(CoreApp):
                 data, predecessor, component, run = unpack(args[0], "data", ("predecessor", None), "component", "run")
                 model = data["model"]
                 split = data["split"]
-                if not split.has_testset():
-                    raise ValueError("Test set is missing")
+
+                component.send_error(message="Test set is missing.", condition=not split.has_testset())
                 train_idx = split.train_idx.tolist()
                 test_idx = split.test_idx.tolist()
                 y = split.test_targets.reshape((len(split.test_targets),))
                 X_test = split.test_features
+                component.send_start(message="Starting phase "+phases.inferencing)
                 y_pred, probabilities = f_create_evaluator(model, X_test, **kwargs)
+                component.send_start(message="Starting phase " + phases.inferencing)
                 results = SKLearnEvaluator.create_results_dictionary(split_num=split.number, train_idx=train_idx,
                                                                      test_idx=test_idx,
                                                                      dataset=split.dataset.name,
