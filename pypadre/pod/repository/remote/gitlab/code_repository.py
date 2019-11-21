@@ -1,19 +1,15 @@
 import errno
-import glob
 import os
-import re
 import shutil
 import tempfile
 
-from pypadre.core.model.code.code_mixin import CodeMixin, PythonPackage, PythonFile, GenericCall, \
-    GitIdentifier, CodeIdentifier, PipIdentifier, Function
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.code_repository import CodeFileRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
 from pypadre.pod.repository.remote.gitlab.generic.gitlab import GitLabRepository
 from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSerializer
-from pypadre.pod.util.git_util import git_hash, create_repo, add_and_commit, get_repo
+from pypadre.pod.util.git_util import add_and_commit, get_repo
 
 
 def copy(src, dest):

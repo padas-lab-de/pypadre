@@ -86,8 +86,8 @@ class ConfusionMatrix(MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(code=PythonPackage(package=__name__, variable="matrix",
-                                            identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                     version=_version.__version__)), **kwargs)
+                                            repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                                version=_version.__version__)), **kwargs)
 
     @property
     def consumes(self) -> str:
@@ -139,8 +139,8 @@ class RegressionMetrics(MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(code=PythonPackage(package=__name__, variable="regression",
-                                            identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                     version=_version.__version__)), **kwargs)
+                                            repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                                version=_version.__version__)), **kwargs)
 
     @property
     def consumes(self) -> str:
@@ -209,8 +209,8 @@ class ClassificationMetrics(MetricProviderMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(code=PythonPackage(package=__name__, variable="classification",
-                                            identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                     version=_version.__version__)), **kwargs)
+                                            repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                                version=_version.__version__)), **kwargs)
 
     @property
     def consumes(self) -> str:
@@ -218,14 +218,14 @@ class ClassificationMetrics(MetricProviderMixin):
 
 
 confusion_matrix_ref = PythonPackage(package=__name__, variable="confusion_matrix",
-                                     identifier=PipIdentifier(pip_package=_name.__name__,
-                                                              version=_version.__version__))
+                                     repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                         version=_version.__version__))
 regression_metrics_ref = PythonPackage(package=__name__, variable="regression_metrics",
-                                       identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                version=_version.__version__))
+                                       repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                           version=_version.__version__))
 classification_metrics_ref = PythonPackage(package=__name__, variable="classification_metrics",
-                                           identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                    version=_version.__version__))
+                                           repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                               version=_version.__version__))
 
 confusion_matrix = ConfusionMatrix(reference=confusion_matrix_ref)
 regression_metrics = RegressionMetrics(reference=regression_metrics_ref)

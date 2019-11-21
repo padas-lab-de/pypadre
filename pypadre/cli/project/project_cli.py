@@ -101,8 +101,8 @@ def select(ctx, id):
         print("Multiple matching projects found!")
         _print_table(ctx, projects)
         return -1
-    prompt = ctx.obj['prompt']
-    s = make_click_shell(ctx, prompt=prompt + 'pro: ' + id + ' > ', intro='Selecting project ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    prompt = ctx.obj['prompt'] + 'pro: ' + id + ' > '
+    s = make_click_shell(ctx, prompt=prompt, intro='Selecting project ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
     ctx.obj['prompt'] = prompt
     ctx.obj['project'] = projects.pop(0)
     s.cmdloop()

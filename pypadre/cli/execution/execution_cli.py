@@ -54,7 +54,7 @@ def list(ctx, search, offset, limit, column):
     List executions defined in the padre environment
     """
     # List all the executions that are currently saved
-    _print_table(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit), columns=column)
+    _print_table(ctx, _filter_selection(_get_app(ctx).list(search=search, offset=offset, size=limit)), columns=column)
 
 
 @execution.command(name="get")
@@ -91,8 +91,8 @@ def select(ctx, id):
         print("Multiple matching executions found!")
         _print_table(ctx, executions)
         return -1
-    prompt = ctx.obj['prompt']
-    s = make_click_shell(ctx, prompt=prompt + 'exe: ' + id + ' > ', intro='Selecting execution ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    prompt = ctx.obj['prompt'] + 'exe: ' + id + ' > '
+    s = make_click_shell(ctx, prompt=prompt, intro='Selecting execution ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
     ctx.obj['prompt'] = prompt
     ctx.obj['execution'] = executions.pop(0)
     s.cmdloop()

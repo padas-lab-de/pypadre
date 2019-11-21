@@ -1,9 +1,12 @@
+import pyhash
+
 from pypadre.core.base import ChildMixin
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.json_validation import make_model
 from pypadre.pod.util.git_util import git_diff
 
@@ -20,6 +23,7 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
     EXPERIMENT_NAME = "experiment_name"
 
     _runs = []
+
     @classmethod
     def _tablefy_register_columns(cls):
         super()._tablefy_register_columns()
@@ -33,7 +37,9 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.EXPERIMENT_ID: experiment.id,
                                                                  self.EXPERIMENT_NAME: experiment.name}}
 
-        metadata = {**{"id": kwargs.get("reference").id}, **metadata}
+        metadata = {
+            **{"id": str(kwargs.get("reference").id) + "-" + str(persistent_hash(experiment.id, algorithm=pyhash.city_64()))},
+            **metadata}
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
         if runs is not None:
@@ -69,13 +75,13 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
 
     @property
     def experiment_id(self):
-        return self.metadata.get(self.EXPERIMENT_ID,None)
+        return self.metadata.get(self.EXPERIMENT_ID, None)
 
-    def compare(self,execution):
-        if self.reference.repo_type == self.reference.identifier._RepositoryType.git:
-            _version = self.reference.identifier.version()
-            __version = execution.reference.identifier.version()
-            path_to_ref = self.reference.identifier.path
+    def compare(self, execution):
+        if self.reference.repo_type == self.reference.repository_identifier._RepositoryType.git:
+            _version = self.reference.repository_identifier.version()
+            __version = execution.reference.repository_identifier.version()
+            path_to_ref = self.reference.repository_identifier.path
             return git_diff(_version, __version, path=path_to_ref)
         else:
             raise NotImplementedError()

@@ -15,10 +15,10 @@ class PadreCli(unittest.TestCase):
         super(PadreCli, self).__init__(*args, **kwargs)
         config = PadreConfig(config_file=os.path.join(os.path.expanduser("~"), ".padre-test.cfg"))
         config.set("backends", str([
-                    {
-                        "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre-test")
-                    }
-                ]))
+            {
+                "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre-test")
+            }
+        ]))
 
     def tearDown(self):
         pass
@@ -76,7 +76,8 @@ class PadreCli(unittest.TestCase):
     def test_computation(self):
         runner = CliRunner()
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-                                         'computation', 'list'])
+                                         'run', 'select', '5c6d7d64-1378-471c-baab-0fc48e18880a-4462774619032339222'],
+                               input='computation list\n')
 
 
 if __name__ == '__main__':

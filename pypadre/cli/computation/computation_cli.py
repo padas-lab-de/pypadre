@@ -34,7 +34,7 @@ def _filter_selection(ctx, found):
         found = [f for f in found if f.parent == ctx.obj['run']]
 
     # filter for execution selection
-    if 'execution' in ctx.obj:
+    elif 'execution' in ctx.obj:
         found = [f for f in found if f.parent.parent == ctx.obj['execution']]
 
     # filter for experiment selection
@@ -59,7 +59,7 @@ def list(ctx, search, offset, limit, column):
     List computations defined in the padre environment
     """
     # List all the computations that are currently saved
-    _print_table(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit), columns=column)
+    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)), columns=column)
 
 
 @computation.command(name="get")

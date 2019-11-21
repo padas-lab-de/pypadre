@@ -59,7 +59,7 @@ class PadreAppTest(unittest.TestCase):
     def setup_reference(self, file):
         # TODO can we move that to setup in some way??? reference to (__file__)
         self.test_reference = PythonPackage(package=find_package_structure(file),
-                                            variable=self._testMethodName, identifier=PACKAGE_ID)
+                                            variable=self._testMethodName, repository_identifier=PACKAGE_ID)
 
     def tearDown(self):
         self.test_reference = None

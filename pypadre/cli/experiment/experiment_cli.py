@@ -109,8 +109,8 @@ def select(ctx, id):
         print("Multiple matching experiments found!")
         _print_table(ctx, experiments)
         return -1
-    prompt = ctx.obj['prompt']
-    s = make_click_shell(ctx, prompt=prompt + 'exp: ' + id + ' > ', intro='Selecting experiment ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    prompt = ctx.obj['prompt'] + 'exp: ' + id + ' > '
+    s = make_click_shell(ctx, prompt=prompt, intro='Selecting experiment ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
     ctx.obj['prompt'] = prompt
     ctx.obj['experiment'] = experiments.pop(0)
     s.cmdloop()

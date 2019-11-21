@@ -190,7 +190,7 @@ class PadreApp(CoreApp):
             creator = to_decorator_reference(reference, reference_package)
 
             return ParameterProvider(name="custom_parameter_provider", reference=creator,
-                                     code=Function(fn=wrap_parameters, identifier=creator.identifier, transient=True))
+                                     code=Function(fn=wrap_parameters, repository_identifier=creator.repository_identifier, transient=True))
 
         return parameter_decorator
 
@@ -219,7 +219,7 @@ class PadreApp(CoreApp):
                             val_idx=val_idx, component=component, predecessor=predecessor, **kwargs)
 
             creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
-            return Function(fn=wrap_splitter, transient=True, identifier=creator.identifier, **kwargs)
+            return Function(fn=wrap_splitter, transient=True, repository_identifier=creator.repository_identifier, **kwargs)
 
         return splitter_decorator
 
@@ -237,7 +237,7 @@ class PadreApp(CoreApp):
 
             creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
 
-            return Function(fn=wrap_preprocessing, transient=True, identifier=creator.identifier, **kwargs)
+            return Function(fn=wrap_preprocessing, transient=True, repository_identifier=creator.repository_identifier, **kwargs)
 
         return preprocessing_decorator
 
@@ -259,7 +259,7 @@ class PadreApp(CoreApp):
                                 initial_hyperparameters=initial_hyperparameters)
 
             creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
-            return Function(fn=wrap_estimator, transient=True, identifier=creator.identifier)
+            return Function(fn=wrap_estimator, transient=True, repository_identifier=creator.repository_identifier)
 
         return estimator_decorator
 
@@ -291,7 +291,7 @@ class PadreApp(CoreApp):
                                   parameters=kwargs)
 
             creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
-            return Function(fn=wrap_evaluator, transient=True, identifier=creator.identifier)
+            return Function(fn=wrap_evaluator, transient=True, repository_identifier=creator.repository_identifier)
 
         return evaluator_decorator
 
@@ -302,14 +302,14 @@ def to_decorator_reference(reference=None, reference_package=None, reference_git
     elif reference_package is not None:
         (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back.f_back)
         creator = PythonPackage(package=find_package_structure(reference_package), variable=function_name,
-                                identifier=PACKAGE_ID)
+                                repository_identifier=PACKAGE_ID)
     elif reference_git is not None:
         (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back.f_back)
         # TODO find git repo or pass it and look where package starts import from there
         git_repo = str(Path(reference_git).parent)
         creator = PythonFile(path=str(Path(reference_git).parent), package=reference_git[len(git_repo) + 1:],
                              variable=function_name,
-                             identifier=GitIdentifier(path=git_repo))
+                             repository_identifier=GitIdentifier(path=git_repo))
     else:
         raise ValueError("You need to provide a reference for your definition.")
     return creator

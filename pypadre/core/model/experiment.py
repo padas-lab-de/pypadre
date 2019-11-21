@@ -2,6 +2,8 @@
 import random
 from typing import Callable, Union, Optional, Type
 
+import pyhash
+
 from pypadre.core.base import ChildMixin, MetadataMixin
 from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.dataset.dataset import Dataset
@@ -16,6 +18,7 @@ from pypadre.core.model.project import Project
 #  Module Private Functions and Classes
 ####################################################################################################################
 from pypadre.core.util.random import set_seeds
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.json_validation import make_model
 
 experiment_model = make_model(schema_resource_name='experiment.json')
@@ -102,7 +105,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
-            "id": name,
+            "id": name + "-" + str(persistent_hash(project.id, algorithm=pyhash.city_64())),
             self.PROJECT_ID: project.id if project is not None else None,
             self.DATASET_ID: dataset.id if dataset is not None else None,
             self.SEED: seed if seed else random.randint(1, int(1e9)),
