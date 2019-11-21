@@ -152,12 +152,12 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         #                'create_repo': False}
 
         # Get hash from the outside if possible
-        code_hash = self.reference_hash
+        #code_hash = self.reference_hash
 
         # Should we simply warn the user that there is no generic for the code
-        if code_hash is None:
+        if self.reference is None:
             raise ValueError("An execution has to reference a code hash to be valid.")
 
-        execution = Execution(experiment=self, codehash=code_hash, command=kwargs.pop("cmd", "default"))
+        execution = Execution(experiment=self, command=kwargs.pop("cmd", "default"), pipeline=self.pipeline, reference=self.reference)
         self._executions.append(execution)
         return execution.execute(**kwargs)

@@ -1,5 +1,6 @@
 from pypadre.core.base import ChildMixin
 from pypadre.core.model.computation.run import Run
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
@@ -9,7 +10,7 @@ from pypadre.core.validation.json_validation import make_model
 execution_model = make_model(schema_resource_name='execution.json')
 
 
-class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, ChildMixin, Tablefyable):
+class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, ChildMixin, Tablefyable):
     """
     A execution should save data about the running env and the version of the code on which it was run .
     An execution is linked to the version of the code being executed. The execution directory is the hash of the commit
@@ -24,7 +25,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         # Add entries for tablefyable
         cls.tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
 
-    def __init__(self, experiment, codehash=None, command=None, runs=None,**kwargs):
+    def __init__(self, experiment, command=None, runs=None, pipeline=None, **kwargs):
         # Add defaults
         defaults = {}
 
@@ -32,15 +33,14 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.EXPERIMENT_ID: experiment.id,
                                                                  self.EXPERIMENT_NAME: experiment.name}}
 
-        if codehash is not None:
-            metadata['hash'] = codehash
-
-        metadata = {**{"id": metadata['hash']}, **metadata}
+        metadata = {**{"id": kwargs.get("reference").id}, **metadata}
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
         self._command = command
         if runs is not None:
             self._runs = runs
+
+        self._pipeline = pipeline
 
     def _execute_helper(self, *args, **kwargs):
         self.send_put()
@@ -50,7 +50,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
 
     @property
     def hash(self):
-        return self.metadata.get('hash', None)
+        return self.reference.id
 
     @property
     def command(self):
@@ -66,7 +66,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
 
     @property
     def pipeline(self):
-        return self.experiment.pipeline
+        return self._pipeline
 
     @property
     def run(self):

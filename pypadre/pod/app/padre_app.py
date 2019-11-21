@@ -22,10 +22,10 @@ from logging import warning
 from pathlib import Path
 from typing import Union
 
+import numpy as np
 from docutils.nodes import warning
 from jsonschema import ValidationError
 from sklearn.pipeline import Pipeline
-import numpy as np
 
 from pypadre._package import PACKAGE_ID
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline, SKLearnEvaluator
@@ -52,7 +52,7 @@ class PadreAppFactory:
     @staticmethod
     def get(config=PadreConfig()):
         backends = PadreAppFactory._parse_backends(config)
-        return PadreApp(backends=backends)
+        return PadreApp(config=config, backends=backends)
 
     @staticmethod
     def _parse_backends(config):
@@ -77,6 +77,14 @@ class PadreAppFactory:
 
 
 class PadreApp(CoreApp):
+
+    def __init__(self, config, **kwargs):
+        self._config = config
+        super().__init__(**kwargs)
+
+    @property
+    def config(self):
+        return self._config
 
     # ------------------------------------------ decorators -------------------------------------------
     def experiment(self, *args, ptype=None, parameters=None, parameter_provider=None, splitting=None,

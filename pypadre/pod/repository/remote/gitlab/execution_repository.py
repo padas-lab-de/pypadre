@@ -1,4 +1,5 @@
 from pypadre.core.model.execution import Execution
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.local.file.execution_repository import ExecutionFileRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
@@ -29,7 +30,9 @@ class ExecutionGitlabRepository(ExecutionFileRepository):
     def _get_by_repo(self, repo, path=''):
         metadata = self._gitlab_backend.get_file(repo, META_FILE, path=path)
         experiment = self.parent._get_by_repo(repo, path='')
-        return Execution(experiment=experiment, metadata=metadata)
+        reference = self.backend.code.get(metadata.get(CodeManagedMixin.DEFINED_IN))
+
+        return Execution(experiment=experiment, metadata=metadata, reference=reference)
 
     def update(self, execution: Execution, commit_message: str):
         self.parent.update(execution.parent, commit_message)

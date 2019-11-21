@@ -158,6 +158,13 @@ class PadreConfig:
             self.config[section] = dict()
         self.config[section][key] = value
 
+    def has_entry(self, key, section='GENERAL'):
+        try:
+            self.get(key, section)
+            return True
+        except:
+            return False
+
     def get(self, key, section='GENERAL'):
         """
         Get value for given key.
