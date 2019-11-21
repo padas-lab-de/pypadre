@@ -6,6 +6,7 @@ from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.validation.json_validation import make_model
+from pypadre.pod.util.git_util import git_diff
 
 execution_model = make_model(schema_resource_name='execution.json')
 
@@ -70,3 +71,12 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
     @property
     def experiment_id(self):
         return self.metadata.get(self.EXPERIMENT_ID,None)
+
+    def compare(self,execution):
+        if self.reference.repo_type == self.reference.identifier._RepositoryType.git:
+            _version = self.reference.identifier.version()
+            __version = execution.reference.identifier.version()
+            path_to_ref = self.reference.identifier.path
+            return git_diff(_version, __version, path=path_to_ref)
+        else:
+            raise NotImplementedError()
