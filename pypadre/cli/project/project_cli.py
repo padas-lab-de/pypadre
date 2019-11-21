@@ -84,20 +84,20 @@ def create(ctx, name):
 @click.group(name="select", invoke_without_command=True)
 @click.argument('name', type=click.STRING)
 @click.pass_context
-def select(ctx, name):
+def select(ctx, id):
     """
     Select a project as active
     """
     # Set as active project
-    projects = _get_app(ctx).list({"name": name})
+    projects = _get_app(ctx).list({"id": id})
     if len(projects) == 0:
-        print("Project {0} not found!".format(name))
+        print("Project {0} not found!".format(id))
         return -1
     if len(projects) > 1:
         print("Multiple matching projects found!")
         _print_table(ctx, projects)
         return -1
-    s = make_click_shell(ctx, prompt='pypadre > pro: ' + name + ' > ', intro='Selecting project ' + name, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    s = make_click_shell(ctx, prompt='pypadre > pro: ' + id + ' > ', intro='Selecting project ' + name, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
     ctx.obj['project'] = projects.pop(0)
     s.cmdloop()
     ctx.obj['project'] = None

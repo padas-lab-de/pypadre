@@ -93,20 +93,20 @@ def create(ctx, name):
 @click.group(name="select", invoke_without_command=True)
 @click.argument('name', type=click.STRING)
 @click.pass_context
-def select(ctx, name):
+def select(ctx, id):
     """
     Select a experiment as active
     """
     # Set as active experiment
-    experiments = _get_app(ctx).list({"name": name})
+    experiments = _get_app(ctx).list({"id": id})
     if len(experiments) == 0:
-        print("Experiment {0} not found!".format(name))
+        print("Experiment {0} not found!".format(id))
         return -1
     if len(experiments) > 1:
         print("Multiple matching experiments found!")
         _print_table(ctx, experiments)
         return -1
-    s = make_click_shell(ctx, prompt='pypadre > exp: ' + name + ' > ', intro='Selecting experiment ' + name, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    s = make_click_shell(ctx, prompt='pypadre > exp: ' + id + ' > ', intro='Selecting experiment ' + name, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
     ctx.obj['experiment'] = experiments.pop(0)
     s.cmdloop()
     del ctx.obj['experiment']
