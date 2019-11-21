@@ -20,4 +20,5 @@ def get_dict_attr(obj, attr):
     for o in [obj] + obj.__class__.mro():
         if attr in o.__dict__:
             return o.__dict__[attr]
-    raise AttributeError("Object " + obj + " has no attribute " + attr)
+    raise AttributeError(
+        "Object " + obj.__class__.__name__ + " with id '" + str(obj.id) + "' has no attribute '" + attr + "'")

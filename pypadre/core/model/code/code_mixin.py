@@ -204,10 +204,6 @@ class CodeMixin(StoreableMixin, MetadataMixin):
         return self._identifier
 
     @property
-    def name(self):
-        return self._identifier.name()
-
-    @property
     def repo_type(self):
         return self.metadata.get(self.REPOSITORY_TYPE)
 

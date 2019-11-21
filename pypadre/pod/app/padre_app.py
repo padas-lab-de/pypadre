@@ -51,9 +51,11 @@ from pypadre.pod.backend.gitlab import PadreGitLabBackend
 class PadreAppFactory:
 
     @staticmethod
-    def get(config=PadreConfig()):
+    def get(config=None, printer=print):
+        if config is None:
+            config = PadreConfig()
         backends = PadreAppFactory._parse_backends(config)
-        return PadreApp(config=config, backends=backends)
+        return PadreApp(config=config, printer=printer, backends=backends)
 
     @staticmethod
     def _parse_backends(config):
