@@ -2,7 +2,8 @@ from typing import Callable, List, Optional
 
 from pypadre.core.model.code.code_mixin import Function, GitIdentifier
 from pypadre.core.model.generic.custom_code import ProvidedCodeHolderMixin
-from pypadre.core.model.pipeline.components.component_mixins import SplitComponentMixin, PipelineComponentMixin
+from pypadre.core.model.pipeline.components.component_mixins import SplitComponentMixin, PipelineComponentMixin, \
+    ParameterizedPipelineComponentMixin
 from pypadre.core.model.split.split import Split
 from pypadre.core.model.split.splitter import default_split
 from pypadre.core.util.utils import unpack
@@ -40,7 +41,7 @@ class SplitComponent(SplitComponentMixin):
         super().__init__(name=name, code=code, **kwargs)
 
 
-class DefaultSplitComponent(ProvidedCodeHolderMixin, SplitComponent):
+class DefaultSplitComponent(ProvidedCodeHolderMixin, SplitComponent, ParameterizedPipelineComponentMixin):
 
     def __init__(self, **kwargs):
         super().__init__(name="default_split", fn=self.call, **kwargs)

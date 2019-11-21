@@ -110,7 +110,8 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         # look up available metrics
         available_metrics = metric_registry.available_providers(computation)
         if available_metrics:
-            available_message = "Following metrics would be available for " + str(computation) + ": " + ', '.join(str(p) for p in available_metrics)
+            available_message = "Following metrics would be available for " + str(computation) + ": " + ', '.join(
+                str(p) for p in available_metrics)
             self.send_info(message=available_message)
             print(available_message)
 
@@ -185,7 +186,8 @@ class DefaultPythonExperimentPipeline(Pipeline):
                                                **attr) if preprocessing_fn else None
 
         if splitting is None:
-            self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, reference=attr.get("reference"))
+            self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, reference=attr.get("reference"),
+                                                   parameter_provider=attr.get("parameter_provider"))
         else:
             self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
 
@@ -210,7 +212,6 @@ class DefaultPythonExperimentPipeline(Pipeline):
         nodes = []
         nodes.extend(self.nodes)
         return nodes
-
 
     @property
     def preprocessor(self):

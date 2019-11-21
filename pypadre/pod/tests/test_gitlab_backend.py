@@ -9,8 +9,6 @@ from pypadre.pod.tests.base_test import PadreAppTest
 from pypadre.pod.tests.util.util import connect_log_to_stdout, connect_event_to_stdout, create_sklearn_test_pipeline
 
 
-# config_path = os.path.join(os.path.expanduser("~"), ".padre_git_test.cfg")
-# workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
 
 class PadreGitTest(PadreAppTest):
 

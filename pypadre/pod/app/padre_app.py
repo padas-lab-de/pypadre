@@ -157,7 +157,7 @@ class PadreApp(CoreApp):
                 **filter_nones({"name": experiment_name, "description": experiment_description}),
                 project=project, pipeline=pipeline, dataset=d, reference=creator, seed=seed)
             if auto_main:
-                experiment.execute(parameters=parameters)
+                experiment.execute(parameters=parameters, **kwargs)
                 return experiment
             else:
                 if parameters:
