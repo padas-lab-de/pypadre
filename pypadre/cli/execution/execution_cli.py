@@ -10,6 +10,8 @@ import click
 #################################
 from click_shell import make_click_shell
 
+from pypadre.cli.computation import computation_cli
+from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
 from pypadre.core.model.execution import Execution
 from pypadre.pod.app.project.execution_app import ExecutionApp
@@ -32,11 +34,11 @@ def _print_table(ctx, *args, **kwargs):
 def _filter_selection(ctx, found):
     # filter for experiment selection
     if 'experiment' in ctx.obj:
-        found = [f for f in found if f.parent.id == ctx.obj['experiment']]
+        found = [f for f in found if f.parent == ctx.obj['experiment']]
 
     # filter for project selection
     elif 'project' in ctx.obj:
-        found = [f for f in found if f.parent.parent.id == ctx.obj['project']]
+        found = [f for f in found if f.parent.parent == ctx.obj['project']]
     return found
 
 
@@ -89,9 +91,9 @@ def select(ctx, id):
         print("Multiple matching executions found!")
         _print_table(ctx, executions)
         return -1
-    prompt = ctx.obj['promp']
+    prompt = ctx.obj['prompt']
     s = make_click_shell(ctx, prompt=prompt + 'exe: ' + id + ' > ', intro='Selecting execution ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
-    ctx.obj['promp'] = prompt
+    ctx.obj['prompt'] = prompt
     ctx.obj['execution'] = executions.pop(0)
     s.cmdloop()
     del ctx.obj['execution']
@@ -99,3 +101,5 @@ def select(ctx, id):
 
 execution.add_command(select)
 select.add_command(run_cli.run)
+select.add_command(computation_cli.computation)
+select.add_command(metric_cli.metric)

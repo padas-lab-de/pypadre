@@ -1,4 +1,3 @@
-from pypadre.core.events.events import signals
 from pypadre.core.model.computation.computation import Computation
 
 
@@ -9,7 +8,7 @@ class Evaluation(Computation):
 
     @classmethod
     def _tablefy_register_columns(cls):
-        pass
+        super()._tablefy_register_columns()
 
     def __init__(self, *, training, result, **kwargs):
         # Add defaults

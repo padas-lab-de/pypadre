@@ -31,19 +31,19 @@ def _print_table(ctx, *args, **kwargs):
 def _filter_selection(ctx, found):
     # filter for run selection
     if 'run' in ctx.obj:
-        found = [f for f in found if f.parent.id == ctx.obj['run']]
+        found = [f for f in found if f.parent == ctx.obj['run']]
 
     # filter for execution selection
     if 'execution' in ctx.obj:
-        found = [f for f in found if f.parent.parent.id == ctx.obj['execution']]
+        found = [f for f in found if f.parent.parent == ctx.obj['execution']]
 
     # filter for experiment selection
     elif 'experiment' in ctx.obj:
-        found = [f for f in found if f.parent.parent.parent.id == ctx.obj['experiment']]
+        found = [f for f in found if f.parent.parent.parent == ctx.obj['experiment']]
 
     # filter for project selection
     elif 'project' in ctx.obj:
-        found = [f for f in found if f.parent.parent.parent.parent.id == ctx.obj['project']]
+        found = [f for f in found if f.parent.parent.parent.parent == ctx.obj['project']]
     return found
 
 

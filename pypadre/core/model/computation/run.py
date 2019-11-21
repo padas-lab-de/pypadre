@@ -1,7 +1,6 @@
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
-from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.validation.json_validation import make_model
 
 WRITE_RESULTS = "write_results"
@@ -11,7 +10,7 @@ WRITE_METRICS = "write_metrics"
 run_model = make_model(schema_resource_name='run.json')
 
 
-class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin, Tablefyable):
+class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin):
     """
     A run is an execution of the pipeline on a specific dataset. Each time an experiment is executed a new run is
     created.
@@ -20,7 +19,7 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
 
     @classmethod
     def _tablefy_register_columns(cls):
-        pass
+        super()._tablefy_register_columns()
 
     def __init__(self, execution,  **kwargs):
         # Add defaults

@@ -73,7 +73,7 @@ def to_table(clz, objects: Union[Tablefyable, List[Tablefyable]], columns=None, 
         spinner.start()
     for obj in objects:
         table.append_row(
-            [str(x) for x in obj.tablefy_to_row(*columns)])
+            [str(x) for x in obj.tablefy_to_row(*table.column_headers)])
     if spinner:
         spinner.stop()
     if print_empty and len(table) == 0:
