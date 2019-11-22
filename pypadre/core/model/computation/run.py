@@ -1,11 +1,15 @@
+import uuid
+
+import pyhash
+
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.json_validation import make_model
 
 WRITE_RESULTS = "write_results"
 WRITE_METRICS = "write_metrics"
-
 
 run_model = make_model(schema_resource_name='run.json')
 
@@ -21,12 +25,14 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
     def _tablefy_register_columns(cls):
         super()._tablefy_register_columns()
 
-    def __init__(self, execution,  **kwargs):
+    def __init__(self, execution, **kwargs):
         # Add defaults
         defaults = {}
 
         # Merge defaults
-        metadata = {**defaults, **{self.EXECUTION_ID: execution.id}, **kwargs.pop("metadata", {})}
+        metadata = {**defaults,
+                    **{"id": uuid.uuid4().__str__() + "-" + str(persistent_hash(execution.id, algorithm=pyhash.city_64())),
+                       self.EXECUTION_ID: execution.id}, **kwargs.pop("metadata", {})}
         super().__init__(model_clz=run_model, parent=execution, result=self, metadata=metadata, **kwargs)
 
     def _execute_helper(self, *args, **kwargs):
@@ -62,7 +68,7 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
     def execution_id(self):
         return self.parent.id
 
-    def separate_hyperparameters_and_component_parameters(self, parameters:dict):
+    def separate_hyperparameters_and_component_parameters(self, parameters: dict):
 
         parameter_dict = dict()
         write_result_metric_dict = dict()

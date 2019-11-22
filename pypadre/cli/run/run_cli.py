@@ -57,7 +57,7 @@ def list(ctx, search, offset, limit, column):
     List runs defined in the padre environment
     """
     # List all the runs that are currently saved
-    _print_table(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit), columns=column)
+    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)), columns=column)
 
 
 @run.command(name="get")
@@ -93,8 +93,8 @@ def select(ctx, id):
         print("Multiple matching runs found!")
         _print_table(ctx, runs)
         return -1
-    prompt = ctx.obj['prompt']
-    s = make_click_shell(ctx, prompt=prompt + 'run: ' + id + ' > ', intro='Selecting run ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+    prompt = ctx.obj['prompt'] + 'run: ' + id + ' > '
+    s = make_click_shell(ctx, prompt=prompt, intro='Selecting run ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
     ctx.obj['prompt'] = prompt
     ctx.obj['run'] = runs.pop(0)
     s.cmdloop()

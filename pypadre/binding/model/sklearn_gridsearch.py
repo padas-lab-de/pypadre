@@ -32,7 +32,7 @@ def _create_combinations(ctx, **parameters: dict):
 # Create a default pip identifier
 sklearn_grid_search = ParameterProvider(name="default_sklearn_provider",
                                         reference=PythonPackage(package=__name__, variable="sklearn_grid_search",
-                                                           identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                                    version=_version.__version__)),
-                                        code=Function(fn=_create_combinations, transient=True, identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                                    version=_version.__version__)))
+                                                                repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                                                    version=_version.__version__)),
+                                        code=Function(fn=_create_combinations, transient=True, repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                                                                                   version=_version.__version__)))

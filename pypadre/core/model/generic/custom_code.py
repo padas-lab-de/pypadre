@@ -121,7 +121,7 @@ class ProvidedCodeHolderMixin(CustomCodeHolder):
     @abstractmethod
     def __init__(self, *, reference: CodeMixin, fn, **kwargs):
         # noinspection PyTypeChecker
-        super().__init__(code=Function(fn=fn, identifier=reference.identifier, transient=True), reference=reference, **kwargs)
+        super().__init__(code=Function(fn=fn, repository_identifier=reference.repository_identifier, transient=True), reference=reference, **kwargs)
 
     @abstractmethod
     def call(self, ctx, **kwargs):

@@ -5,7 +5,7 @@ import re
 import shutil
 
 from pypadre.core.model.code.code_mixin import CodeMixin, PythonPackage, PythonFile, GenericCall, \
-    GitIdentifier, CodeIdentifier, PipIdentifier, Function
+    GitIdentifier, RepositoryIdentifier, PipIdentifier, Function
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import ICodeRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File
@@ -53,12 +53,12 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
         identifier_data = metadata.get(CodeMixin.IDENTIFIER)
 
         identifier = None
-        if identifier_type == CodeIdentifier._RepositoryType.pip:
+        if identifier_type == RepositoryIdentifier._RepositoryType.pip:
             version = identifier_data.get(PipIdentifier.VERSION)
             pip_package = identifier_data.get(PipIdentifier.PIP_PACKAGE)
             identifier = PipIdentifier(version=version, pip_package=pip_package)
 
-        if identifier_type == CodeIdentifier._RepositoryType.git:
+        if identifier_type == RepositoryIdentifier._RepositoryType.git:
             path = identifier_data.get(GitIdentifier.PATH)
             git_hash = identifier_data.get(GitIdentifier.GIT_HASH)
             identifier = GitIdentifier(path=path, git_hash=git_hash)
@@ -75,16 +75,16 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
                 fn_dir = glob.glob(os.path.join(self._replace_placeholders_with_wildcard(self.root_dir),
                                        os.path.abspath(os.path.join(directory, '..', 'function'))))[0]
             fn = self.get_file(fn_dir, CODE_FILE)
-            code = Function(fn=fn, metadata=metadata, identifier=identifier)
+            code = Function(fn=fn, metadata=metadata, repository_identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.package):
-            code = PythonPackage(metadata=metadata, path=metadata.get(PythonFile.PATH), package=metadata.get(PythonPackage.PACKAGE), variable=metadata.get(PythonPackage.VARIABLE), identifier=identifier)
+            code = PythonPackage(metadata=metadata, path=metadata.get(PythonFile.PATH), package=metadata.get(PythonPackage.PACKAGE), variable=metadata.get(PythonPackage.VARIABLE), repository_identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.python_file):
-            code = PythonFile(metadata=metadata, path=metadata.get(PythonFile.PATH), package=metadata.get(PythonFile.PACKAGE), variable=metadata.get(PythonFile.VARIABLE), identifier=identifier)
+            code = PythonFile(metadata=metadata, path=metadata.get(PythonFile.PATH), package=metadata.get(PythonFile.PACKAGE), variable=metadata.get(PythonFile.VARIABLE), repository_identifier=identifier)
 
         elif metadata.get(CodeMixin.CODE_TYPE) == str(CodeMixin._CodeType.file):
-            code = GenericCall(metadata=metadata, cmd=metadata.get(GenericCall.CMD), identifier=identifier)
+            code = GenericCall(metadata=metadata, cmd=metadata.get(GenericCall.CMD), repository_identifier=identifier)
         else:
             raise NotImplementedError(metadata.get(CodeMixin.CODE_TYPE) + " couldn't load from type.")
 

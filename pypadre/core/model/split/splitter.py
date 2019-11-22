@@ -130,4 +130,4 @@ def split(ctx, strategy="random", test_ratio=0.25, random_seed=None, val_ratio=0
 
 
 default_split = Function(fn=split, transient=True,
-                         identifier=PACKAGE_ID)
+                         repository_identifier=PACKAGE_ID)
