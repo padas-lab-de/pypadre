@@ -2,6 +2,7 @@
 Command Line Interface for PADRE.
 
 """
+import os
 
 import click
 
@@ -9,7 +10,7 @@ from pypadre.cli.computation import computation_cli
 from pypadre.cli.execution import execution_cli
 from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
-from pypadre.cli.util import make_sub_shell
+from pypadre.cli.util import make_sub_shell, _create_experiment_file
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
 from pypadre.pod.app.project.experiment_app import ExperimentApp
@@ -90,8 +91,8 @@ def create(ctx, name, project, path):
 
     app = _get_app(ctx)
     if path is None:
-        path = os.path.expanduser("~")
-        #TODO
+        path = os.path.join(os.path.expanduser("~"),name)
+        _create_experiment_file(path)
     try:
         p = app.create(name=name, project=project, handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
         app.put(p)

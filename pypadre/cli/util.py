@@ -1,5 +1,5 @@
 import os
-
+from shutil import copyfile
 from click_shell import make_click_shell
 
 
@@ -19,3 +19,12 @@ def make_sub_shell(ctx, obj_name, obj, intro):
     s.cmdloop()
     ctx.obj['prompt'] = wrapping_prompt
     del ctx.obj[obj_name]
+
+
+def _create_experiment_file(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    #TODO
+
+
