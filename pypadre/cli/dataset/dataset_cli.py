@@ -7,7 +7,6 @@ from ast import literal_eval
 import click
 
 from pypadre.core.model.dataset.dataset import Dataset
-from pypadre.core.printing.util.print_util import to_table
 #################################
 ####### DATASETS FUNCTIONS ##########
 #################################
@@ -23,6 +22,9 @@ def dataset():
 
 def _get_app(ctx) -> DatasetApp:
     return ctx.obj["pypadre-app"].datasets
+
+def _print_table(ctx, *args, **kwargs):
+    ctx.obj["pypadre-app"].print_tables(Dataset, *args, **kwargs)
 
 
 @dataset.command(name="list")
@@ -42,22 +44,29 @@ def list(ctx, columns, search, offset, limit, column):
     if columns:
         print(Dataset.tablefy_columns())
         return 0
-    # TODO like pageable (sort, offset etc.)
-    print(to_table(Dataset, _get_app(ctx).list(search=search, offset=offset, size=limit),
-          columns=column))
+    _print_table(ctx, _get_app(ctx).list(search=search,offset=offset,size=limit),columns=column)
 
 
 @dataset.command(name="get")
-@click.argument('dataset_id')
+@click.argument('id' , type=click.STRING)
 @click.option('--simple', '-s', help='Show only simple info', is_flag=True)
 @click.pass_context
-def get(ctx, dataset_id, simple=False):
+def get(ctx, id, simple=False):
     """Show dataset with the given id."""
-    # TODO allow for download
-    if simple:
-        print('\n'.join(map(str, _get_app(ctx).get(dataset_id))))
-    else:
-        print('\n'.join([d.to_detail_string() for d in _get_app(ctx).get(dataset_id)]))
+    try:
+        found = _get_app(ctx).get(id)
+        if len(found) == 0:
+            click.echo(click.style(str("No project found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple projects found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            if simple:
+                ctx.obj["pypadre-app"].print(found.pop())
+            else:
+                ctx.obj["pypadre-app"].print(found.pop().to_detail_string())
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
 
 
 @dataset.command(name="sync")

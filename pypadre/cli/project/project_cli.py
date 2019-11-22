@@ -73,7 +73,6 @@ def create(ctx, name):
     """
     Create a new project
     """
-    # Create a new project
     def get_value(obj, e, options):
         return click.prompt(e.message + '. Please enter a value', type=str)
 

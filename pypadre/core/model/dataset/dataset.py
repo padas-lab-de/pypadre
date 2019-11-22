@@ -42,7 +42,7 @@ class Dataset(StoreableMixin, MetadataMixin):
     def _tablefy_register_columns(cls):
         # TODO make all fields tablefyable
         super()._tablefy_register_columns()
-        cls.tablefy_register("type", "attributes")
+        cls.tablefy_register_columns({'type':'type','attributes':'attributes'})
 
     def __init__(self, **kwargs):
         """
@@ -306,7 +306,7 @@ class Dataset(StoreableMixin, MetadataMixin):
                         for val in m[1]:
                             r.append(val)
                         table.append_row(r)
-                    sb.append(table)
+                    sb.append(table.get_string())
             else:
                 sb.append_line("\t%s=%s" % (k, str(v)))
         return str(sb)

@@ -190,7 +190,8 @@ class PadreApp(CoreApp):
             creator = to_decorator_reference(reference, reference_package)
 
             return ParameterProvider(name="custom_parameter_provider", reference=creator,
-                                     code=Function(fn=wrap_parameters, repository_identifier=creator.repository_identifier, transient=True))
+                                     code=Function(fn=wrap_parameters,
+                                                   repository_identifier=creator.repository_identifier, transient=True))
 
         return parameter_decorator
 
@@ -219,7 +220,8 @@ class PadreApp(CoreApp):
                             val_idx=val_idx, component=component, predecessor=predecessor, **kwargs)
 
             creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
-            return Function(fn=wrap_splitter, transient=True, repository_identifier=creator.repository_identifier, **kwargs)
+            return Function(fn=wrap_splitter, transient=True, repository_identifier=creator.repository_identifier,
+                            **kwargs)
 
         return splitter_decorator
 
@@ -237,7 +239,8 @@ class PadreApp(CoreApp):
 
             creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
 
-            return Function(fn=wrap_preprocessing, transient=True, repository_identifier=creator.repository_identifier, **kwargs)
+            return Function(fn=wrap_preprocessing, transient=True, repository_identifier=creator.repository_identifier,
+                            **kwargs)
 
         return preprocessing_decorator
 
@@ -254,7 +257,7 @@ class PadreApp(CoreApp):
                     y = np.zeros(shape=(len(split.train_features, )))
                 component.send_start(message="Starting phase " + phases.fitting)
                 model = f_create_estimator(split.train_features, y, **config)
-                component.send_stop(message="Stopping phase "+ phases.fitting)
+                component.send_stop(message="Stopping phase " + phases.fitting)
                 return Training(split=split, component=component, run=run, model=model, parameters=config,
                                 initial_hyperparameters=initial_hyperparameters)
 
@@ -276,7 +279,7 @@ class PadreApp(CoreApp):
                 test_idx = split.test_idx.tolist()
                 y = split.test_targets.reshape((len(split.test_targets),))
                 X_test = split.test_features
-                component.send_start(message="Starting phase "+phases.inferencing)
+                component.send_start(message="Starting phase " + phases.inferencing)
                 y_pred, probabilities = f_create_evaluator(model, X_test, **kwargs)
                 component.send_start(message="Starting phase " + phases.inferencing)
                 results = SKLearnEvaluator.create_results_dictionary(split_num=split.number, train_idx=train_idx,

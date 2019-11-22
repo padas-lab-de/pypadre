@@ -66,10 +66,12 @@ class Attribute(dict):
             return self["context"]
 
     def __str__(self):
-        return self.name + "(" + str(self.measurementLevel) + ")"
+        return self.name
+# + "(" + str(self.measurementLevel) + ")"
 
     def __repr__(self):
         if "graph_role" in self.context:
             return self.name + "(" + self.context["graph_role"] + ")"
         else:
-            return str(self["name"]) + "(" + str(self["measurementLevel"]) + "/" + str(self["unit"]) + ")"
+            return str(self["name"])
+# + "(" + str(self["measurementLevel"]) + "/" + str(self["unit"]) + ")"

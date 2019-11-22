@@ -76,8 +76,10 @@ def get(ctx, id):
 
 @experiment.command(name="create")
 @click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
+@click.option('--project','-p', default=None, help='Name of the project')
+@click.option('--path', help='Path to the file defining the experiment pipeline.', default=None)
 @click.pass_context
-def create(ctx, name):
+def create(ctx, name, project, path):
     """
     Create a new experiment
     """
@@ -86,8 +88,11 @@ def create(ctx, name):
         return click.prompt(e.message + '. Please enter a value', type=str)
 
     app = _get_app(ctx)
+    if path is None:
+        path = os.path.expanduser("~")
+        #TODO
     try:
-        p = app.create(name=name, handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+        p = app.create(name=name, project=project, handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
         app.put(p)
     except Exception as e:
         click.echo(click.style(str(e), fg="red"))
