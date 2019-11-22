@@ -186,8 +186,7 @@ class DefaultPythonExperimentPipeline(Pipeline):
                                                **attr) if preprocessing_fn else None
 
         if splitting is None:
-            self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, reference=attr.get("reference"),
-                                                   parameter_provider=attr.get("parameter_provider"))
+            self._splitter = DefaultSplitComponent(predecessors=self._preprocessor, reference=attr.get("reference"))
         else:
             self._splitter = SplitComponent(code=splitting, predecessors=self._preprocessor, **attr)
 

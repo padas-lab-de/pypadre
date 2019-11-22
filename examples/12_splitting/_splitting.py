@@ -16,21 +16,16 @@ def dataset():
     return np.append(data, target, axis=1)
 
 
-@app.custom_splitter(name="Custom splitter", reference_git=__file__)
-def custom_splitter(dataset, **kwargs):
-    idx = np.arange(dataset.size[0])
-    cutoff = int(len(idx) / 2)
-    return idx[:cutoff], idx[cutoff:], None
-
-
-# A custom splitter function has to provide training, testing and validation indices
-
 @app.parameter_map()
 def parameters():
-    return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [1.0]}, 'PCA': {'n_components': [3]}}}}
+    return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [1.0]}, 'PCA': {'n_components': [3]}}},
+            'default_split': {'parameters': {'strategy': ['cv'], 'n_folds': [4]}}}
 
 
-@app.experiment(dataset=dataset, reference_git=__file__, parameters=parameters, splitting=custom_splitter,
+# default_split is the name of Padre default splitter component. For custom splitting, see the example
+# in 13_custom_splitting
+
+@app.experiment(dataset=dataset, reference_git=__file__, parameters=parameters,
                 experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline
