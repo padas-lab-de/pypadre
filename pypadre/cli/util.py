@@ -2,6 +2,8 @@ import os
 from shutil import copyfile
 from click_shell import make_click_shell
 
+from pypadre.pod.app.base_app import BaseEntityApp
+
 
 def shorten_prompt_id(id):
     id = str(id)
@@ -19,6 +21,22 @@ def make_sub_shell(ctx, obj_name, obj, intro):
     s.cmdloop()
     ctx.obj['prompt'] = wrapping_prompt
     del ctx.obj[obj_name]
+
+
+def get_by_app(ctx, app: BaseEntityApp, id):
+    objects = app.list({"id": id})
+    if len(objects) == 0:
+        print(app.model_clz.__name__ + " {0} not found!".format(id))
+        return None
+    if len(objects) > 1:
+        print("Multiple matching entries of type " + app.model_clz.__name__ + " found!")
+        _print_class_table(ctx, app.model_clz, objects)
+        return None
+    return objects.pop(0)
+
+
+def _print_class_table(ctx, clz, *args, **kwargs):
+    ctx.obj["pypadre-app"].print_tables(clz, *args, **kwargs)
 
 
 def _create_experiment_file(path):

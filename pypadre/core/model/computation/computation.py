@@ -24,6 +24,7 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin):
     @classmethod
     def _tablefy_register_columns(cls):
         super()._tablefy_register_columns()
+        cls.tablefy_register("format", "type", "parameters", "initial_hyperparameters", "metrics", "result")
 
     def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result_format=None, result,
                  parameters=None, initial_hyperparameters=None, branch=False, metrics=None, **kwargs):
