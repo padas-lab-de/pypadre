@@ -2,19 +2,20 @@
 Command Line Interface for PADRE.
 
 """
-import os
 
 import click
-#################################
-####### EXECUTION FUNCTIONS ##########
-#################################
-from click_shell import make_click_shell
 
 from pypadre.cli.computation import computation_cli
 from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
+from pypadre.cli.util import make_sub_shell
 from pypadre.core.model.execution import Execution
 from pypadre.pod.app.project.execution_app import ExecutionApp
+
+
+#################################
+####### EXECUTION FUNCTIONS ##########
+#################################
 
 
 @click.group(name="execution")
@@ -54,7 +55,7 @@ def list(ctx, search, offset, limit, column):
     List executions defined in the padre environment
     """
     # List all the executions that are currently saved
-    _print_table(ctx, _filter_selection(_get_app(ctx).list(search=search, offset=offset, size=limit)), columns=column)
+    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)), columns=column)
 
 
 @execution.command(name="get")
@@ -91,12 +92,7 @@ def select(ctx, id):
         print("Multiple matching executions found!")
         _print_table(ctx, executions)
         return -1
-    prompt = ctx.obj['prompt'] + 'exe: ' + id + ' > '
-    s = make_click_shell(ctx, prompt=prompt, intro='Selecting execution ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
-    ctx.obj['prompt'] = prompt
-    ctx.obj['execution'] = executions.pop(0)
-    s.cmdloop()
-    del ctx.obj['execution']
+    make_sub_shell(ctx, 'execution', execution.pop(0), 'Selecting execution ')
 
 
 execution.add_command(select)

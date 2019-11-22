@@ -2,22 +2,23 @@
 Command Line Interface for PADRE.
 
 """
-import os
 
 import click
-#################################
-####### PROJECT FUNCTIONS ##########
-#################################
-from click_shell import make_click_shell
 
 from pypadre.cli.computation import computation_cli
 from pypadre.cli.execution import execution_cli
 from pypadre.cli.experiment import experiment_cli
 from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
+from pypadre.cli.util import make_sub_shell
 from pypadre.core.model.project import Project
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
 from pypadre.pod.app.project.project_app import ProjectApp
+
+
+#################################
+####### PROJECT FUNCTIONS ##########
+#################################
 
 
 @click.group(name="project")
@@ -100,12 +101,7 @@ def select(ctx, id):
         print("Multiple matching projects found!")
         _print_table(ctx, projects)
         return -1
-    prompt = ctx.obj['prompt'] + 'pro: ' + id + ' > '
-    s = make_click_shell(ctx, prompt=prompt, intro='Selecting project ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
-    ctx.obj['prompt'] = prompt
-    ctx.obj['project'] = projects.pop(0)
-    s.cmdloop()
-    del ctx.obj['project']
+    make_sub_shell(ctx, 'project', projects.pop(0), 'Selecting project ')
 
 
 project.add_command(select)
