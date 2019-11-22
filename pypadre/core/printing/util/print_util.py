@@ -51,7 +51,7 @@ class Spinner(object):
 
 
 def get_default_table():
-    table = BeautifulTable(max_width=150, default_alignment=Alignment.ALIGN_LEFT)
+    table = BeautifulTable(max_width=250, default_alignment=Alignment.ALIGN_LEFT)
     table.row_separator_char = ""
     return table
 

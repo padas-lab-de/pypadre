@@ -8,7 +8,7 @@ import click
 from pypadre.cli.computation import computation_cli
 from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
-from pypadre.cli.util import make_sub_shell
+from pypadre.cli.util import make_sub_shell, get_by_app
 from pypadre.core.model.execution import Execution
 from pypadre.pod.app.project.execution_app import ExecutionApp
 
@@ -74,6 +74,20 @@ def get(ctx, id):
             ctx.obj["pypadre-app"].print(found.pop())
     except Exception as e:
         click.echo(click.style(str(e), fg="red"))
+
+
+@execution.command(name="compare")
+@click.argument('self_id', type=click.STRING)
+@click.argument('other_id', type=click.STRING)
+@click.pass_context
+def compare(ctx, self_id, other_id):
+    app = _get_app(ctx)
+
+    execution_ = get_by_app(ctx, app, self_id)
+    execution__ = get_by_app(ctx, app, other_id)
+    if not execution_ or not execution__:
+        return -1
+    click.echo(execution_.compare(execution__))
 
 
 @click.group(name="select", invoke_without_command=True)

@@ -37,7 +37,7 @@ from .project import project_cli
 #######      MAIN      ##########
 #################################
 # @click.group()
-@shell(prompt='pypadre > ', intro='Starting padre ...', hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
+@shell(prompt='pypadre > ', intro='Please insert your commands...', hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
 @click.option('--config-file', '-c',
               type=click.Path(),
               default=os.path.expanduser('~/.padre.cfg'),
@@ -49,6 +49,40 @@ def pypadre(ctx, config_file):
 
     Default config file: ~/.padre.cfg
     """
+
+    click.echo("Initializing padre...")
+
+    click.echo("""\
+    
+        N00K0K0KKKKKKKKKKKKKKKKKKKKKKKKKK0KKK00N
+        KOXWWWWMWWWWMMWWWMNK0KXWWWWWWWWWWMMWMXOX
+        KOXWWWWMMWWWWWMMWWK:.'dNWWWWWWWWWWMWMXOX
+        KONMWWMMMMMWWMMWXNK, .,xXWWWWWWWMMMWMXOX
+        KONMWWWMMMMWWMNx:kK: ...;OWWWWWWWMWWMXOX
+        KkXMWWWMMMMMWWd..xKo.lOc.'0WWMMWWWWWMXOX
+        KkKWWWMMMMWWWK; .dKo.':, .dWMWMWWWWWMXOX
+        KkXWMWMMWMWWWK; .,:'.    .dWWWMWWMMWMXOX
+        KkXWMMMMWWWWNXd.       ..,0MWWWWWMMWWKkX
+        KkXWWMMMWWWWWNKc       .'xWWWWWWWWWWWKkX
+        KOXNNNWMMWWWWNO;  ..... .oXWWWWWWMWWMXOX
+        KkXWWNNWWWWWNk, .;c,.,;. .cXMMMWMMMMMXOX
+        KOXWNWWNNNWWWKkc........cdONMMMMMMMMMXOX
+        KkXWNNWWNNWWWNW0'      .OMMMMWMMMMMWMXOX
+        Kx0NNXNWWWWMWWWk.'o,   .kWMMMWWMMMMMMXOX
+        KdONNNWWWWWMWWWo.cKc....oNMMWWMMMMMMMXOX
+        KkXNNWWWWWWWWW0, oXo,dd':0WWWWWWWMWWMXOX
+        0x0XKKXXKXXXX0: .dXd:k0;'o0XXXXXXXXXX0kX
+        0lldoloooodl;,. .;l;,d0d:ldlloooodoodldX
+        0lldooooddd:...    ...,,'.:lcloooolodldX
+        Klcoollol:'.       ';:dxxdxkxdolllcloldX
+        0lcooooo;,,       ...';;,'...,oololloloX
+        0lldoooo:'.   ...........   .,clodooocoX
+        0lldoool;.    ........    .. .coldoooldX
+        0lldolool:;,,''..........';,,:cloooooloX
+        0lldoooooodooolllloooddooooolooolooodldX
+        NK000000000000000000000000000000000000KW
+        """)
+
     # load default configuration
     config = PadreConfig(config_file)
     # create context object
@@ -57,8 +91,7 @@ def pypadre(ctx, config_file):
         'pypadre-app': PadreAppFactory.get(config),
         'prompt': "pypadre > "
     }
-    click.echo("hello!!!")
-
+    click.echo("Padre loaded!")
 
 # @pypadre.command(name="authenticate")
 # @click.option('--user', default=None, help='User on server')
