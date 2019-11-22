@@ -78,6 +78,8 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
         """
         visualization = json.loads(visualization)
         file_name = kwargs.pop("file_name", None)
-        if file_name is None:
+        if file_name is not None:
+            file_name = file_name.split(".")[0] + ".json"
+        else:
             file_name = "visualization.json"
         self.write_file(kwargs.pop("base_path"), File(file_name, JSonSerializer), visualization)
