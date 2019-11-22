@@ -2,18 +2,19 @@
 Command Line Interface for PADRE.
 
 """
-import os
 
 import click
-#################################
-####### RUN FUNCTIONS ##########
-#################################
-from click_shell import make_click_shell
 
 from pypadre.cli.computation import computation_cli
 from pypadre.cli.metric import metric_cli
+from pypadre.cli.util import make_sub_shell
 from pypadre.core.model.computation.run import Run
 from pypadre.pod.app.project.run_app import RunApp
+
+
+#################################
+####### RUN FUNCTIONS ##########
+#################################
 
 
 @click.group(name="run")
@@ -93,12 +94,7 @@ def select(ctx, id):
         print("Multiple matching runs found!")
         _print_table(ctx, runs)
         return -1
-    prompt = ctx.obj['prompt'] + 'run: ' + id + ' > '
-    s = make_click_shell(ctx, prompt=prompt, intro='Selecting run ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
-    ctx.obj['prompt'] = prompt
-    ctx.obj['run'] = runs.pop(0)
-    s.cmdloop()
-    del ctx.obj['run']
+    make_sub_shell(ctx, 'run', runs.pop(0), 'Selecting run ')
 
 
 run.add_command(select)

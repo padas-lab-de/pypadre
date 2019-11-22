@@ -3,9 +3,9 @@ Create and save visualization for correlation matrix.
 
 For this example Iris dataset will be loaded and saved on the local file system.
 """
-import numpy as np
 import os
 
+import numpy as np
 from sklearn.datasets import load_iris
 
 from pypadre.core import plot

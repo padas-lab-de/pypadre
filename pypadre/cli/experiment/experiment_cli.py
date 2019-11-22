@@ -2,21 +2,22 @@
 Command Line Interface for PADRE.
 
 """
-import os
 
 import click
-#################################
-####### EXPERIMENT FUNCTIONS ##########
-#################################
-from click_shell import make_click_shell
 
 from pypadre.cli.computation import computation_cli
 from pypadre.cli.execution import execution_cli
 from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
+from pypadre.cli.util import make_sub_shell
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
 from pypadre.pod.app.project.experiment_app import ExperimentApp
+
+
+#################################
+####### EXPERIMENT FUNCTIONS ##########
+#################################
 
 
 @click.group(name="experiment")
@@ -109,12 +110,7 @@ def select(ctx, id):
         print("Multiple matching experiments found!")
         _print_table(ctx, experiments)
         return -1
-    prompt = ctx.obj['prompt'] + 'exp: ' + id + ' > '
-    s = make_click_shell(ctx, prompt=prompt, intro='Selecting experiment ' + id, hist_file=os.path.join(os.path.expanduser('~'), '.click-pypadre-history'))
-    ctx.obj['prompt'] = prompt
-    ctx.obj['experiment'] = experiments.pop(0)
-    s.cmdloop()
-    del ctx.obj['experiment']
+    make_sub_shell(ctx, 'experiment', experiments.pop(0), 'Selecting experiment ')
 
 
 experiment.add_command(select)
