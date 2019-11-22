@@ -10,6 +10,7 @@ import pandas as pd
 
 from sklearn import metrics
 
+import collections
 
 class Plot:
     """
@@ -207,7 +208,7 @@ class ExperimentPlot(Plot):
             for target_label in targets:
                 label_truths = [1.0 if truth == target_label else 0.0 for truth in truths]
                 score = [x[int(target_label)] for x in probabilities]
-                precision, recall, thresholds = metrics.precision_recall_curve(label_truths, score)
+                precision, recall, thresholds = metrics.precision_recall_curve(np.array(label_truths), np.array(score))
                 precisions = np.concatenate([precisions, precision])
                 recalls = np.concatenate([recalls, recall])
                 colors = np.concatenate([colors, np.full((1, recall.size), int(target_label)).flatten()])
@@ -265,7 +266,7 @@ class ExperimentPlot(Plot):
             for target_label in targets:
                 label_truths = [1.0 if truth == target_label else 0.0 for truth in truths]
                 score = [x[int(target_label)] for x in probabilities]
-                fpr, tpr, thresholds = metrics.roc_curve(label_truths, score)
+                fpr, tpr, thresholds = metrics.roc_curve(np.array(label_truths), np.array(score))
                 tprs = np.concatenate([tprs, tpr])
                 fprs = np.concatenate([fprs, fpr])
                 colors = np.concatenate([colors, np.full((1, fpr.size), int(target_label)).flatten()])
