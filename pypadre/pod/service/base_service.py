@@ -58,7 +58,7 @@ class CrudServiceMixin(ServiceMixin):
             backend: IStoreableRepository = b
             try:
                 backend.put(obj, **kwargs)
-            except ObjectAlreadyExists as e:
+            except Exception as e:
                 info("Couldn't store object " + str(obj) + "! " + str(e) + " Skipping storing the object.")
 
     def patch(self, obj):

@@ -7,6 +7,7 @@ from pypadre.pod.repository.serializer.serialiser import JSonSerializer, DillSer
 
 META_FILE = File("metadata.json", JSonSerializer)
 PARAMETER_FILE = File("parameters.json", JSonSerializer)
+METRIC_FILE = File("metrics.json", JSonSerializer)
 RESULT_FILE = File("results.bin", DillSerializer)
 INITIAL_HYPERPARAMETERS = File("initial_hyperparameters.json", JSonSerializer)
 
@@ -30,9 +31,10 @@ class ComputationGitlabRepository(ComputationFileRepository):
     def _get_by_repo(self, repo, path=''):
         metadata = self._gitlab_backend.get_file(repo, META_FILE, path=path)
         result = self._gitlab_backend.get_file(repo, RESULT_FILE, path=path)
+        hyper_parameters = self._gitlab_backend.get_file(repo, INITIAL_HYPERPARAMETERS, path=path)
+        metric = self._gitlab_backend.get_file(repo, METRIC_FILE, path=path)
         parameters = self._gitlab_backend.get_file(repo, PARAMETER_FILE, default={}, path=path)
 
-        # TODO Computation
         run_path = '/'.join(path.split('/')[:-2])
         run = self.parent._get_by_repo(repo, path=run_path)
         component = run.pipeline.get_component(metadata.get(Computation.COMPONENT_ID))
@@ -41,8 +43,9 @@ class ComputationGitlabRepository(ComputationFileRepository):
             predecessor = SimpleLazyObject(load_fn=lambda: self.get(metadata.get(Computation.PREDECESSOR_ID)),
                                            id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
 
-        computation = Computation(metadata=metadata, parameters=parameters, result=result, run=run, component=component,
-                                  predecessor=predecessor)
+        computation = Computation(metadata=metadata, initial_hyperparameters=hyper_parameters, parameters=parameters,
+                                  result=result, metric=metric, run=run,
+                                  component=component, predecessor=predecessor)
         return computation
 
     def _put(self, obj, *args, directory: str, store_results=False, merge=False, **kwargs):

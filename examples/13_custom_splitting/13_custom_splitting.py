@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.datasets import load_iris
-from sklearn.decomposition import PCA
 
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.examples.base_example import example_app
@@ -35,5 +34,6 @@ def parameters():
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
+    from sklearn.decomposition import PCA
     estimators = [('PCA', PCA()), ('SVC', SVC(probability=True))]
     return Pipeline(estimators)

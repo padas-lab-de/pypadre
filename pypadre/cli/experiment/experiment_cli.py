@@ -76,7 +76,7 @@ def get(ctx, id):
         click.echo(click.style(str(e), fg="red"))
 
 
-@experiment.command(name="create")
+@experiment.command(name="initialize")
 @click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
 @click.option('--project', '-p', default=None, help='Name of the project')
 @click.option('--path', type=click.Path(), help='Path to the file defining the experiment pipeline.', default=None)
@@ -93,17 +93,39 @@ def create(ctx, name, project, path):
     app = _get_app(ctx)
     if path is None:
         path = _create_experiment_file(path=os.path.join(os.path.expanduser("~"), name), file_name=name)
+    click.pause("Press any key to start editing your source code...")
     click.edit(filename=path)
-    click.pause("Press any key to execute your experiment and save it...")
+    click.pause(
+        "You can run the command 'experiment execute --path {}' "
+        "to execute and save your experiment".format(path, path))
+
+    # try:
+    #     # p = app.create(name=name, project=project,
+    #     #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+    #     app.put(exp)
+    # except Exception as e:
+    #     click.echo(click.style(str(e), fg="red"))
+
+
+@experiment.command(name="execute")
+@click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
+@click.option('--path', '-p', help='path to the source code', default=None)
+@click.pass_context
+def execute(ctx, name, path):
+    if path is None:
+        path = os.path.join(os.path.expanduser("~"), name) + "/" + name + ".py"
+    project = ctx.obj.get('project', None)
     try:
         global_namespace = {
-            "__file__": path
+            "path": path,
+            "config": ctx.obj["config-app"]
         }
+        # global_namespace = {**globals(), **global_namespace}
+        # TODO fix serialization bug of the experiment object (due to the use of exec)
         with open(path, 'rb') as code:
-            exp = exec(code.read(), global_namespace)
+            exec(compile(code.read(), path, 'exec'), global_namespace)
         # p = app.create(name=name, project=project,
         #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
-        app.put(exp)
     except Exception as e:
         click.echo(click.style(str(e), fg="red"))
 

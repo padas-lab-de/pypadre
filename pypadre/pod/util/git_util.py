@@ -227,6 +227,21 @@ def git_diff(commitID1=None,commitID2=None,path=None):
     except GitCommandError:
         return ''
 
+
+def repo_diff(path1=None,path2=None):
+    try:
+        return Repo.git.execute(
+            ['git', 'diff', '--no-index',path1, path2])
+    except GitCommandError:
+        repo1 = get_repo(path=path1)
+        remote = repo1.create_remote(name='remote', url=path2)
+        remote.update()
+        try:
+            return repo1.git.execute(['git', 'diff', repo1.active_branch.name, remote.name])
+        except GitCommandError:
+            return ''
+
+
 def get_head(repo):
     return repo.head
 

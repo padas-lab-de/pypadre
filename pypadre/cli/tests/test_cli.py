@@ -67,18 +67,18 @@ class PadreCli(unittest.TestCase):
     def test_experiment(self):
         runner = CliRunner()
 
-        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg")])
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-                                         'experiment', 'list'])
+        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg")])
+        # result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg"),
+        #                                  'experiment', 'list'])
 
         # assert 'Iris SVC' in result.output
 
-        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-                                'project', 'create', '-n', 'Examples'])
+        # runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg"),
+        #                         'project', 'create', '-n', 'Examples'])
 
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg"),
                                          'project', 'select', 'Examples'],
-                               input="experiment create -n cli_experiment --path /home/mehdi/cli_experiment/experiment.py")
+                               input="experiment execute --name example_exp --path /home/mehdi/example_exp/example_exp.py")
 
         # result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
         #                                  'experiment', 'create', '-n', 'cli_experiment'])
