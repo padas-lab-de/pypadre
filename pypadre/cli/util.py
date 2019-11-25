@@ -1,5 +1,5 @@
 import os
-from shutil import copyfile
+import shutil
 from click_shell import make_click_shell
 
 from pypadre.pod.app.base_app import BaseEntityApp
@@ -39,10 +39,10 @@ def _print_class_table(ctx, clz, *args, **kwargs):
     ctx.obj["pypadre-app"].print_tables(clz, *args, **kwargs)
 
 
-def _create_experiment_file(path):
+def _create_experiment_file(path=None, file_name=None):
     if not os.path.exists(path):
         os.makedirs(path)
-
-    #TODO
-
-
+    src = os.path.join(os.path.dirname(__file__), 'experiment/experiment_template.py')
+    dst = path + '/' + file_name + '.py'
+    shutil.copyfile(src=src, dst=dst)
+    return dst

@@ -36,7 +36,6 @@ def _print_table(ctx, *args, **kwargs):
 
 
 def _filter_selection(ctx, found):
-
     # filter for project selection
     if 'project' in ctx.obj:
         found = [f for f in found if f.parent == ctx.obj['project']]
@@ -55,7 +54,8 @@ def list(ctx, search, offset, limit, column):
     List experiments defined in the padre environment
     """
     # List all the experiments that are currently saved
-    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)), columns=column)
+    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)),
+                 columns=column)
 
 
 @experiment.command(name="get")
@@ -78,24 +78,32 @@ def get(ctx, id):
 
 @experiment.command(name="create")
 @click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
-@click.option('--project','-p', default=None, help='Name of the project')
-@click.option('--path', help='Path to the file defining the experiment pipeline.', default=None)
+@click.option('--project', '-p', default=None, help='Name of the project')
+@click.option('--path', type=click.Path(), help='Path to the file defining the experiment pipeline.', default=None)
 @click.pass_context
 def create(ctx, name, project, path):
     """
     Create a new experiment
     """
+
     # Create a new experiment
     def get_value(obj, e, options):
         return click.prompt(e.message + '. Please enter a value', type=str)
 
     app = _get_app(ctx)
     if path is None:
-        path = os.path.join(os.path.expanduser("~"),name)
-        _create_experiment_file(path)
+        path = _create_experiment_file(path=os.path.join(os.path.expanduser("~"), name), file_name=name)
+    click.edit(filename=path)
+    click.pause("Press any key to execute your experiment and save it...")
     try:
-        p = app.create(name=name, project=project, handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
-        app.put(p)
+        global_namespace = {
+            "__file__": path
+        }
+        with open(path, 'rb') as code:
+            exp = exec(code.read(), global_namespace)
+        # p = app.create(name=name, project=project,
+        #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+        app.put(exp)
     except Exception as e:
         click.echo(click.style(str(e), fg="red"))
 
