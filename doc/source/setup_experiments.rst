@@ -7,9 +7,9 @@ Single Pipeline Experiments
 
 Single pipeline experiments can be created in different ways:
 
-1. Through class instantiation (see `test/example.py`)
+1. Through class instantiation (see `examples/09_metrics/09_metrics.py`)
 
-.. literalinclude:: ../../tests/example.py
+.. literalinclude:: ../../examples/09_metrics/09_metrics.py
 
 2. Through decorators
 
@@ -18,6 +18,9 @@ Single pipeline experiments can be created in different ways:
 
 Hyperparameter Optimization
 ---------------------------
+1. Through parameters passed to the experiment execute function. The parameters are passed as a dictionary with the
+key as the component name and an inner dictionary. The inner dictionary contains the parameter name as the key and
+an array of values that are to be used for hyperparameter optimization
 
 2. Through decorators
 
@@ -26,21 +29,4 @@ Hyperparameter Optimization
 Multi-pipline, multi-data Experiments
 -------------------------------------
 
-1. Through using the `ExperimentCreator` class
-
-.. literalinclude:: ../../tests/example3.py
-
-
-2. Through decorators
-
-Decorators in a single file:
-
-.. literalinclude:: ../../tests/experiments/example_multi_decorator.py
-
-Decorators in a path
-
-.. literalinclude:: ../../tests/experiments/decorator_import/ex1.py
-
-.. literalinclude:: ../../tests/experiments/decorator_import/ex2.py
-
-.. literalinclude:: ../../tests/experiments/decorator_import/example_multi_decorator_by_import.py
+Currently, not suppoted

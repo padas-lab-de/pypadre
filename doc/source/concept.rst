@@ -97,13 +97,14 @@ Experiments and Pipelines
 
 In order to do so, PyPaDRE defines four core concepts: pipelines, experiments, runs and splits.
 
-- **Pipelines/Workflows** are the actual machine learning workflows which can be trained and tested. Currently we support SKLearn and PyTorch based pipelines, where in its simplest case a pipeline only needs to implement an infer and a fit fucntion
+- **Pipelines/Workflows** are the actual machine learning workflows which can be trained and tested. The pipeline is composed of different components which are basically data processes that work on the input data. They can be preprocessing algorithms, splitting strategies, classification or regression algorithms. PaDRe currently supports custom code, SKLearn pipelines and the PyTorch framework within SKLearn pipelines.
 - **Experiments** define the experimental setup consisting of a pipeline (i.e. the executable code), a dataset, and hyperparameters controlling the experiment as well as parameters controlling the experimental setup (e.g. splitting strategy)
-- **Runs** are single instances of experiments with a specific set of hyperparameter-value
-- **Splits** are the actual executions of a run, i.e. the execution of the workflow, over a dataset split.
+- **Executions are running of the workflows which are associated with a particular version of the source code. If the source code is changed, it results in a new execution.
+- **Runs** are single executions of the pipelines. Each time the experiment is executed a new run is generated in the corresponding execution directory.
+- **Computations** are the actual executions of a run, i.e. the execution of the workflow, over a dataset split.
 
-In general, users do not have to care about Experiments, Runs and Splits.
-They need to implement their pipeline or machine learning component that provides a `fit` and an `infer` function.
+In general, users do not have to care about Experiments, Executions, Runs and Components.
+They need to implement their pipeline or machine learning component and wrap it with the wrapper PaDRe provides.
 Additionally, a experiment configuration needs to be provided including a dataset.
 When executing the experiment, PyPaDRE stores results and intermediate steps locally and adds it to the database of experiments.
 Afterwards, it provides easy means to evaluate the experiments and compare them, as outlined below.
@@ -145,11 +146,11 @@ Evaluation should include standard measures and statistics, but also instance ba
 Evaluation results will be released on static pages (and thus archived via zenodo).
 
 
-Resarch Assets Management
+Research Assets Management
 -------------------------
 
-Beyond experiment support, the plattform should also help to manage research assets, like papers, software, projects
-research questions etc.
+Beyond experiment support, the platform should also help to manage research assets, like papers, software, projects
+research questions etc. Currently, these artifacts can be managed via adding them to the source code folder and let it be Git managed.
 
 
 
