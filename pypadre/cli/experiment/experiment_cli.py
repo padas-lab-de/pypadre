@@ -12,6 +12,8 @@ from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
 from pypadre.cli.util import make_sub_shell, _create_experiment_file
 from pypadre.core.model.experiment import Experiment
+from ipython_genutils.py3compat import execfile
+import pypadre
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
 from pypadre.pod.app.project.experiment_app import ExperimentApp
 
@@ -118,12 +120,14 @@ def execute(ctx, name, path):
     try:
         global_namespace = {
             "path": path,
-            "config": ctx.obj["config-app"]
+            "config": ctx.obj["config-app"],
+            "pypadre": pypadre
         }
+        execfile(path,glob=global_namespace)
         # global_namespace = {**globals(), **global_namespace}
         # TODO fix serialization bug of the experiment object (due to the use of exec)
-        with open(path, 'rb') as code:
-            exec(compile(code.read(), path, 'exec'), global_namespace)
+        # with open(path, 'rb') as code:
+        #     exec(compile(code.read(), path, 'exec'), global_namespace)
         # p = app.create(name=name, project=project,
         #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
     except Exception as e:

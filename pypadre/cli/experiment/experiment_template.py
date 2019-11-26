@@ -1,6 +1,9 @@
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
 from pypadre.core.util.utils import unpack
+from pypadre.pod.app.padre_app import PadreAppFactory
+
+app = PadreAppFactory.get(config)
 
 # Add necessary imports inside the functions definition
 

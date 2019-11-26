@@ -2,7 +2,6 @@ import importlib
 from _py_abc import ABCMeta
 from abc import abstractmethod
 from typing import Callable
-
 from ipython_genutils.py3compat import execfile
 
 from pypadre.core.base import MetadataMixin
@@ -105,7 +104,6 @@ class GitIdentifier(RepositoryIdentifier):
         if self._git_hash is None:
             with get_repo(path=path, url=url) as _repo:
                 if has_uncommitted_files(_repo):
-                    # Todo check git repo state
                     add_and_commit(path, message="Committing uncommitted changes :-)")
                     # raise ValueError("Git repository has uncommitted changes please commit.")
                 if _repo is not None:
@@ -257,14 +255,6 @@ class PythonFile(CodeMixin):
         :param variable: Variable name
         :param kwargs:
         """
-
-        # if isinstance(identifier, GitIdentifier):
-        #     path = path[identifier.path+1:]
-        # elif isinstance(identifier, PipIdentifier):
-        #     # TODO get path from install location of pip
-        #     pass
-
-        # full_path = path[identifier.path+1:]
 
         self._variable = variable
         self._package = package

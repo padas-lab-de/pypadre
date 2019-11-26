@@ -16,7 +16,6 @@ from pypadre.core.ontology.padre_ontology import PaDREOntology
 class NumpyContainer(IBaseContainer, LoggableMixin):
 
     def __init__(self, data, attributes: List[Attribute]=None):
-        # todo rework binary data into delegate pattern.
         super().__init__(dataset.formats.numpy, data, attributes)
         self._shape = data.shape
         self._data = data
@@ -62,7 +61,6 @@ class NumpyContainer(IBaseContainer, LoggableMixin):
 
     def convert(self, bin_format):
         if bin_format is dataset.formats.pandas:
-            # TODO attributes?
             return PandasContainer(pd.DataFrame(self.data))
         return None
 
@@ -109,7 +107,7 @@ class NumpyContainer(IBaseContainer, LoggableMixin):
 class NumpyContainerMultiDimensional(NumpyContainer):
 
     # TODO find a good representation for multidimensional data (do we even need a second container for that??? What about other formats than numpy? Can we convert between some of them?)
-    def __init__(self, data, targets):
+    def __init__(self, data, targets, attributes=None):
         super().__init__(dataset.formats.numpyMulti, data)
         self._shape = data.shape
         if attributes is None:

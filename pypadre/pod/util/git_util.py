@@ -219,6 +219,7 @@ def has_untracked_files(repo):
 def check_git_directory(repo, path):
     return repo.git_dir.startswith(path)
 
+
 def git_diff(commitID1=None,commitID2=None,path=None):
     repo = get_repo(path=path)
     try:
