@@ -30,6 +30,9 @@ and metrics to create our visualizations.
 
 * Confusion Matrix: Confusion matrix can be plotted by simply providing the path to metrics
 file which contains the matrix after the execution of the experiment.
+For the following image we used Iris dataset with SVC
+
+![](screenshots/confusion_matrix_iris.png)
 
 * Precision Recall Curve for Binary classification: Following image shows precision recall curve for
 binary classification problem. Path to results.json file has to be provided.
