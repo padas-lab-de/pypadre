@@ -1,7 +1,8 @@
 from abc import abstractmethod
 
 from pypadre.pod.repository.generic.i_repository_mixins import ILogRepository
-from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository, ICodeRepository
+from pypadre.pod.repository.i_repository import IComputationRepository, IMetricRepository, ICodeRepository, \
+    IPipelineOutputRepository
 
 
 class IPadreBackend(ILogRepository):
@@ -72,5 +73,9 @@ class IPadreBackend(ILogRepository):
 
     @property
     def code(self) -> ICodeRepository:
+        raise NotImplementedError()
+
+    @property
+    def pipeline_output(self) -> IPipelineOutputRepository:
         raise NotImplementedError()
 

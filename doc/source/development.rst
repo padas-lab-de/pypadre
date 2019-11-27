@@ -7,9 +7,9 @@ Module Architecture
 PyPadre App
 +++++++++++
 
-The PyPadre App (`padre.app.padre_app`) is the Python API for interacting with pypadre. The following classes are important
-
-TODO: Integrate modul documentation here.
+PyPaDRe provides a CLI to interact with PyPaDRe and this is done via apps. There are different apps within PyPaDRe such
+as the Project App, Experiment App and so on. Apps provide a method to interact with components of PyPaDRe. The apps
+support different functions such as listing, searching, and deleting.
 
 PyPadre CLI
 +++++++++++
@@ -22,7 +22,7 @@ TODO: Integrate modul documentation here.
 Unit Testing and Examples
 -------------------------
 
-- Unit test and examples should be placed under tests
+- Unit tests for each module are placed within those modules.
 - Examples must use the prefix `example_`
 - Examples created during tests must use the prefix `example` in their name
 - Tests must use the prefix `tests_`

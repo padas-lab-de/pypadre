@@ -1,52 +1,52 @@
-import inspect
-from functools import wraps
-
-from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.generic.custom_code import _convert_path_to_code_object
-
-
-# _experiments = {}
-
-
-def workflow(*args, app, dataset, project_name=None, experiment_name=None, project_description=None, experiment_description=None, **kwargs):
-    """
-    Decroator for functions that return a single workflow to be executed in an experiment with name exp_name
-    :param exp_name: name of the experiment
-    :param args: additional positional parameters to an experiment (replaces other positional parameters if longer)
-    :param kwargs: kwarguments for experiments
-    :return:
-    """
-    def workflow_decorator(f_create_workflow):
-        @wraps(f_create_workflow)
-        def wrap_workflow(*args, **kwargs):
-            # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
-            return f_create_workflow(*args, **kwargs)
-
-        (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
-        creator = _convert_path_to_code_object(filename, function_name)
-
-        pipeline = SKLearnPipeline(pipeline_fn=wrap_workflow, creator=creator)
-        project = app.projects.create(name=project_name, description=project_description, creator=creator)
-        experiment = app.experiments.create(name=experiment_name, description=experiment_description, project=project,
-                                pipeline=pipeline, dataset=dataset, creator=creator)
-        # TODO support parameters
-        experiment.execute()
-        return experiment
-
-    return workflow_decorator
-
-
-def dataset(*args, app, **kwargs):
-    def dataset_decorator(f_create_dataset):
-        @wraps(f_create_dataset)
-        def wrap_dataset(*args, **kwargs):
-            # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
-            return f_create_dataset(*args, **kwargs)
-
-        return app.dataset.load(f_create_dataset())
-
-    return dataset_decorator
-
+# import inspect
+# from functools import wraps
+#
+# from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+# from pypadre.core.model.generic.custom_code import _convert_path_to_code_object
+#
+#
+# # _experiments = {}
+#
+#
+# def workflow(*args, app, dataset, project_name=None, experiment_name=None, project_description=None, experiment_description=None, **kwargs):
+#     """
+#     Decroator for functions that return a single workflow to be executed in an experiment with name exp_name
+#     :param exp_name: name of the experiment
+#     :param args: additional positional parameters to an experiment (replaces other positional parameters if longer)
+#     :param kwargs: kwarguments for experiments
+#     :return:
+#     """
+#     def workflow_decorator(f_create_workflow):
+#         @wraps(f_create_workflow)
+#         def wrap_workflow(*args, **kwargs):
+#             # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
+#             return f_create_workflow(*args, **kwargs)
+#
+#         (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back)
+#         creator = _convert_path_to_code_object(filename, function_name)
+#
+#         pipeline = SKLearnPipeline(pipeline_fn=wrap_workflow, creator=creator)
+#         project = app.projects.create(name=project_name, description=project_description, creator=creator)
+#         experiment = app.experiments.create(name=experiment_name, description=experiment_description, project=project,
+#                                 pipeline=pipeline, dataset=dataset, creator=creator)
+#         # TODO support parameters
+#         experiment.execute()
+#         return experiment
+#
+#     return workflow_decorator
+#
+#
+# def dataset(*args, app, **kwargs):
+#     def dataset_decorator(f_create_dataset):
+#         @wraps(f_create_dataset)
+#         def wrap_dataset(*args, **kwargs):
+#             # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
+#             return f_create_dataset(*args, **kwargs)
+#
+#         return app.dataset.load(f_create_dataset())
+#
+#     return dataset_decorator
+#
 
 # def component(*args, **kwargs):
 #     def component_decorator(f_component):

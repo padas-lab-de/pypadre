@@ -4,7 +4,7 @@ import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.metrics.metric_registry import metric_registry
-from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap, MetricsMap
+from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap
 from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
@@ -38,7 +38,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         return None
 
     def _execute_helper(self, *, pipeline_parameters: Union[ParameterMap, dict] = None,
-                        write_parameters: dict, metrics_map: dict = None,
+                        write_parameters: dict,
                         parameter_map: ParameterMap = None, run: Run, data, **kwargs):
         if parameter_map is None:
             if pipeline_parameters is None:
@@ -47,7 +47,6 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                 parameter_map = ParameterMap(pipeline_parameters)
 
         write_parameters_map = WriteResultMetricsMap(write_parameters)
-        metrics_map = MetricsMap(metrics_map=metrics_map)
 
         # TODO currently we don't allow for merging in a pipeline again.
         #  To solve this a successor can only execute as soon as it gets all data from all predecessors
@@ -62,11 +61,10 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
 
         for entry in entries:
             self._execute_pipeline(entry, parameter_map=parameter_map, write_parameters_map=write_parameters_map,
-                                   metrics_map=metrics_map,
                                    run=run, data=data, **kwargs)
 
     def _execute_pipeline(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
-                          write_parameters_map: WriteResultMetricsMap, metrics_map:MetricsMap, run: Run,
+                          write_parameters_map: WriteResultMetricsMap, run: Run,
                           **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
@@ -82,18 +80,16 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                 # execute for each item
                 self._execute_pipeline_helper(node, data=data, parameters=parameters,
                                               parameter_map=parameter_map,
-                                              write_parameters_map=write_parameters_map, metrics_map=metrics_map,
-                                              run=run,
+                                              write_parameters_map=write_parameters_map, run=run,
                                               predecessor=kwargs.get("predecessor", None))
         else:
             # If we don't need parameters we don't extract them from the map but only pass the map to the following
             # components
             self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map,
-                                          write_parameters_map=write_parameters_map, metrics_map=metrics_map,
-                                          run=run, **kwargs)
+                                          write_parameters_map=write_parameters_map, run=run, **kwargs)
 
     def _execute_pipeline_helper(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
-                                 write_parameters_map: WriteResultMetricsMap, metric_map: MetricsMap,
+                                 write_parameters_map: WriteResultMetricsMap,
                                  run: Run, aggregate_results=True, **kwargs):
 
         write_parameters = write_parameters_map.get_for(node)
@@ -114,26 +110,14 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         # look up available metrics
         available_metrics = metric_registry.available_providers(computation)
         if available_metrics:
-            available_message = "Following metrics would be available for " + str(computation) + " at node " + \
-                                computation.component.name + ": " + ', '.join(str(p) for p in available_metrics)
+            available_message = "Following metrics would be available for " + str(computation) + ": " + ', '.join(
+                str(p) for p in available_metrics)
             self.send_info(message=available_message)
             print(available_message)
 
         # calculate metrics
         if allow_metrics:
-            providers = []
-            for metric in available_metrics:
-                if str(metric) in metric_map.get(computation.component.name):
-                    providers.append(metric)
-                    message = "Adding metric {metric} for computation " \
-                              "on node {node}".format(metric=str(metric),
-                                                      node=str(computation.component.name))
-                    self.send_info(message=message)
-
-            providers = providers if len(providers) > 0 else None
-
-            metrics = metric_registry.calculate_measures(computation, run=run, node=node, providers=providers,
-                                                         **kwargs)
+            metrics = metric_registry.calculate_measures(computation, run=run, node=node, **kwargs)
             computation.metrics = metrics
             for metric in metrics:
                 metric.send_put()
@@ -159,6 +143,8 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         for successor in successors:
             self._execute_pipeline(successor, data=data, run=run, predecessor=predecessor,
                                    parameter_map=parameter_map, **kwargs)
+
+
 
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)
@@ -188,7 +174,6 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
 
 class DefaultPythonExperimentPipeline(Pipeline):
 
-    # TODO add source entity instead of callable (if only callable is given how to persist?)
     def __init__(self, *, preprocessing_fn: Optional[Union[CodeMixin, Callable]] = None,
                  splitting: Optional[Union[Type[CodeMixin], Callable]] = None,
                  estimator: Union[Callable, EstimatorComponentMixin],
@@ -227,7 +212,6 @@ class DefaultPythonExperimentPipeline(Pipeline):
         nodes = []
         nodes.extend(self.nodes)
         return nodes
-
 
     @property
     def preprocessor(self):

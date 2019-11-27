@@ -2,124 +2,159 @@
 Command Line Interface for PADRE.
 
 """
+import os
+
 import click
+
+from pypadre.cli.computation import computation_cli
+from pypadre.cli.execution import execution_cli
+from pypadre.cli.metric import metric_cli
+from pypadre.cli.run import run_cli
+from pypadre.cli.util import make_sub_shell, _create_experiment_file
+from pypadre.core.model.experiment import Experiment
+from ipython_genutils.py3compat import execfile
+import pypadre
+from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
+from pypadre.pod.app.project.experiment_app import ExperimentApp
 
 
 #################################
 ####### EXPERIMENT FUNCTIONS ##########
 #################################
 
-@click.group(name="experiment", invoke_without_command=True)
-@click.option('--id', '-i', type=str, help="id of the new default experiment")
+
+@click.group(name="experiment")
 @click.pass_context
 def experiment(ctx):
-    """
-    Commands for experiments.
-    """
-    if ctx.invoked_subcommand is None:
-        if ctx.obj["pypadre-app"].config.get("experiment", "DEFAULTS") is not None:
-            click.echo('Current default project is ' + ctx.obj["pypadre-app"].config.get("experiment", "DEFAULTS"))
+    pass
 
 
-@experiment.command(name="select")
-@click.argument('experiment_name')
-@click.pass_context
-def select(ctx, id):
-    # Set as active project
-    ctx.obj["pypadre-app"].config.set("experiment", id, "DEFAULTS")
+def _get_app(ctx) -> ExperimentApp:
+    return ctx.obj["pypadre-app"].experiments
+
+
+def _print_table(ctx, *args, **kwargs):
+    ctx.obj["pypadre-app"].print_tables(Experiment, *args, **kwargs)
+
+
+def _filter_selection(ctx, found):
+    # filter for project selection
+    if 'project' in ctx.obj:
+        found = [f for f in found if f.parent == ctx.obj['project']]
+    return found
 
 
 @experiment.command(name="list")
+@click.option('--offset', '-o', default=0, help='start number of the dataset')
+@click.option('--limit', '-l', default=100, help='Number of datasets to retrieve')
+@click.option('--search', '-s', default=None,
+              help='search string')
+@click.option('--column', '-c', help="Column to print", default=None, multiple=True)
 @click.pass_context
-def list(ctx):
+def list(ctx, search, offset, limit, column):
+    """
+    List experiments defined in the padre environment
+    """
     # List all the experiments that are currently saved
-    print(ctx.obj["pypadre-app"].experiment_creator.experiment_names)
+    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)),
+                 columns=column)
 
 
-@experiment.command(name="components")
+@experiment.command(name="get")
+@click.argument('id', type=click.STRING)
 @click.pass_context
-def show_components(ctx):
-    # List all the components of the workflow
-    print(ctx.obj["pypadre-app"].experiment_creator.components)
+def get(ctx, id):
+    try:
+        found = _filter_selection(ctx, _get_app(ctx).get(id))
+
+        if len(found) == 0:
+            click.echo(click.style(str("No experiment found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple experiments found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            ctx.obj["pypadre-app"].print(found.pop())
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
 
 
-@experiment.command(name="parameters")
-@click.argument('estimator')
+@experiment.command(name="initialize")
+@click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
+@click.option('--project', '-p', default=None, help='Name of the project')
+@click.option('--path', type=click.Path(), help='Path to the file defining the experiment pipeline.', default=None)
 @click.pass_context
-def components(ctx, estimator):
-    print(ctx.obj["pypadre-app"].experiment_creator.get_estimator_params(estimator))
+def create(ctx, name, project, path):
+    """
+    Create a new experiment
+    """
+
+    # Create a new experiment
+    def get_value(obj, e, options):
+        return click.prompt(e.message + '. Please enter a value', type=str)
+
+    app = _get_app(ctx)
+    if path is None:
+        path = _create_experiment_file(path=os.path.join(os.path.expanduser("~"), name), file_name=name)
+    click.pause("Press any key to start editing your source code...")
+    click.edit(filename=path)
+    click.pause(
+        "You can run the command 'experiment execute --path {}' "
+        "to execute and save your experiment".format(path, path))
+
+    # try:
+    #     # p = app.create(name=name, project=project,
+    #     #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+    #     app.put(exp)
+    # except Exception as e:
+    #     click.echo(click.style(str(e), fg="red"))
 
 
-@experiment.command(name="datasets")
+@experiment.command(name="execute")
+@click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
+@click.option('--path', '-p', help='path to the source code', default=None)
 @click.pass_context
-def datasets(ctx):
-    print(ctx.obj["pypadre-app"].experiment_creator.get_dataset_names())
+def execute(ctx, name, path):
+    if path is None:
+        path = os.path.join(os.path.expanduser("~"), name) + "/" + name + ".py"
+    project = ctx.obj.get('project', None)
+    try:
+        global_namespace = {
+            "path": path,
+            "config": ctx.obj["config-app"],
+            "pypadre": pypadre
+        }
+        execfile(path,glob=global_namespace)
+        # global_namespace = {**globals(), **global_namespace}
+        # TODO fix serialization bug of the experiment object (due to the use of exec)
+        # with open(path, 'rb') as code:
+        #     exec(compile(code.read(), path, 'exec'), global_namespace)
+        # p = app.create(name=name, project=project,
+        #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
 
 
-@experiment.command(name='set_params')
-@click.option("--experiment", default=None, help='Name of the experiment to which parameters are to be set.')
-@click.option("--parameters", default=None, help='Name of the parameter and the parameters.')
+@click.group(name="select", invoke_without_command=True)
+@click.argument('id', type=click.STRING)
 @click.pass_context
-def set_parameters(ctx, experiment, parameters):
-    ctx.obj["pypadre-app"].experiment_creator.set_param_values(experiment, parameters)
+def select(ctx, id):
+    """
+    Select a experiment as active
+    """
+    # Set as active experiment
+    experiments = _get_app(ctx).list({"id": id})
+    if len(experiments) == 0:
+        print("Experiment {0} not found!".format(id))
+        return -1
+    if len(experiments) > 1:
+        print("Multiple matching experiments found!")
+        _print_table(ctx, experiments)
+        return -1
+    make_sub_shell(ctx, 'experiment', experiments.pop(0), 'Selecting experiment ')
 
 
-@experiment.command(name='get_params')
-@click.option("--experiment", default=None, help='Name of the experiment from which parameters are to be retrieved')
-@click.pass_context
-def get_parameters(ctx, experiment):
-    print(ctx.obj["pypadre-app"].experiment_creator.get_param_values(experiment))
-
-
-@experiment.command(name="create_experiment")
-@click.option('--name', default=None, help='Name of the experiment. If none UUID will be given')
-@click.option('--description', default=None, help='Description of the experiment')
-@click.option('--dataset', default=None, help='Name of the dataset to be used in the experiment')
-@click.option('--workflow', default=None, help='Estimators to be used in the workflow')
-@click.option('--backend', default=None, help='Backend of the experiment')
-@click.pass_context
-def create_experiment(ctx, name, description, dataset, workflow, backend):
-    workflow_obj = None
-    if workflow is not None:
-        estimator_list = (workflow.replace(", ", ",")).split(sep=",")
-        workflow_obj = ctx.obj["pypadre-app"].experiment_creator.create_test_pipeline(estimator_list)
-
-    ctx.obj["pypadre-app"].experiment_creator.create(name, description, dataset, workflow_obj)
-
-
-@experiment.command(name="run")
-@click.pass_context
-def execute(ctx):
-    ctx.obj["pypadre-app"].experiment_creator.execute()
-
-
-@experiment.command(name="do_experiments")
-@click.option('--experiments', default=None, help='Names of the experiments where the datasets should be applied')
-@click.option('--datasets', default=None, help="Names of datasets for each experiment separated by ;")
-@click.pass_context
-def do_experiment(ctx, experiments, datasets):
-    import copy
-    datasets_list = datasets.split(sep=";")
-    experiments_list = experiments.split(sep=",")
-    if len(datasets_list) == len(experiments_list):
-        experiment_datasets_dict = dict()
-        for idx in range(0, len(experiments_list)):
-            datasets_list[idx] = ((datasets_list[idx].strip()).replace(", ", ",")).replace(" ,", ",")
-            curr_exp_datasets = datasets_list[idx].split(sep=",")
-            experiment_datasets_dict[experiments_list[idx]] = copy.deepcopy(curr_exp_datasets)
-
-        ctx.obj["pypadre-app"].experiment_creator.do_experiments(experiment_datasets_dict)
-
-
-@experiment.command(name="load_config_file")
-@click.option('--filename', default=None, help='Path of the JSON file that contains the experiment parameters')
-@click.pass_context
-def load_config_file(ctx, filename):
-    import os
-
-    if os.path.exists(filename):
-        ctx.obj["pypadre-app"].experiment_creator.parse_config_file(filename)
-        ctx.obj["pypadre-app"].experiment_creator.execute()
-
-    else:
-        print('File does not exist')
+experiment.add_command(select)
+select.add_command(execution_cli.execution)
+select.add_command(run_cli.run)
+select.add_command(computation_cli.computation)
+select.add_command(metric_cli.metric)

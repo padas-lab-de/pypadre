@@ -14,11 +14,10 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup as soup
-from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.dataset import Dataset
-
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 
 _ctx = ssl.create_default_context()
 _ctx.check_hostname = False

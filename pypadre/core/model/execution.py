@@ -1,15 +1,19 @@
+import pyhash
+
 from pypadre.core.base import ChildMixin
 from pypadre.core.model.computation.run import Run
+from pypadre.core.model.generic.custom_code import CodeManagedMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
-from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.json_validation import make_model
+from pypadre.pod.util.git_util import git_diff
 
 execution_model = make_model(schema_resource_name='execution.json')
 
 
-class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, ChildMixin, Tablefyable):
+class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, ChildMixin):
     """
     A execution should save data about the running env and the version of the code on which it was run .
     An execution is linked to the version of the code being executed. The execution directory is the hash of the commit
@@ -19,12 +23,13 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
     EXPERIMENT_NAME = "experiment_name"
 
     _runs = []
+
     @classmethod
     def _tablefy_register_columns(cls):
-        # Add entries for tablefyable
-        cls.tablefy_register_columns({'hash': 'hash', 'cmd': 'cmd'})
+        super()._tablefy_register_columns()
+        cls.tablefy_register_columns({'hash': 'hash'})
 
-    def __init__(self, experiment, codehash=None, command=None, **kwargs):
+    def __init__(self, experiment, runs=None, pipeline=None, **kwargs):
         # Add defaults
         defaults = {}
 
@@ -32,13 +37,15 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.EXPERIMENT_ID: experiment.id,
                                                                  self.EXPERIMENT_NAME: experiment.name}}
 
-        if codehash is not None:
-            metadata['hash'] = codehash
-
-        metadata = {**{"id": metadata['hash']}, **metadata}
+        metadata = {
+            **{"id": str(kwargs.get("reference").id) + "-" + str(persistent_hash(experiment.id, algorithm=pyhash.city_64()))},
+            **metadata}
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
-        self._command = command
+        if runs is not None:
+            self._runs = runs
+
+        self._pipeline = pipeline
 
     def _execute_helper(self, *args, **kwargs):
         self.send_put()
@@ -48,11 +55,7 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
 
     @property
     def hash(self):
-        return self.metadata.get('hash', None)
-
-    @property
-    def command(self):
-        return self._command
+        return self.reference.id
 
     @property
     def experiment(self):
@@ -64,8 +67,21 @@ class Execution(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, 
 
     @property
     def pipeline(self):
-        return self.experiment.pipeline
+        return self._pipeline
 
     @property
     def run(self):
         return self._runs
+
+    @property
+    def experiment_id(self):
+        return self.metadata.get(self.EXPERIMENT_ID, None)
+
+    def compare(self, execution):
+        if self.reference.repo_type == self.reference.repository_identifier._RepositoryType.git:
+            _version = self.reference.repository_identifier.version()
+            __version = execution.reference.repository_identifier.version()
+            path_to_ref = self.reference.repository_identifier.path
+            return git_diff(_version, __version, path=path_to_ref)
+        else:
+            raise NotImplementedError()

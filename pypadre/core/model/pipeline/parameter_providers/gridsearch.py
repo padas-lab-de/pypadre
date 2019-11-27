@@ -42,11 +42,11 @@ def _create_combinations(ctx, **parameters: dict):
 
 # noinspection PyTypeChecker
 grid_search = Function(fn=_create_combinations, transient=True,
-                       identifier=PACKAGE_ID)
+                       repository_identifier=PACKAGE_ID)
 
 
 # Parameter provider holds a predefined code object but is itself something which has to be defined or managed somewhere
 default_parameter_provider_ref = PythonPackage(package=__name__, variable="default_parameter_provider",
-                                               identifier=PACKAGE_ID)
+                                               repository_identifier=PACKAGE_ID)
 default_parameter_provider = ParameterProvider(name="default_provider", reference=default_parameter_provider_ref,
                                                code=grid_search)

@@ -45,22 +45,7 @@ class ParameterProviderMixin(CodeManagedMixin, CustomCodeHolder, SuperStop):
         super().__init__(*args, reference=reference, **kwargs)
 
     def _execute_helper(self, *args, run, component, predecessor=None, parameter_map, **kwargs):
-        """
-           # We need to either create multiple components
-           # based on the number of elements in the grid or iterate of the grid
-           for element in grid:
 
-               # Set the params to the component either via a dictionary all together or individually
-               execution_params = dict()
-               for param, idx in zip(params_list, range(0, len(params_list))):
-                   execution_params[param] = element[idx]
-
-               # TODO set the parameters to the component
-               # yield Computation(component=component, execution=execution, parameters=execution_params, branch=False)
-               # TODO Decide whether the grid creation logic should be within the HyperParameter Search Component or not
-               yield HyperParameterSearch(component=component, execution=execution,
-                                          parameters=execution_params, predecessor=predecessor, branch=False)
-           """
         parameter_map: ParameterMap
 
         parameters = parameter_map.get_for(component)

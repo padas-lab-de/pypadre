@@ -87,6 +87,10 @@ class BaseEntityApp(IBaseApp):
     def print_(self, output, **kwargs):
         pass
 
+    @property
+    def model_clz(self):
+        return self.service.model_clz
+
 
 class BaseChildApp(ChildMixin, BaseEntityApp):
     """ Base class for apps being a child of another app. """

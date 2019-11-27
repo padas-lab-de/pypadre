@@ -34,7 +34,7 @@ class ProjectFileRepository(IGitRepository, IProjectRepository, ILogFileReposito
         if search is not None and "name" in search:
             # Shortcut because we know name is the folder name. We don't have to search in metadata.json
             name = search.pop("name")
-            search[self.FOLDER_SEARCH] = re.escape(name)
+            search[self.FOLDER_SEARCH] = name
         return super().list(search, offset, size)
 
     def _put(self, obj, *args, directory: str, merge=False, **kwargs):

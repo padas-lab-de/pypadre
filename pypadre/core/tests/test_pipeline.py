@@ -2,11 +2,11 @@ import unittest
 
 # noinspection PyMethodMayBeStatic
 import numpy as np
-from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.model.dataset.dataset import Dataset
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 
 test_numpy_array = np.array([[1.0, "A", 2],
                              [2.0, "B", 2],

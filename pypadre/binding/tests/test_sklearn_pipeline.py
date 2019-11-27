@@ -35,6 +35,7 @@ def create_test_pipeline_SVR():
     estimators = [('SVR', SVR())]
     return Pipeline(estimators)
 
+
 def create_sklearn_test_pipeline(*, estimators, **kwargs):
     def sklearn_pipeline():
         from sklearn.pipeline import Pipeline
@@ -59,7 +60,7 @@ def find(name, path):
 
 
 def find_subdirectories(path):
-    return [o for o in os.listdir(path) if os.path.isdir(os.path.join(path,o))]
+    return [o for o in os.listdir(path) if os.path.isdir(os.path.join(path, o))]
 
 
 class TestSKLearnPipeline(PadreAppTest):
@@ -69,7 +70,6 @@ class TestSKLearnPipeline(PadreAppTest):
         self.project = Project(name='Test Project', description='Some description')
 
     def test_default_sklearn_pipeline(self):
-
         project = Project(name='Test Project 2',
                           description='Testing the functionalities of project backend',
                           creator=Function(fn=self.test_default_sklearn_pipeline))
@@ -86,14 +86,15 @@ class TestSKLearnPipeline(PadreAppTest):
         # TODO asserts and stuff
 
     def test_custom_split_sklearn_pipeline(self):
-
         def custom_split(ctx, **kwargs):
             (data,) = unpack(ctx, "data")
             idx = np.arange(data.size[0])
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
 
-        pipeline = SKLearnPipeline(splitting=CustomSplit(fn=custom_split), pipeline_fn=create_test_pipeline_SVC)
+        pipeline = SKLearnPipeline(
+            splitting=custom_split,
+            pipeline_fn=create_test_pipeline_SVC)
         iris = SKLearnLoader().load("sklearn", utility="load_iris")
         experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline,
                                 reference=self.test_custom_split_sklearn_pipeline)
@@ -102,25 +103,24 @@ class TestSKLearnPipeline(PadreAppTest):
 
         # TODO asserts and stuff
 
-        assert(isinstance(experiment.project, Project))
+        assert (isinstance(experiment.project, Project))
 
-        assert(experiment.parent is not None)
-        assert(experiment.created_at is not None)
+        assert (experiment.parent is not None)
+        assert (experiment.created_at is not None)
 
-        assert(len(experiment.executions) > 0)
-        assert(experiment.executions is not None and isinstance(experiment.executions, list))
-        assert(experiment.executions[0].parent == experiment)
-        assert(isinstance(experiment.pipeline, SKLearnPipeline))
+        assert (len(experiment.executions) > 0)
+        assert (experiment.executions is not None and isinstance(experiment.executions, list))
+        assert (experiment.executions[0].parent == experiment)
+        assert (isinstance(experiment.pipeline, SKLearnPipeline))
 
     def test_sklearn_pipeline_with_preprocessing(self):
-
         def preprocessing(ctx, **kwargs):
             (data,) = unpack(ctx, "data")
             from sklearn.preprocessing import StandardScaler
             from sklearn.decomposition import PCA
             PCA_ = PCA()
             scaler = StandardScaler()
-            _data = Transformation(name="transformed_%s"%data.name, dataset=data)
+            _data = Transformation(name="transformed_%s" % data.name, dataset=data)
             features = scaler.fit_transform(data.features())
             new_features = PCA_.fit_transform(features)
             targets = data.targets()
@@ -139,7 +139,6 @@ class TestSKLearnPipeline(PadreAppTest):
         experiment.execute()
 
     def test_hyperparameter_search(self):
-
         pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline_SVC)
 
         iris = SKLearnLoader().load("sklearn", utility="load_iris")
@@ -182,16 +181,15 @@ class TestSKLearnPipeline(PadreAppTest):
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
                                 reference=self.test_full_stack)
         experiment.execute()
-        assert(experiment.executions is not None)
+        assert (experiment.executions is not None)
         computations = self.app.computations.list()
-        assert(isinstance(computations, list))
-        assert(len(computations) > 0)
+        assert (isinstance(computations, list))
+        assert (len(computations) > 0)
         experiments = self.app.experiments.list()
-        assert(isinstance(experiments, list))
-        assert(len(experiments)>0)
+        assert (isinstance(experiments, list))
+        assert (len(experiments) > 0)
 
     def test_all_functionalities_regression(self):
-
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.binding.metrics import sklearn_metrics
@@ -218,22 +216,20 @@ class TestSKLearnPipeline(PadreAppTest):
 
         files_found = find('results.bin',
                            os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
-                                                             'experiments/Test Experiment/executions'))
+                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
         files_found = find('initial_hyperparameters.json',
                            os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
-                                                                              'experiments/Test Experiment/executions'))
+                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
         files_found = find('parameters.json',
                            os.path.expanduser('~/.pypadre-test/projects/Test Project Regression/'
-                                                                 'experiments/Test Experiment/executions'))
+                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
-
     def test_custom_split_pipeline(self):
-
         def custom_split(ctx, **kwargs):
             (data,) = unpack(ctx, "data")
             idx = np.arange(data.size[0])
@@ -242,13 +238,14 @@ class TestSKLearnPipeline(PadreAppTest):
 
         from sklearn.svm import SVC
         from sklearn.decomposition import PCA
-        pipeline = create_sklearn_test_pipeline(estimators=[('PCA', PCA()),('SVC', SVC(probability=True))],
+        pipeline = create_sklearn_test_pipeline(estimators=[('PCA', PCA()), ('SVC', SVC(probability=True))],
                                                 splitting=CustomSplit(fn=custom_split))
 
         self.app.datasets.load_defaults()
         # TODO investigate race condition? dataset seems to be sometimes null in the dataset
         project = self.create_project(name='Test Project Custom Split', description='Testing custom splits',
-                                      store_code=True, creator_name="f_" + os.path.basename(__file__), creator_code=__file__)
+                                      store_code=True, creator_name="f_" + os.path.basename(__file__),
+                                      creator_code=__file__)
         dataset = self.app.datasets.list({'name': '_iris_dataset'})
         experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
                                             dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
@@ -261,7 +258,6 @@ class TestSKLearnPipeline(PadreAppTest):
         experiments = self.app.experiments.list()
 
     def test_dumping_intermediate_results(self):
-
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.binding.metrics import sklearn_metrics
@@ -293,11 +289,9 @@ class TestSKLearnPipeline(PadreAppTest):
 
         files_found = find('results.bin', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
                                                              'experiments/Test Experiment/executions'))
-        assert(files_found is not None)
-
+        assert (files_found is not None)
 
     def test_all_functionalities_classification(self):
-
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.binding.metrics import sklearn_metrics
@@ -316,7 +310,7 @@ class TestSKLearnPipeline(PadreAppTest):
                                 dataset=dataset.pop(), project=project,
                                 pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
                                 reference=self.test_full_stack)
-        parameter_dict = {'SVC': {'C':[0.1,0.2]}, 'PCA': {'n_components':[1, 2, 3]}}
+        parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
                                        })
@@ -326,11 +320,11 @@ class TestSKLearnPipeline(PadreAppTest):
         assert (files_found is not None)
 
         files_found = find('initial_hyperparameters.json', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
-                                                             'experiments/Test Experiment/executions'))
+                                                                              'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
         files_found = find('parameters.json', os.path.expanduser('~/.pypadre-test/projects/Test Project 2/'
-                                                                         'experiments/Test Experiment/executions'))
+                                                                 'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
     def test_multiple_experiments_one_project(self):
@@ -365,11 +359,11 @@ class TestSKLearnPipeline(PadreAppTest):
                                        'SKLearnEstimator': {'parameters': parameter_dict}
                                        })
 
-        files_found = find_subdirectories(os.path.expanduser('~/.pypadre-test/projects/Test Project Multiple Experiments/experiments/'))
+        files_found = find_subdirectories(
+            os.path.expanduser('~/.pypadre-test/projects/Test Project Multiple Experiments/experiments/'))
         assert (experiment_name1 in files_found and experiment_name2 in files_found)
 
     def test_multiple_projects(self):
-
         project_name1 = 'Test Project 1 Multiple Projects'
         project_name2 = 'Test Project 2 Multiple Projects'
         project1 = Project(name=project_name1,

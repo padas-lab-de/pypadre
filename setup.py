@@ -57,5 +57,3 @@ setup(
             'release': ('setup.py', release)}},
     # for click setup see http://click.pocoo.org/6/setuptools/
 )
-
-# todo add requirements txt for tests only

@@ -26,13 +26,6 @@ class Project(StoreableMixin, ProgressableMixin, ValidateableExecutableMixin, Me
         self._experiments = experiments
         self._sub_projects = sub_projects
 
-    def get(self, key):
-        if key == 'id':
-            return self.name
-
-        else:
-            return self.__dict__.get(key, None)
-
     def _execute_helper(self, experiment_pipeline_parameters: dict, **kwargs):
         return {
             experiment: experiment.execute(pipeline_parameters=experiment_pipeline_parameters.get(experiment.id),

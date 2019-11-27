@@ -2,6 +2,8 @@
 import random
 from typing import Callable, Union, Optional, Type
 
+import pyhash
+
 from pypadre.core.base import ChildMixin, MetadataMixin
 from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.dataset.dataset import Dataset
@@ -16,7 +18,9 @@ from pypadre.core.model.project import Project
 #  Module Private Functions and Classes
 ####################################################################################################################
 from pypadre.core.util.random import set_seeds
+from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.json_validation import make_model
+from pypadre.pod.util.utils import compare_metas, compare_pipelines
 
 experiment_model = make_model(schema_resource_name='experiment.json')
 
@@ -91,8 +95,10 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
     def __init__(self, *, name="Default experiment", description="Default experiment description",
                  project: Project = None, dataset: Dataset = None,
                  reference: Optional[Union[Type[CodeMixin], Callable]] = None, pipeline: Pipeline,
-                 seed=None,
-                 **kwargs):
+                 executions=None, seed=None, **kwargs):
+        if executions is None:
+            executions = []
+
         # Add defaults
         defaults = {}
 
@@ -100,9 +106,9 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
-            "id": name,
-            self.PROJECT_ID: project.id if project else None,
-            self.DATASET_ID: dataset.id if dataset else None,
+            "id": name + "-" + str(persistent_hash(project.id, algorithm=pyhash.city_64())),
+            self.PROJECT_ID: project.id if project is not None else None,
+            self.DATASET_ID: dataset.id if dataset is not None else None,
             self.SEED: seed if seed else random.randint(1, int(1e9)),
             self.NAME: name,
             self.DESCRIPTION: description
@@ -113,7 +119,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         # Variables
         self._dataset = dataset
         self._pipeline = pipeline
-        self._executions = []
+        self._executions = executions
 
     @property
     def project(self):
@@ -150,12 +156,16 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         #                'create_repo': False}
 
         # Get hash from the outside if possible
-        code_hash = self.reference_hash
+        #code_hash = self.reference_hash
 
         # Should we simply warn the user that there is no generic for the code
-        if code_hash is None:
+        if self.reference is None:
             raise ValueError("An execution has to reference a code hash to be valid.")
 
-        execution = Execution(experiment=self, codehash=code_hash, command=kwargs.pop("cmd", "default"))
+        execution = Execution(experiment=self, pipeline=self.pipeline, reference=self.reference)
         self._executions.append(execution)
         return execution.execute(**kwargs)
+
+    def compare(self, experiment):
+        metadata_diff = compare_metas(self.metadata,experiment.metadata)
+        pipeline_diff = compare_pipelines(self.pipeline, experiment.pipeline)

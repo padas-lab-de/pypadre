@@ -4,7 +4,6 @@ from pypadre.core.events.events import connect
 from pypadre.core.model.experiment import Experiment
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.service.base_service import ModelServiceMixin
-from pypadre.pod.service.logging_service import LoggingService
 
 
 class ExperimentService(ModelServiceMixin):

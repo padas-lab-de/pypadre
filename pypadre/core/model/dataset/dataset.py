@@ -4,12 +4,12 @@ Module containing python classes for managing data sets
 - TODO allow group based management of binary files similar to hdF5
 
 """
+from logging import warning
 from typing import Callable
 
 import networkx as nx
 import numpy as np
 import pandas as pd
-from padre.PaDREOntology import PaDREOntology
 from scipy.stats.stats import DescribeResult
 
 from pypadre.core.base import MetadataMixin
@@ -18,6 +18,7 @@ from pypadre.core.model.dataset.container.graph_container import GraphContainer
 from pypadre.core.model.dataset.container.numpy_container import NumpyContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 from pypadre.core.printing.util.print_util import StringBuilder, get_default_table
 from pypadre.core.util.utils import _Const
 from pypadre.core.validation.json_validation import make_model
@@ -36,6 +37,12 @@ dataset_model = make_model(schema_resource_name='dataset.json')
 
 
 class Dataset(StoreableMixin, MetadataMixin):
+
+    @classmethod
+    def _tablefy_register_columns(cls):
+        # TODO make all fields tablefyable
+        super()._tablefy_register_columns()
+        cls.tablefy_register_columns({'type':'type','attributes':'attributes'})
 
     def __init__(self, **kwargs):
         """
@@ -62,10 +69,6 @@ class Dataset(StoreableMixin, MetadataMixin):
         self._proxy_loaders[fn.__hash__()] = lambda: self.set_data(data=fn())
 
     @property
-    def name(self):
-        return self.metadata["name"]
-
-    @property
     def type(self):
         """
         returns the type of the dataset.
@@ -75,11 +78,20 @@ class Dataset(StoreableMixin, MetadataMixin):
 
     @property
     def attributes(self):
-        return self.metadata.get("attributes")
+        attr = self.metadata.get("attributes")
+        if attr is None or len(attr) == 0 and self.has_proxy_loader():
+            warning("Returning empty attribute list. Attributes are empty for dataset with id " + self.id + " but loaders could be used to search for attributes.")
+        return attr
 
     def _execute_proxy_loaders(self):
         for key in list(self._proxy_loaders.keys()):
             self._proxy_loaders.pop(key)()
+
+    def has_proxy_loader(self):
+        return len(self._proxy_loaders) > 0
+
+    def binaries(self):
+        return self._binaries
 
     def container(self, bin_format=None):
         """
@@ -110,12 +122,14 @@ class Dataset(StoreableMixin, MetadataMixin):
                     return out
             raise ValueError("Couldn't convert to %s." % bin_format)
 
-    def has_container(self, bin_format):
+    def has_container(self, bin_format=None):
         """
         Check if container exists
         :param bin_format:
         :return:
         """
+        if bin_format is None:
+            return len(self._binaries) > 0
         return bin_format in self._binaries
 
     def add_container(self, container):
@@ -184,7 +198,10 @@ class Dataset(StoreableMixin, MetadataMixin):
         :return: (n_examples, n_attributes)
         """
         container: IBaseContainer = self.container(bin_format)
-        return container.shape
+        if container:
+            return container.shape
+        else:
+            return 0
 
     def targets(self, bin_format=None):
         container: IBaseContainer = self.container(bin_format)
@@ -208,6 +225,16 @@ class Dataset(StoreableMixin, MetadataMixin):
                                  correlation_threshold=correlation_threshold,
                                  correlation_overrides=correlation_overrides,
                                  check_recoded=check_recoded)
+
+    def get_target_attribute(self):
+        """
+        Return name of default target attribute
+        :return: string or None
+        """
+        for attr in self.attributes:
+            if attr["defaultTargetAttribute"]:
+                return attr["name"]
+        return None
 
     '''
     def get(self, key):
@@ -279,7 +306,7 @@ class Dataset(StoreableMixin, MetadataMixin):
                         for val in m[1]:
                             r.append(val)
                         table.append_row(r)
-                    sb.append(table)
+                    sb.append(table.get_string())
             else:
                 sb.append_line("\t%s=%s" % (k, str(v)))
         return str(sb)
@@ -299,7 +326,7 @@ class Transformation(Dataset):
                     "type": dataset.type, "published": False, "attributes": dataset.attributes}
 
         metadata = {**defaults,**kwargs}
-        super().__init__(**metadata)
+        super().__init__(metadata=metadata)
         self._dataset = dataset
         self._binaries = dict()
 

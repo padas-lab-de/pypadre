@@ -18,15 +18,12 @@ def new_method_proxy(func):
 
 class SimpleLazyObject(object):
 
-    def __init__(self, *, load_fn, id, clz, **kwargs):
-        no_proxy_fields = ["_wrapped", "_setup_func", "id", "_clz", "_eager_fields"]
-        no_proxy_fields.extend([k for k, v in kwargs.items()])
-        self._no_proxy_fields = no_proxy_fields
+    def __init__(self, *, load_fn, **kwargs):
+        self._no_proxy_fields = ["_wrapped", "_setup_func", "_eager_fields"]
+        self._no_proxy_fields.extend([k for k, v in kwargs.items()])
         self._eager_fields = kwargs
         self._setup_func = load_fn
         self._wrapped = empty
-        self._clz = clz
-        self.id = id
         for k, v in kwargs.items():
             self.__dict__[k] = v
 

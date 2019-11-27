@@ -1,6 +1,5 @@
 from typing import List
 
-from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.printing.util.print_util import to_table
 from pypadre.pod.app.base_app import IBaseApp
 from pypadre.pod.app.code_app import CodeApp
@@ -21,6 +20,10 @@ class CoreApp(IBaseApp):
     # TODO metric algorithms should be passed for metric calculation. This should work a bit like on the server. Metrics themselves are plugins which are invoked by the reevaluater
     def __init__(self, printer=None, backends: List[IPadreBackend] = None):
         super().__init__()
+
+        if printer is None:
+            self._print = print
+
         self._print = printer
 
         if backends is None:
@@ -88,17 +91,15 @@ class CoreApp(IBaseApp):
     def code(self):
         return self._code_app
 
+    def has_print(self):
+        return self._print is not None
+
     def print(self, obj):
-        if self.has_print():
-            self.print_(obj)
+        self.print_(obj)
 
-    def print_tables(self, objects: List[Tablefyable], **kwargs):
-        if self.has_print():
-            self.print_("Loading.....")
-            self.print_(to_table(objects, **kwargs))
-
-    def has_print(self) -> bool:
-        return self._print is None
+    def print_tables(self, clz, objects, **kwargs):
+        self.print_("Loading " + clz.__name__ + " table...")
+        self.print_(to_table(clz, objects, **kwargs))
 
     def print_(self, output, **kwargs):
         if self.has_print():

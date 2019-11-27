@@ -1,11 +1,11 @@
 import numpy as np
-from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.base import phases
 from pypadre.core.model.computation.evaluation import Evaluation
 from pypadre.core.model.generic.custom_code import ProvidedCodeHolderMixin
 from pypadre.core.model.pipeline.components.component_mixins import EvaluatorComponentMixin, \
     ParameterizedPipelineComponentMixin
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 from pypadre.core.util.utils import unpack
 from pypadre.core.visitors.mappings import name_mappings, alternate_name_mappings
 
