@@ -10,11 +10,12 @@ import pyhash
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_platform_info_mixin import PlatformInfoMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.util.utils import persistent_hash
 
 
-class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin):
+class Computation(StoreableMixin, ProgressableMixin, PlatformInfoMixin, MetadataMixin, ChildMixin):
     COMPONENT_ID = "component_id"
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"
