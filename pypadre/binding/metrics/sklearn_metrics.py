@@ -29,7 +29,6 @@ CONFUSION_MATRIX = "ConfusionMatrix"
 
 
 def matrix(ctx, **kwargs) -> Optional[Metric]:
-    # TODO extend
     # :param predicted: The predicted values of the confusion matrix
     # :param truth: The truth values of the confusion matrix
     """
@@ -95,7 +94,7 @@ class ConfusionMatrix(MetricProviderMixin):
         return PaDREOntology.SubClassesExperiment.Classification.value
 
 
-def regression(ctx, **kwargs) -> Optional[List[Metric]]:
+def regression(ctx, **kwargs) -> Optional[Metric]:
     (computation,) = unpack(ctx, "computation")
 
     predictions = computation.result[EvaluatorComponentMixin.PREDICTIONS]
@@ -148,7 +147,6 @@ class RegressionMetrics(MetricProviderMixin):
         return PaDREOntology.SubClassesExperiment.Regression.value
 
 
-# TODO extend
 def classification(ctx, option='macro', **kwargs):
     (confusion_matrix_metric, computation) = unpack(ctx, "data", "computation")
     confusion_matrix = confusion_matrix_metric.result

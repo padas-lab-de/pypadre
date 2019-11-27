@@ -1,3 +1,4 @@
+import platform
 import uuid
 from abc import ABCMeta, abstractmethod
 
@@ -49,6 +50,8 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
     UPDATED_AT = 'updated_at'
     LAST_MODIFIED_BY = 'last_modified_by'
     CREATED_BY = 'created_by'
+    SYSTEM = 'operating_system'
+    ARCHITECTURE = 'cpu_architecture'
 
     OVERWRITABLE = [CREATED_AT, CREATED_BY]
 
@@ -62,7 +65,8 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
 
         import time
 
-        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()}, **metadata}
+        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
+                    self.SYSTEM: platform.platform(), self.ARCHITECTURE: platform.processor(), **metadata}
 
         super().__init__(**{"metadata": metadata, **kwargs})
 

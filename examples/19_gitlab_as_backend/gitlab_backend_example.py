@@ -15,8 +15,8 @@ def gitlab_app():
         {
             "root_dir": workspace_path,
             "gitlab_url": 'http://gitlab.padre.backend:30080/',
-            "user": "username",
-            "token": "access_token"
+            "user": "root",
+            "token": "LvVzAaNyFyS6iiJNzTFf"
         }
     ]))
     return PadreAppFactory.get(config)
@@ -35,10 +35,11 @@ def dataset():
 
 
 @app.experiment(dataset=dataset,
-                reference_package=__file__,
+                reference_git=__file__,
                 experiment_name="Iris SVC", project_name="Examples")
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    estimators = [('SVC', SVC(probability=True))]
+    from sklearn.decomposition import PCA
+    estimators = [('PCA',PCA()),('SVC', SVC(probability=True))]
     return Pipeline(estimators)

@@ -10,7 +10,6 @@ class StoreableMixin(MetadataMixin, Signaler):
     __metaclass__ = ABCMeta
 
     RETURN_VAL = "return_val"
-    # HASH = '__hash'
 
     @abstractmethod
     def __init__(self, *args, metadata=None, **kwargs):

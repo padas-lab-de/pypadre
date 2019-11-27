@@ -8,7 +8,6 @@ class IBaseContainer:
     def __init__(self, bin_format, data, attributes):
         self._format = bin_format
         self._attributes = attributes
-        # TODO can attributes differ for formats?
         if hasattr(data, '__call__'):
             self._data_fn = data
         else:

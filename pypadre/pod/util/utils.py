@@ -1,6 +1,7 @@
 import ctypes
 import os
-
+import pip
+from pypadre.core.model.pipeline.pipeline import Pipeline
 from pypadre.pod.constants import RESOURCE_DIRECTORY_PATH
 
 
@@ -36,3 +37,16 @@ def write_hidden(file_name, data):
                                                         FILE_ATTRIBUTE_HIDDEN)
         if not ret: # There was an error.
             raise ctypes.WinError()
+
+
+def compare_metas(meta1:dict,meta2:dict):
+    keys = meta1.keys() & meta2.keys()
+    diff_dict = dict()
+    for k in keys:
+        diff_dict[k] = (meta1.get(k),meta2.get(k))
+
+    return diff_dict
+
+def compare_pipelines(pipeline1:Pipeline,pipeline2:Pipeline):
+    #TODO
+    pass

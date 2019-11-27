@@ -20,6 +20,7 @@ from pypadre.core.model.project import Project
 from pypadre.core.util.random import set_seeds
 from pypadre.core.util.utils import persistent_hash
 from pypadre.core.validation.json_validation import make_model
+from pypadre.pod.util.utils import compare_metas, compare_pipelines
 
 experiment_model = make_model(schema_resource_name='experiment.json')
 
@@ -164,3 +165,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
         execution = Execution(experiment=self, pipeline=self.pipeline, reference=self.reference)
         self._executions.append(execution)
         return execution.execute(**kwargs)
+
+    def compare(self, experiment):
+        metadata_diff = compare_metas(self.metadata,experiment.metadata)
+        pipeline_diff = compare_pipelines(self.pipeline, experiment.pipeline)

@@ -18,7 +18,7 @@ def dataset():
 
 @app.parameter_map()
 def parameters():
-    return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [1.0]}, 'PCA': {'n_components': [3]}}},
+    return {'SKLearnEstimator': {'parameters': {'SVC': {'C': 1.0}, 'PCA': {'n_components': [3]}}},
             'default_split': {'parameters': {'strategy': ['cv'], 'n_folds': [4]}}}
 
 

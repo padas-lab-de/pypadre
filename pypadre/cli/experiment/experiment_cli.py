@@ -3,6 +3,7 @@ Command Line Interface for PADRE.
 
 """
 import os
+import sys
 
 import click
 
@@ -12,6 +13,7 @@ from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
 from pypadre.cli.util import make_sub_shell, _create_experiment_file
 from pypadre.core.model.experiment import Experiment
+from ipython_genutils.py3compat import execfile
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
 from pypadre.pod.app.project.experiment_app import ExperimentApp
 
@@ -76,7 +78,7 @@ def get(ctx, id):
         click.echo(click.style(str(e), fg="red"))
 
 
-@experiment.command(name="create")
+@experiment.command(name="initialize")
 @click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
 @click.option('--project', '-p', default=None, help='Name of the project')
 @click.option('--path', type=click.Path(), help='Path to the file defining the experiment pipeline.', default=None)
@@ -85,25 +87,64 @@ def create(ctx, name, project, path):
     """
     Create a new experiment
     """
+    if project is None:
+        project_parent = ctx.obj.get("project", None)
+        if project_parent is not None:
+            project = project_parent.name
+        else:
+            project = "CI created project"
 
-    # Create a new experiment
-    def get_value(obj, e, options):
-        return click.prompt(e.message + '. Please enter a value', type=str)
-
-    app = _get_app(ctx)
     if path is None:
-        path = _create_experiment_file(path=os.path.join(os.path.expanduser("~"), name), file_name=name)
+        path = _create_experiment_file(path=os.path.join(os.path.expanduser("~"), project, name), file_name=name)
+    click.pause("Press any key to start editing your source code...")
     click.edit(filename=path)
-    click.pause("Press any key to execute your experiment and save it...")
+    if click.confirm('Would you like to execute and save the experiment right away?'):
+        ctx.invoke(execute, name=name, path=path, project_name=project)
+    else:
+        click.pause(
+            "The experiment creation is not complete. You can run the command 'experiment execute --path {}' "
+            "to execute and save your experiment".format(path, path))
+    # def get_value(obj, e, options):
+    #     return click.prompt(e.message + '. Please enter a value', type=str)
+    # app = _get_app(ctx)
+    # try:
+    #     # p = app.create(name=name, project=project,
+    #     #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+    #     app.put(exp)
+    # except Exception as e:
+    #     click.echo(click.style(str(e), fg="red"))
+
+
+@experiment.command(name="execute")
+@click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
+@click.option('--path', '-p', help='path to the source code', default=None)
+@click.pass_context
+def execute(ctx, name, path, project_name=None):
+    if path is None:
+        path = os.path.join(os.path.expanduser("~"), name) + "/" + name + ".py"
+    if project_name is None:
+        project = ctx.obj.get('project', None)
+        if project is not None:
+            project_name = project.name
+        else:
+            project_name = "CI created project"
     try:
         global_namespace = {
-            "__file__": path
+            "path": path,
+            "config": ctx.obj["config-app"],
+            "experiment_name": name,
+            "project_name": project_name
         }
-        with open(path, 'rb') as code:
-            exp = exec(code.read(), global_namespace)
+        globals = sys._getframe(1).f_globals
+        locals = sys._getframe(1).f_locals
+        globs = {**global_namespace, **globals}
+        if click.confirm('Would you like to edit the file?'):
+            click.edit(filename=path)
+            click.pause('Press any key to execute...')
+        execfile(path, glob=globs, loc=locals, compiler=compile)
+
         # p = app.create(name=name, project=project,
         #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
-        app.put(exp)
     except Exception as e:
         click.echo(click.style(str(e), fg="red"))
 

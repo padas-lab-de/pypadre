@@ -34,8 +34,7 @@ class PipelineComponentMixin(CodeManagedMixin, CustomCodeHolder, IConsumer, IPro
         metadata = {**metadata, **{"name": name}}
         # TODO name via enum or name via owlready2
         # TODO validation model?
-        # TODO build id from code id and reference id and name?
-        super().__init__(metadata=metadata, **kwargs)#
+        super().__init__(metadata=metadata, **kwargs)
 
         self.metadata["id"] = persistent_hash((self.name, self.code.id, self.reference.id))
 

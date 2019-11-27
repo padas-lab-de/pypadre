@@ -2,7 +2,7 @@
 Backend
 =================
 
-.. automodule:: backend.dual_backend
+.. automodule:: pypadre
 
 
 .. autoclass:: backend.dual_backend.DualBackend
@@ -39,14 +39,6 @@ client and server. Following are some important functions implemented in this ba
 2. Http Datasets Backend
 ***************************
 
-Dual Backend
------------
-For realising transparent file and http backend, dual backend is implemented that
-combines both file and http backend. Transparent thereby means, that the file backend
-is used as cache or that we can sync file cache easily with the http server.
-
-All functions for file and http backend will be implemented here and then from dual backend function calls
-are delegated to http or file backend.
 Functionality for experiments described below:
 
 #. put_experiment: It receives an experiment. If it is an instance of the experiment class, the experiment class is first stored to disk using the file backend. If it is a string with the name, the experiment is loaded from the file backend and stored to the serer. The experiment in the file backend should receive an url in its metadata file to indicate that it has been uploaded to the server.

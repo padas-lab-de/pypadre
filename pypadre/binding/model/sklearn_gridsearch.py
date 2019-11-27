@@ -16,14 +16,16 @@ def _create_combinations(ctx, **parameters: dict):
         #                  source=self,
         #                  message='Parameter dictionary is not of type dictionary for estimator:' + estimator)
         for params in param_dict:
+            param = param_dict.get(params)
+            if not isinstance(param, list):
+                param = [param]
             # Append only the parameters to create a master list
-            master_list.append(param_dict.get(params))
+            master_list.append(param)
 
             # Append the estimator name followed by the parameter to create a ordered list.
             # Ordering of estimator.parameter corresponds to the value in the resultant grid tuple
             params_list.append(''.join([estimator, '.', params]))
 
-    # TODO christofer what is with single values? ex: return {'SKLearnEstimator': {'parameters': {'SVC': {'C': 0.5}}}}
     grid = itertools.product(*master_list)
     return grid, params_list
 
@@ -32,7 +34,9 @@ def _create_combinations(ctx, **parameters: dict):
 # Create a default pip identifier
 sklearn_grid_search = ParameterProvider(name="default_sklearn_provider",
                                         reference=PythonPackage(package=__name__, variable="sklearn_grid_search",
-                                                                repository_identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                                                    version=_version.__version__)),
-                                        code=Function(fn=_create_combinations, transient=True, repository_identifier=PipIdentifier(pip_package=_name.__name__,
-                                                                                                                                   version=_version.__version__)))
+                                                                repository_identifier=PipIdentifier(
+                                                                    pip_package=_name.__name__,
+                                                                    version=_version.__version__)),
+                                        code=Function(fn=_create_combinations, transient=True,
+                                                      repository_identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                                          version=_version.__version__)))

@@ -35,7 +35,6 @@ class SplitComponent(SplitComponentMixin):
     """
 
     def __init__(self, name="splitter", code=None, **kwargs):
-        # TODO wrap in something better than function
         if code is Callable:
             code = Function(fn=code, repository_identifier=GitIdentifier())
         super().__init__(name=name, code=code, **kwargs)

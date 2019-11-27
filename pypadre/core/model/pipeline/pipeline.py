@@ -144,6 +144,8 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
             self._execute_pipeline(successor, data=data, run=run, predecessor=predecessor,
                                    parameter_map=parameter_map, **kwargs)
 
+
+
     def is_acyclic(self):
         return is_directed_acyclic_graph(self)
 
@@ -172,7 +174,6 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
 
 class DefaultPythonExperimentPipeline(Pipeline):
 
-    # TODO add source entity instead of callable (if only callable is given how to persist?)
     def __init__(self, *, preprocessing_fn: Optional[Union[CodeMixin, Callable]] = None,
                  splitting: Optional[Union[Type[CodeMixin], Callable]] = None,
                  estimator: Union[Callable, EstimatorComponentMixin],
