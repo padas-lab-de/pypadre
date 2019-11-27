@@ -82,8 +82,9 @@ def get(ctx, id):
 @click.option('--name', '-n', default="CI created experiment", help='Name of the experiment')
 @click.option('--project', '-p', default=None, help='Name of the project')
 @click.option('--path', type=click.Path(), help='Path to the file defining the experiment pipeline.', default=None)
+@click.option('--edit', is_flag=True)
 @click.pass_context
-def create(ctx, name, project, path):
+def create(ctx, name, project, path,edit):
     """
     Create a new experiment
     """
@@ -96,23 +97,21 @@ def create(ctx, name, project, path):
 
     if path is None:
         path = _create_experiment_file(path=os.path.join(os.path.expanduser("~"), project, name), file_name=name)
-    click.pause("Press any key to start editing your source code...")
-    click.edit(filename=path)
+        click.pause("Press any key to start editing your source code...")
+        click.edit(filename=path)
+    else:
+        if edit:
+            click.pause("Press any key to start editing your source code...")
+            click.edit(filename=path)
+
     if click.confirm('Would you like to execute and save the experiment right away?'):
+        click.echo(click.style('Executing experiment: {}'.format(name), fg="green"))
         ctx.invoke(execute, name=name, path=path, project_name=project)
+        click.echo(click.style('Execution of the experiment is finished!'.format(name), fg="green"))
     else:
         click.pause(
             "The experiment creation is not complete. You can run the command 'experiment execute --path {}' "
             "to execute and save your experiment".format(path, path))
-    # def get_value(obj, e, options):
-    #     return click.prompt(e.message + '. Please enter a value', type=str)
-    # app = _get_app(ctx)
-    # try:
-    #     # p = app.create(name=name, project=project,
-    #     #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
-    #     app.put(exp)
-    # except Exception as e:
-    #     click.echo(click.style(str(e), fg="red"))
 
 
 @experiment.command(name="execute")

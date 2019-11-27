@@ -3,7 +3,6 @@ from _py_abc import ABCMeta
 from abc import abstractmethod
 from typing import Callable
 from ipython_genutils.py3compat import execfile
-
 from pypadre.core.base import MetadataMixin
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
@@ -267,7 +266,10 @@ class PythonFile(CodeMixin):
     def _call(self, ctx, **kwargs):
         if self._variable is None:
             # TODO get results
-            return execfile(self._path)
+            import sys
+            globals = sys._getframe(1).f_globals
+            locals = sys._getframe(1).f_locals
+            return execfile(self._path, glob=globals, loc=locals)
 
         # Else append to import path and then import like a normal python package
         import sys

@@ -13,10 +13,10 @@ class PadreCli(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(PadreCli, self).__init__(*args, **kwargs)
-        config = PadreConfig(config_file=os.path.join(os.path.expanduser("~"), ".padre-example.cfg"))
+        config = PadreConfig(config_file=os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"))
         config.set("backends", str([
             {
-                "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre-example")
+                "root_dir": os.path.join(os.path.expanduser("~"), ".pypadre-test-cli")
             }
         ]))
 
@@ -31,35 +31,34 @@ class PadreCli(unittest.TestCase):
     def test_dataset(self):
         runner = CliRunner()
 
-        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg")])
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg")])
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'dataset', 'load', '-d'])
         assert result.exit_code == 0
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'dataset', 'list'])
         assert '_boston' in result.output
 
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'dataset', 'get',
-                                         re.search('([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+)',
-                                                   result.output).group(0)])
+                                         '_diabetes_dataset'])
         assert '_diabetes' in result.output
 
     def test_project(self):
         runner = CliRunner()
 
-        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
+        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg")])
 
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'project', 'create', '-n', 'Examples'])
         assert result.exit_code == 0
 
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'project', 'list'])
 
         assert "Examples" in result.output
 
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'project', 'select', 'Examples'])
 
         assert result.exit_code == 0
@@ -67,27 +66,33 @@ class PadreCli(unittest.TestCase):
     def test_experiment(self):
         runner = CliRunner()
 
-        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg")])
-        # result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg"),
-        #                                  'experiment', 'list'])
+        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg")])
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
+                                         'project', 'create', '-n', 'Examples'])
 
-        # assert 'Iris SVC' in result.output
-
-        # runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg"),
-        #                         'project', 'create', '-n', 'Examples'])
-
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'project', 'select', 'Examples'],
-                               input="experiment execute --name example_exp --path /home/mehdi/example_exp/example_exp.py")
+                               input="experiment execute --name Experiment1 --path /home/mehdi/example_exp/example_exp1.py\ny\n")
 
-        # result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-        #                                  'experiment', 'create', '-n', 'cli_experiment'])
+        assert result.exit_code==0
+        assert 'Execution of the experiment is finished!' in result.output
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
+                                         'experiment', 'list'])
 
-        assert result.exit_code == 0
+        assert 'Experiment1' in result.output
+
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
+                                         'experiment', 'select', 'Experiment1'])
+
+        assert result.exit_code==0
+
+    def test_execution(self):
+        runner = CliRunner()
+
 
     def test_computation(self):
         runner = CliRunner()
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg"),
+        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'run', 'select', '5c6d7d64-1378-471c-baab-0fc48e18880a-4462774619032339222'],
                                input='computation list\n')
 
