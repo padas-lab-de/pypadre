@@ -112,7 +112,7 @@ def load(ctx, defaults, source=None, file=None):
 @click.argument('id', type=click.STRING)
 @click.option('--x', '-x', help='X attribute', type=click.STRING)
 @click.option('--y', '-y', help='Y attribute', type=click.STRING)
-@click.option('--name', '-n', default='scatter_plot.json', help='Json file name to be saved', type=click.STRING)
+@click.option('--name', '-n', default='scatter_plot.json', help='File name to be saved as json', type=click.STRING)
 @click.pass_context
 def scatter_plot(ctx, id, x, y, name):
     """Create scatter plot and save it on local system for given dataset.
@@ -132,6 +132,69 @@ def scatter_plot(ctx, id, x, y, name):
             ds = found[0]
             plt = plot.DataPlot(ds)
             vis = plt.get_scatter_plot(x, y)
+            app.service.backends[0].put_visualization(vis,
+                                                      file_name=name,
+                                                      base_path=os.path.join(app.service.backends[0].root_dir, id))
+
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
+
+
+@dataset.command(name="class_balance")
+@click.argument('id', type=click.STRING)
+@click.option('--title', '-t', default='Class balance chart', help='Title of the chart', type=click.STRING)
+@click.option('--name', '-n', default='class_balance.json', help='File name to be saved as json', type=click.STRING)
+@click.pass_context
+def class_balance(ctx, id, title, name):
+    """Create class balance chart and save it on local system for given dataset.
+
+    Example command:
+        -> dataset class_balance _iris_dataset --title  Test\ title
+    """
+    try:
+        app = _get_app(ctx)
+        found = app.get(id)
+        if len(found) == 0:
+            click.echo(click.style(str("No dataset found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple datasets found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            ds = found[0]
+            plt = plot.DataPlot(ds)
+            vis = plt.plot_class_balance(title)
+            app.service.backends[0].put_visualization(vis,
+                                                      file_name=name,
+                                                      base_path=os.path.join(app.service.backends[0].root_dir, id))
+
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
+
+
+@dataset.command(name="correlation_matrix")
+@click.argument('id', type=click.STRING)
+@click.option('--title', '-t', default='Correlation matrix chart', help='Title of the chart', type=click.STRING)
+@click.option('--name', '-n', default='correlation_matrix.json', help='File name to be saved as json',
+              type=click.STRING)
+@click.pass_context
+def correlation_matrix(ctx, id, title, name):
+    """Create correlation matrix chart and save it on local system for given dataset.
+
+    Example command:
+        -> dataset correlation_matrix _iris_dataset
+    """
+    try:
+        app = _get_app(ctx)
+        found = app.get(id)
+        if len(found) == 0:
+            click.echo(click.style(str("No dataset found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple datasets found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            ds = found[0]
+            plt = plot.DataPlot(ds)
+            vis = plt.plot_correlation_matrix(title)
             app.service.backends[0].put_visualization(vis,
                                                       file_name=name,
                                                       base_path=os.path.join(app.service.backends[0].root_dir, id))
