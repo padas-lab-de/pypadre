@@ -8,6 +8,7 @@ class PlatformInfoMixin(MetadataMixin):
     """ This is the abstract class for all entities holding platform metadata."""
     __metaclass__ = ABCMeta
 
+    @classmethod
     def _tablefy_register_columns(cls):
         super()._tablefy_register_columns()
         cls.tablefy_register("platform_info")
