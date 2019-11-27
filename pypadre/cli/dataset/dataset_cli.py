@@ -2,10 +2,12 @@
 Command Line Interface for PADRE.
 
 """
+import os
 from ast import literal_eval
 
 import click
 
+from pypadre.core import plot
 from pypadre.core.model.dataset.dataset import Dataset
 #################################
 ####### DATASETS FUNCTIONS ##########
@@ -104,3 +106,35 @@ def load(ctx, defaults, source=None, file=None):
 
     if defaults:
         ds_app.load_defaults()
+
+
+@dataset.command(name="scatter_plot")
+@click.argument('id', type=click.STRING)
+@click.option('--x', '-x', help='X attribute', type=click.STRING)
+@click.option('--y', '-y', help='Y attribute', type=click.STRING)
+@click.option('--name', '-n', default='scatter_plot.json', help='Json file name to be saved', type=click.STRING)
+@click.pass_context
+def scatter_plot(ctx, id, x, y, name):
+    """Create scatter plot and save it on local system for given dataset.
+
+    Example command:
+        -> dataset scatter_plot _iris_dataset --x sepal\ length\ (cm) --y sepal\ width\ (cm)
+    """
+    try:
+        app = _get_app(ctx)
+        found = app.get(id)
+        if len(found) == 0:
+            click.echo(click.style(str("No dataset found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple datasets found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            ds = found[0]
+            plt = plot.DataPlot(ds)
+            vis = plt.get_scatter_plot(x, y)
+            app.service.backends[0].put_visualization(vis,
+                                                      file_name=name,
+                                                      base_path=os.path.join(app.service.backends[0].root_dir, id))
+
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
