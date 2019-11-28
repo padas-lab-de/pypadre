@@ -20,33 +20,9 @@ Client System for the [PaDRE Servant Server](https://gitlab.dimis.fim.uni-passau
 
 From the clients perspective, PaDRE could be also understood as package manager for data sets and experiments.
 
-## Example Usages 
-
-### Examples are under `tests`
-
-- `example.py` shows how to use pypadre with an example sklearn tool
-- `testexperiment.py` shows how to extract parameters from pypadre
-
-### Examples using the command line client
-
-The command line client can be found under `padre/app/padre_cli`. 
-Note that a start from the command line requires the python path set 
-to the local directory, i.e. `PYTHONPATH="./"`.
-
-Show usage and help:
-```
-PYTHONPATH="./" python3 padre/app/padre_cli.py
-```
-
-List datasets (requires running padre server)
-```
-PYTHONPATH="./" python3 padre/app/padre_cli.py datasets
-```
-
-Show single datatset properties
-```
-PYTHONPATH="./" python3 padre/app/padre_cli.py dataset 3
-```
+### Examples are under `examples`
+All examples are grouped within individual folders with the folder name specifying what 
+aspect of PaDRe is given in the example
 
 ## Wiki 
 
@@ -82,8 +58,20 @@ Once PaDRe is installed, you can easily start running experiments. The examples 
 the different features of PaDRe and how they can be coded. 
 
 # Creating a Project
+A project in PaDRe is a collection of one of more experiments. It helps gather experiments under a
+common group. A project can be created via CLI or Code. To create a project, the user has to specify the following
+- Name: A meaningful name for the project
+- Description: A string that describes the main purpose of the project.
+- Creator: A reference git that all experiments would be submodules of
 
 # Creating an Experiment
+In the context of Padre, an experiment is the processing of a dataset by a pipeline using some splitting strategy.
+An experiment can be created via the CLI or code. An experiment requires the following parameters
+- Name: Name of an experiment
+- Description: A meaningful description of the experiment(classify twitter users etc)
+- Dataset: The dataset object on which the experiment will be executed
+- Pipeline: The pipeline that works on the dataset
+- Reference: A reference git to the experiment source code
 
 # Running an experiment
 An experiment can be run using decorators or by calling execute on the experiment object.
@@ -99,6 +87,7 @@ be retrieved.
 
 # Visualization 
 PaDRe supports visualization of the Datasets such as scatterplot, class balance and the correlation matrix.
+Results of an experiment can also be visualized using PR curves and ROC curves. More examples and plots are provided 
+within examples/18_visualizations
 
-
-
+![](./examples/18_visualizations/screenshots/precision_recall.png)
