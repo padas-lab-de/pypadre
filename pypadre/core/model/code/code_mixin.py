@@ -2,17 +2,15 @@ import importlib
 from _py_abc import ABCMeta
 from abc import abstractmethod
 from typing import Callable
-
 from ipython_genutils.py3compat import execfile
-
 from pypadre.core.base import MetadataMixin
 from pypadre.core.model.generic.i_executable_mixin import ExecuteableMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.util.utils import _Const, persistent_hash
-from pypadre.pod.util.git_util import get_repo, add_and_commit
+from pypadre.pod.util.git_util import get_repo, add_and_commit, has_uncommitted_files
 
 
-class CodeIdentifier:
+class RepositoryIdentifier:
     """
     This object identifies code by delivering a combination of retrieval informations.
     """
@@ -55,7 +53,7 @@ class CodeIdentifier:
         return self._type
 
 
-class PipIdentifier(CodeIdentifier):
+class PipIdentifier(RepositoryIdentifier):
     """
     This objects is used to represent a pip managed code file.
     """
@@ -89,7 +87,7 @@ class PipIdentifier(CodeIdentifier):
         return self._type
 
 
-class GitIdentifier(CodeIdentifier):
+class GitIdentifier(RepositoryIdentifier):
     """
     This object is used to manage a git managed code file. This should most likely be the mostly used variant of storage.
     """
@@ -104,9 +102,9 @@ class GitIdentifier(CodeIdentifier):
 
         if self._git_hash is None:
             with get_repo(path=path, url=url) as _repo:
-                if False:
-                    # Todo check git repo state
-                    raise ValueError("Git repository has uncommitted changes please commit.")
+                if has_uncommitted_files(_repo):
+                    add_and_commit(path, message="Committing uncommitted changes :-)")
+                    # raise ValueError("Git repository has uncommitted changes please commit.")
                 if _repo is not None:
                     try:
                         self._git_hash = _repo.head.object.hexsha
@@ -155,7 +153,7 @@ class CodeMixin(StoreableMixin, MetadataMixin):
         python_file = "python_file"
         file = "file"
 
-    def __init__(self, *, type, identifier: CodeIdentifier, **kwargs):
+    def __init__(self, *, type, repository_identifier: RepositoryIdentifier, **kwargs):
         """
         This is the base class of all custom code we can reference in the padre app.
         Managed code has to be within a git repository (url + commit_hash) or a pip package
@@ -177,14 +175,14 @@ class CodeMixin(StoreableMixin, MetadataMixin):
         # TODO Add defaults
         defaults = {}
 
-        self._identifier = identifier
+        self._repository_identifier = repository_identifier
         self._type = type
 
         # TODO Constants into ontology stuff
         # Merge defaults TODO some file metadata extracted from the path
         metadata = {**defaults,
-                    **{self.NAME: identifier.name(), self.REPOSITORY_TYPE: identifier.type,
-                       self.IDENTIFIER: identifier.meta(),
+                    **{self.NAME: repository_identifier.name(), self.REPOSITORY_TYPE: repository_identifier.type,
+                       self.IDENTIFIER: repository_identifier.meta(),
                        CodeMixin.CODE_TYPE: self._type, CodeMixin.CODE_CLASS: str(self.__class__.__name__)},
                     **kwargs.pop("metadata", {})}
         super().__init__(metadata=metadata, **kwargs)
@@ -199,12 +197,8 @@ class CodeMixin(StoreableMixin, MetadataMixin):
         return self._call(kwargs, **parameters)
 
     @property
-    def identifier(self):
-        return self._identifier
-
-    @property
-    def name(self):
-        return self._identifier.name()
+    def repository_identifier(self):
+        return self._repository_identifier
 
     @property
     def repo_type(self):
@@ -222,20 +216,21 @@ class PythonPackage(CodeMixin):
     VARIABLE = "variable"
     PACKAGE = "package"
 
-    def __init__(self, *, package, variable, identifier: CodeIdentifier, **kwargs):
+    def __init__(self, *, package, variable, repository_identifier: RepositoryIdentifier, **kwargs):
         """
 
         :param cmd: The command to be executed for given identifier. This could be something like: "java ./experiment.java"
-        :param identifier: This is the reference to the related git or pip repository
+        :param repository_identifier: This is the reference to the related git or pip repository
         :param package: This the package from which to load the function
         :param variable: This is the variable name which has to be imported
         :param kwargs:
         """
         self._variable = variable
         self._package = package
-        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, "id": persistent_hash((self._variable, self._package, identifier.id_hash()))},
+        metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable,
+                       "id": persistent_hash((self._variable, self._package, repository_identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
-        super().__init__(identifier=identifier, type=self._CodeType.package, metadata=metadata, **kwargs)
+        super().__init__(repository_identifier=repository_identifier, type=self._CodeType.package, metadata=metadata, **kwargs)
 
     def _call(self, ctx, **kwargs):
         variable = getattr(importlib.import_module(self._package), self._variable)
@@ -250,36 +245,31 @@ class PythonFile(CodeMixin):
     PACKAGE = "package"
     PATH = "path"
 
-    def __init__(self, *, path, package, variable, identifier: CodeIdentifier, **kwargs):
+    def __init__(self, *, path, package, variable, repository_identifier: RepositoryIdentifier, **kwargs):
         """
         Call of a python file.
-        :param identifier: This is the reference to the related git or pip repository
+        :param repository_identifier: This is the reference to the related git or pip repository
         :param git_path: This the path to the file or package name
         :param package: Name of the package
         :param variable: Variable name
         :param kwargs:
         """
 
-        # if isinstance(identifier, GitIdentifier):
-        #     path = path[identifier.path+1:]
-        # elif isinstance(identifier, PipIdentifier):
-        #     # TODO get path from install location of pip
-        #     pass
-
-        # full_path = path[identifier.path+1:]
-
         self._variable = variable
         self._package = package
         self._path = path
         metadata = {**{self.PACKAGE: self._package, self.VARIABLE: self._variable, self.PATH: self._path,
-                       "id": persistent_hash((self._variable, self._package, self._path, identifier.id_hash()))},
+                       "id": persistent_hash((self._variable, self._package, self._path, repository_identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
-        super().__init__(identifier=identifier, type=self._CodeType.python_file, metadata=metadata, **kwargs)
+        super().__init__(repository_identifier=repository_identifier, type=self._CodeType.python_file, metadata=metadata, **kwargs)
 
     def _call(self, ctx, **kwargs):
         if self._variable is None:
             # TODO get results
-            return execfile(self._path)
+            import sys
+            globals = sys._getframe(1).f_globals
+            locals = sys._getframe(1).f_locals
+            return execfile(self._path, glob=globals, loc=locals)
 
         # Else append to import path and then import like a normal python package
         import sys
@@ -296,18 +286,18 @@ class PythonFile(CodeMixin):
 class GenericCall(CodeMixin):
     CMD = "cmd"
 
-    def __init__(self, cmd, *, identifier: CodeIdentifier, **kwargs):
+    def __init__(self, cmd, *, repository_identifier: RepositoryIdentifier, **kwargs):
         """
         Generic system call. This could be everything. We need to be able to read results of something like stdout.
         :param cmd: The command to be executed for given identifier. This could be something like:
         "java ./experiment.java"
-        :param identifier: Identifier of the pip or git repository
+        :param repository_identifier: Identifier of the pip or git repository
         :param kwargs:
         """
         self._cmd = cmd
-        metadata = {**{self.CMD: self._cmd, "id": persistent_hash((self._cmd, identifier.id_hash()))},
+        metadata = {**{self.CMD: self._cmd, "id": persistent_hash((self._cmd, repository_identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
-        super().__init__(identifier=identifier, type=self._CodeType.file, metadata=metadata, **kwargs)
+        super().__init__(repository_identifier=repository_identifier, type=self._CodeType.file, metadata=metadata, **kwargs)
 
     def _call(self, ctx, **kwargs):
         raise NotImplementedError()
@@ -321,20 +311,20 @@ class Function(CodeMixin):
     Simple function holder
     """
 
-    def __init__(self, *, fn: Callable, identifier: CodeIdentifier, transient=False, **kwargs):
+    def __init__(self, *, fn: Callable, repository_identifier: RepositoryIdentifier, transient=False, **kwargs):
         """
         This is a simple function holder to be pickled in a repository. In general don't use it if you can use a file
         instead.
         (Loss of readability and comparability on the git level of the management)
         :param fn: Fn to be pickled and executed
-        :param identifier: Identifier of the git repository in which the function should be stored
+        :param repository_identifier: Identifier of the git repository in which the function should be stored
         :param kwargs:
         """
         self._fn = fn
         self._transient = transient
-        metadata = {**{"id": persistent_hash((fn.__name__, identifier.id_hash()))},
+        metadata = {**{"id": persistent_hash((fn.__name__, repository_identifier.id_hash()))},
                     **kwargs.pop("metadata", {})}
-        super().__init__(identifier=identifier, type=self._CodeType.function, metadata=metadata, **kwargs)
+        super().__init__(repository_identifier=repository_identifier, type=self._CodeType.function, metadata=metadata, **kwargs)
 
     @property
     def fn(self):

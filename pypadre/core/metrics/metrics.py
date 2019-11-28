@@ -27,11 +27,6 @@ class Metric(Computation):
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPUTATION_ID: computation.id, self.RUN_ID: computation.run.id, self.NAME: name}}
 
         super().__init__(component=computation.component, run=computation.run, result=result, metadata=metadata, **kwargs)
-        self._name = name
-
-    @property
-    def name(self):
-        return self._name
 
 
 class MetricProviderMixin(CodeManagedMixin, IConsumer, IProvider, CustomCodeHolder, ExecuteableMixin, LoggableMixin):

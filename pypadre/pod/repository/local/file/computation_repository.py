@@ -12,6 +12,7 @@ NAME = "computations"
 
 META_FILE = File("metadata.json", JSonSerializer)
 PARAMETER_FILE = File("parameters.json", JSonSerializer)
+METRIC_FILE = File("metrics.json", JSonSerializer)
 RESULT_FILE = File("results.bin", DillSerializer)
 INITIAL_HYPERPARAMETERS = File("initial_hyperparameters.json", JSonSerializer)
 
@@ -28,6 +29,8 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
     def _get_by_dir(self, directory):
         metadata = self.get_file(directory, META_FILE)
         result = self.get_file(directory, RESULT_FILE)
+        hyper_parameters = self.get_file(directory, INITIAL_HYPERPARAMETERS)
+        metric = self.get_file(directory, METRIC_FILE)
         parameters = self.get_file(directory, PARAMETER_FILE, {})
 
         # TODO Computation
@@ -35,9 +38,11 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         component = run.pipeline.get_component(metadata.get(Computation.COMPONENT_ID))
         predecessor = None
         if metadata.get(Computation.PREDECESSOR_ID) is not None:
-            predecessor = SimpleLazyObject(load_fn=lambda b: self.get(metadata.get(Computation.PREDECESSOR_ID)), id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
+            predecessor = SimpleLazyObject(load_fn=lambda: self.get(metadata.get(Computation.PREDECESSOR_ID)),
+                                           id=metadata.get(Computation.PREDECESSOR_ID), clz=Computation)
 
-        computation = Computation(metadata=metadata, parameters=parameters, result=result, run=run, component=component, predecessor=predecessor)
+        computation = Computation(metadata=metadata, initial_hyperparameters=hyper_parameters, parameters=parameters, result=result, metric=metric, run=run,
+                                  component=component, predecessor=predecessor)
         return computation
 
     def put_progress(self, run, **kwargs):
@@ -52,3 +57,5 @@ class ComputationFileRepository(IChildFileRepository, ILogFileRepository, ICompu
         self.write_file(directory, INITIAL_HYPERPARAMETERS, computation.initial_hyperparameters)
         if not isinstance(computation.result, GeneratorType) and store_results:
             self.write_file(directory, RESULT_FILE, computation.result, mode='wb')
+        if computation.metrics:
+            self.write_file(directory, RESULT_FILE, computation.result)

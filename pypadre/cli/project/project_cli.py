@@ -2,35 +2,40 @@
 Command Line Interface for PADRE.
 
 """
-import click
-#################################
-####### PROJECT FUNCTIONS ##########
-#################################
-from click_shell import make_click_shell
 
+import click
+
+from pypadre.cli.computation import computation_cli
+from pypadre.cli.execution import execution_cli
 from pypadre.cli.experiment import experiment_cli
+from pypadre.cli.metric import metric_cli
+from pypadre.cli.run import run_cli
+from pypadre.cli.util import make_sub_shell
+from pypadre.core.model.project import Project
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
 from pypadre.pod.app.project.project_app import ProjectApp
 
 
-@click.group(name="project", invoke_without_command=True)
+#################################
+####### PROJECT FUNCTIONS ##########
+#################################
+
+
+@click.group(name="project")
 @click.pass_context
 def project(ctx):
-    """
-    Commands for projects.
-    """
-
-    #if ctx.invoked_subcommand is None:
-    #    if ctx.obj["pypadre-app"].config.get("project", "DEFAULTS") is not None:
-    #        click.echo('Current default project is ' + ctx.obj["pypadre-app"].config.get("project", "DEFAULTS"))
+    pass
 
 
 def _get_app(ctx) -> ProjectApp:
     return ctx.obj["pypadre-app"].projects
 
 
-def _print_table(ctx, *args, **kwargs) -> ProjectApp:
-    print(ctx.obj["pypadre-app"].print_tables(*args, **kwargs))
+def _print_table(ctx, *args, **kwargs):
+    ctx.obj["pypadre-app"].print_tables(Project, *args, **kwargs)
+
+def _filter_selection(found, project):
+    return [f for f in found if f.parent==project]
 
 
 @project.command(name="list")
@@ -48,42 +53,89 @@ def list(ctx, search, offset, limit, column):
     _print_table(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit), columns=column)
 
 
-@project.command(name="create")
+@project.command(name="get")
+@click.argument('id', type=click.STRING)
 @click.pass_context
-def create(ctx):
+def get(ctx, id):
+    try:
+        found = _get_app(ctx).get(id)
+        if len(found) == 0:
+            click.echo(click.style(str("No project found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple projects found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            ctx.obj["pypadre-app"].print(found.pop())
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
+
+
+@project.command(name="create")
+@click.option('--name', '-n', default="CI created project", help='Name of the project')
+@click.pass_context
+def create(ctx, name):
     """
     Create a new project
     """
-    # Create a new project
+
     def get_value(obj, e, options):
         return click.prompt(e.message + '. Please enter a value', type=str)
 
     app = _get_app(ctx)
-    p = app.service.create(handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
-    app.put(p)
+    try:
+        p = app.create(name=name, handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
+        app.put(p)
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
+
+
+@project.command(name="execute")
+@click.argument('id', type=click.STRING)
+@click.option('--experimentid', default=None, help='Name of the experiment to execute')
+@click.pass_context
+def execute(ctx, id, experimentid):
+    try:
+        found = _get_app(ctx).get(id)
+        if len(found) == 0:
+            click.echo(click.style(str("No project found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple projects found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            project = found.pop()
+            search = None
+            if experimentid:
+                search= {'id':experimentid}
+            experiments = _filter_selection(experiment_cli._get_app(ctx).list(search),project)
+            for exp in experiments:
+                click.echo(click.style('Executing experiment: {}'.format(exp.name), fg="green"))
+                exp.execute()
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
 
 
 @click.group(name="select", invoke_without_command=True)
-@click.argument('name', type=click.STRING)
+@click.argument('id', type=click.STRING)
 @click.pass_context
-def select(ctx, name):
+def select(ctx, id):
     """
     Select a project as active
     """
     # Set as active project
-    projects = _get_app(ctx).list({"name": name})
+    projects = _get_app(ctx).list({"id": id})
     if len(projects) == 0:
-        print("Project {0} not found!".format(name))
+        print("Project {0} not found!".format(id))
         return -1
     if len(projects) > 1:
         print("Multiple matching projects found!")
         _print_table(ctx, projects)
         return -1
-    s = make_click_shell(ctx, prompt='pypadre > p: ' + name + ' > ', intro='Selecting project ' + name)
-    ctx.obj['project'] = projects.pop(0)
-    s.cmdloop()
-    ctx.obj['project'] = None
+    make_sub_shell(ctx, 'project', projects.pop(0), 'Selecting project ')
 
 
 project.add_command(select)
 select.add_command(experiment_cli.experiment)
+select.add_command(execution_cli.execution)
+select.add_command(run_cli.run)
+select.add_command(computation_cli.computation)
+select.add_command(metric_cli.metric)

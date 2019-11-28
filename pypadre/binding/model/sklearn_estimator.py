@@ -36,11 +36,9 @@ class SKLearnEstimator(ProvidedCodeHolderMixin, EstimatorComponentMixin, Paramet
     """
 
     def __init__(self, *, pipeline=None, parameter_provider=None, **kwargs):
-        # TODO don't change state of pipeline!!!
         # check for final component to determine final results
         # if step wise is true, log intermediate results. Otherwise, log only final results.
         # distingusish between training and fitting in classification.
-        # TODO use default parameter provider if none is given
 
         if parameter_provider is None:
             parameter_provider = sklearn_grid_search

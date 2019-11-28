@@ -4,10 +4,10 @@ import sys
 import threading
 import time
 from io import StringIO
-from typing import List
+from typing import List, Union
 
 from beautifultable import BeautifulTable
-from beautifultable.enums import Alignment
+from beautifultable.enums import Alignment, WidthExceedPolicy
 
 from pypadre.core.printing.tablefyable import Tablefyable
 
@@ -22,7 +22,7 @@ class StringBuilder:
         self._file_str.write(str)
 
     def append_line(self, str):
-        self._file_str.write(str+"\n")
+        self._file_str.write(str + "\n")
 
     def __str__(self):
         return self._file_str.getvalue()
@@ -51,29 +51,35 @@ class Spinner(object):
 
 
 def get_default_table():
-    table = BeautifulTable(max_width=150, default_alignment=Alignment.ALIGN_LEFT)
+    table = BeautifulTable(max_width=250, default_alignment=Alignment.ALIGN_LEFT)
     table.row_separator_char = ""
     return table
 
 
-def to_table(objects: List[Tablefyable], columns=None, table=None, spinner=False):
-    if objects is None:
-        return get_default_table()
-    if columns is None:
-        columns = objects[0].tablefy_header()
+def to_table(clz, objects: Union[Tablefyable, List[Tablefyable]], columns=None, table=None, spinner=False,
+             print_empty=True):
+    if clz is None:
+        if objects:
+            if not isinstance(objects, List):
+                objects = [objects]
+            clz = objects[0].__class__
     if table is None:
         table = get_default_table()
-    table.column_headers = objects[0].tablefy_header(*columns)
+    if columns is None:
+        table.column_headers = clz.tablefy_header()
+    else:
+        table.column_headers = clz.tablefy_header(*columns)
     if spinner:
         spinner = Spinner()
         spinner.start()
     for obj in objects:
         table.append_row(
-            [str(x) for x in obj.tablefy_to_row(*columns)])
+            [str(x) for x in obj.tablefy_to_row(*table.column_headers)])
     if spinner:
         spinner.stop()
+    if print_empty and len(table) == 0:
+        table.append_row([str("-") for x in table.column_headers])
     return table
-
 
 # def print_dicts_as_table(dicts, separate_head=True, heads=None):
 #     """Prints a list of dicts as table"""

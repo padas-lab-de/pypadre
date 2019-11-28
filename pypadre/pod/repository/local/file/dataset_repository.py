@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -65,3 +66,20 @@ class DatasetFileRepository(IGitRepository, IDatasetRepository):
             name = search.pop("name")
             search[self.FOLDER_SEARCH] = re.escape(name)
         return super().list(search, offset, size)
+
+    def put_visualization(self, visualization, *args, **kwargs):
+        """
+        Put visualization schema in the local file system.
+
+        :param visualization: Visualization schema as string
+        :param args:
+        :param kwargs: Expected file_name, base_path
+        :return:
+        """
+        visualization = json.loads(visualization)
+        file_name = kwargs.pop("file_name", None)
+        if file_name is not None:
+            file_name = file_name.split(".")[0] + ".json"
+        else:
+            file_name = "visualization.json"
+        self.write_file(kwargs.pop("base_path"), File(file_name, JSonSerializer), visualization)

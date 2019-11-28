@@ -33,6 +33,9 @@ class ProjectApp(BaseChildApp):
         :return:
         """
         project = self.service.create(*args, **kwargs)
+
+        if self.service.get(project.id):
+            raise ValueError("Project with id '" + project.id + "' already exists.")
         self.put(project)
 
         # Add decorator functions

@@ -8,7 +8,7 @@ class Training(Computation):
 
     @classmethod
     def _tablefy_register_columns(cls):
-        pass
+        super()._tablefy_register_columns()
 
     def __init__(self, split, model, **kwargs):
         # Add defaults

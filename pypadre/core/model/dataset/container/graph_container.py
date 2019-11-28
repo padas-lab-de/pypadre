@@ -1,19 +1,18 @@
 import numpy as np
 import pandas as pd
 import pandas_profiling as pd_pf
-from padre.PaDREOntology import PaDREOntology
 
 from pypadre.core.model.dataset import dataset
 from pypadre.core.model.dataset.attribute import Attribute
 from pypadre.core.model.dataset.container.base_container import IBaseContainer
 from pypadre.core.model.dataset.container.pandas_container import PandasContainer
 from pypadre.core.model.generic.i_model_mixins import LoggableMixin
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 
 
 class GraphContainer(IBaseContainer, LoggableMixin):
 
     def __init__(self, data, attributes=None):
-        # todo rework binary data into delegate pattern.
         super().__init__(dataset.formats.graph, data, attributes)
 
         self._shape = (data.number_of_edges(), data.number_of_nodes())
@@ -30,26 +29,10 @@ class GraphContainer(IBaseContainer, LoggableMixin):
     @property
     def features(self):
         return self._data
-        if self._attributes is None:
-            return self._data
-        else:
-            removekeys = []
-            for att in self._attributes:
-                if (att.is_target):
-                    removekeys.append(att.name)
-            return self._data.drop(removekeys, axis=1)
 
     @property
     def targets(self):
         return self._data
-        if self._targets_idx is None:
-            return None
-        else:
-            removekeys = []
-            for att in self._attributes:
-                if (not att.is_target):
-                    removekeys.append(att.name)
-            return self._data.drop(removekeys, axis=1)
 
     @property
     def data(self):
@@ -61,7 +44,6 @@ class GraphContainer(IBaseContainer, LoggableMixin):
 
     def convert(self, bin_format):
         if bin_format is dataset.formats.pandas:
-            # TODO attributes?
             return PandasContainer(self._pandas_repr())
         return None
 
@@ -175,7 +157,7 @@ class GraphContainer(IBaseContainer, LoggableMixin):
     #      return ret
 
     def profile(self, **kwargs):
-        return pd_pf.ProfileReport(self.convert(_Formats.pandas).data, **kwargs)
+        return pd_pf.ProfileReport(self.convert(dataset.formats.pandas).data, **kwargs)
 
     def describe(self):
         ret = ""

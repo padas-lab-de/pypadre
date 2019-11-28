@@ -2,8 +2,8 @@ import re
 from typing import Sequence
 
 from jsonschema import ValidationError, validators
-from padre.PaDREOntology import PaDREOntology
 
+from pypadre.core.ontology.padre_ontology import PaDREOntology
 from pypadre.core.validation.validation import ValidationErrorHandler
 
 

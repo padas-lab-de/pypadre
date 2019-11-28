@@ -1,17 +1,21 @@
 # https://stackoverflow.com/questions/33533148/how-do-i-specify-that-the-return-type-of-a-method-is-the-same-as-the-class-itsel
 from __future__ import annotations
 
+import uuid
 from types import GeneratorType
 from typing import Optional, Iterable
+
+import pyhash
 
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_platform_info_mixin import PlatformInfoMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
-from pypadre.core.printing.tablefyable import Tablefyable
+from pypadre.core.util.utils import persistent_hash
 
 
-class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, Tablefyable):
+class Computation(StoreableMixin, ProgressableMixin, PlatformInfoMixin, MetadataMixin, ChildMixin):
     COMPONENT_ID = "component_id"
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"
@@ -20,7 +24,8 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, 
 
     @classmethod
     def _tablefy_register_columns(cls):
-        pass
+        super()._tablefy_register_columns()
+        cls.tablefy_register("format", "type", "parameters", "initial_hyperparameters", "metrics", "result")
 
     def __init__(self, *, component, run: Run, predecessor: Optional[Computation] = None, result_format=None, result,
                  parameters=None, initial_hyperparameters=None, branch=False, metrics=None, **kwargs):
@@ -33,7 +38,8 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin, 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
-                                                                 self.RUN_ID: str(run.id)
+                                                                 self.RUN_ID: str(run.id),
+                                                                 "id":  uuid.uuid4().__str__() + "-" + str(persistent_hash(run.id, algorithm=pyhash.city_64()))
                                                                  }}
         if predecessor is not None:
             metadata[self.PREDECESSOR_ID] = predecessor.id

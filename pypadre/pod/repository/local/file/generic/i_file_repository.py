@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 from abc import abstractmethod, ABCMeta
 from logging import warning
@@ -64,13 +63,17 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
             if directory is None:
                 return None
             return self.get_by_dir(directory)
+
         return cached_get(uid=uid)
 
     def get_by_hash(self, hash):
         return next(iter(self.list({StoreableMixin.HASH: hash})), None)
 
     def exists_object(self, obj):
-        return self.get_by_dir(self.to_directory(obj)) is not None
+        try:
+            return self.get_by_dir(self.to_directory(obj)) is not None
+        except:
+            return False
 
     def list(self, search, offset=0, size=100):
         """
@@ -79,7 +82,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         :param size:
         :param search: search object. You can pass key value pairs to search for.
         """
-        folder = ""
+        folder = None
         if search is not None and self.FOLDER_SEARCH in search:
             folder = search.pop(self.FOLDER_SEARCH)
         dirs = self.find_dirs(folder)
@@ -156,6 +159,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         """
         Gets an object for a given directory.
         :param directory: Directory to load the object from
+        :param lazily: Retrieve object directly or just look up directory
         :return: Object which should be deserialized
         """
         if not self.has_dir(directory):
@@ -163,8 +167,8 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
 
         try:
             return self._get_by_dir(directory)
-        except:
-            warning("Couldn't load object in dir " + str(directory) + ". Object might be corrupted.")
+        except Exception as e:
+            warning("Couldn't load object in dir " + str(directory) + ". Object might be corrupted. Error: " + str(e))
             return None
 
     @abstractmethod
@@ -205,8 +209,7 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         # dirs = [f for f in os.listdir(self.root_dir) if f.endswith(strip_postfix)]
 
         if matcher is not None:
-            rid = re.compile(matcher)
-            dirs = [d for d in dirs if rid.search(d)]
+            dirs = [d for d in dirs if os.path.basename(os.path.dirname(d)) == matcher]
 
         if len(strip_postfix) == 0:
             return dirs

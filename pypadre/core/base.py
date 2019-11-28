@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 from pypadre.core.printing.tablefyable import Tablefyable
 from pypadre.core.util.inheritance import SuperStop
-from pypadre.core.util.utils import _Const
+from pypadre.core.util.utils import _Const, persistent_hash
 from pypadre.core.validation.json_validation import ModelHolderMixin
 
 
@@ -45,10 +45,10 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
     """
 
     METADATA = "metadata"
-    CREATED_AT = 'createdAt'
-    UPDATED_AT = 'updatedAt'
-    LAST_MODIFIED_BY = 'lastModifiedBy'
-    CREATED_BY = 'createdBy'
+    CREATED_AT = 'created_at'
+    UPDATED_AT = 'updated_at'
+    LAST_MODIFIED_BY = 'last_modified_by'
+    CREATED_BY = 'created_by'
 
     OVERWRITABLE = [CREATED_AT, CREATED_BY]
 
@@ -62,7 +62,8 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
 
         import time
 
-        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()}, **metadata}
+        metadata = {**{"id": uuid.uuid4().__str__(), self.CREATED_AT: time.time(), self.UPDATED_AT: time.time()},
+                    **metadata}
 
         super().__init__(**{"metadata": metadata, **kwargs})
 
@@ -140,6 +141,15 @@ class MetadataMixin(ModelHolderMixin, Tablefyable):
                 self.metadata[key] = value
             else:
                 pass
+
+    def __hash__(self):
+        return persistent_hash(str(self.id))
+
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(other, self.__class__):
+            return self.__hash__() == other.__hash__()
+        return False
 
 
 class ChildMixin(SuperStop):

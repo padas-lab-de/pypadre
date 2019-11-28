@@ -1,23 +1,14 @@
 import configparser
 import os
-import shutil
-import unittest
-import gitlab
 
-from pypadre._package import PACKAGE_ID
-from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.code_mixin import Function, GitIdentifier, PythonFile, PythonPackage
-from pypadre.core.util.utils import find_package_structure
+import gitlab
 
 from pypadre.pod.app import PadreConfig
 from pypadre.pod.app.padre_app import PadreAppFactory
-from pypadre.pod.importing.dataset.dataset_import import SKLearnLoader
 from pypadre.pod.tests.base_test import PadreAppTest
 from pypadre.pod.tests.util.util import connect_log_to_stdout, connect_event_to_stdout, create_sklearn_test_pipeline
 
 
-# config_path = os.path.join(os.path.expanduser("~"), ".padre_git_test.cfg")
-# workspace_path = os.path.join(os.path.expanduser("~"), ".pypadre-test")
 
 class PadreGitTest(PadreAppTest):
 
@@ -39,7 +30,7 @@ class PadreGitTest(PadreAppTest):
                 "root_dir": cls.workspace_path,
                 "gitlab_url": 'http://gitlab.padre.backend:30080/',
                 "user": "root",
-                "token": "kd1dDsqG2Zm3HCAjpaCs"
+                "token": "LvVzAaNyFyS6iiJNzTFf"
             }
         ]))
         cls.app = PadreAppFactory.get(config)
@@ -57,7 +48,7 @@ class GitlabBackend(PadreGitTest):
 
         super().tearDown()
 
-        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/', private_token="kd1dDsqG2Zm3HCAjpaCs")
+        server = gitlab.Gitlab(url='http://gitlab.padre.backend:30080/', private_token="LvVzAaNyFyS6iiJNzTFf")
 
         projects = server.projects.list()
 
@@ -135,7 +126,7 @@ class GitlabBackend(PadreGitTest):
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
+        execution = Execution(experiment, codehash=codehash, append_runs=True, parameters=None,
                               preparameters=None, single_run=True,
                               single_transformation=True)
         self.app.executions.patch(execution)
@@ -174,7 +165,7 @@ class GitlabBackend(PadreGitTest):
         self.app.experiments.put(experiment)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = Execution(experiment, codehash=codehash, command=None, append_runs=True, parameters=None,
+        execution = Execution(experiment, codehash=codehash, append_runs=True, parameters=None,
                               preparameters=None, single_run=True,
                               single_transformation=True)
         self.app.executions.put(execution)
@@ -213,7 +204,7 @@ class GitlabBackend(PadreGitTest):
                                             strategy="random", project=project)
 
         codehash = 'abdauoasg45qyh34t'
-        execution = self.create_execution(experiment, codehash=codehash, command=None, append_runs=True,
+        execution = self.create_execution(experiment, codehash=codehash, append_runs=True,
                                           parameters=None,
                                           preparameters=None, single_run=True,
                                           single_transformation=True)
@@ -277,13 +268,6 @@ class GitlabBackend(PadreGitTest):
                           description='Testing the functionalities of project backend',
                           reference=self.test_reference)
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
         def find(name, path):
             for root, dirs, files in os.walk(path):
                 if name in files:
@@ -292,15 +276,19 @@ class GitlabBackend(PadreGitTest):
         _id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': _id})
 
+        from sklearn.svm import SVC
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
+                                pipeline=create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+                                                                      reference=self.test_reference),
                                 reference=self.test_reference)
 
         parameter_dict = {'SVC': {'C': [0.1, 0.2]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
                                        })
+
+
 
         files_found = find('results.bin', os.path.expanduser('~/.pypadre-git-test/projects/Test Project 2/'
                                                              'experiments/Test Experiment/executions'))

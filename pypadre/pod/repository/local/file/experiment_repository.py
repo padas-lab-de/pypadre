@@ -3,6 +3,7 @@ import re
 
 from pypadre.core.model.experiment import Experiment
 from pypadre.core.model.generic.custom_code import CodeManagedMixin
+from pypadre.core.model.generic.lazy_loader import SimpleLazyObject
 from pypadre.pod.backend.i_padre_backend import IPadreBackend
 from pypadre.pod.repository.i_repository import IExperimentRepository
 from pypadre.pod.repository.local.file.generic.i_file_repository import File, IChildFileRepository
@@ -15,6 +16,8 @@ WORKFLOW_FILE = File("workflow.pickle", DillSerializer)
 META_FILE = File("metadata.json", JSonSerializer)
 
 NAME = 'experiments'
+
+
 # cache = LRUCache(maxsize=16)
 
 
@@ -56,13 +59,16 @@ class ExperimentFileRepository(IChildFileRepository, IGitRepository, IExperiment
         reference = self.backend.code.get(metadata.get(CodeManagedMixin.DEFINED_IN))
         # preprocess_workflow = self.get_file(path, PREPROCESS_WORKFLOW_FILE)
 
+        executions = SimpleLazyObject(
+            load_fn=lambda: self.backend.execution.list({'experiment_id': metadata.get("id")}))
+
         project = self.backend.project.get(metadata.get(Experiment.PROJECT_ID))
         dataset = self.backend.dataset.get(metadata.get(Experiment.DATASET_ID))
 
         # TODO only pass metadata / config etc to experiment creator. We shouldn't think about the structure of experiments here
 
         ex = Experiment(name=metadata.get("name"), description=metadata.get("description"), project=project,
-                        dataset=dataset, metadata=metadata, reference=reference, pipeline=pipeline)
+                        dataset=dataset, metadata=metadata, reference=reference, executions=executions, pipeline=pipeline)
         return ex
 
     def put_progress(self, experiment, **kwargs):
