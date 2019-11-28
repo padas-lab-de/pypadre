@@ -47,7 +47,6 @@ def create_test_pipeline_multiple_estimators():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
     from sklearn.decomposition.pca import PCA
-    # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
     estimators = [('PCA', PCA()), ('SVC', SVC(probability=True))]
     return Pipeline(estimators)
 
@@ -68,41 +67,36 @@ class TestSKLearnPipeline(PadreAppTest):
         super(TestSKLearnPipeline, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        self.project = Project(name='Test Project', description='Some description')
+        self.project = Project(name='Test Project', description='Testing the functionalities of project backend')
+        self.setup_reference(__file__)
 
     def test_default_sklearn_pipeline(self):
-        project = Project(name='Test Project 2',
-                          description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_default_sklearn_pipeline))
-
-        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline_SVC)
+        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline_SVC, reference=self.test_reference)
 
         loader = SKLearnLoader()
         iris = loader.load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline,
-                                reference=self.test_default_sklearn_pipeline)
+        experiment = self.create_experiment(name="default_sklearn_pipeline", dataset=iris, project=self.project,
+                                            pipeline=pipeline)
 
         experiment.execute()
         print(experiment)
         # TODO asserts and stuff
 
     def test_custom_split_sklearn_pipeline(self):
-        def custom_split(ctx, **kwargs):
-            (data,) = unpack(ctx, "data")
+        @self.app.custom_splitter(reference=self.test_reference)
+        def custom_split(data, **kwargs):
             idx = np.arange(data.size[0])
             cutoff = int(len(idx) / 2)
             return idx[:cutoff], idx[cutoff:], None
 
-        pipeline = SKLearnPipeline(
-            splitting=custom_split,
-            pipeline_fn=create_test_pipeline_SVC)
+        pipeline = SKLearnPipeline(splitting=custom_split, pipeline_fn=create_test_pipeline_SVC,
+                                   reference=self.test_reference)
         iris = SKLearnLoader().load("sklearn", utility="load_iris")
-        experiment = Experiment(dataset=iris, project=self.project, pipeline=pipeline,
-                                reference=self.test_custom_split_sklearn_pipeline)
+        experiment = Experiment(name="custom_split_sklearn_pipeline", dataset=iris, project=self.project,
+                                pipeline=pipeline,
+                                reference=self.test_reference)
 
         experiment.execute()
-
-        # TODO asserts and stuff
 
         assert (isinstance(experiment.project, Project))
 
@@ -129,23 +123,25 @@ class TestSKLearnPipeline(PadreAppTest):
             _data.set_data(new_data, attributes=data.attributes)
             return _data
 
-        pipeline = SKLearnPipeline(preprocessing_fn=Function(fn=preprocessing), pipeline_fn=create_test_pipeline_SVC)
+        pipeline = SKLearnPipeline(preprocessing_fn=Function(fn=preprocessing,
+                                                             repository_identifier=self.test_reference.repository_identifier),
+                                   pipeline_fn=create_test_pipeline_SVC, reference=self.test_reference)
 
         loader = SKLearnLoader()
-        digits = loader.load("sklearn", utility="load_iris")
+        iris = loader.load("sklearn", utility="load_iris")
 
-        experiment = Experiment(name='Test Experiment', project=self.project, dataset=digits, pipeline=pipeline,
-                                reference=self.test_sklearn_pipeline_with_preprocessing)
+        experiment = Experiment(name='Test Experiment', project=self.project, dataset=iris, pipeline=pipeline,
+                                reference=self.test_reference)
 
         experiment.execute()
 
     def test_hyperparameter_search(self):
-        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline_SVC)
+        pipeline = SKLearnPipeline(pipeline_fn=create_test_pipeline_SVC, reference=self.test_reference)
 
         iris = SKLearnLoader().load("sklearn", utility="load_iris")
         experiment = Experiment(name='Hyperparameter Search', project=self.project,
                                 dataset=iris, pipeline=pipeline,
-                                reference=self.test_hyperparameter_search)
+                                reference=self.test_reference)
 
         params_svc = {'C': [0.5, 1.0, 1.5],
                       'poly_degree': [1, 2, 3],
@@ -164,13 +160,11 @@ class TestSKLearnPipeline(PadreAppTest):
 
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2',
-                          description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_full_stack))
+                          description='Testing the functionalities of project backend')
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
@@ -179,8 +173,9 @@ class TestSKLearnPipeline(PadreAppTest):
 
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
         experiment.execute()
         assert (experiment.executions is not None)
         computations = self.app.computations.list()
@@ -199,8 +194,7 @@ class TestSKLearnPipeline(PadreAppTest):
 
         self.app.datasets.load_defaults()
         project = Project(name='Test Project Regression',
-                          description='Testing the functionalities of project',
-                          creator=Function(fn=self.test_all_functionalities_regression))
+                          description='Testing the functionalities of project')
 
         _id = '_diabetes_dataset'
 
@@ -208,8 +202,9 @@ class TestSKLearnPipeline(PadreAppTest):
 
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_SVR),
-                                reference=self.test_all_functionalities_regression)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_SVR,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
         parameter_dict = {'SVR': {'C': [0.1, 0.2]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
@@ -230,34 +225,6 @@ class TestSKLearnPipeline(PadreAppTest):
                                               'experiments/Test Experiment/executions'))
         assert (files_found is not None)
 
-    def test_custom_split_pipeline(self):
-        def custom_split(ctx, **kwargs):
-            (data,) = unpack(ctx, "data")
-            idx = np.arange(data.size[0])
-            cutoff = int(len(idx) / 2)
-            return idx[:cutoff], idx[cutoff:], None
-
-        from sklearn.svm import SVC
-        from sklearn.decomposition import PCA
-        pipeline = create_sklearn_test_pipeline(estimators=[('PCA', PCA()), ('SVC', SVC(probability=True))],
-                                                splitting=CustomSplit(fn=custom_split))
-
-        self.app.datasets.load_defaults()
-        # TODO investigate race condition? dataset seems to be sometimes null in the dataset
-        project = self.create_project(name='Test Project Custom Split', description='Testing custom splits',
-                                      store_code=True, creator_name="f_" + os.path.basename(__file__),
-                                      creator_code=__file__)
-        dataset = self.app.datasets.list({'name': '_iris_dataset'})
-        experiment = self.create_experiment(name='Test Experiment Custom Split', description='Testing custom splits',
-                                            dataset=dataset.pop(), project=project, pipeline=pipeline, store_code=True,
-                                            creator_name="f_" + os.path.basename(__file__), creator_code=__file__,
-                                            creator=self.test_custom_split_pipeline)
-
-        experiment.execute()
-
-        self.app.computations.list()
-        experiments = self.app.experiments.list()
-
     def test_dumping_intermediate_results(self):
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
@@ -267,13 +234,11 @@ class TestSKLearnPipeline(PadreAppTest):
 
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2',
-                          description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_full_stack))
+                          description='Testing the functionalities of project backend')
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
             from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
             estimators = [('SVC', SVC(probability=True))]
             return Pipeline(estimators)
 
@@ -282,8 +247,9 @@ class TestSKLearnPipeline(PadreAppTest):
 
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
 
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
 
@@ -300,16 +266,16 @@ class TestSKLearnPipeline(PadreAppTest):
 
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2',
-                          description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_full_stack))
+                          description='Testing the functionalities of project backend')
 
         _id = '_iris_dataset'
         dataset = self.app.datasets.list({'name': _id})
 
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
         parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
@@ -329,8 +295,7 @@ class TestSKLearnPipeline(PadreAppTest):
 
     def test_multiple_experiments_one_project(self):
         project = Project(name='Test Project Multiple Experiments',
-                          description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_multiple_experiments_one_project))
+                          description='Testing the functionalities of project backend')
 
         self.app.datasets.load_defaults()
 
@@ -342,8 +307,9 @@ class TestSKLearnPipeline(PadreAppTest):
 
         experiment = Experiment(name=experiment_name1, description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
         parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
@@ -352,8 +318,9 @@ class TestSKLearnPipeline(PadreAppTest):
         dataset = self.app.datasets.list({'name': _id})
         experiment = Experiment(name=experiment_name2, description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
         parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
@@ -367,12 +334,10 @@ class TestSKLearnPipeline(PadreAppTest):
         project_name1 = 'Test Project 1 Multiple Projects'
         project_name2 = 'Test Project 2 Multiple Projects'
         project1 = Project(name=project_name1,
-                           description='Testing the functionalities of project backend',
-                           creator=Function(fn=self.test_multiple_experiments_one_project))
+                           description='Testing the functionalities of project backend')
 
         project2 = Project(name=project_name2,
-                           description='Testing the functionalities of project backend',
-                           creator=Function(fn=self.test_multiple_experiments_one_project))
+                           description='Testing the functionalities of project backend')
 
         self.app.datasets.load_defaults()
 
@@ -384,8 +349,9 @@ class TestSKLearnPipeline(PadreAppTest):
 
         experiment = Experiment(name=experiment_name1, description='Test Experiment',
                                 dataset=dataset.pop(), project=project1,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
         parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}
@@ -394,8 +360,9 @@ class TestSKLearnPipeline(PadreAppTest):
         dataset = self.app.datasets.list({'name': _id})
         experiment = Experiment(name=experiment_name2, description='Test Experiment',
                                 dataset=dataset.pop(), project=project2,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators,
+                                                         reference=self.test_reference),
+                                reference=self.test_reference)
         parameter_dict = {'SVC': {'C': [0.1, 0.2]}, 'PCA': {'n_components': [1, 2, 3]}}
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
                                        'SKLearnEstimator': {'parameters': parameter_dict}

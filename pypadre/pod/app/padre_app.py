@@ -208,7 +208,7 @@ class PadreApp(CoreApp):
 
         return dataset_decorator
 
-    def custom_splitter(self, *args, reference_git=None, reference_package=None, **kwargs):
+    def custom_splitter(self, *args, reference=None,reference_git=None, reference_package=None, **kwargs):
         def splitter_decorator(f_create_splitter):
             @wraps(f_create_splitter)
             def wrap_splitter(*args, **kwargs):
@@ -219,13 +219,14 @@ class PadreApp(CoreApp):
                 yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
                             val_idx=val_idx, component=component, predecessor=predecessor, **kwargs)
 
-            creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
+            creator = to_decorator_reference(reference=reference, reference_package=reference_package,
+                                             reference_git=reference_git)
             return Function(fn=wrap_splitter, transient=True, repository_identifier=creator.repository_identifier,
                             **kwargs)
 
         return splitter_decorator
 
-    def preprocessing(self, *args, reference_git=None, reference_package=None, store=False, **kwargs):
+    def preprocessing(self, *args, reference_git=None, reference=None,reference_package=None, store=False, **kwargs):
         def preprocessing_decorator(f_create_preprocessing):
             @wraps(f_create_preprocessing)
             def wrap_preprocessing(*args, **kwargs):
@@ -237,14 +238,15 @@ class PadreApp(CoreApp):
                     self.datasets.put(_dataset)
                 return _dataset
 
-            creator = to_decorator_reference(reference_git=reference_git, reference_package=reference_package)
+            creator = to_decorator_reference(reference=reference, reference_package=reference_package,
+                                             reference_git=reference_git)
 
             return Function(fn=wrap_preprocessing, transient=True, repository_identifier=creator.repository_identifier,
                             **kwargs)
 
         return preprocessing_decorator
 
-    def estimator(self, *args, config=None, reference_git=None, reference_package=None, **kwargs):
+    def estimator(self, *args, config=None, reference=None,reference_git=None, reference_package=None, **kwargs):
         def estimator_decorator(f_create_estimator):
             @wraps(f_create_estimator)
             def wrap_estimator(*args, **kwargs):
@@ -261,12 +263,13 @@ class PadreApp(CoreApp):
                 return Training(split=split, component=component, run=run, model=model, parameters=config,
                                 initial_hyperparameters=initial_hyperparameters)
 
-            creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
+            creator = to_decorator_reference(reference=reference, reference_package=reference_package,
+                                             reference_git=reference_git)
             return Function(fn=wrap_estimator, transient=True, repository_identifier=creator.repository_identifier)
 
         return estimator_decorator
 
-    def evaluator(self, *args, task_type=None, reference_git=None, reference_package=None, **kwargs):
+    def evaluator(self, *args, task_type=None, reference=None, reference_git=None, reference_package=None, **kwargs):
         def evaluator_decorator(f_create_evaluator):
             @wraps(f_create_evaluator)
             def wrap_evaluator(*args, **kwargs):
@@ -293,7 +296,8 @@ class PadreApp(CoreApp):
                                   run=run,
                                   parameters=kwargs)
 
-            creator = to_decorator_reference(reference_package=reference_package, reference_git=reference_git)
+            creator = to_decorator_reference(reference=reference, reference_package=reference_package,
+                                             reference_git=reference_git)
             return Function(fn=wrap_evaluator, transient=True, repository_identifier=creator.repository_identifier)
 
         return evaluator_decorator

@@ -107,7 +107,6 @@ def create(ctx, name, project, path,edit):
     if click.confirm('Would you like to execute and save the experiment right away?'):
         click.echo(click.style('Executing experiment: {}'.format(name), fg="green"))
         ctx.invoke(execute, name=name, path=path, project_name=project)
-        click.echo(click.style('Execution of the experiment is finished!'.format(name), fg="green"))
     else:
         click.pause(
             "The experiment creation is not complete. You can run the command 'experiment execute --path {}' "
@@ -141,7 +140,7 @@ def execute(ctx, name, path, project_name=None):
             click.edit(filename=path)
             click.pause('Press any key to execute...')
         execfile(path, glob=globs, loc=locals, compiler=compile)
-
+        click.echo(click.style('Execution of the experiment is finished!'.format(name), fg="green"))
         # p = app.create(name=name, project=project,
         #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
     except Exception as e:

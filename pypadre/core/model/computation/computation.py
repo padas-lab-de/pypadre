@@ -49,7 +49,7 @@ class Computation(StoreableMixin, ProgressableMixin, PlatformInfoMixin, Metadata
         else:
             self._metrics = None
 
-        super().__init__(parent=run, metadata=metadata, **kwargs)
+        self._format = result_format
         self._component = component
         self._result = result
         # Todo add result schema (this has to be given by the component) At best a component can return directly a computation object
@@ -58,7 +58,9 @@ class Computation(StoreableMixin, ProgressableMixin, PlatformInfoMixin, Metadata
         self._parameters = parameters
         self._initial_hyperparameters = initial_hyperparameters
         self._branch = branch
-        self._format = result_format
+        super().__init__(parent=run, metadata=metadata, **kwargs)
+
+
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")

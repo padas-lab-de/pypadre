@@ -4,6 +4,8 @@ from pypadre.pod.app.padre_app import PadreAppFactory
 
 app = PadreAppFactory.get(config)
 
+# Variables config, project_name, experiment_name and path are to be replaced automatically
+
 # Add necessary imports inside the functions definition
 """
 This file is a template for defining your experiment pipeline and hyperparameters.
@@ -42,10 +44,10 @@ def preprocessing_fn(dataset, **kwargs):
 
 
 @app.parameter_map()
-def config():
+def esitmator_config():
     # Hyperparameters for the estimator
     
-    return {}
+    return {'param1':[value1,...],}
 
 @app.estimator(config=config, reference_git=path)
 def custom_estimator(X_train, y_train, *args, **kwargs):
