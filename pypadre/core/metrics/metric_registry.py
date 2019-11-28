@@ -56,6 +56,26 @@ class MetricRegistry(LoggableMixin):
         if providers is None:
             providers = self.available_providers(computation)
 
+        else:
+            from networkx.algorithms.simple_paths import all_simple_paths
+            execution_paths = []
+            for initial_provider in self.initial_providers(computation):
+                for provider in providers:
+
+                    # If the required metric is the initial metric itself
+                    if provider == initial_provider:
+                        execution_paths.append([provider])
+                        continue
+
+                    paths = all_simple_paths(self.registered_providers, source=initial_provider,
+                                              target=provider)
+                    for path in paths:
+                        execution_paths.append(path)
+
+            return self.execute_paths(execution_paths, computation, **kwargs)
+
+
+
         provider_history = set()
         results = []
 
@@ -83,6 +103,31 @@ class MetricRegistry(LoggableMixin):
                 provider_history.add(provider)
                 results = self._calculate_helper(computation, provider, measured, providers, provider_history, results, **kwargs)
         return results
+
+    def execute_paths(self, execution_paths, computation, **kwargs):
+        results = []
+
+        for execution_path in execution_paths:
+            measured = []
+            initial_node = True
+            for provider in execution_path:
+
+                if initial_node is True:
+                    initial_node = False
+                    measured = provider.execute(computation=computation, **kwargs)
+                    continue
+
+                measured = provider.execute(computation=computation, data=measured)
+
+            if isinstance(measured, Metric):
+                results.append(measured)
+            else:
+                results = results + measured
+
+        return results
+
+
+
 
 
 metric_registry = MetricRegistry()

@@ -4,8 +4,9 @@ import unittest
 # noinspection PyMethodMayBeStatic
 import numpy as np
 
+from pypadre import _version, _name
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
-from pypadre.core.model.code.code_mixin import Function
+from pypadre.core.model.code.code_mixin import Function, PipIdentifier
 from pypadre.core.model.dataset.dataset import Transformation
 from pypadre.core.model.experiment import Experiment
 # from pypadre.core.model.pipeline.components.components import CustomSplit
@@ -64,10 +65,8 @@ def find_subdirectories(path):
 
 class TestSKLearnPipeline(PadreAppTest):
 
-    def __init__(self, *args, **kwargs):
-        super(TestSKLearnPipeline, self).__init__(*args, **kwargs)
-
     def setUp(self):
+        self.setup_reference(__file__)
         self.project = Project(name='Test Project', description='Some description')
 
     def test_default_sklearn_pipeline(self):
@@ -268,7 +267,9 @@ class TestSKLearnPipeline(PadreAppTest):
         self.app.datasets.load_defaults()
         project = Project(name='Test Project 2',
                           description='Testing the functionalities of project backend',
-                          creator=Function(fn=self.test_full_stack))
+                          creator=Function(fn=self.test_full_stack, transient=True,
+                                           identifier=PipIdentifier(pip_package=_name.__name__,
+                                                                    version=_version.__version__)))
 
         def create_test_pipeline():
             from sklearn.pipeline import Pipeline
@@ -282,8 +283,7 @@ class TestSKLearnPipeline(PadreAppTest):
 
         experiment = Experiment(name='Test Experiment', description='Test Experiment',
                                 dataset=dataset.pop(), project=project,
-                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline),
-                                reference=self.test_full_stack)
+                                pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline, reference=self.test_reference))
 
         experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
 

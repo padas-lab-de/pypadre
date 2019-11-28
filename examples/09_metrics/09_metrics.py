@@ -23,7 +23,7 @@ def dataset():
 
 
 @app.experiment(dataset=dataset, reference_git=__file__,
-                experiment_name="Iris SVC - static seed", seed=1, allow_metrics=True, project_name="Examples")
+                experiment_name="Iris SVC - User Defined Metrics", seed=1, allow_metrics=True, project_name="Examples")
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
