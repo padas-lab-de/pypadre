@@ -4,7 +4,7 @@ import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.metrics.metric_registry import metric_registry
-from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap, MetricsMap
+from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap
 from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
@@ -38,7 +38,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         return None
 
     def _execute_helper(self, *, pipeline_parameters: Union[ParameterMap, dict] = None,
-                        write_parameters: dict, metrics_map: dict = None,
+                        write_parameters: dict,
                         parameter_map: ParameterMap = None, run: Run, data, **kwargs):
         if parameter_map is None:
             if pipeline_parameters is None:
@@ -47,7 +47,6 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                 parameter_map = ParameterMap(pipeline_parameters)
 
         write_parameters_map = WriteResultMetricsMap(write_parameters)
-        metrics_map = MetricsMap(metrics_map=metrics_map)
 
         # TODO currently we don't allow for merging in a pipeline again.
         #  To solve this a successor can only execute as soon as it gets all data from all predecessors
@@ -62,11 +61,10 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
 
         for entry in entries:
             self._execute_pipeline(entry, parameter_map=parameter_map, write_parameters_map=write_parameters_map,
-                                   metrics_map=metrics_map,
                                    run=run, data=data, **kwargs)
 
     def _execute_pipeline(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
-                          write_parameters_map: WriteResultMetricsMap, metrics_map:MetricsMap, run: Run,
+                          write_parameters_map: WriteResultMetricsMap, run: Run,
                           **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
@@ -82,15 +80,13 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                 # execute for each item
                 self._execute_pipeline_helper(node, data=data, parameters=parameters,
                                               parameter_map=parameter_map,
-                                              write_parameters_map=write_parameters_map, metrics_map=metrics_map,
-                                              run=run,
+                                              write_parameters_map=write_parameters_map, run=run,
                                               predecessor=kwargs.get("predecessor", None))
         else:
             # If we don't need parameters we don't extract them from the map but only pass the map to the following
             # components
             self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map,
-                                          write_parameters_map=write_parameters_map, metrics_map=metrics_map,
-                                          run=run, **kwargs)
+                                          write_parameters_map=write_parameters_map, run=run, **kwargs)
 
     def _execute_pipeline_helper(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
                                  write_parameters_map: WriteResultMetricsMap, metrics_map: MetricsMap,
