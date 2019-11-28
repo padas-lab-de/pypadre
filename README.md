@@ -73,11 +73,32 @@ Using these parameters, an experiment object can be created. The user can then e
 The padre experiment can be shared simply by sharing the git repository or by sharing the folder which contains the experiment.
 
 # Installation instruction
-Installation of Padre is simple and can be installed simply by running pip install pypadre
-
-# Running experiments via code
-
-# Running experiments via CLI
+Padre requires Python 3.7 and its development version too.
+Install Python 3.7 and then install the developer version too by running "sudo apt-get install python3.7-dev".
+Padre can be installed simply by running pip install pypadre
 
 # Quick Start Guide
+Once PaDRe is installed, you can easily start running experiments. The examples package will give you a better idea on
+the different features of PaDRe and how they can be coded. 
+
+# Creating a Project
+
+# Creating an Experiment
+
+# Running an experiment
+An experiment can be run using decorators or by calling execute on the experiment object.
+The execute function accepts differrent parameters such as 
+- dumping of intermediate output such as graph embedding or preprocessing outputs
+- computing of intermediate results
+- specifying the hyperparameters for each component
+
+In addition to code, an experiment can be created and executed via decorators. This is done by 
+annotating a function using the @app.experiment decorator and providing the different arguments in that annotation.
+This would create an experiment and also execute it. The @app.dataset is also required to be defined for the dataset to
+be retrieved.
+
+# Visualization 
+PaDRe supports visualization of the Datasets such as scatterplot, class balance and the correlation matrix.
+
+
 
