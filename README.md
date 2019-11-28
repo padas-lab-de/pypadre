@@ -75,3 +75,9 @@ The padre experiment can be shared simply by sharing the git repository or by sh
 # Installation instruction
 Installation of Padre is simple and can be installed simply by running pip install pypadre
 
+# Running experiments via code
+
+# Running experiments via CLI
+
+# Quick Start Guide
+
