@@ -11,9 +11,6 @@ stages:
   - release
 
 before_script:
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
   - pip install sphinx
   - pip install twine
   - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install || true # Enforce the order of the installation
@@ -51,9 +48,6 @@ python-release:
     - source ./setenv.sh
     - apt-get update
     - apt-get install --assume-yes sshpass openssh-client
-    - pip install virtualenv
-    - virtualenv venv
-    - source venv/bin/activate
     - pip install sphinx
     - pip install twine
     - sed -i "s/pypadre-ontology>=.*/pypadre-ontology>=$VERSION/g" requirements.txt
