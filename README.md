@@ -48,7 +48,6 @@ The padre experiment can be shared simply by sharing the git repository or by sh
 
 # Installation instruction
 Padre requires Python 3.7 and its development version too.
-Install Python 3.7 and then install the developer version too by running "sudo apt-get install python3.7-dev".
 Padre can be installed simply by running pip install pypadre
 
 # Quick Start Guide

@@ -5,7 +5,6 @@ Installation
 ------------
 Python Requirements
 - Python 3.7
-- Python 3.7 dev which can be installed by running the command "sudo apt-get install python3.7-dev"
 Installation of the PyPaDRe client is then done by simply installing the pip package
 pip install pypadre
 
