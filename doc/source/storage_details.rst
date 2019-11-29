@@ -19,7 +19,7 @@ addressed in this documentation.
 
 Versioning
 **********
-
+Versioning of PaDRe is done via Git. the user can use the Git to track the lifecycle of the experiment.
 
 Live Logging
 ************

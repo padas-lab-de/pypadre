@@ -67,9 +67,8 @@ Hyperparameter Optimization
 key as the component name and an inner dictionary. The inner dictionary contains the parameter name as the key and
 an array of values that are to be used for hyperparameter optimization
 
-2. Through decorators
+2. Through decorators using the parameter keyword
 
-.. include:: ../../examples/07_seeding/07_seeding.py
 
 Multi-pipline, multi-data Experiments
 -------------------------------------
