@@ -26,10 +26,10 @@ class AppLocalBackends(PadreAppTest):
         def foo(ctx):
             return "foo"
 
-        foo_code = self.app.code.create(clz=Function, fn=foo)
+        foo_code = self.app.code.create(clz=Function, fn=foo, repository_identifier=self.test_reference.repository_identifier)
         self.app.code.put(foo_code, store_code=True)
         code_list = self.app.code.list()
-        loaded_code = code_list.pop()
+        loaded_code = code_list.pop(-1)
 
         out = loaded_code.call()
         assert out is "foo"

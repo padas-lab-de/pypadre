@@ -87,7 +87,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
             # If we don't need parameters we don't extract them from the map but only pass the map to the following
             # components
             self._execute_pipeline_helper(node, data=data, parameter_map=parameter_map,
-                                          write_parameters_map=write_parameters_map, run=run, **kwargs)
+                                          write_parameters_map=write_parameters_map, metrics_map=metrics_map,run=run, **kwargs)
 
     def _execute_pipeline_helper(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
                                  write_parameters_map: WriteResultMetricsMap, metrics_map: MetricsMap,

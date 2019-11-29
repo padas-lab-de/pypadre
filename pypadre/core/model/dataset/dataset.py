@@ -150,7 +150,7 @@ class Dataset(StoreableMixin, MetadataMixin):
 
     def set_attributes(self, attributes=None):
         if self.attributes is None or len(self.attributes) == 0:
-            self._metadata['attributes'] = attributes
+            self.metadata['attributes'] = attributes
         else:
             pass
 

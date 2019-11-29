@@ -246,7 +246,7 @@ class PadreApp(CoreApp):
 
         return preprocessing_decorator
 
-    def estimator(self, *args, config=None, reference=None,reference_git=None, reference_package=None, **kwargs):
+    def estimator(self, *args, config={}, reference=None,reference_git=None, reference_package=None, **kwargs):
         def estimator_decorator(f_create_estimator):
             @wraps(f_create_estimator)
             def wrap_estimator(*args, **kwargs):

@@ -106,6 +106,8 @@ class CodeFileRepository(IGitRepository, ICodeRepository):
 
         if isinstance(code, Function):
             # TODO fn repository
+            if not os.path.exists(os.path.abspath(os.path.join(directory, '..', 'function'))):
+                os.mkdir(os.path.abspath(os.path.join(directory, '..', 'function')))
             self.write_file(os.path.abspath(os.path.join(directory, '..', 'function')), CODE_FILE, code.fn, mode="wb")
 
         self.write_file(directory, META_FILE, code.metadata)
