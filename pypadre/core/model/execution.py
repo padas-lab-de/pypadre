@@ -1,4 +1,4 @@
-import pyhash
+import hashlib
 
 from pypadre.core.base import ChildMixin
 from pypadre.core.model.computation.run import Run
@@ -38,7 +38,7 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
                                                                  self.EXPERIMENT_NAME: experiment.name}}
 
         metadata = {
-            **{"id": str(kwargs.get("reference").id) + "-" + str(persistent_hash(experiment.id, algorithm=pyhash.city_64()))},
+            **{"id": str(kwargs.get("reference").id) + "-" + str(persistent_hash(experiment.id, algorithm=hashlib.md5))},
             **metadata}
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
