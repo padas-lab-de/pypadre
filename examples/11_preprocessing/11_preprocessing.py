@@ -1,10 +1,9 @@
-from pypadre.core.model.dataset.dataset import Transformation
-from pypadre.core.util.utils import unpack
-from pypadre.examples.base_example import example_app
 import numpy as np
-from sklearn.decomposition import PCA
 from sklearn.datasets import load_iris
+from sklearn.decomposition import PCA
+
 from pypadre.binding.model.sklearn_binding import SKLearnPipeline
+from pypadre.examples.base_example import example_app
 
 app = example_app()
 
@@ -34,7 +33,7 @@ def parameters():
 
 
 @app.experiment(dataset=dataset, reference_git=__file__, parameters=parameters, preprocessing_fn=preprocessing,
-                experiment_name="Iris SVC", project_name="Examples", ptype=SKLearnPipeline)
+                experiment_name="Iris SVC - preprocessing", project_name="Examples", ptype=SKLearnPipeline)
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC

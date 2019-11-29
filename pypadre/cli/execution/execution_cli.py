@@ -55,7 +55,8 @@ def list(ctx, search, offset, limit, column):
     List executions defined in the padre environment
     """
     # List all the executions that are currently saved
-    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)), columns=column)
+    _print_table(ctx, _filter_selection(ctx, _get_app(ctx).list(search=search, offset=offset, size=limit)),
+                 columns=column)
 
 
 @execution.command(name="get")
@@ -106,7 +107,7 @@ def select(ctx, id):
         print("Multiple matching executions found!")
         _print_table(ctx, executions)
         return -1
-    make_sub_shell(ctx, 'execution', execution.pop(0), 'Selecting execution ')
+    make_sub_shell(ctx, 'execution', executions.pop(0), 'Selecting execution ')
 
 
 execution.add_command(select)

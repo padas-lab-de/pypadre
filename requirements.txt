@@ -15,10 +15,8 @@ beautifultable==0.5.2
 openml>=0.7.0
 pandas==0.23.3
 requests-toolbelt==0.8.0
-mock==2.0.0
 beautifulsoup4==4.6.3
 Deprecated==1.2.4
-pymitter==0.2.3
 altair==3.2.0
 vega==2.6.0
 vega_datasets==0.7.0

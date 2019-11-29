@@ -10,11 +10,12 @@ import pyhash
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
 from pypadre.core.model.generic.i_model_mixins import ProgressableMixin
+from pypadre.core.model.generic.i_platform_info_mixin import PlatformInfoMixin
 from pypadre.core.model.generic.i_storable_mixin import StoreableMixin
 from pypadre.core.util.utils import persistent_hash
 
 
-class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin):
+class Computation(StoreableMixin, ProgressableMixin, PlatformInfoMixin, MetadataMixin, ChildMixin):
     COMPONENT_ID = "component_id"
     COMPONENT_CLASS = "component_class"
     RUN_ID = "run_id"
@@ -48,7 +49,7 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin):
         else:
             self._metrics = None
 
-        super().__init__(parent=run, metadata=metadata, **kwargs)
+        self._format = result_format
         self._component = component
         self._result = result
         # Todo add result schema (this has to be given by the component) At best a component can return directly a computation object
@@ -57,7 +58,9 @@ class Computation(StoreableMixin, ProgressableMixin, MetadataMixin, ChildMixin):
         self._parameters = parameters
         self._initial_hyperparameters = initial_hyperparameters
         self._branch = branch
-        self._format = result_format
+        super().__init__(parent=run, metadata=metadata, **kwargs)
+
+
 
         if self.branch and not isinstance(self.result, GeneratorType) and not isinstance(self.result, Iterable):
             raise ValueError("Can only branch if the computation produces a list or generator of data")

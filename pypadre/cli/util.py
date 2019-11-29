@@ -45,7 +45,6 @@ def _create_experiment_file(path=None, file_name=None):
     src = os.path.join(os.path.dirname(__file__), 'experiment/experiment_template.py')
     dst = path + '/' + file_name + '.py'
     try:
-        shutil.copyfile(src=src, dst=dst)
-        return dst
+        return shutil.copyfile(src=src, dst=dst)
     except Exception as e:
         raise ValueError(e)

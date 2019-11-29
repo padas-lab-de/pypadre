@@ -34,6 +34,9 @@ def _get_app(ctx) -> ProjectApp:
 def _print_table(ctx, *args, **kwargs):
     ctx.obj["pypadre-app"].print_tables(Project, *args, **kwargs)
 
+def _filter_selection(found, project):
+    return [f for f in found if f.parent==project]
+
 
 @project.command(name="list")
 @click.option('--offset', '-o', default=0, help='start number of the dataset')
@@ -74,6 +77,7 @@ def create(ctx, name):
     """
     Create a new project
     """
+
     def get_value(obj, e, options):
         return click.prompt(e.message + '. Please enter a value', type=str)
 
@@ -81,6 +85,31 @@ def create(ctx, name):
     try:
         p = app.create(name=name, handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
         app.put(p)
+    except Exception as e:
+        click.echo(click.style(str(e), fg="red"))
+
+
+@project.command(name="execute")
+@click.argument('id', type=click.STRING)
+@click.option('--experimentid', default=None, help='Name of the experiment to execute')
+@click.pass_context
+def execute(ctx, id, experimentid):
+    try:
+        found = _get_app(ctx).get(id)
+        if len(found) == 0:
+            click.echo(click.style(str("No project found for id: " + id), fg="red"))
+        elif len(found) >= 2:
+            click.echo(click.style(str("Multiple projects found for id: " + id), fg="red"))
+            _print_table(ctx, found)
+        else:
+            project = found.pop()
+            search = None
+            if experimentid:
+                search= {'id':experimentid}
+            experiments = _filter_selection(experiment_cli._get_app(ctx).list(search),project)
+            for exp in experiments:
+                click.echo(click.style('Executing experiment: {}'.format(exp.name), fg="green"))
+                exp.execute()
     except Exception as e:
         click.echo(click.style(str(e), fg="red"))
 

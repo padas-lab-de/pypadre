@@ -10,6 +10,7 @@ from pypadre.core.validation.json_validation import make_model
 
 WRITE_RESULTS = "write_results"
 WRITE_METRICS = "write_metrics"
+METRICS = "metrics"
 
 run_model = make_model(schema_resource_name='run.json')
 
@@ -42,10 +43,10 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
 
         # Start execution of the pipeline
         # pipeline_parameters = kwargs.get('parameters', None)
-        pipeline_parameters, write_parameters = \
+        pipeline_parameters, write_parameters, metrics_map = \
             self.separate_hyperparameters_and_component_parameters(kwargs.pop('parameters', {}))
         return self.pipeline.execute(dataset=self.dataset, run=self, pipeline_parameters=pipeline_parameters,
-                                     write_parameters=write_parameters,
+                                     write_parameters=write_parameters, metrics_map=metrics_map,
                                      *args, **kwargs)
 
     @property
@@ -72,6 +73,7 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
 
         parameter_dict = dict()
         write_result_metric_dict = dict()
+        metrics_map = dict()
 
         # Iterate through every parameter
         if parameters is not None:
@@ -87,11 +89,29 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
                 # The user can specify multiple metrics if needed, so it is a list
                 write_metrics = params.get(WRITE_METRICS, None)
 
+                # Or the user can specify it within the metrics field
+                metrics = params.get(METRICS, None)
+
+                # if the user specifies the different metrics that should be written, then set write_metrics to True
+                # and add the metrics to the variable
+                if write_metrics is not None and  not isinstance(write_metrics, list) and \
+                        write_metrics not in [True, False]:
+                    metrics = write_metrics
+                    write_metrics = True
+                    metrics_map[component_name] = [metrics]
+
+                elif isinstance(write_metrics, list):
+                    metrics_map[component_name] = write_metrics
+
+                elif metrics is not None:
+                    metrics_map[component_name] = metrics if isinstance(metrics, list) else [metrics]
+
                 write_result_metric_dict[component_name] = {WRITE_RESULTS: write_results,
                                                             WRITE_METRICS: write_metrics}
+
             if not parameter_dict:
                 parameter_dict = None
 
-            return parameter_dict, write_result_metric_dict
+            return parameter_dict, write_result_metric_dict, metrics_map
         else:
             return {}, {}
