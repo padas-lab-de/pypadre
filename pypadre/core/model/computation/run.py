@@ -114,4 +114,4 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
 
             return parameter_dict, write_result_metric_dict, metrics_map
         else:
-            return {}, {}
+            return {}, {}, {}

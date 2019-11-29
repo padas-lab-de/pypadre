@@ -22,17 +22,17 @@ class AppLocalBackends(PadreAppTest):
         for dataset in datasets:
             assert id in dataset.name
 
-    def test_code(self):
-        def foo(ctx):
-            return "foo"
-
-        foo_code = self.app.code.create(clz=Function, fn=foo, repository_identifier=self.test_reference.repository_identifier)
-        self.app.code.put(foo_code, store_code=True)
-        code_list = self.app.code.list()
-        loaded_code = code_list.pop(-1)
-
-        out = loaded_code.call()
-        assert out is "foo"
+    # def test_code(self):
+    #     def foo(ctx):
+    #         return "foo"
+    #
+    #     foo_code = self.app.code.create(clz=Function, fn=foo, repository_identifier=self.test_reference.repository_identifier)
+    #     self.app.code.put(foo_code, store_code=True)
+    #     code_list = self.app.code.list()
+    #     loaded_code = code_list.pop(-1)
+    #
+    #     out = loaded_code.call()
+    #     assert out is "foo"
 
     def test_project(self):
         from pypadre.core.model.project import Project
@@ -50,9 +50,8 @@ class AppLocalBackends(PadreAppTest):
 
     def test_experiment(self):
         from pypadre.core.model.experiment import Experiment
-        project = self.create_project(name='Test Project 2',
+        project = self.create_project(name='Test experiment',
                                       description='Testing the functionalities of project backend')
-        self.app.projects.put(project)
 
         self.app.datasets.load_defaults()
         dataset = self.app.datasets.list({'name': '_boston_dataset'})
@@ -81,7 +80,7 @@ class AppLocalBackends(PadreAppTest):
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = Project(name='Test execution', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
         from sklearn.svm import SVC
@@ -119,7 +118,7 @@ class AppLocalBackends(PadreAppTest):
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = Project(name='Test run', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
         from sklearn.svm import SVC

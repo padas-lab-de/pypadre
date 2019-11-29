@@ -410,7 +410,8 @@ class OpenMLLoader(DataSetLoaderMixin):
         data_set = None
         try:
             load = oml.datasets.get_dataset(source)
-            raw_data = arff.load(open(load.data_file, encoding='utf-8'))
+            with open(load.data_file, encoding='utf-8') as data:
+                raw_data = arff.load(data)
             attribute_list = [att[0] for att in raw_data["attributes"]]
             df_data = pd.DataFrame(data=raw_data['data'])
             df_data.columns = attribute_list

@@ -165,10 +165,6 @@ class PadreCli(unittest.TestCase):
                                 'project', 'select', 'Examples'],
                       input="experiment execute --name Experiment1 --path {}\nn\nk".format(path))
 
-        with open(path, "r") as f:
-            lines = f.readlines()
-        with open(path, "w") as f:
-            f.writelines(lines[:-1])
 
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'execution', 'list', '-c', 'id'])
@@ -188,7 +184,6 @@ class PadreCli(unittest.TestCase):
 
         assert result.exit_code == 0
 
-        assert 'diff --git' in result.output
 
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'execution', 'select', ids[0]])

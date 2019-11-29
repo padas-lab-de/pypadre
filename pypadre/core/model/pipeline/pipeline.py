@@ -120,7 +120,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         if allow_metrics:
             providers = []
             for metric in available_metrics:
-                if str(metric) in metrics_map.get(computation.component.name):
+                if str(metric) in metrics_map.get(computation.component.name,[]):
                     providers.append(metric)
                     message = "Adding metric {metric} for computation " \
                               "on node {node}".format(metric=str(metric),
