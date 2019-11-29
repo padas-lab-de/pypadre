@@ -12,7 +12,5 @@ pip install pypadre
 
 Configuration
 -------------
-When PaDRe is executed, a default configuration file is created in your home directory.
-```
-from padre.app.padre_app import pypadre  # import the pypadre API. This loads the standard configuration
-```
+When PaDRe is executed, a default configuration file is created in your home directory and in the current scenario the
+user does not have to add anything else.

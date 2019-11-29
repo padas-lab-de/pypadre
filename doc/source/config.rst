@@ -2,10 +2,10 @@
 Config
 =================
 
-.. automodule:: pypadre.pod.app.core_app.CoreApp
+.. automodule:: pypadre.pod.app.core_app
 
 
-.. autoclass:: app.padre_app.PadreConfig
+.. autoclass:: pypadre.pod.app.config.padre_config.PadreConfig
    :members:
 
 Padre Config
@@ -17,15 +17,6 @@ Configuration file is placed at ~/.padre.cfg
 When running the tests ~/.padre-test.cfg is created which is deleted when the tests are completed.
 
 Expected values in config are following
-
-
-[HTTP BACKEND]
-
-user = username
-
-base_url = http://localhost:8080/api
-
-token = oauth_token
 
 [LOCAL BACKEND]
 
