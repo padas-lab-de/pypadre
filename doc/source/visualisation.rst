@@ -29,12 +29,9 @@ called with dataset attributes of the users choice.
                                               file_name="scatter_plot.json",
                                               base_path=os.path.join(app.backends[0].dataset.root_dir, ds.name))
 
-**Note:** :func:`pypadre.core.plot.Plot.get_scatter_plot` takes x attribute and y attribute as required arguments for
-which plot should be created.g
+**Note:** :`pypadre.core.plot.Plot.get_scatter_plot` takes x attribute and y attribute as required arguments for
+which plot should be created.
 
-Following example is to create scatter plot specification for Iris dataset and upload it to the server.
-
-.. literalinclude:: ../../tests/examples/example_create_and_upload_dataset_visualization.py
 
 
 
