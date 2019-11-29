@@ -89,7 +89,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                                           write_parameters_map=write_parameters_map, run=run, **kwargs)
 
     def _execute_pipeline_helper(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
-                                 write_parameters_map: WriteResultMetricsMap,
+                                 write_parameters_map: WriteResultMetricsMap, metrics_map: MetricsMap,
                                  run: Run, aggregate_results=True, **kwargs):
 
         write_parameters = write_parameters_map.get_for(node)
@@ -110,14 +110,26 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         # look up available metrics
         available_metrics = metric_registry.available_providers(computation)
         if available_metrics:
-            available_message = "Following metrics would be available for " + str(computation) + ": " + ', '.join(
-                str(p) for p in available_metrics)
+            available_message = "Following metrics would be available for " + str(computation) + " at node " + \
+                                computation.component.name + ": " + ', '.join(str(p) for p in available_metrics)
             self.send_info(message=available_message)
             print(available_message)
 
         # calculate metrics
         if allow_metrics:
-            metrics = metric_registry.calculate_measures(computation, run=run, node=node, **kwargs)
+            providers = []
+            for metric in available_metrics:
+                if str(metric) in metrics_map.get(computation.component.name):
+                    providers.append(metric)
+                    message = "Adding metric {metric} for computation " \
+                              "on node {node}".format(metric=str(metric),
+                                                      node=str(computation.component.name))
+                    self.send_info(message=message)
+                    print(message)
+            providers = providers if len(providers) > 0 else None
+
+            metrics = metric_registry.calculate_measures(computation, run=run, node=node, providers=providers,
+                                                         **kwargs)
             computation.metrics = metrics
             for metric in metrics:
                 metric.send_put()
@@ -126,6 +138,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
         for res in computation.iter_result():
             self._execute_successors(node, run=run, predecessor=computation,
                                      parameter_map=parameter_map, write_parameters_map=write_parameters_map,
+                                     metrics_map=metrics_map,
                                      data=res, **kwargs)
 
         # Check if we are a end node
@@ -138,11 +151,11 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
             print(message)
 
     def _execute_successors(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap, run: Run,
-                            predecessor: Computation = None, **kwargs):
+                            predecessor: Computation = None, metrics_map: MetricsMap, **kwargs):
         successors = self.successors(node)
         for successor in successors:
             self._execute_pipeline(successor, data=data, run=run, predecessor=predecessor,
-                                   parameter_map=parameter_map, **kwargs)
+                                   parameter_map=parameter_map, metrics_map=metrics_map, **kwargs)
 
 
 
