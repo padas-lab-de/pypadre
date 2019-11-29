@@ -1,7 +1,7 @@
-from sklearn.datasets import load_iris
 import numpy as np
+from sklearn.datasets import load_iris
+
 from pypadre.core.model.pipeline.pipeline import DefaultPythonExperimentPipeline
-from pypadre.core.util.utils import unpack
 from pypadre.examples.base_example import example_app
 
 app = example_app()
@@ -48,4 +48,4 @@ def evaluator(model, X_test, *args, **kwargs):
                 estimator=estimator, evaluator=evaluator,
                 experiment_name="Iris KNN", project_name="Examples", ptype=DefaultPythonExperimentPipeline)
 def experiment():
-    return
+    pass

@@ -1,8 +1,7 @@
 # from pypadre.core.sklearnworkflow import SKLearnWorkflow
+import hashlib
 import random
 from typing import Callable, Union, Optional, Type
-
-import pyhash
 
 from pypadre.core.base import ChildMixin, MetadataMixin
 from pypadre.core.model.code.code_mixin import CodeMixin
@@ -106,7 +105,7 @@ class Experiment(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateab
 
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{
-            "id": name + "-" + str(persistent_hash(project.id, algorithm=pyhash.city_64())),
+            "id": name + "-" + str(persistent_hash(project.id, algorithm=hashlib.md5)),
             self.PROJECT_ID: project.id if project is not None else None,
             self.DATASET_ID: dataset.id if dataset is not None else None,
             self.SEED: seed if seed else random.randint(1, int(1e9)),

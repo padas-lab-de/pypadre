@@ -1,6 +1,5 @@
+import hashlib
 import uuid
-
-import pyhash
 
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.generic.i_executable_mixin import ValidateableExecutableMixin
@@ -32,7 +31,7 @@ class Run(StoreableMixin, ValidateableExecutableMixin, MetadataMixin, ChildMixin
 
         # Merge defaults
         metadata = {**defaults,
-                    **{"id": uuid.uuid4().__str__() + "-" + str(persistent_hash(execution.id, algorithm=pyhash.city_64())),
+                    **{"id": uuid.uuid4().__str__() + "-" + str(persistent_hash(execution.id, algorithm=hashlib.md5)),
                        self.EXECUTION_ID: execution.id}, **kwargs.pop("metadata", {})}
         super().__init__(model_clz=run_model, parent=execution, result=self, metadata=metadata, **kwargs)
 

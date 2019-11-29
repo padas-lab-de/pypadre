@@ -1,12 +1,11 @@
 import functools
+import hashlib
 import json
 import operator
 import os
 import platform
 import site
 from typing import Tuple, List
-
-import pyhash
 
 from pypadre.definitions import ROOT_DIR
 
@@ -100,13 +99,13 @@ def filter_nones(d: dict):
     return {key: val for key, val in d.items() if val is not None}
 
 
-def persistent_hash(to_hash, algorithm=pyhash.city_fingerprint_256()):
+def persistent_hash(to_hash, algorithm=hashlib.md5):
     def add_str(a, b):
         return operator.add(str(persistent_hash(str(a), algorithm)), str(persistent_hash(str(b), algorithm)))
 
     if isinstance(to_hash, Tuple):
         to_hash = functools.reduce(add_str, to_hash)
-    return algorithm(to_hash)
+    return int(algorithm(to_hash.encode("utf-8")).hexdigest(), 16)
 
 
 def find_package_structure(package_path):
