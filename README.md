@@ -1,22 +1,20 @@
-# PyPaDRe - Python Passau Data Science Reproducability Environment
+# PyPaDRe - Python Platform for mAchine learning and Data science Reproducibility
 PaDRe is an open source tool for managing machine learning projects and experiments, tracking the life cycle of each experiment, adding semantic 
-meaning to the experiments and keeping track of different results and metrics.
-Client System for the [PaDRE Servant Server](https://gitlab.dimis.fim.uni-passau.de/RP-17-PaDReP/PaDRE-Servant/wikis/home). It should provide the following functions
+meaning to the experiments and keeping track of different results and metrics. It should provide the following functions
 
-- Manage data sets and splits of data sets
-- Client Side code to conduct machine learning projects and experiments including
-  - creating and managing projects for grouping of experiments
-  - creating and managing experiments within a project
-  - fetching and splitting data sets
-  - logging training tasks
-  - logging test tasks
-  - providing results
-  - Hyperparameter Optimization using different strategies (Grid Search, Evolutionary Algorithms[not yet implementd])
-  - inspecting results of individual experiments 
-  - Describing experiments using (semantic) metadata
-  - Linking experiments to git code (e.g. automatically push a git repository when running experiment) including client source code
-  - Caching data sets client side
-  - Managing external data for experiments (e.g. external models, embeddings, additional data)
+- Manage data sets
+- creating and managing projects for grouping of experiments
+- creating and managing experiments within a project
+- fetching and splitting data sets
+- logging training tasks
+- logging test tasks
+- providing results
+- Hyperparameter Optimization using different strategies (Grid Search, Evolutionary Algorithms[not yet implementd])
+- inspecting results of individual experiments 
+- Describing experiments using (semantic) metadata
+- Linking experiments to git code (e.g. automatically push a git repository when running experiment) including client source code
+- Caching data sets 
+- Managing external data for experiments (e.g. external models, embeddings, additional data)
 
 From the clients perspective, PaDRE could be also understood as package manager for data sets and experiments.
 
@@ -89,5 +87,7 @@ be retrieved.
 PaDRe supports visualization of the Datasets such as scatterplot, class balance and the correlation matrix.
 Results of an experiment can also be visualized using PR curves and ROC curves. More examples and plots are provided 
 within examples/18_visualizations
+
+Example visualization of the precision recall curve
 
 ![](./examples/18_visualizations/screenshots/precision_recall.png)
