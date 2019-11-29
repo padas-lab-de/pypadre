@@ -1,3 +1,4 @@
+import hashlib
 import unittest
 
 from pypadre.core.model.code.code_mixin import Function
@@ -95,9 +96,8 @@ class AppLocalBackends(PadreAppTest):
         self.app.executions.patch(execution)
 
         from pypadre.core.util.utils import persistent_hash
-        import pyhash
         execution_id = str(
-            self.test_reference.id) + "-" + str(persistent_hash(experiment.id, algorithm=pyhash.city_64()))
+            self.test_reference.id) + "-" + str(persistent_hash(experiment.id, algorithm=hashlib.md5))
         executions = self.app.executions.list({'id': execution_id})
         assert len(executions) == 1
 
@@ -134,9 +134,9 @@ class AppLocalBackends(PadreAppTest):
         self.app.executions.put(execution)
 
         from pypadre.core.util.utils import persistent_hash
-        import pyhash
+        import hashlib
         execution_id = str(
-            self.test_reference.id) + "-" + str(persistent_hash(experiment.id, algorithm=pyhash.city_64()))
+            self.test_reference.id) + "-" + str(persistent_hash(experiment.id, algorithm=hashlib.md5))
 
         executions = self.app.executions.list({'id': execution_id})
         assert len(executions) > 0

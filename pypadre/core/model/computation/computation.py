@@ -1,11 +1,10 @@
 # https://stackoverflow.com/questions/33533148/how-do-i-specify-that-the-return-type-of-a-method-is-the-same-as-the-class-itsel
 from __future__ import annotations
 
+import hashlib
 import uuid
 from types import GeneratorType
 from typing import Optional, Iterable
-
-import pyhash
 
 from pypadre.core.base import MetadataMixin, ChildMixin
 from pypadre.core.model.computation.run import Run
@@ -39,7 +38,7 @@ class Computation(StoreableMixin, ProgressableMixin, PlatformInfoMixin, Metadata
         metadata = {**defaults, **kwargs.pop("metadata", {}), **{self.COMPONENT_ID: component.id,
                                                                  self.COMPONENT_CLASS: str(component.__class__),
                                                                  self.RUN_ID: str(run.id),
-                                                                 "id":  uuid.uuid4().__str__() + "-" + str(persistent_hash(run.id, algorithm=pyhash.city_64()))
+                                                                 "id":  uuid.uuid4().__str__() + "-" + str(persistent_hash(run.id, algorithm=hashlib.md5))
                                                                  }}
         if predecessor is not None:
             metadata[self.PREDECESSOR_ID] = predecessor.id

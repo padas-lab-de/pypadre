@@ -30,5 +30,4 @@ jsonpatch==1.24
 blinker==1.4
 cachetools==3.1.1
 dill==0.3.1.1
-pyhash==0.9.3
 python-gitlab==1.12.1
