@@ -57,6 +57,8 @@ class MetricRegistry(LoggableMixin):
             providers = self.available_providers(computation)
 
         else:
+            # If providers are already given find the simple paths from the initial providers to the
+            # user needed providers
             from networkx.algorithms.simple_paths import all_simple_paths
             execution_paths = []
             for initial_provider in self.initial_providers(computation):

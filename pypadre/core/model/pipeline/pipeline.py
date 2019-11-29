@@ -4,7 +4,7 @@ import networkx
 from networkx import DiGraph, is_directed_acyclic_graph
 
 from pypadre.core.metrics.metric_registry import metric_registry
-from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap
+from pypadre.core.metrics.write_result_metrics_map import WriteResultMetricsMap, MetricsMap
 from pypadre.core.model.code.code_mixin import CodeMixin
 from pypadre.core.model.computation.computation import Computation
 from pypadre.core.model.computation.pipeline_output import PipelineOutput
@@ -64,7 +64,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                                    run=run, data=data, **kwargs)
 
     def _execute_pipeline(self, node: PipelineComponentMixin, *, data, parameter_map: ParameterMap,
-                          write_parameters_map: WriteResultMetricsMap, run: Run,
+                          write_parameters_map: WriteResultMetricsMap, run: Run, metrics_map:MetricsMap,
                           **kwargs):
         # TODO do some more sophisticated result analysis in the grid search
         # Grid search if we have multiple combinations
@@ -80,6 +80,7 @@ class Pipeline(CodeManagedMixin, ProgressableMixin, ExecuteableMixin, DiGraph, V
                 # execute for each item
                 self._execute_pipeline_helper(node, data=data, parameters=parameters,
                                               parameter_map=parameter_map,
+                                              metrics_map=metrics_map,
                                               write_parameters_map=write_parameters_map, run=run,
                                               predecessor=kwargs.get("predecessor", None))
         else:
