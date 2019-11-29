@@ -325,7 +325,7 @@ class Transformation(Dataset):
                     "originalSource": dataset.id,
                     "type": dataset.type, "published": False, "attributes": dataset.attributes}
 
-        metadata = {**defaults,**kwargs}
+        metadata = {**defaults,**dataset.metadata,**kwargs}
         super().__init__(metadata=metadata)
         self._dataset = dataset
         self._binaries = dict()

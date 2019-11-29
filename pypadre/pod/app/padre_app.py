@@ -120,7 +120,8 @@ class PadreApp(CoreApp):
                 # here the workflow gets called. We could add some logging etc. capability here, but i am not sure
                 return f_create_experiment(*args, **kwargs)
 
-            creator = to_decorator_reference(reference, reference_package, reference_git)
+            creator = to_decorator_reference(variable=f_create_experiment.__name__, reference=reference,
+                                             reference_package=reference_package, reference_git=reference_git)
 
             local_ptype = None
             if ptype is None:
@@ -179,7 +180,7 @@ class PadreApp(CoreApp):
 
         return parameter_decorator
 
-    def parameter_provider(self, *args, reference=None, reference_package=None, **kwargs):
+    def parameter_provider(self, *args, reference=None, reference_package=None, reference_git=None,**kwargs):
         def parameter_decorator(f_create_parameters):
             @wraps(f_create_parameters)
             def wrap_parameters(*args, **kwargs):
@@ -187,7 +188,8 @@ class PadreApp(CoreApp):
                 # but i am not sure
                 return f_create_parameters(*args, **kwargs)
 
-            creator = to_decorator_reference(reference, reference_package)
+            creator = to_decorator_reference(variable=f_create_parameters.__name__, reference=reference,
+                                             reference_package=reference_package, reference_git=reference_git)
 
             return ParameterProvider(name="custom_parameter_provider", reference=creator,
                                      code=Function(fn=wrap_parameters,
@@ -208,7 +210,7 @@ class PadreApp(CoreApp):
 
         return dataset_decorator
 
-    def custom_splitter(self, *args, reference=None,reference_git=None, reference_package=None, **kwargs):
+    def custom_splitter(self, *args, reference=None, reference_git=None, reference_package=None, **kwargs):
         def splitter_decorator(f_create_splitter):
             @wraps(f_create_splitter)
             def wrap_splitter(*args, **kwargs):
@@ -219,26 +221,28 @@ class PadreApp(CoreApp):
                 yield Split(run=run, num=++num, train_idx=train_idx, test_idx=test_idx,
                             val_idx=val_idx, component=component, predecessor=predecessor, **kwargs)
 
-            creator = to_decorator_reference(reference=reference, reference_package=reference_package,
+            creator = to_decorator_reference(variable=f_create_splitter.__name__,reference=reference, reference_package=reference_package,
                                              reference_git=reference_git)
             return Function(fn=wrap_splitter, transient=True, repository_identifier=creator.repository_identifier,
                             **kwargs)
 
         return splitter_decorator
 
-    def preprocessing(self, *args, reference_git=None, reference=None,reference_package=None, store=False, **kwargs):
+    def preprocessing(self, *args, reference_git=None, reference=None, reference_package=None, store=False, **kwargs):
         def preprocessing_decorator(f_create_preprocessing):
             @wraps(f_create_preprocessing)
             def wrap_preprocessing(*args, **kwargs):
                 (dataset,) = unpack(args[0], "data")
+                metadata = dataset.metadata
                 _data = f_create_preprocessing(dataset, **kwargs)
-                _dataset = Transformation(name="Standarized_%s" % dataset.name, dataset=dataset)
+                _dataset = Transformation(name="Transformed_%s" % dataset.name, dataset=dataset)
                 _dataset.set_data(_data, attributes=dataset.attributes)
                 if store:
                     self.datasets.put(_dataset)
                 return _dataset
 
-            creator = to_decorator_reference(reference=reference, reference_package=reference_package,
+            creator = to_decorator_reference(variable=f_create_preprocessing.__name__, reference=reference,
+                                             reference_package=reference_package,
                                              reference_git=reference_git)
 
             return Function(fn=wrap_preprocessing, transient=True, repository_identifier=creator.repository_identifier,
@@ -246,7 +250,10 @@ class PadreApp(CoreApp):
 
         return preprocessing_decorator
 
-    def estimator(self, *args, config={}, reference=None,reference_git=None, reference_package=None, **kwargs):
+    def estimator(self, *args, config=None, reference=None, reference_git=None, reference_package=None, **kwargs):
+        if config is None:
+            config = {}
+
         def estimator_decorator(f_create_estimator):
             @wraps(f_create_estimator)
             def wrap_estimator(*args, **kwargs):
@@ -303,7 +310,7 @@ class PadreApp(CoreApp):
         return evaluator_decorator
 
 
-def to_decorator_reference(reference=None, reference_package=None, reference_git=None):
+def to_decorator_reference(reference=None, reference_package=None, reference_git=None, variable=None):
     if reference is not None:
         creator = reference
     elif reference_package is not None:
@@ -313,6 +320,8 @@ def to_decorator_reference(reference=None, reference_package=None, reference_git
     elif reference_git is not None:
         (filename, _, function_name, _, _) = inspect.getframeinfo(inspect.currentframe().f_back.f_back)
         # TODO find git repo or pass it and look where package starts import from there
+        if variable:
+            function_name = variable
         git_repo = str(Path(reference_git).parent)
         creator = PythonFile(path=str(Path(reference_git).parent), package=reference_git[len(git_repo) + 1:],
                              variable=function_name,
