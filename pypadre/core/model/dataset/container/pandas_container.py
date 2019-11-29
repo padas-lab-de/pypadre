@@ -72,12 +72,11 @@ class PandasContainer(IBaseContainer, LoggableMixin):
     def validate_attributes(self, attributes=None):
         # TODO look for validating the attributes properties with regards to the ontology
         if attributes is None or len(attributes) == 0:
-            self.send_warn(message='Attributes are missing! Attempting to derive them from the binary...',
-                           condition=True)
+            self.send_warn(message='Attributes are missing! Attempting to derive them from the binary...')
             attributes = self.derive_attributes(self.data)
 
         self.send_error(message="Incorrect number of attributes. Data has %d columns, provided attributes %d."
-                                % (self.shape[1], len(attributes)), condition=len(attributes) == self.shape[1])
+                                % (self.shape[1], len(attributes)), condition=len(attributes) != self.shape[1])
         return attributes
 
     @staticmethod
