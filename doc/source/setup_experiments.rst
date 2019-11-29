@@ -1,7 +1,6 @@
 Setting up Experiments
 ======================
 
-
 Single Pipeline Experiments
 ---------------------------
 
@@ -9,11 +8,30 @@ Single pipeline experiments can be created in different ways:
 
 1. Through class instantiation (see `examples/09_metrics/09_metrics.py`)
 
-.. literalinclude:: ../../examples/09_metrics/09_metrics.py
+.. code-block:: python
+
+    from pypadre.core.model.project import Project
+    from pypadre.core.model.experiment import Experiment
+    from pypadre.binding.metrics import sklearn_metrics
+    print(sklearn_metrics)
+
+    self.app.datasets.load_defaults()
+    project = Project(name='Sample Project',
+                      description=Example Project',
+                      creator=Function(fn=self.test_full_stack))
+
+    _id = '_iris_dataset'
+    dataset = self.app.datasets.list({'name': _id})
+
+    experiment = Experiment(name='Sample Experiment', description='Example Experiment',
+                            dataset=dataset.pop(), project=project,
+                            pipeline=SKLearnPipeline(pipeline_fn=create_test_pipeline_multiple_estimators),
+                            reference=self.test_full_stack)
+    experiment.execute()
 
 2. Through decorators
 
-.. literalinclude:: ../../tests/experiments/example_single_decorator.py
+.. include:: ../../examples/09_metrics/09_metrics.py
 
 
 Hyperparameter Optimization
@@ -24,7 +42,7 @@ an array of values that are to be used for hyperparameter optimization
 
 2. Through decorators
 
-.. literalinclude:: ../../tests/experiments/example_decorator_hyperparameters.py
+.. include:: ../../examples/07_seeding/07_seeding.py
 
 Multi-pipline, multi-data Experiments
 -------------------------------------

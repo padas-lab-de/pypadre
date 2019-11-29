@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PyPaDRE Documentation's documentation!
+Welcome to PyPaDRE Documentation!
 =================================================
 
 .. toctree::
@@ -15,12 +15,11 @@ Welcome to PyPaDRE Documentation's documentation!
    design_principles
    getting_started
    setup_experiments
-   metrics
    storage_details
    visualisation
    high_level_interfaces
    development
-   backends
+   backend
    config
 
 

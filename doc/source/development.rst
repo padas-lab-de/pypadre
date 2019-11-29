@@ -9,7 +9,15 @@ PyPadre App
 
 PyPaDRe provides a CLI to interact with PyPaDRe and this is done via apps. There are different apps within PyPaDRe such
 as the Project App, Experiment App and so on. Apps provide a method to interact with components of PyPaDRe. The apps
-support different functions such as listing, searching, and deleting.
+support different functions such as listing, searching, and deleting. There are different apps such as
+- project app
+- experiment app
+- execution app
+- run app
+- computation app
+
+The PaDRe app is the main app and interfaces with all the other apps. These apps provide functionalities regarding their
+modules to the user.
 
 PyPadre CLI
 +++++++++++

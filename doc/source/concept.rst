@@ -79,7 +79,7 @@ The following figure shows the overall architecture.
 
 .. image:: images/current-architecture.png
 
-PyPaDRE (in blue) provides means to
+PyPaDRE provides means to
 
 - Manage local and remote data sets
 - Create, run and compare experiments
@@ -87,7 +87,7 @@ PyPaDRE (in blue) provides means to
 - Provide an easy to use Python and CLI interface
 - Automatically version datasets, hyperparameters, code etc required for the experiment
 
-while being minimal invasive.
+while being minimally invasive.
 
 Researchers should use their favorite tools and environments in order to conduct there research while PyPaDRE takes
 care of managing resources and experiments in the background.
@@ -109,7 +109,7 @@ Additionally, a experiment configuration needs to be provided including a datase
 When executing the experiment, PyPaDRE stores results and intermediate steps locally and adds it to the database of experiments.
 Afterwards, it provides easy means to evaluate the experiments and compare them, as outlined below.
 
-For more details please refer to Setting up Experiments :ref:`setup_experiments`.
+For more details please refer to Setting up Experiments :ref:<setup_experiments>.
 
 Components and Hyperparameters
 ******************************
@@ -133,17 +133,14 @@ Experiment Evaluation
 
 Experiments should store the following results
 
-- **Raw Results** currently consisting of regression targets, classification scores (thresholded), classification
-probabilities, transformations (e.g. embeddings).Results are stored per instance (per split).
-
+- **Raw Results** currently consisting of regression targets, classification scores (thresholded), classification, probabilities, transformations (e.g. embeddings).Results are stored per instance (per split).
 - **Aggregated Results** are calculated from raw results. This includes precision, recall, f1 etc.
--**User Defined Metrics** are computed based on user provided code. The user can implement their own functions and wrap
-it with the PaDRe structure to provide custom metrics. This code is also versioned and stored as a code object.
+- **User Defined Metrics** are computed based on user provided code. The user can implement their own functions and wrap it with the PaDRe structure to provide custom metrics. This code is also versioned and stored as a code object.
 
 Evaluation should include standard measures and statistics, but also instance based analysis.
 
 Research Assets Management
--------------------------
+-----------------------------
 
 Beyond experiment support, the platform should also help to manage research assets, like papers, software, projects
 research questions etc. Currently, these artifacts can be managed via adding them to the source code folder and let it be Git managed.
