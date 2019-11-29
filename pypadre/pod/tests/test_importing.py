@@ -2,7 +2,7 @@ import networkx
 import numpy as np
 
 from pypadre.core.ontology.padre_ontology import PaDREOntology
-from pypadre.pod.importing.dataset.dataset_import import SnapLoader, KonectLoader, SKLearnLoader
+from pypadre.pod.importing.dataset.dataset_import import SnapLoader, KonectLoader, SKLearnLoader, OpenMLLoader
 from pypadre.pod.tests.base_test import PadreAppTest
 
 
@@ -36,7 +36,10 @@ class Test_loaders(PadreAppTest):
         ds = loader.load("snap",url="https://snap.stanford.edu/biodata/datasets/10017/10017-ChChSe-Decagon.html")
 
         assert isinstance(ds.data(),networkx.Graph)
-        assert ds.metadata["type"] == PaDREOntology.SubClassesDataset.Graph.value
+        if ds.data().is_directed():
+            assert ds.metadata["type"] == PaDREOntology.SubClassesDataset.Graph.value + "Directed"
+        else:
+            assert ds.metadata["type"] == PaDREOntology.SubClassesDataset.Graph.value
 
     def test_konect_loader(self):
 
@@ -49,14 +52,14 @@ class Test_loaders(PadreAppTest):
         assert isinstance(ds.data(), networkx.Graph)
         assert len(ds.attributes) == 2
 
-    # def test_openml_loader(self):
-    #
-    #     loader = OpenMlLoader()
-    #
-    #     ds = loader.load("openml", url="https://www.openml.org/d/41078")
-    #
-    #     assert ds.name == "iris"
-    #     assert ds.attributes[0].name == "sepallength"
+    def test_openml_loader(self):
+
+        loader = OpenMLLoader()
+
+        ds = loader.load(source="41078")
+
+        assert ds.name == "iris"
+        assert ds.attributes[0].name == "sepallength"
 
 
 

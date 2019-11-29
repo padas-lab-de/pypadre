@@ -77,6 +77,7 @@ class PadreCli(unittest.TestCase):
                                 'project', 'create', '-n', 'Examples'])
 
         path = os.path.abspath('../../../examples/20_experiment_cli_creation/20_experiment_cli_creation.py')
+        print(path)
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'project', 'select', 'Examples'],
                                input="experiment execute --name Experiment1 --path {}\nn\nk".format(path))
