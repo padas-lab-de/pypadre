@@ -61,10 +61,10 @@ def main():
 
 git_repo = str(Path(__file__).parent)
 reference_experiment = PythonFile(path=str(Path(__file__).parent), package=__file__[len(git_repo) + 1:],
-                       variable=main,
+                       variable="main",
                        repository_identifier=GitIdentifier(path=git_repo))
 reference_pipeline = PythonFile(path=str(Path(__file__).parent), package=__file__[len(git_repo) + 1:],
-                           variable=create_test_pipeline_multiple_estimators,
+                           variable="create_test_pipeline_multiple_estimators",
                            repository_identifier=GitIdentifier(path=git_repo))
 if __name__ == '__main__':
     main()

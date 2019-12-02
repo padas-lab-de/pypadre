@@ -25,5 +25,5 @@ def dataset():
 def experiment():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    estimators = [('SVC', SVC(probability=True))]
+    estimators = [('SVC', SVC(probability=True, C=1.0))]
     return Pipeline(estimators)
