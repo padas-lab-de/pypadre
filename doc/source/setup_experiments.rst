@@ -69,8 +69,7 @@ an array of values that are to be used for hyperparameter optimization
 .. code-block:: python
 
     parameter_dict = {'SVR': {'C': [0.1, 0.2]}}
-    experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
-                                   'SKLearnEstimator': {'parameters': parameter_dict}
+    experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}, 'SKLearnEstimator': {'parameters': parameter_dict}
 
 
 2. Through decorators using the parameter keyword
@@ -84,9 +83,9 @@ an array of values that are to be used for hyperparameter optimization
         return np.append(data, target, axis=1)
 
     @app.parameter_map()
+
     def parameters():
         return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [0.1, 0.5, 1.0]}, 'PCA': {'n_components': [1, 2, 3]}}}}
-
 
     @app.experiment(dataset=dataset, reference_package=__file__, parameters=parameters, experiment_name="Iris SVC",
                     project_name="Examples", ptype=SKLearnPipeline)
