@@ -22,9 +22,29 @@ modules to the user.
 PyPadre CLI
 +++++++++++
 
-The PyPadre CLI is the command line interface to the PyPadre App.
+The PyPadre CLI is the command line interface to the PyPadre App. The app can be invoked from the command line
+by typing "pypadre". Projects, experiments, executions, runs, and computations can be accessed from the CLI.
 
-# Add the different modules
+The CLI supports the following functionalities for all modules
+
+- list: lists all available modules of similar type. For example: project list, it lists all the projects
+- get: loads the specified module
+
+The following functionalities are supported only for Projects, Experiments, Executions, and Run modules
+- select: sets an object to be the current active object
+
+In addition, each module supports some custom functions as following
+Projects support the following functionalities via the CLI
+- create: Creates a new project
+
+For experiments, these are the unique functionalities
+- initialize: Creates an experiment with default parameters and opens a text editor for the user to configure the rest
+- execute: Executes an experiment
+
+Execution module have the capability to compare two different executions
+- compare: To compare two different executions
+
+
 
 
 Unit Testing and Examples

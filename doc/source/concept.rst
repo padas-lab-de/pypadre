@@ -5,8 +5,8 @@ PyPaDRE Concept
 Goals
 -----
 
-PaDRE (oPen mAchine learning and Data science Reproduciblity Environment [for education and research]) provides a web-based platform to
-collect, compare and analys machine learning experiments in a systematic and open way. It builds on
+PaDRE (Platform for mAchine learning and Data science REproducibility) provides a platform to
+collect, compare and analyze machine learning experiments in a systematic and open way. It builds on
 Open Science principles and strives for improving research and education processes in disciplines
 related to Machine Learning and Data Science.
 
@@ -92,7 +92,7 @@ while being minimally invasive.
 Researchers should use their favorite tools and environments in order to conduct there research while PyPaDRE takes
 care of managing resources and experiments in the background.
 
-..image:: images/component-relations.png
+.. image:: images/component-relations.png
 
 This image shows the different parts of an experiment and how they all work together in the PaDRe architecture.
 
@@ -107,7 +107,7 @@ In order to do so, PyPaDRE defines four core concepts: pipelines, experiments, r
 - **Runs** are single executions of the pipelines. Each time the experiment is executed a new run is generated in the corresponding execution directory.
 - **Computations** are the actual executions of a run, i.e. the execution of the workflow, over a dataset split.
 
-In general, users do not have to care about Experiments, Executions, Runs and Components.
+In general, users do not have to care about Executions, Runs and Components.
 They need to implement their pipeline or machine learning component and wrap it with the wrapper PaDRe provides.
 Additionally, a experiment configuration needs to be provided including a dataset.
 When executing the experiment, PyPaDRE stores results and intermediate steps locally and adds it to the database of experiments.

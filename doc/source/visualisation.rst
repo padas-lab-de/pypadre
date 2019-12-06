@@ -33,6 +33,11 @@ called with dataset attributes of the users choice.
 which plot should be created.
 
 
+.. image:: images/scatter_plot.png
+
+
+
+
 
 
 

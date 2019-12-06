@@ -65,14 +65,18 @@ Hyperparameter Optimization
 ---------------------------
 1. Through parameters passed to the experiment execute function. The parameters are passed as a dictionary with the
 key as the component name and an inner dictionary. The inner dictionary contains the parameter name as the key and
-an array of values that are to be used for hyperparameter optimization
+an array of values that are to be used for hyperparameter optimization.
+
 .. code-block:: python
+
 
     parameter_dict = {'SVR': {'C': [0.1, 0.2]}}
     experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}, 'SKLearnEstimator': {'parameters': parameter_dict}
 
 
 2. Through decorators using the parameter keyword
+
+
 .. code-block:: python
 
     @app.dataset(name="iris", columns=['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)',

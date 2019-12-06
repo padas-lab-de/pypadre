@@ -18,7 +18,10 @@ Http backend is used to exchange information between client and server. Base cla
 Backend Functionalities
 ***************************
 
-Functionality for experiments described below:
+Backends link to each part of the experiment such as projects, experiments, executions, runs and computations.
+All the backends provide get functionalities to retrieve the individual modules.
+
+For example the functionality for experiments described below:
 
 1. put_experiment: It receives an experiment. If it is an instance of the experiment class,
 the experiment class is first stored to disk using the file backend. If it is a string with the name,
@@ -32,6 +35,8 @@ file cache or the remote server. It also receives mode whose possible values can
 experiment. The experiment is downloaded from the server and stored in the local file store if the
 server version is newer than the local version or no local version exists. The function returns an experiment
 class, which is loaded from file.
+
+4. create
 
 Communication to the Backend
 *********************************
