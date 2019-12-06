@@ -66,11 +66,37 @@ Hyperparameter Optimization
 1. Through parameters passed to the experiment execute function. The parameters are passed as a dictionary with the
 key as the component name and an inner dictionary. The inner dictionary contains the parameter name as the key and
 an array of values that are to be used for hyperparameter optimization
+.. code-block:: python
+
+    parameter_dict = {'SVR': {'C': [0.1, 0.2]}}
+    experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True},
+                                   'SKLearnEstimator': {'parameters': parameter_dict}
+
 
 2. Through decorators using the parameter keyword
+.. code-block:: python
 
+    @app.dataset(name="iris", columns=['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)',
+                                       'petal width (cm)', 'class'], target_features='class')
+    def dataset():
+        data = load_iris().data
+        target = load_iris().target.reshape(-1, 1)
+        return np.append(data, target, axis=1)
+
+    @app.parameter_map()
+    def parameters():
+        return {'SKLearnEstimator': {'parameters': {'SVC': {'C': [0.1, 0.5, 1.0]}, 'PCA': {'n_components': [1, 2, 3]}}}}
+
+
+    @app.experiment(dataset=dataset, reference_package=__file__, parameters=parameters, experiment_name="Iris SVC",
+                    project_name="Examples", ptype=SKLearnPipeline)
+    def experiment():
+        from sklearn.pipeline import Pipeline
+        from sklearn.svm import SVC
+        estimators = [('PCA', PCA()), ('SVC', SVC(probability=True))]
+        return Pipeline(estimators)
 
 Multi-pipline, multi-data Experiments
 -------------------------------------
 
-Currently, not suppoted
+Currently, not supported

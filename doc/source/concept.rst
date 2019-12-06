@@ -92,6 +92,10 @@ while being minimally invasive.
 Researchers should use their favorite tools and environments in order to conduct there research while PyPaDRE takes
 care of managing resources and experiments in the background.
 
+..image:: images/component-relations.png
+
+This image shows the different parts of an experiment and how they all work together in the PaDRe architecture.
+
 Experiments and Pipelines
 *************************
 
