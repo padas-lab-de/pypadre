@@ -17,7 +17,6 @@ Welcome to PyPaDRE Documentation!
    setup_experiments
    storage_details
    visualisation
-   high_level_interfaces
    development
    backend
    config
