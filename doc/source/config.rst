@@ -2,10 +2,10 @@
 Config
 =================
 
-.. automodule:: app.padre_app
+.. automodule:: pypadre.pod.app.core_app
 
 
-.. autoclass:: app.padre_app.PadreConfig
+.. autoclass:: pypadre.pod.app.config.padre_config.PadreConfig
    :members:
 
 Padre Config
@@ -14,16 +14,9 @@ PadreConfig class covering functionality for viewing or updating default
 configurations for PadreApp.
 Configuration file is placed at ~/.padre.cfg
 
+When running the tests ~/.padre-test.cfg is created which is deleted when the tests are completed.
+
 Expected values in config are following
-
-
-[HTTP BACKEND]
-
-user = username
-
-base_url = http://localhost:8080/api
-
-token = oauth_token
 
 [LOCAL BACKEND]
 
@@ -41,8 +34,6 @@ Implemented functionality
 -------------------------
 
 #. Get all sections from config
-#. Get value for given key for given section(default HTTP BACKEND).
-#. Set value for key in config for given section(default HTTP BACKEND)
 #. Save config
 
 
