@@ -12,9 +12,11 @@ experiments to a slack service or use python code to periodically notify the use
 The incoming logging messages can be of three levels of logging
 - INFO: These are the normal messages which are logged, like the start of an experiment, the beginning of different
 stages and its completion along with the respective time stamps
+
 - WARN: These are warning information which could lead to the framework crashing if the user does not heed to the
 messages. For example if the dataset has no target but is loaded, a warning message appears saying that this particular
 dataset should not be used for supervised learning.
+
 - ERROR: These log messages are of critical importance and will disrupt the proper functioning of the framework and
 cause it to crash. A condition is passed along with the log error event and if the condition is satisfied all the
 backends are written with the error information and the Padre framework stops its execution.
