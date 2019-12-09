@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 from abc import abstractmethod, ABCMeta
 from logging import warning
@@ -71,7 +70,10 @@ class IFileRepository(IRepository, ISearchable, IStoreableRepository):
         return next(iter(self.list({StoreableMixin.HASH: hash})), None)
 
     def exists_object(self, obj):
-        return self.get_by_dir(self.to_directory(obj)) is not None
+        try:
+            return self.get_by_dir(self.to_directory(obj)) is not None
+        except:
+            return False
 
     def list(self, search, offset=0, size=100):
         """

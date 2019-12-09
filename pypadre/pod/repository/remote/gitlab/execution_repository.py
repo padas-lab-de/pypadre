@@ -30,6 +30,7 @@ class ExecutionGitlabRepository(ExecutionFileRepository):
         return self._gitlab_backend.get(uid, rpath=rpath, caller=self)
 
     def _get_by_repo(self, repo, path=''):
+
         metadata = self._gitlab_backend.get_file(repo, META_FILE, path=path)
         experiment = SimpleLazyObject(load_fn=lambda: self.parent._get_by_repo(repo, path=''), id=metadata.get(
             Execution.EXPERIMENT_ID), clz=Experiment)

@@ -150,7 +150,7 @@ class Dataset(StoreableMixin, MetadataMixin):
 
     def set_attributes(self, attributes=None):
         if self.attributes is None or len(self.attributes) == 0:
-            self._metadata['attributes'] = attributes
+            self.metadata['attributes'] = attributes
         else:
             pass
 
@@ -325,7 +325,7 @@ class Transformation(Dataset):
                     "originalSource": dataset.id,
                     "type": dataset.type, "published": False, "attributes": dataset.attributes}
 
-        metadata = {**defaults,**kwargs}
+        metadata = {**defaults,**dataset.metadata,**kwargs}
         super().__init__(metadata=metadata)
         self._dataset = dataset
         self._binaries = dict()

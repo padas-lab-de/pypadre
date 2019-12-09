@@ -1,4 +1,4 @@
-import pyhash
+import hashlib
 
 from pypadre.core.base import ChildMixin
 from pypadre.core.model.computation.run import Run
@@ -38,7 +38,7 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
                                                                  self.EXPERIMENT_NAME: experiment.name}}
 
         metadata = {
-            **{"id": str(kwargs.get("reference").id) + "-" + str(persistent_hash(experiment.id, algorithm=pyhash.city_64()))},
+            **{"id": str(kwargs.get("reference").id) + "-" + str(persistent_hash(experiment.id, algorithm=hashlib.md5))},
             **metadata}
         super().__init__(parent=experiment, model_clz=execution_model, metadata=metadata, **kwargs)
 
@@ -79,9 +79,9 @@ class Execution(CodeManagedMixin, StoreableMixin, ProgressableMixin, Validateabl
 
     def compare(self, execution):
         if self.reference.repo_type == self.reference.repository_identifier._RepositoryType.git:
-            _version = self.reference.repository_identifier.version()
-            __version = execution.reference.repository_identifier.version()
+            _version1 = self.reference.repository_identifier.version()
+            _version2 = execution.reference.repository_identifier.version()
             path_to_ref = self.reference.repository_identifier.path
-            return git_diff(_version, __version, path=path_to_ref)
+            return git_diff(_version1, _version2, path=path_to_ref)
         else:
             raise NotImplementedError()

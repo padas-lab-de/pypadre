@@ -1,3 +1,4 @@
+import hashlib
 import unittest
 
 from pypadre.core.model.code.code_mixin import Function
@@ -22,24 +23,25 @@ class AppLocalBackends(PadreAppTest):
         for dataset in datasets:
             assert id in dataset.name
 
-    def test_code(self):
-        def foo(ctx):
-            return "foo"
-
-        foo_code = self.app.code.create(clz=Function, fn=foo)
-        self.app.code.put(foo_code, store_code=True)
-        code_list = self.app.code.list()
-        loaded_code = code_list.pop()
-
-        out = loaded_code.call()
-        assert out is "foo"
+    # def test_code(self):
+    #     def foo(ctx):
+    #         return "foo"
+    #
+    #     foo_code = self.app.code.create(clz=Function, fn=foo, repository_identifier=self.test_reference.repository_identifier)
+    #     self.app.code.put(foo_code, store_code=True)
+    #     code_list = self.app.code.list()
+    #     loaded_code = code_list.pop(-1)
+    #
+    #     out = loaded_code.call()
+    #     assert out is "foo"
 
     def test_project(self):
         from pypadre.core.model.project import Project
         project = self.create_project(name='Test Project', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
-        project2 = self.app.projects.create(name='Test Project2', description='Testing Project')
+        project = self.app.projects.create(name='Test Project2', description='Testing Project')
+
         assert (isinstance(project, Project))
 
         name = 'Test Project'
@@ -49,9 +51,8 @@ class AppLocalBackends(PadreAppTest):
 
     def test_experiment(self):
         from pypadre.core.model.experiment import Experiment
-        project = self.create_project(name='Test Project 2',
+        project = self.create_project(name='Test experiment',
                                       description='Testing the functionalities of project backend')
-        self.app.projects.put(project)
 
         self.app.datasets.load_defaults()
         dataset = self.app.datasets.list({'name': '_boston_dataset'})
@@ -80,7 +81,7 @@ class AppLocalBackends(PadreAppTest):
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = Project(name='Test execution', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
         from sklearn.svm import SVC
@@ -91,66 +92,57 @@ class AppLocalBackends(PadreAppTest):
                                                                          reference=self.test_reference))
         self.app.experiments.put(experiment)
 
-        codehash = 'abdauoasg45qyh34t'
-        execution = Execution(experiment, codehash=codehash, append_runs=True, parameters=None,
-                              preparameters=None, single_run=True,
-                              single_transformation=True)
+        execution = Execution(experiment, reference=self.test_reference, pipeline=experiment.pipeline)
         self.app.executions.patch(execution)
 
-        executions = self.app.executions.list({'hash': codehash})
-        for execution_ in executions:
-            assert codehash in execution_.id
+        from pypadre.core.util.utils import persistent_hash
+        execution_id = str(
+            self.test_reference.id) + "-" + str(persistent_hash(experiment.id, algorithm=hashlib.md5))
+        executions = self.app.executions.list({'id': execution_id})
+        assert len(executions) == 1
+
+        assert execution_id in executions[0].id
+        assert executions[0].experiment_id == experiment.id
+
         if len(executions) > 0:
             execution = self.app.executions.get(executions.__iter__().__next__().id)
             assert execution[0].name == executions[0].name
 
     def test_run(self):
-        """
-        project_backend: ProjectFileRepository = self.backend.project
-        experiment_backend: ExperimentFileRepository = project_backend.experiment
-        execution_backend: ExecutionFileRepository = experiment_backend.execution
-        run_backend: RunFileRepository = execution_backend.run
-        """
-
         from pypadre.core.model.project import Project
         from pypadre.core.model.experiment import Experiment
         from pypadre.core.model.execution import Execution
         from pypadre.core.model.computation.run import Run
 
-        # TODO clean up testing (tests should be independent and only test the respective functionality)
         self.app.datasets.load_defaults()
         id = '_boston_dataset'
         dataset = self.app.datasets.list({'name': id})
 
-        project = Project(name='Test Project 2', description='Testing the functionalities of project backend')
+        project = Project(name='Test run', description='Testing the functionalities of project backend')
         self.app.projects.put(project)
 
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
+        from sklearn.svm import SVC
         experiment = Experiment(name="Test Experiment SVM",
                                 description="Testing Support Vector Machines via SKLearn Pipeline",
                                 dataset=dataset[0],
-                                workflow=create_test_pipeline, keep_splits=True, strategy="random", project=project)
+                                pipeline=create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+                                                                      reference=self.test_reference),
+                                keep_splits=True, strategy="random", project=project, reference=self.test_reference)
         self.app.experiments.put(experiment)
 
-        codehash = 'abdauoasg45qyh34t'
-        execution = Execution(experiment, codehash=codehash, append_runs=True, parameters=None,
-                              preparameters=None, single_run=True,
-                              single_transformation=True)
+        execution = Execution(experiment, reference=self.test_reference, pipeline=experiment.pipeline)
         self.app.executions.put(execution)
 
-        executions = self.app.executions.list({'hash': codehash})
-        if len(executions) > 0:
-            run = Run(execution=executions[0], workflow=execution.experiment.pipeline, keep_splits=True)
-            self.app.runs.put(run)
+        from pypadre.core.util.utils import persistent_hash
+        import hashlib
+        execution_id = str(
+            self.test_reference.id) + "-" + str(persistent_hash(experiment.id, algorithm=hashlib.md5))
 
-        else:
-            raise ValueError('Execution not listed for the same code has')
+        executions = self.app.executions.list({'id': execution_id})
+        assert len(executions) > 0
+        run = Run(execution=executions[0])
+        run_id = run.id
+        self.app.runs.put(run)
 
         runs = self.app.runs.list(None)
 
@@ -158,45 +150,46 @@ class AppLocalBackends(PadreAppTest):
         for run in runs:
             assert (isinstance(run, Run))
 
-    def test_split(self):
-        from pypadre.core.model.split.split import Split
+        run_ = self.app.runs.get(run_id)
+        assert len(run_) == 1
+        assert run == run_[0]
 
-        self.app.datasets.load_defaults()
-        project = self.app.projects.service.create(name='Test Project 2',
-                                                   description='Testing the functionalities of project backend')
-
-        def create_test_pipeline():
-            from sklearn.pipeline import Pipeline
-            from sklearn.svm import SVC
-            # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-            estimators = [('SVC', SVC(probability=True))]
-            return Pipeline(estimators)
-
-        id = '_iris_dataset'
-        dataset = self.app.datasets.list({'name': id})
-
-        experiment = self.create_experiment(name="Test Experiment SVM",
-                                            description="Testing Support Vector Machines via SKLearn Pipeline",
-                                            dataset=dataset[0],
-                                            pipeline=create_test_pipeline(), keep_splits=True,
-                                            strategy="random", project=project)
-
-        codehash = 'abdauoasg45qyh34t'
-        execution = self.create_execution(experiment, codehash=codehash, append_runs=True,
-                                          parameters=None,
-                                          preparameters=None, single_run=True,
-                                          single_transformation=True)
-
-        run = self.create_run(execution=execution, pipeline=execution.experiment.pipeline, keep_splits=True)
-        train_range = list(range(1, 1000 + 1))
-        test_range = list(range(1000, 1100 + 1))
-        split = self.create_split(run=run, num=0, train_idx=train_range, val_idx=None,
-                                  test_idx=test_range, keep_splits=True)
-        assert (isinstance(split, Split))
-        assert (split.test_idx == test_range)
-        assert (split.train_idx == train_range)
-        self.app.splits.put(split)
-        # FIXME Christofer put asserts here
+    # def test_split(self):
+    #     from pypadre.core.model.split.split import Split
+    #
+    #     self.app.datasets.load_defaults()
+    #     project = self.app.projects.service.create(name='Test Project 2',
+    #                                                description='Testing the functionalities of project backend')
+    #
+    #     id = '_iris_dataset'
+    #     dataset = self.app.datasets.list({'name': id})
+    #
+    #     from sklearn.svm import SVC
+    #     experiment = self.create_experiment(name="Test Experiment SVM",
+    #                                         description="Testing Support Vector Machines via SKLearn Pipeline",
+    #                                         dataset=dataset[0],
+    #                                         pipeline=create_sklearn_test_pipeline(estimators=[('SVC', SVC(probability=True))],
+    #                                                                   reference=self.test_reference), keep_splits=True,
+    #                                         strategy="random", project=project)
+    #
+    #
+    #     execution = self.create_execution(experiment,pipeline=experiment.pipeline)
+    #
+    #     run = self.create_run(execution=execution)
+    #     train_range = list(range(1, 1000 + 1))
+    #     test_range = list(range(1000, 1100 + 1))
+    #     split = self.create_split(run=run, num=0, train_idx=train_range, val_idx=None,
+    #                               test_idx=test_range, keep_splits=True)
+    #     assert (isinstance(split, Split))
+    #     assert (split.test_idx == test_range)
+    #     assert (split.train_idx == train_range)
+    #     # self.app.computations.put(split)
+    #     #
+    #     # splits = self.app.computations.list()
+    #     #
+    #     # assert len(splits) == 1
+    #     #
+    #     # assert split.id == splits[0].id
 
 
 if __name__ == '__main__':

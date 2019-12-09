@@ -401,6 +401,9 @@ class OpenMLLoader(DataSetLoaderMixin):
         :param kwargs: Additional info (e-g openml api key as oml_key)
         :return: A Padre-dataset object
         """
+        path = os.path.expanduser("~/.pypadre") + '/temp/openml'
+        # oml.config.apikey = kwargs.pop("oml_key")
+        oml.config.cache_directory = path
         data_set = None
         try:
             load = oml.datasets.get_dataset(source)
