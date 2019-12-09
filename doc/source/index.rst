@@ -16,6 +16,8 @@ Welcome to PyPaDRE Documentation!
    getting_started
    setup_experiments
    storage_details
+   logging
+   metrics
    visualisation
    development
    backend

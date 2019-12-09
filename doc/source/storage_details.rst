@@ -20,7 +20,3 @@ addressed in this documentation.
 Versioning
 **********
 Versioning of PaDRe is done via Git. The user can use the Git to track the lifecycle of the experiment.
-
-Live Logging
-************
-Logging of experiments is done via blinker event handling.

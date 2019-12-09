@@ -1,5 +1,49 @@
-Setting up Experiments
-======================
+Setting up
+============
+
+Reference Object
+-----------------
+Git is an important aspect of PaDRe because we need to version the source code for tracking the lifetime of
+experiments. Sometimes, the code might come from another python package too. For us to keep track of the provenance,
+we need a reference that points us to the source and this is done via the reference object. A reference object can
+either be a Python package or a Python file. If a Python file is given as a reference it should be part of a git
+repository. The source code git should be created by the user and this could be in any directory of the user's system
+environment. And if it is a Python package, we obtain the information about the Python package by inspecting the package
+and storing the package identifier and the function that is called for execution. The reference object is explicitly
+specified only when using pure code to create experiments and projects, while when using decorators it is automatically
+picked up by the PaDRe framework to resolve the required names and file objects into references.
+
+
+Creating a Project in PaDRe
+----------------------------
+A project contains one or more experiments that are semantically grouped together. It could be either different
+experimental methods working towards an identical goal, or many different experiments that are parts of a larger goal.
+
+Parameters of a project are
+- Name: Name of the project.
+- Description: A short description that provides information about the project.
+- Reference: A reference object that specifies how the project was created and how it is handled.
+
+
+Creating an experiment in PaDRe
+---------------------------------
+
+An experiment requires the following parameters to be initialized.
+
+-Name: The name of the experiment. This should be unique
+-Description: A short description of the intention of the experiment.
+-Dataset: The dataset on which the experiment will work on
+-Pipeline: A workflow consisting of one or more algorithms
+-Project: The project to which this experiment belongs to. The name of the project can be specified and PaDRe
+automatically searches and groups the experiment under the specified project.
+-strategy: Splitting strategy for the dataset. The supported strategies are random, cv for cross validation,
+explicit where the user can explicitly specify the indices for training, testing and validation, function where the
+user passes a function that returns the indices or index where a list of indices are passed. If no option is given,
+the random splitting method is chosen.
+-preprocessing\_pipeline: Preprocessing workflow for the dataset in a case that an algorithm has to be applied to the
+dataset as a whole for the experiment. This could be something such as computing the mean and standard deviation of a
+dataset or creating an embedding which normally should be based on the whole dataset.
+-reference: A reference object to the source code being executed
 
 Single Pipeline Experiments
 ---------------------------
