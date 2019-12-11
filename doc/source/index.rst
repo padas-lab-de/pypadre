@@ -13,15 +13,15 @@ Welcome to PyPaDRE Documentation!
 
    concept
    design_principles
+   config
    getting_started
    setup_experiments
-   storage_details
    logging
    metrics
    visualisation
    development
+   storage_details
    backend
-   config
 
 
 

@@ -19,7 +19,8 @@ Backend Functionalities
 ***************************
 
 Backends link to each part of the experiment such as projects, experiments, executions, runs and computations.
-All the backends provide get functionalities to retrieve the individual modules.
+All the backends provide get functionalities to retrieve the individual modules. Backends hold the repositories within
+them. The repositories contain the logic to persist the data whether it is on File, Database, HTTP etc.
 
 For example the functionality for experiments described below:
 
@@ -36,7 +37,6 @@ experiment. The experiment is downloaded from the server and stored in the local
 server version is newer than the local version or no local version exists. The function returns an experiment
 class, which is loaded from file.
 
-4. create
 
 Communication to the Backend
 *********************************
