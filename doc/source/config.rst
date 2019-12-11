@@ -40,16 +40,16 @@ Implemented functionality
 Using config through CLI
 ------------------------------------
 
-#. Use **get_config_param** command to get value of given param
+#. Use **get [--param] [--section]** command to get value of given param
 
    * param: name of attribute
    * section: name of the section, if its None then default section will be used
 
-#. Use **set_config_param** command to set value of given param
+#. Use **set [--param] [--section]** command to set value of given param
 
    * param: must be a tuple of key value pair
    * section: name of the section, if its None then default section will be used
 
-#. Use **list_config_params** command to get list of all params for given section
+#. Use **list [--section]** command to get list of all params for given section
 
     * section: name of the section

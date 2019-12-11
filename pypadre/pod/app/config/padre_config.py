@@ -25,20 +25,20 @@ class PadreConfig:
 
     Expected values in config are following
     ---------------------------------------
-    [HTTP BACKEND]
-    user = username
-    passwd = user_password
-    base_url = http://localhost:8080/api
+    [HTTP BACKEND]\n
+    user = username\n
+    passwd = user_password\n
+    base_url = http://localhost:8080/api\n
     token = oauth_token
 
-    [LOCAL BACKEND]
+    [LOCAL BACKEND]\n
     root_dir = ~/.pypadre/
 
-    [GITLAB BACKEND]
-    root_dir = ~/.pypadre/
-    user = username
-    token = user_private_token
-    gitlab_url = https://gitlab.padre.backend:30080/
+    [GITLAB BACKEND]\n
+    root_dir = ~/.pypadre/\n
+    user = username\n
+    token = user_private_token\n
+    gitlab_url = https://your_gitlab_server
 
 
     [GENERAL]
