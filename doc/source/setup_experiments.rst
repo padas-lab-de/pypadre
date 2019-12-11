@@ -105,6 +105,20 @@ Single pipeline experiments can be created in different ways:
         return Pipeline(estimators)
 
 
+
+
+3. Creating an experiment via the CLI
+
+pypadre > project create --name PROJECT_NAME
+
+pypadre > experiment initialize --name EXPERIMENT_NAME
+The above command opens an editor where the user eidt the code for the dataset and experiments similar to that of the
+decorator example
+
+pypadre > experiment execute --name EXPERIMENT_NAME (alternatively, the user can use the path to the experiment
+with --path)
+
+
 Hyperparameter Optimization
 ---------------------------
 1. Through parameters passed to the experiment execute function. The parameters are passed as a dictionary with the
