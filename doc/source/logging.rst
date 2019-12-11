@@ -23,4 +23,4 @@ backends are written with the error information and the Padre framework stops it
 
 Currently, the logging is done via firing of events via the blinker package in Python. The fired event is then handled
 at the service which then passes it to the backend. The backend then logs the event as per defined. For the FileBackend
-the log format of the message is current time + LOG\_LEVEL(INFO, WARN or ERROR) followed by the message.
+the log format of the message is current time + LOG_LEVEL(INFO, WARN or ERROR) followed by the message.
