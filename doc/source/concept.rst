@@ -229,8 +229,6 @@ files in a high level, easy to use interface.
             experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
 
 
-
-
 Python CLI Interface
 ********************
 

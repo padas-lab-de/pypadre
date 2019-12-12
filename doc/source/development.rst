@@ -62,11 +62,6 @@ initialized.
 - set: lets the user set a key value pair in the current configuration
 
 
-
-
-
-
-
 Unit Testing and Examples
 -------------------------
 
