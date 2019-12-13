@@ -16,11 +16,3 @@ user does not have to add anything else. This config file can then be updated by
 such as a GitHub token for logging the experiments to GitHub, a Database username and password for storing the
 experiments in a Database, or even the locations of datasets. The base config would usually contain whether PaDRe is
 offline and the root directory of PaDRe.
-
-
-
-
-
-
-
-

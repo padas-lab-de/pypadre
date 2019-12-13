@@ -15,6 +15,10 @@ support different functions such as listing, searching, and deleting. There are 
 - execution app
 - run app
 - computation app
+- dataset app
+- metric app
+- computation app
+- config app
 
 The PaDRe app is the main app and interfaces with all the other apps. These apps provide functionalities regarding their
 modules to the user.
@@ -41,11 +45,21 @@ parameters.
 - execute: Supported by the experiment module alone. This command is used to execute an experiment once it has been
 initialized.
 
+- load: loads a dataset from the given source
+
+- sync: this command is used to synchronize the datasets among the different backends
+
 - compare: Supported by the execution module only. This is used to compare executions of an experiment
 
+- compare_metrics: supported by the metric app to compare the metrics of two different runs
 
+- get_available_estimators: lists all the available estimators for the specified experiment
 
+- list_experiments: lists all possible experiments that can be compared
 
+- reevaluate_metrics: reevaluates all the metrics from the results of the experiment
+
+- set: lets the user set a key value pair in the current configuration
 
 
 Unit Testing and Examples

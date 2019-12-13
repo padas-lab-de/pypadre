@@ -13,7 +13,8 @@ related to Machine Learning and Data Science.
 PyPaDRE is the Python-centric environment to create and execute Machine Learning and Data Science experiments.
 It aims to be a **minimal-invasive environment** for evaluating Machine Learning and Data Science experiments in a
 **systematic and structured** way.
-While PyPaDRE can be used as standalone, local solution for running and comparing experiments, all results can - and in the spirit of Open Science should - be made available via the PaDRE platform.
+While PyPaDRE can be used as standalone, local solution for running and comparing experiments, all results can - and in
+the spirit of Open Science should - be made available via the PaDRE platform.
 
 Use Cases
 ---------
@@ -156,12 +157,6 @@ Metasearch and Automated Machine Learning
 
 Not Yet Implemented
 
-PyPadre App and CLI
--------------------
-
-One core criterion of PyPaDRE is its ease of use and hence we support a class interface,
-a high-level app interface and a command line interface.
-
 Python Class Interface
 **********************
 
@@ -234,8 +229,6 @@ files in a high level, easy to use interface.
             experiment.execute(parameters={'SKLearnEvaluator': {'write_results': True}})
 
 
-
-
 Python CLI Interface
 ********************
 
@@ -243,20 +236,3 @@ The third interface is a command line interface for using Python via a command l
 functions are available. Project and Experiments can be created via the CLI while computations, executions and runs can
 only be listed or searched. This is because the execution, runs, and computations have specific semantic meanings
 and are created while executing an experiment.
-
-.. code-block:: python
-
-        runner = CliRunner()
-
-        runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test.cfg")])
-
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-                                         'project', 'create', '-n', 'Examples'])
-
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-                                         'project', 'list'])
-
-        assert "Examples" in result.output
-
-        result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-example.cfg"),
-                                         'project', 'select', 'Examples'])
