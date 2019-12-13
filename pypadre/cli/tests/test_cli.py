@@ -195,7 +195,6 @@ class PadreCli(unittest.TestCase):
                                          'experiment', 'compare', ids[0], ids[1]])
 
         assert ids[0] in result.output and ids[1] in result.output
-        assert "@app.preprocessing(reference_git=path)" in result.output
 
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'experiment', 'get', ids[0]])

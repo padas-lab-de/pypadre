@@ -110,9 +110,9 @@ def diff_to_table(dict_: dict, columns=None):
                 if any(isinstance(el, list) for el in [v,w]):
                     #padding
                     if len(v) >= len(w):
-                        w = w + ["~" for i in range(len(v)-1)]
+                        w = w + ["~" for i in range(len(v)-len(w))]
                     else:
-                        v = v + ["~" for i in range(len(w)-1)]
+                        v = v + ["~" for i in range(len(w)-len(v))]
                     table.append_row([str("~"), str(k), str(v[0]), str(w[0])])
                     for i in range(1,len(v)):
                         table.append_row([str("~"), str("~"), str(v[i]), str(w[i])])
