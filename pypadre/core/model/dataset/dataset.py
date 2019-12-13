@@ -58,7 +58,7 @@ class Dataset(StoreableMixin, MetadataMixin):
         # Merge defaults
         metadata = {**defaults, **kwargs.pop("metadata", {})}
         # ID as hash of the dataset?
-        metadata = {**{"id": metadata.get("name")}, **metadata}
+        metadata = {**metadata, **{"id": metadata.get("name")}}
 
         super().__init__(model_clz=dataset_model, metadata=metadata, **kwargs)
 

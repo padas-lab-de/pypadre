@@ -41,9 +41,9 @@ class PadreConfig:
     gitlab_url = https://your_gitlab_server
 
 
-    [GENERAL]
-    offline = True
-    oml_key = openML_api_key
+    [GENERAL]\n
+    offline = True\n
+    oml_key = openML_api_key\n
     ---------------------------------------
 
     Implemented functionality.

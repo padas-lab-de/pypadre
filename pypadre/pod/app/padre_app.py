@@ -228,17 +228,14 @@ class PadreApp(CoreApp):
 
         return splitter_decorator
 
-    def preprocessing(self, *args, reference_git=None, reference=None, reference_package=None, store=False, **kwargs):
+    def preprocessing(self, *args, reference_git=None, reference=None, reference_package=None, **kwargs):
         def preprocessing_decorator(f_create_preprocessing):
             @wraps(f_create_preprocessing)
             def wrap_preprocessing(*args, **kwargs):
                 (dataset,) = unpack(args[0], "data")
-                metadata = dataset.metadata
                 _data = f_create_preprocessing(dataset, **kwargs)
                 _dataset = Transformation(name="Transformed_%s" % dataset.name, dataset=dataset)
                 _dataset.set_data(_data, attributes=dataset.attributes)
-                if store:
-                    self.datasets.put(_dataset)
                 return _dataset
 
             creator = to_decorator_reference(variable=f_create_preprocessing.__name__, reference=reference,
