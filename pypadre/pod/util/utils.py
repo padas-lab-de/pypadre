@@ -61,7 +61,7 @@ def compare_pipelines(pipeline1: Pipeline, pipeline2: Pipeline):
                   "estimator": (pipeline1.estimator, pipeline2.estimator),
                   "evaluator": (pipeline1.evaluator, pipeline2.evaluator)}
 
-    # TODO get the metadata, source code diff for each component
+    # TODO get the metadata, source code diff for each component, hyperparameters?
     diff_dict = dict()
     for component in components:
         source = []

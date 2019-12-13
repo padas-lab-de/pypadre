@@ -194,22 +194,21 @@ class PadreCli(unittest.TestCase):
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
                                          'experiment', 'compare', ids[0], ids[1]])
 
-        temp_dir.cleanup()
-        temp_dir_.cleanup()
-
-        id = [s for s in result.output.split() if s.startswith('Experiment1-')].pop()
+        assert ids[0] in result.output and ids[1] in result.output
+        assert "@app.preprocessing(reference_git=path)" in result.output
 
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
-                                         'experiment', 'get', id])
+                                         'experiment', 'get', ids[0]])
 
-        assert id in result.output
+        assert ids[0] in result.output
 
         result = runner.invoke(pypadre, ['--config-file', os.path.join(os.path.expanduser("~"), ".padre-test-cli.cfg"),
-                                         'experiment', 'select', id])
+                                         'experiment', 'select', ids[0]])
 
         assert result.exit_code == 0
 
         temp_dir.cleanup()
+        temp_dir_.cleanup()
 
     def test_execution(self):
         runner = CliRunner()
