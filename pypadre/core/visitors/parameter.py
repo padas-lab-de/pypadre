@@ -1,3 +1,4 @@
+from pypadre.core.util.utils import persistent_hash
 
 
 class Parameter(object):
@@ -29,7 +30,7 @@ class Parameter(object):
         return self.value == other
 
     def __hash__(self):
-        return hash(self.value)
+        return persistent_hash(self.value)
 
     def __repr__(self):
         return "{ value: " + repr(self.value) + ", " + ", ".join(k + ": " + str(v) for k, v in self.attributes.items()) + " }"

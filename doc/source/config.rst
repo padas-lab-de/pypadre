@@ -2,10 +2,10 @@
 Config
 =================
 
-.. automodule:: app.padre_app
+.. automodule:: pypadre.pod.app.core_app
 
 
-.. autoclass:: app.padre_app.PadreConfig
+.. autoclass:: pypadre.pod.app.config.padre_config.PadreConfig
    :members:
 
 Padre Config
@@ -14,16 +14,9 @@ PadreConfig class covering functionality for viewing or updating default
 configurations for PadreApp.
 Configuration file is placed at ~/.padre.cfg
 
+When running the tests ~/.padre-test.cfg is created which is deleted when the tests are completed.
+
 Expected values in config are following
-
-
-[HTTP BACKEND]
-
-user = username
-
-base_url = http://localhost:8080/api
-
-token = oauth_token
 
 [LOCAL BACKEND]
 
@@ -41,24 +34,22 @@ Implemented functionality
 -------------------------
 
 #. Get all sections from config
-#. Get value for given key for given section(default HTTP BACKEND).
-#. Set value for key in config for given section(default HTTP BACKEND)
 #. Save config
 
 
 Using config through CLI
 ------------------------------------
 
-#. Use **get_config_param** command to get value of given param
+#. Use **get [--param] [--section]** command to get value of given param
 
    * param: name of attribute
    * section: name of the section, if its None then default section will be used
 
-#. Use **set_config_param** command to set value of given param
+#. Use **set [--param] [--section]** command to set value of given param
 
    * param: must be a tuple of key value pair
    * section: name of the section, if its None then default section will be used
 
-#. Use **list_config_params** command to get list of all params for given section
+#. Use **list [--section]** command to get list of all params for given section
 
     * section: name of the section

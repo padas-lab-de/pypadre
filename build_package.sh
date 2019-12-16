@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 CURR_DIR=`pwd`
-PACKAGE_NAME="./wheelhouse/pypadre-0.0.0-py3-none-any.whl"
+PACKAGE_NAME="./wheelhouse/pypadre-0.3.0-py3-none-any.whl"
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 echo $SCRIPT_DIR
@@ -13,4 +13,4 @@ pip install sphinx
 pip wheel . --wheel-dir ./wheelhouse/
 pip install --force-reinstall $PACKAGE_NAME
 
-cd $CURR_DIR
+cd $CURR_DIRpyth

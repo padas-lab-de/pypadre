@@ -3,22 +3,16 @@ Getting Started - First Steps with PyPadre
 
 Installation
 ------------
-
-Server
-******
-
-In case you aim to develop locally, you should install the Padre Servant. You need
-- Postgres
-  - add padre database
-  - add user padre/padre
-- Java / Maven
-- mvn install
-- Lombok needs to be installed (intellij only)
+Python Requirements
+- Python 3.7
+Installation of the PyPaDRe client is then done by simply installing the pip package
+pip install pypadre
 
 
 Configuration
 -------------
-
-```
-from padre.app.padre_app import pypadre  # import the pypadre API. This loads the standard configuration
-```
+When PaDRe is executed, a default configuration file is created in your home directory and in the current scenario the
+user does not have to add anything else. This config file can then be updated by the user with different configurations
+such as a GitHub token for logging the experiments to GitHub, a Database username and password for storing the
+experiments in a Database, or even the locations of datasets. The base config would usually contain whether PaDRe is
+offline and the root directory of PaDRe.

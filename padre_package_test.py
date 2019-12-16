@@ -1,14 +1,13 @@
 from pypadre.app import p_app
-from pypadre.ds_import import load_sklearn_toys
-from pypadre.core import Experiment
-from pypadre.logger import PadreLogger
-from pypadre.eventhandler import add_logger
+from pypadre.core.events import add_logger
+from pypadre.core.model.experiment import Experiment
+from pypadre.pod.base import PadreLogger
+from pypadre.pod.importing.dataset.ds_import import load_sklearn_toys
 
 
 def create_test_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.svm import SVC
-    from sklearn.decomposition import PCA
     # estimators = [('reduce_dim', PCA()), ('clf', SVC())]
     estimators = [('SVC', SVC(probability=True))]
     return Pipeline(estimators)

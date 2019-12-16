@@ -11,28 +11,31 @@ stages:
   - release
 
 before_script:
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
   - pip install sphinx
   - pip install twine
   - grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install || true # Enforce the order of the installation
+  - git config --global user.email "padre@uni-passau.de"
+  - git config --global user.name "padre"
 
 build:
-  image: python:3.6.8-stretch
+  image: python:3.7.4-stretch
   stage: build
   except:
     - /^v.*$/
   script:
-    - python -m unittest discover -s ./tests/unit-tests/
+    - python -m unittest discover -s ./
     - python setup.py sdist
+    - cd doc
+    - make html
+    - cd ..
   artifacts:
     when: always
     paths:
       - ./dist/pypadre*
+      - ./doc/build/html/*
 
 python-release:
-  image: python:3.6.8-stretch
+  image: python:3.7.4-stretch
   only:
     - /^prep-v.*$/
   except:
@@ -45,9 +48,6 @@ python-release:
     - source ./setenv.sh
     - apt-get update
     - apt-get install --assume-yes sshpass openssh-client
-    - pip install virtualenv
-    - virtualenv venv
-    - source venv/bin/activate
     - pip install sphinx
     - pip install twine
     - sed -i "s/pypadre-ontology>=.*/pypadre-ontology>=$VERSION/g" requirements.txt
@@ -56,11 +56,15 @@ python-release:
     - sed -i "s/release = .*/release = '$VERSION'/g" setup.py
     #- grep -v '^#' requirements.txt | xargs -n 1 -L 1 pip install --extra-index-url https://$PYPI_USER:$PYPI_PW@$PYPI_URL || true # Enforce the order of the installation # Update requirements txt with version number
     - python setup.py sdist # creates the tarball
-    - python -m unittest discover -s ./tests/unit-tests/
+    - python -m unittest discover -s ./
+    - cd doc
+    - make html
+    - cd ..
     - twine upload --repository-url $PYPI_URL dist/*
   artifacts:
     paths:
-      - PyPaDRe/sdist/*
+      - PyPaDRe/dist/*
+      - PyPaDRe/doc/build/html/*
 
 #release: # Missing version bump, and deployment on some pip repo
 #  image: python:3.6.8-stretch
