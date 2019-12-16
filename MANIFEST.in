@@ -1,2 +1,5 @@
 recursive-include pypadre/ *.json
 include requirements.txt
+include license.txt
+include ascii_40.txt
+include ascii_60.txt
