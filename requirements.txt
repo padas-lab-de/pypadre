@@ -20,7 +20,7 @@ Deprecated==1.2.4
 altair==3.2.0
 vega==2.6.0
 vega_datasets==0.7.0
-notebook==5.7.4
+notebook==5.7.8
 seaborn==0.9.0
 matplotlib==3.0.0
 Sphinx==2.0.1
