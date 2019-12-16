@@ -120,12 +120,6 @@ class CSVLoader(DataSetLoaderMixin):
             data[col_name] = data[col_name].astype('category')
             data[col_name] = data[col_name].cat.codes
 
-        # Extract attributes from column names #TODO for now it is done inside the container
-        # atts = []
-        # for feature in data.columns.values:
-        #     atts.append(Attribute(name=feature,
-        #                           measurementLevel="Ratio" if feature in targets else None,
-        #                           defaultTargetAttribute=feature in targets))
         data_set.set_data(data)
         return data_set
 

@@ -16,7 +16,7 @@ def dataset():
     return np.append(data, target, axis=1)
 
 
-@app.preprocessing(reference_git=__file__, store=True)
+@app.preprocessing(reference_git=__file__)
 def preprocessing(dataset, **kwargs):
     from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()

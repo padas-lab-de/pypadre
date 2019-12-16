@@ -74,7 +74,7 @@ def data():
     
     return data
 
-@app.custom_splitter(name="Custom splitter", reference_git=__file__)
+@app.custom_splitter(name="Custom splitter", reference_git=path)
 def splitter(dataset, **kwargs):
     # Custom code for data splitting (see examples/13_custom_splitting), OPTIONAL you can use the default splitter
     #  (see examples/12_splitting)
@@ -83,7 +83,7 @@ def splitter(dataset, **kwargs):
     return train_idx, test_idx, (val_idx or None)
 
 
-@app.preprocessing(reference_git=__file__, store=True)
+@app.preprocessing(reference_git=path, store=True)
 def preprocessing_fn(dataset, **kwargs):
     _features = dataset.features()
     _targets = dataset.targets()

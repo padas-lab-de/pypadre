@@ -49,7 +49,8 @@ initialized.
 
 - sync: this command is used to synchronize the datasets among the different backends
 
-- compare: Supported by the execution module only. This is used to compare executions of an experiment
+- compare: Supported by the experiment and execution modules only. For experiments, this is used to compare the metadata
+and the pipelines of two experiments. For executions, this is used to compare the source code which is referencing each execution.
 
 - compare_metrics: supported by the metric app to compare the metrics of two different runs
 

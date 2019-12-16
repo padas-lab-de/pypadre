@@ -11,7 +11,7 @@ from pypadre.cli.computation import computation_cli
 from pypadre.cli.execution import execution_cli
 from pypadre.cli.metric import metric_cli
 from pypadre.cli.run import run_cli
-from pypadre.cli.util import make_sub_shell, _create_experiment_file
+from pypadre.cli.util import make_sub_shell, _create_experiment_file, get_by_app
 from pypadre.core.model.experiment import Experiment
 from ipython_genutils.py3compat import execfile
 from pypadre.core.validation.json_schema import JsonSchemaRequiredHandler
@@ -145,6 +145,24 @@ def execute(ctx, name, path, project_name=None):
         #                handlers=[JsonSchemaRequiredHandler(validator="required", get_value=get_value)])
     except Exception as e:
         click.echo(click.style(str(e), fg="red"))
+
+
+@experiment.command(name="compare")
+@click.argument('self_id', type=click.STRING)
+@click.argument('other_id', type=click.STRING)
+@click.pass_context
+def compare(ctx, self_id, other_id):
+    app = _get_app(ctx)
+
+    experiment_ = get_by_app(ctx, app, self_id)
+    experiment__ = get_by_app(ctx, app, other_id)
+    if not experiment_ or not experiment__:
+        return -1
+    out = experiment_.compare(experiment__)
+    click.echo("Comparing experiment {} and {}".format(experiment_.name,experiment__.name))
+    click.echo(print(out[0]))
+    click.echo("Comparing the respective pipelines of the two experiments")
+    click.echo(print(out[1]))
 
 
 @click.group(name="select", invoke_without_command=True)
