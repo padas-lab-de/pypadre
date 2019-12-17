@@ -24,7 +24,7 @@ aspect of PaDRe is given in the example
 
 ## Wiki 
 
-The project is documented and steered via the [wiki](https://gitlab.dimis.fim.uni-passau.de/RP-17-PaDReP/PyPaDRe/wikis/home)
+The project is documented in [readthedocs](https://pypadre.readthedocs.io/en/latest/)
 
 # How PaDRe works
 PaDRe is made for reproducibility and tracking of experiments over their lifetime. The backbone of PaDRe is git. Every experiment is added to the git and the user based source code is also git versioned.
