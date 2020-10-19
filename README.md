@@ -1,3 +1,5 @@
+Disclaimer: This project is deprecated! New work is done on PyPads instead.
+
 # PyPaDRe - Python Platform for mAchine learning and Data science Reproducibility
 PaDRe is an open source tool for managing machine learning projects and experiments, tracking the life cycle of each experiment, adding semantic 
 meaning to the experiments and keeping track of different results and metrics. It should provide the following functions
