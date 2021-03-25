@@ -1,4 +1,4 @@
-pyyaml==5.1.2
+pyyaml==5.4
 msgpack_numpy==0.4.1
 requests>=2.18.0
 numpy==1.17.1
